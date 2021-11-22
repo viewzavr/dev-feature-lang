@@ -1,0 +1,15 @@
+load files="other-code.txt";
+load_package files="/viewzavr-system-a/features/gui-lib/list.txt /viewzavr-system-a/features/list.txt";
+load_package files="/features.js /csv/features.js";
+
+dat:
+   load-csv extra-feature file="phase_yScaled2.csv" sigma=5;
+
+pts:
+   points input=@dat->output;
+
+linestrips input=@dat->output set( Y=0 );  
+
+// идея номер 1 это скопировать тело pts
+// идея номер 2 это вставить ссылку на @pts и добавить типа project-on-xyz0 или тот же set...
+//pts-on-ground: points input=@dat->output set( Y=0 )

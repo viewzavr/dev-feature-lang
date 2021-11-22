@@ -1,0 +1,16 @@
+dat:
+   load-csv extra-feature file="alfa.csv" sigma=5;
+
+pts:
+   points input = @dat->output input2=@dat;
+
+load-csv: feature code={{{
+  (env) => {
+    env.addFile("file");
+    env.trackParam("file",(file) => {
+      
+    });
+  }
+}}};
+
+include files="alfa.txt beta.txt"

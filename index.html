@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <script src="./viewzavr-system-a/lib/viewlang/code/depends/jquery-2.1.4.js"></script>
+
+  <script src="./viewzavr-system-a/lib/viewlang/code//depends/qmlweb/src/parser.js"></script>
+  <script src="./viewzavr-system-a/lib/viewlang/code//depends/qmlweb/src/process.js"></script>
+  <script src="./viewzavr-system-a/lib/viewlang/code//depends/qmlweb/src/import.js"></script>
+  <script src="./viewzavr-system-a/lib/viewlang/code//depends/qmlweb/src/qtcore.js"></script>
+
+  <script src="./viewzavr-system-a/lib/viewlang/code//base.js"></script>
+<head>
+</head>
+<body>
+  <div id="qmlSpace">
+      target space for qml...
+  </div>
+  <style>
+  #qmlSpace {
+    width: 100vw !important;
+    bottom: 0px !important;
+    z-index: 10000;
+  }
+  .viewlang-canvas {
+    width: 100%; height: 100%;
+    margin: 0; padding: 0; display: block; left: 0px; top: 0px; position: absolute;
+  }
+  body { margin: 0; }
+  </style>
+
+  <script src="./viewzavr-system-a/lib/viewlang/code//threejs_driver/init.js"></script>
+
+  <script type="module">
+
+    ///////////////////////////// qmlweb and viewlang (required for viewzavr-system-a implementation)
+    
+    import * as Viewlang from "./viewzavr-system-a/lib/viewlang/code/embed2/init.js"
+    window.qmlEngine = new QMLEngine( document.getElementById( "qmlSpace" ) );
+    Viewlang.setup_qmlweb( qmlEngine );
+    
+    ///////////////////////////// viewzavr
+    
+    import * as Viewzavr from "./viewzavr-system-a/lib/viewzavr-core/init.js";
+
+    var vz = Viewzavr.create();
+    // window.vz = vz;
+    
+    //////////////////////////// player
+    
+    import * as Player from "./viewzavr-system-a/player/init.js";
+    var vzPlayer = Player.create( vz, qmlEngine );
+    window.vzPlayer = vzPlayer;
+    
+    //////////////////////////// graphical api
+    import * as VisAPI from "./viewzavr-system-a/graphical-api/init.js";
+    VisAPI.setup( vz );
+
+    //////////////////////////// feature lang
+    import * as lang from "./newlang/simple-lang.js";
+    lang.setup( vz, lang );
+    
+    var q = vzPlayer.loadEmptyScene();
+    fetch( "code.txt" ).then( (res) => res.text() ).then( (txt) => {
+        var obj = vzPlayer.getRoot();
+        obj.feature("simple-lang");
+        // здесь я чувствую что фича это тупо.. как было бы проще выдавать просто env.parse..
+        // но это по сути require, по своей сути, получается... ну глянем на язык еще
+        obj.parseSimpleLang( txt );
+
+        //obj.feature("timers")
+        setTimeout( () => {
+          vzPlayer.loadFromHash();
+          vzPlayer.startSavingToHash();
+        },500)
+
+    });
+
+  </script>
+
+</body>
