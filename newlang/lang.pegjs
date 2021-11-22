@@ -76,7 +76,7 @@ obj_id
   = [a-zA-Z0-9_]+ { return text(); }
 
 // ------- A. envs
-env
+one_env
   =
   (__ envid:(attr_name ws ":")? {
     current_env = vz.createObj( {parent:current_parent, name: (envid || [])[0]} );
@@ -88,16 +88,30 @@ env
     };
     // + еще событие надо будет
   })
-  ws
-  env_modifiers:(head:env_modifier tail:(ws @env_modifier)*)*
-  child_envs:(ws "{" ws env_list ws "}" ws)*
+  __
+  env_modifiers:(head:env_modifier tail:(__ @env_modifier)*)*
+  child_envs:(__ "{" ws env_list ws "}" __)*
   {
     current_env.finalize_parse();
+    if (!current_env.removed)
+         return current_env;
   }
+
+env
+  = env_pipe
+  / one_env
+  
+
+env_pipe
+ =  head:one_env tail:(__ "|" @one_env)+
+ {
+   console.log("found env pipe:",head,tail)
+   for (var i=0; i<tail.length; i++);
+ }
   
 env_list
-  = head:env tail:(ws ";" @env)*
-  
+  = head:env tail:(__ ";" @env)*
+
 link
   = "@" obj_id "->" attr_name
   {

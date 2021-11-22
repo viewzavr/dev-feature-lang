@@ -1,0 +1,46 @@
+load files="other-code.txt";
+load_package files="/viewzavr-system-a/features/gui-lib/list.txt /viewzavr-system-a/features/list.txt";
+load_package files="/features.js /csv/features.js";
+
+dat:
+   load-csv extra-feature file="phase_yScaled2.csv" sigma=5;
+
+pts:
+   points input=@dat->output;
+
+linestrips input=@dat->output set( Y=0 ) every(count=10);
+
+linestrips input=[@dat | set(Y=0,Z=5) ];
+
+linestrips input= @dat => set(Y=0,Z=5) => filter(count=10);
+
+linestrips input=pipe {
+   clone input=@dat
+   set (Y=0)
+   set (Z=5)
+   filter (....)   
+}
+
+linestrips input=( @dat | Q:set( Y=0 ) 
+                   | set( Z=5 ) 
+                   | filter(...,sigma=@Q->sigma) 
+                 );
+
+p1: pipe 
+{
+   clone input=@dat
+   set (Y=0)
+   set (Z=5)
+   filter (....)
+}
+linestrips input=@p1->output
+
+linestrips input=@dat->output | set( Y=0 ) | every(count=10);
+
+sl1: slider name="Y" min=10 max=50 
+
+@dat | set (Y=@sl1->value Z=...) kuku(ZZ=15) | every(count=10,theta=15) | linestrips;
+
+// идея номер 1 это скопировать тело pts
+// идея номер 2 это вставить ссылку на @pts и добавить типа project-on-xyz0 или тот же set...
+//pts-on-ground: points input=@dat->output set( Y=0 )
