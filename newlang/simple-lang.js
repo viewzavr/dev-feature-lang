@@ -101,3 +101,22 @@ export function pipe(env,opts)
       }
   }
 }
+
+
+export function register_feature( env ) {
+  env.onvalue("code",(code) => {
+    if (!env.params.name)
+    {
+      console.error("FEATURE CODE WITHOUT NAME CANNOT BE REGISTERED",code);
+      return;
+    }
+    code = "(env,args) => { " + code + "}";
+    var f = eval( code );
+    env.vz.register_feature( env.params.name, f );
+  });
+  
+  env.on("parsed",() => {
+    debugger;
+    env.remove();
+  })
+}

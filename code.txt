@@ -2,11 +2,21 @@ load files="other-code.txt";
 load_package files="/viewzavr-system-a/features/gui-lib/list.txt /viewzavr-system-a/features/list.txt";
 load_package files="/features.js /csv/features.js";
 
+load files="std_gui_v1.txt";
+//std_gui_v1;
+
 dat:
    load-csv file="phase_yScaled2.csv" sigma=5;
 
 pts:
    points input=@dat->output;
+
+projected: @dat | skip_every count=10 | set Y=0;
+
+@projected | linestrips;
+@projected | points;
+
+// dat_scaled: @dat | scaling column="Y" method="log";
 
 /*
 pipe1: pipe {
@@ -17,9 +27,17 @@ pipe1: pipe {
 };
 */
 
-projected: @dat | skip_every count=10 | set Y=0;
+/*
+screen {
 
-@projected | linestrips;
-@projected | points;
+  render3d {
+    find criteria="primary";
+  }
 
-// dat_scaled: @dat | scaling column="Y" method="log";
+  params-area;
+  
+  render3d {
+    @selected | gltf model="ship.glb";
+  }
+};
+*/

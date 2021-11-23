@@ -1,0 +1,68 @@
+//std_gui_v1: feature {
+
+screen1: 
+screen class="screen-two-side-columns" oninit="activate"
+{
+   left_column:
+   column gap="1em" margin="2em" class="vertical-auto-scroll" 
+   {
+      button text="Visual objects" cmd="../visual_guis->trigger_visible" style="width:170px";
+      visual_guis: objects-guis objects="** %visual";
+   };
+
+   right_column:
+   column gap="1em" margin="2em" class="vertical-auto-scroll" 
+   {
+   	  button text="Extras" cmd="../extras_guis->trigger_visible" style="width:170px";
+   	  extras_guis: column gap="0.2em" class="shift-padding fine-bg-color" {
+   	  	button text="+ add new" cmc="../adder->showModal";
+   	  	adder: gui-dialog-add add-features="added-extra";
+        extras_guis: objects-guis objects="** %added-extra";
+   	  };
+   };
+};
+
+add_css_style text=`.fine-bg-color {
+  background: rgb(99 116 137 / 36%);
+}
+.fine-padding {
+  padding: 5px;
+}
+.shift-padding {
+  padding: 0.2em 0.2em 0.2em 0.4em;
+}
+.vertical-auto-scroll {
+  overflow-y: auto; max-height:95vh;
+}
+.screen-two-side-columns {
+  justify-content: space-between;
+  width:100%;
+  pointer-events:none;
+}
+.screen-two-side-columns > div {
+  pointer-events:all;
+}
+`;
+
+//}
+
+register_feature name="add_css_style" code=`
+  env.trackParam("text",(styles) => {
+    var styleSheet = document.createElement("style");
+    styleSheet.type = "text/css";
+    styleSheet.textContent = styles;
+    document.head.appendChild(styleSheet);
+  })
+  if (env.params.text) env.signalParam("text");
+`;
+
+/*
+новое имя="добавить-цсс" код=`
+  env.track("text",(styles) => {
+    var styleSheet = document.createElement("style");
+    styleSheet.type = "text/css";
+    styleSheet.textContent = styles;
+    document.head.appendChild(styleSheet);
+  })
+`;
+*/

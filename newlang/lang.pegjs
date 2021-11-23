@@ -1,5 +1,5 @@
 // https://github.com/peggyjs/peggy/blob/main/examples/json.pegjs
-// https://github.com/pegjs/pegjs/blob/master/examples/javascript.pegjs
+// https://github.com/peggyjs/peggy/blob/main/examples/javascript.pegjs
 // https://dev.to/meseta/peg-parsers-sometimes-more-appropriate-than-regex-4jkk
 
 // JSON Grammar
@@ -95,7 +95,11 @@ one_env
     current_parent = current_env;
     current_env.finalize_parse = () => { 
        current_parent = parents_stack.pop() 
-       if (!current_env.parsed_alive) current_env.remove();
+       if (!current_env.parsed_alive) 
+         current_env.remove();
+       else {
+         current_env.emit("parsed");
+       }
     };
     envs_stack.push( current_env );
     // + еще событие надо будет
@@ -129,11 +133,16 @@ env_pipe
  }
  / head:one_env tail:(__ "|" @one_env)*
  {
-   console.log("found env pipe of objects:",head,tail)
    if (head && tail.length > 0) {
+   console.log("found env pipe of objects:",head,tail)
      // прямо пайпа
+     var pipe_env = vz.createObj( {parent:current_parent, name: head.ns.name} );
+     pipe_env.feature("pipe");
+     pipe_env.ns.appendChild( head, "head" );
+     for (let c of tail)
+        pipe_env.ns.appendChild( c, c.ns.name );
    }
-   for (var i=0; i<tail.length; i++);
+   //for (var i=0; i<tail.length; i++);
  }
   
 env_list
@@ -235,6 +244,12 @@ zero
 
 string "string"
   = quotation_mark chars:char* quotation_mark { return chars.join(""); }
+  / "`" chars:(!"`" SourceCharacter)* "`" { 
+    return chars.map(c=>c[1]).join(""); 
+  }
+
+//  / quotation_mark2 chars:char* quotation_mark2 { return chars.join(""); }
+//  / quotation_mark3 chars:char* quotation_mark3 { return chars.join(""); }
 
 char
   = unescaped
@@ -259,6 +274,10 @@ escape
 
 quotation_mark
   = '"'
+quotation_mark2
+  = "'"
+quotation_mark3
+  = "`"
 
 unescaped
   = [^\0-\x1F\x22\x5C]

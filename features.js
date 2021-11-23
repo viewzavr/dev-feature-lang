@@ -117,3 +117,17 @@ function add_std( obj ) {
   obj.addString("count","0");
 
 }
+
+/*
+export function add_css_style( env ) {
+
+  env.trackParam("text",(styles) => {
+    var styleSheet = document.createElement("style");
+    styleSheet.type = "text/css";
+    styleSheet.textContent = styles;
+    document.head.appendChild(styleSheet);
+  })
+  if (env.params.text) env.signalParam("text");
+
+}
+*/
