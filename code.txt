@@ -3,9 +3,21 @@ load_package files="/viewzavr-system-a/features/gui-lib/list.txt /viewzavr-syste
 load_package files="/features.js /csv/features.js";
 
 dat:
-   load-csv extra-feature file="phase_yScaled2.csv" sigma=5;
+   load-csv file="phase_yScaled2.csv" sigma=5;
 
 pts:
    points input=@dat->output;
 
-input=@dat->output | extract step=10 | set Y=0 | linestrips;
+pipe1: pipe {
+  output=@dat->output;
+  skip_every count=10;
+  set Y=0;
+  linestrips points;
+};
+
+dat_scaled: @dat | scaling column="Y" method="log";
+
+projected: @dat_scaled | skip_every count=10 | set Y=0;
+
+@projected | linestrips;
+@projected | points;

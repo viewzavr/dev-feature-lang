@@ -78,6 +78,16 @@ export function create_from_df( src ) {
   return r;
 }
 
+export function create_from_df_no_slice( src ) {
+  var r = create();
+
+  get_column_names(src).forEach( function(name) {
+      add_column( r, name, get_column(src,name).slice() );
+  });
+
+  return r;
+}
+
 // оставляет только каждую step-тую строку
 export function skip_every( src,step ) {
   var r = create();

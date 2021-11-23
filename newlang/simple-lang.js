@@ -1,7 +1,10 @@
 export function setup(vz, m) {
+  vz.register_feature_set(m);
+  /*
   vz.register_feature("simple-lang",simple_lang);
   vz.register_feature("load",load);
   vz.register_feature("load_package",load_package);
+  */
 }
 
 import * as P from "./lang-parser.js";
@@ -28,7 +31,7 @@ export function load(env,opts)
   //env.finalize_parse = () => { current_parent = parents_stack.pop() };
 
   env.trackParam("files",(files) => {
-    console.log("gonna load files",files)
+    console.log("load: gonna load files",files)
     if (!files) return;
     files.split(/\s+/).map( loadfile )
   })
@@ -49,7 +52,7 @@ export function load_package(env,opts)
 {
   env.parsed_alive = false;
   env.trackParam("files",(files) => {
-    console.log("gonna load files",files)
+    console.log("load_package: gonna load files",files)
     if (!files) return;
     files.split(/\s+/).map( loadfile )
   })
@@ -57,5 +60,37 @@ export function load_package(env,opts)
 
   function loadfile(file) {
     return vzPlayer.loadPackage( file )
+  }
+}
+
+// потребность: удобный метод построения цепочек вычислений
+// pipe { c1; c2; c3; }
+// соединяет "детей" так: c2.input = @c1->output; c3.input = @c2->output
+// открытый вопрос: куда идет output c3 ? это pipe.output = @c3->output ?
+// кстати интересная идея от Кости - linestrips output это 3d object..
+//import {delayed} from "viewzavr/utils.js";
+export function pipe(env,opts) 
+{
+  // var delayed = require("delayed");
+  env.feature("delayed");
+  env.on('appendChild',env.delayed(chain_children));
+
+  function chain_children() {
+      let cprev;
+      for (let c of env.ns.getChildren()) {
+         if (c.is_link) continue;
+         // пропускаем ссылки.. вообще странное решение конечно.. сделать ссылки объектами
+         // и потом об них спотыкаться
+         if (cprev) {
+           c.linkParam("input",`../${cprev.ns.name}->output`); // вообще странно все это
+         }
+         cprev = c;
+      }
+      // output последнего ставим как output всей цепочки
+      if (cprev)
+          env.linkParam("output",`../${cprev.ns.name}->output`)
+      else
+          env.linkParam("output",``)
+      // input первого.. ?
   }
 }

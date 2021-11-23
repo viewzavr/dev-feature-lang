@@ -58,6 +58,11 @@ link_assignment
     if (current_env.parsed_alive === undefined) current_env.parsed_alive = true;
     current_env.linkParam( name, linkvalue.value );
   }
+  / linkvalue:link {
+    var re = linkvalue.value.replaceAll("->.","->output");
+    console.log("POSITIONAL LINK",linkvalue,re);
+    current_env.linkParam( "input", re );
+  }
   
 feature_addition
   = name:attr_name {
@@ -99,11 +104,11 @@ one_env
 
 env
   = env_pipe
-  / one_env
+//  = one_env  
+//  / one_env
   
-
 env_pipe
- =  head:one_env tail:(__ "|" @one_env)+
+ = head:one_env tail:(__ "|" @one_env)*
  {
    console.log("found env pipe:",head,tail)
    for (var i=0; i<tail.length; i++);
