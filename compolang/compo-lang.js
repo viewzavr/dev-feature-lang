@@ -12,7 +12,7 @@ export function simple_lang(env)
 {
   env.parseSimpleLang = function( code, opts={} ) {
     try {
-      return P.parse( code, { vz: env.vz, parent: (opts.parent || env) } );
+      return P.parse( code, { vz: env.vz, parent: (opts.parent || env), base_url:opts.base_url } );
     } 
     catch (e) 
     {
@@ -114,9 +114,8 @@ export function register_feature( env ) {
     var f = eval( code );
     env.vz.register_feature( env.params.name, f );
   });
-  
+
   env.on("parsed",() => {
-    debugger;
     env.remove();
   })
 }

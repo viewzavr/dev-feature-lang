@@ -1,0 +1,19 @@
+load_package files="/viewzavr-system-a/features/gui-lib/list.txt /viewzavr-system-a/features/list.txt";
+load_package files="/features.js /csv/features.js";
+
+dat: load-csv file="majid/TSNE_output.csv" | rescale_rgb;
+@dat | linestrips;
+
+//startq: slider min=0; max=
+// | slice stat=@startq.value
+
+register_feature name="rescale_rgb" code=`
+  env.onvalue("input",(df) => {
+    if (!df || !df.isDataFrame) return;
+    df = df.clone();
+    df['R'] = df['R'].map( v => v/255.0 );
+    df['G'] = df['G'].map( v => v/255.0 );
+    df['B'] = df['B'].map( v => v/255.0 );
+    env.setParam("output",df);
+  })
+`;

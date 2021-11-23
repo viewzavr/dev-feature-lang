@@ -4,7 +4,10 @@
 // constructors and getters
 ///////////////////////////////////////////
 export function create() {
-  return { "colnames": [], length: 0, isDataFrame: true, string_columns: {} }
+  var df =  { "colnames": [], length: 0, isDataFrame: true, string_columns: {} }
+  df.clone = clone.bind(df,df);
+  df.is_df = true;
+  return df;
 }
 
 export function add_column( df, name, values ) {
@@ -76,6 +79,10 @@ export function create_from_df( src ) {
   });
 
   return r;
+}
+
+export function clone( src ) {
+  return create_from_df( src );
 }
 
 export function create_from_df_no_slice( src ) {

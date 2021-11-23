@@ -72,7 +72,22 @@ link_assignment
   
 feature_addition
   = name:attr_name {
-    if (current_env.parsed_alive === undefined) current_env.parsed_alive = true;
+    if (current_env.parsed_alive === undefined) {
+      // если с таким именем нет, а объект (тип) есть - пересоздадим как объект !current_env.vz.feature_table.get(name) && 
+      // фича с таким именем всегда есть... окей, попробуем опираться на тип
+
+      if (current_env.vz.getTypeInfo(name)) {
+        var orig_env_name = current_env.ns.name;
+        var orig_env_parent = current_env.ns.parent;
+        current_env.remove();
+        current_env = current_env.vz.createObjByType( name, {parent: orig_env_parent , name: orig_env_name} );  
+        current_parent = current_env;
+        envs_stack.pop();
+        envs_stack.push( current_env );
+        current_env.finalize_parse = () => { current_env.emit("parsed"); }
+      }
+      current_env.parsed_alive = true;
+    }
     current_env.feature( name );
   }
   
@@ -136,7 +151,11 @@ env_pipe
    if (head && tail.length > 0) {
    console.log("found env pipe of objects:",head,tail)
      // прямо пайпа
-     var pipe_env = vz.createObj( {parent:current_parent, name: head.ns.name} );
+     // переименуем голову, т.к. имя заберет пайпа
+     var orig_env_id = head.ns.name;
+     head.ns.parent.ns.renameChild( head.ns.name, orig_env_id + "-future-head");
+
+     var pipe_env = vz.createObj( {parent:current_parent, name: orig_env_id} );
      pipe_env.feature("pipe");
      pipe_env.ns.appendChild( head, "head" );
      for (let c of tail)
