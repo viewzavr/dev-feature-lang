@@ -73,12 +73,15 @@ export function pipe(env,opts)
 {
   // var delayed = require("delayed");
   env.feature("delayed");
-  env.on('appendChild',env.delayed(chain_children));
+  var delayed_chain_children = env.delayed(chain_children)
+  env.on('appendChild',delayed_chain_children);
 
   function chain_children() {
       let cprev;
+      let cfirst;
       for (let c of env.ns.getChildren()) {
          if (c.is_link) continue;
+         if (!cfirst) cfirst = c;
          // пропускаем ссылки.. вообще странное решение конечно.. сделать ссылки объектами
          // и потом об них спотыкаться
          if (cprev) {
@@ -88,9 +91,13 @@ export function pipe(env,opts)
       }
       // output последнего ставим как output всей цепочки
       if (cprev)
-          env.linkParam("output",`../${cprev.ns.name}->output`)
+          env.linkParam("output",`${cprev.ns.name}->output`)
       else
           env.linkParam("output",``)
-      // input первого.. ?
+      // input первого ставим на инпут пайпы
+      if (cfirst) {
+          if (!cfirst.hasLinksToParam("input") && !cfirst.hasParam("input"))
+            cfirst.linkParam("input",`..->input`)
+      }
   }
 }

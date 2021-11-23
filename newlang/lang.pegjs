@@ -22,6 +22,8 @@
   var current_env = null;
   var vz = options.vz;
   var parents_stack = [];
+
+  var envs_stack = [];
 }
 
 // ----- 2. JSON Grammar -----
@@ -58,11 +60,15 @@ link_assignment
     if (current_env.parsed_alive === undefined) current_env.parsed_alive = true;
     current_env.linkParam( name, linkvalue.value );
   }
+
+/*  
   / linkvalue:link {
     var re = linkvalue.value.replaceAll("->.","->output");
     console.log("POSITIONAL LINK",linkvalue,re);
     current_env.linkParam( "input", re );
+    if (current_env.parsed_alive === undefined) current_env.parsed_alive = true;
   }
+*/  
   
 feature_addition
   = name:attr_name {
@@ -91,26 +97,42 @@ one_env
        current_parent = parents_stack.pop() 
        if (!current_env.parsed_alive) current_env.remove();
     };
+    envs_stack.push( current_env );
     // + еще событие надо будет
   })
   __
   env_modifiers:(head:env_modifier tail:(__ @env_modifier)*)*
   child_envs:(__ "{" ws env_list ws "}" __)*
   {
-    current_env.finalize_parse();
-    if (!current_env.removed)
-         return current_env;
+    var ce = envs_stack.pop();
+    ce.finalize_parse();
+    if (!ce.removed)
+         return ce;
   }
 
 env
-  = env_pipe
+  = __ env_pipe
 //  = one_env  
 //  / one_env
   
 env_pipe
- = head:one_env tail:(__ "|" @one_env)*
+ = pipeid:(attr_name __ ":")? __ input_link:link tail:(__ "|" @one_env)+
  {
-   console.log("found env pipe:",head,tail)
+   console.log("found env pipe with input link:",input_link,tail)
+   var pipe_env = vz.createObj( {parent:current_parent, name: (pipeid || [])[0]} );
+   pipe_env.feature("pipe");
+   for (let c of tail)
+      pipe_env.ns.appendChild( c, c.ns.name );
+
+   var input_link_v = input_link.value.replaceAll("->.","->output");
+   pipe_env.createLinkTo( {param:"input",from:input_link_v} )
+ }
+ / head:one_env tail:(__ "|" @one_env)*
+ {
+   console.log("found env pipe of objects:",head,tail)
+   if (head && tail.length > 0) {
+     // прямо пайпа
+   }
    for (var i=0; i<tail.length; i++);
  }
   

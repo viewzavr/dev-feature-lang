@@ -8,16 +8,18 @@ dat:
 pts:
    points input=@dat->output;
 
+/*
 pipe1: pipe {
   output=@dat->output;
   skip_every count=10;
   set Y=0;
   linestrips points;
 };
+*/
 
-dat_scaled: @dat | scaling column="Y" method="log";
-
-projected: @dat_scaled | skip_every count=10 | set Y=0;
+projected: @dat | skip_every count=10 | set Y=0;
 
 @projected | linestrips;
 @projected | points;
+
+// dat_scaled: @dat | scaling column="Y" method="log";
