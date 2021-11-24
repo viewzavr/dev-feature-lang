@@ -1,10 +1,7 @@
+// фича parseSimpleLang и базовые фичи языка load, loadPackage, pipe, register_feature
+
 export function setup(vz, m) {
   vz.register_feature_set(m);
-  /*
-  vz.register_feature("simple-lang",simple_lang);
-  vz.register_feature("load",load);
-  vz.register_feature("load_package",load_package);
-  */
 }
 
 import * as P from "./lang-parser.js";
@@ -42,8 +39,11 @@ export function load(env,opts)
        return env.vz.loadPackage( file )
      }
 
+     file = env.compute_path( file );
+     var new_base_url = env.vz.getDir( file );
+
      fetch( file ).then( (res) => res.text() ).then( (txt) => {
-       env.parseSimpleLang( txt, {parent: env.ns.parent} );
+       env.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url} );
      });
   }
 }
@@ -59,6 +59,7 @@ export function load_package(env,opts)
   env.signalParam("files");
 
   function loadfile(file) {
+    file = env.compute_path( file );
     return vzPlayer.loadPackage( file )
   }
 }
@@ -118,4 +119,23 @@ export function register_feature( env ) {
   env.on("parsed",() => {
     env.remove();
   })
+}
+
+function add_dir_if( path, dir ) {
+  if (path[0] == "/") return path;
+  if (path.match(/\w+\:\/\//)) return path;
+  if (path[0] == "." && path[1] == "/") path = path.substring( 2 );
+  if (path.trim() == "") return null; // if blank path specified, that means no data should be displayed. F-BLANK
+  return dir + path;
+}
+
+export function base_url_tracing( env, opts ) 
+{
+  //env.$base_url = opts.base_url;
+  env.compute_path = (file) => {
+    //if (Array.isArray(file))
+    if (typeof(file) === "string")
+      return add_dir_if( file, opts.base_url );
+    return file;
+  }
 }

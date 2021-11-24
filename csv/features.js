@@ -12,6 +12,8 @@ export function load_csv( env ) {
     console.log("gonna load csv from",file);
     //env.setParam("output",df );
     // loadFile это функция вьюланга, todo её в фичи перенести
+    file = env.compute_path( file );
+
     loadFile( file,(text) => {
       var df = CSV( text );
       env.setParam("output",df );

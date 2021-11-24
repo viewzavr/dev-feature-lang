@@ -59,9 +59,8 @@
     compomachine.setup( vz, compomachine );
     
     var q = vzPlayer.loadEmptyScene();
-    var file = getParameterByName("load") || (vz.getDir( import.meta.url ) + "code.txt" );
+    var file = getParameterByName("src") || (vz.getDir( import.meta.url ) + "code.txt" );
     var filedir = vz.getDir( file );
-   
     
     //var obj = vz.createObjByType( "compolang_machine", {parent:vzPlayer.getRoot()})
     //var obj = vz.createObj( {parent:vzPlayer.getRoot(),features:"compolang_machine",name:"compolang_machine"})
@@ -71,6 +70,7 @@
     obj.feature("compolang_machine");
 
     fetch( file ).then( (res) => res.text() ).then( (txt) => {
+        obj.setParam("base_url",filedir);
         obj.setParam("text",txt);
 
         /*

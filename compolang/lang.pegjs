@@ -24,6 +24,9 @@
   var parents_stack = [];
 
   var envs_stack = [];
+  var base_url = options.base_url || "";
+  if (!options.base_url) console.error("COMPOLANG PARSER: base_url option is not defined")
+  if (!options.vz) console.error("COMPOLANG PARSER: vz option is not defined")
 }
 
 // ----- 2. JSON Grammar -----
@@ -73,6 +76,7 @@ link_assignment
 feature_addition
   = name:attr_name {
     if (current_env.parsed_alive === undefined) {
+      // особая проверка 
       // если с таким именем нет, а объект (тип) есть - пересоздадим как объект !current_env.vz.feature_table.get(name) && 
       // фича с таким именем всегда есть... окей, попробуем опираться на тип
 
@@ -81,10 +85,17 @@ feature_addition
         var orig_env_parent = current_env.ns.parent;
         current_env.remove();
         current_env = current_env.vz.createObjByType( name, {parent: orig_env_parent , name: orig_env_name} );  
+        //current_env.base_url = base_url;
+        current_env.feature("base_url_tracing",{base_url});
         current_parent = current_env;
         envs_stack.pop();
         envs_stack.push( current_env );
-        current_env.finalize_parse = () => { current_env.emit("parsed"); }
+        //parents_stack.pop();
+        //parents_stack.push(current_parent);
+        current_env.finalize_parse = () => { 
+           current_env.emit("parsed"); 
+           current_parent = parents_stack.pop();
+        }
       }
       current_env.parsed_alive = true;
     }
@@ -106,10 +117,12 @@ one_env
   =
   (__ envid:(attr_name ws ":")? {
     current_env = vz.createObj( {parent:current_parent, name: (envid || [])[0]} );
+    //current_env.base_url = base_url;
+    current_env.feature("base_url_tracing",{base_url});
     parents_stack.push(current_parent);
     current_parent = current_env;
     current_env.finalize_parse = () => { 
-       current_parent = parents_stack.pop() 
+       current_parent = parents_stack.pop();
        if (!current_env.parsed_alive) 
          current_env.remove();
        else {
