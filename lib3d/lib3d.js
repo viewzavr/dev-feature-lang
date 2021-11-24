@@ -2,16 +2,7 @@ export function setup(vz, m) {
   vz.register_feature_set( m );
 }
 
-export function load_csv2( env ) {
-  env.addFile("file");
-  env.trackParam("file",(file) => {
-    console.log("gonna load csv from",file);
-  })
-  if (env.params.file)
-      env.signalParam("file");
-}
-
-import * as utils from "./utils.js";
+import * as utils from "../utils.js";
 
 export function points( env ) {
   var obj = env.vz.vis.addPoints( env, "points" );
@@ -53,8 +44,11 @@ export function linestrips( env ) {
   painter_env.linkParam( "input","@convertor->output");
   painter_env.feature("lines");
 }
+export function linestrip( env ) {
+  return linestrips(env);
+}
 
-import * as df from "./csv/df.js";
+import * as df from "../csv/df.js";
 
 // идея - сведем к lines
 // сделаем просто конвертор

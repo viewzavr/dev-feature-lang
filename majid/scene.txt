@@ -1,15 +1,24 @@
-load_package files="/viewzavr-system-a/features/gui-lib/list.txt /viewzavr-system-a/features/list.txt";
-load_package files="/features.js /csv/features.js";
+load_package files="lib3d csv";
 
-dat: load-csv file="majid/TSNE_output.csv" | rescale_rgb;
+/*
+default_gui;
+cb1:  
+  param combobox values=["TSNE_output.csv","MDS_output.csv"];
+
+user_file: 
+  param file value=@cb1->value;
+
+s1:
+  param slider min=0 max=100 step=10;
+*/  
+
+dat: load-csv file=@user_file->value | rescale_rgb;
 @dat | linestrips;
-
-//startq: slider min=0; max=
-// | slice stat=@startq.value
-
+ 
 register_feature name="rescale_rgb" code=`
   env.onvalue("input",(df) => {
-    if (!df || !df.isDataFrame) return;
+    if (!df || !df.isDataFrame || !df['R']) return;
+// идея - сделать mul и div. и выразить rescale_rgb как набор div. как?
     df = df.clone();
     df['R'] = df['R'].map( v => v/255.0 );
     df['G'] = df['G'].map( v => v/255.0 );
@@ -17,3 +26,71 @@ register_feature name="rescale_rgb" code=`
     env.setParam("output",df);
   })
 `;
+
+register_feature name="auto-activate" code=`
+  env.activate();
+`;
+
+mainscreen: screen auto-activate {
+  column gap="0.5em" padding="1em" {
+    
+cb_fn: 
+    combobox values=["TSNE_output.csv","MDS_output.csv"];
+
+user_file:
+    input_file value=@cb_fn->value;
+
+    //edit-params input="/";
+
+    /*
+    render3d {
+      @dat | linestrips;
+    };
+    render3d {
+      //@dat | points;
+    };
+    */
+  }
+}
+
+//call cmd="@mainscreen->activate";
+
+/*
+action1: setparam target="@thecsv->file" value="TSNE_output.csv";
+action2: setparam target="@thecsv->file" value="MDS_output.csv";
+button text="TSNE_output.csv" cmd="@action1->perform";
+    button text="MDS_output.csv" cmd="@action2->perform";
+*/
+
+
+/*
+set Y=(log column="Y")
+
+@thecsv | rescale_rgb;
+
+feature name="rescale_rgb" {
+  div column="R" value=255.0
+  |
+  div column="G" value=255.0
+  |
+  div column="B" value=255.0;
+};
+*/
+
+//register_package name="df-utils" url="alfa.js";
+//register_compolang name="sigma" url="sigma.txt";
+
+
+//startq: slider min=0; max=
+// | slice stat=@startq.value
+
+/*
+action1: action setparam target="@thecsv->file" value="TSNE_output.csv";
+action2: action setparam target="@thecsv->file" value="MDS_output.csv";
+
+button text="TSNE_output.csv" cmd=(setparam target="@thecsv->file" value="TSNE_output.csv");
+button text="MDS_output.csv" cmd=(setparam target="@thecsv->file" value="MDS_output.csv");
+
+    button text="TSNE_output.csv" cmd="@action1->perform";
+    button text="MDS_output.csv" cmd="@action2->perform";
+*/

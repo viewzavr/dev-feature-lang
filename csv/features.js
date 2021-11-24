@@ -6,15 +6,16 @@ import CSV from "./csv.js";
 import * as df from "./df.js";
 
 export function load_csv( env ) {
+  env.feature("load_file_func");
   //var empty_df = df.create();
   env.addFile("file");
   env.trackParam("file",(file) => {
     console.log("gonna load csv from",file);
     //env.setParam("output",df );
-    // loadFile это функция вьюланга, todo её в фичи перенести
+    // возможно стоит compute_path внедрить в load_file
     file = env.compute_path( file );
 
-    loadFile( file,(text) => {
+    env.loadFile( file,(text) => {
       var df = CSV( text );
       env.setParam("output",df );
     },(err) => {

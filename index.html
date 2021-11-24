@@ -49,6 +49,7 @@
     import * as Player from "./viewzavr-system-a/player/init.js";
     var vzPlayer = Player.create( vz, qmlEngine );
     window.vzPlayer = vzPlayer;
+    vzPlayer.feature("switch_to_editor_kbd switch_to_editor_link");
     
     //////////////////////////// graphical api
     import * as VisAPI from "./viewzavr-system-a/graphical-api/init.js";
@@ -69,6 +70,12 @@
     var obj = vzPlayer.getRoot();
     obj.feature("compolang_machine");
 
+    var htmldir = vz.getDir(import.meta.url)  
+    vzPlayer.loadPackage( htmldir + "./viewzavr-system-a/features/list.txt" ).then( () => {
+    
+    vzPlayer.addPackage( {code:"lib3d",url:(htmldir + "./lib3d/lib3d.js")});
+    vzPlayer.addPackage( {code:"csv",url:(htmldir + "./csv/features.js")});
+
     fetch( file ).then( (res) => res.text() ).then( (txt) => {
         obj.setParam("base_url",filedir);
         obj.setParam("text",txt);
@@ -85,7 +92,9 @@
         setTimeout( () => {
           vzPlayer.loadFromHash();
           vzPlayer.startSavingToHash();
-        },500)
+        },500);
+
+    });
 
     });
 

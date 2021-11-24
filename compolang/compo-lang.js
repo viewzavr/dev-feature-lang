@@ -21,6 +21,7 @@ export function simple_lang(env)
   }
 }
 
+var compolang_modules = {};
 export function load(env,opts) 
 {
   env.feature("simple-lang");
@@ -39,13 +40,34 @@ export function load(env,opts)
        return env.vz.loadPackage( file )
      }
 
-     file = env.compute_path( file );
+     if (compolang_modules[file])
+      file = compolang_modules[file];
+     else
+      file = env.compute_path( file );
+    
      var new_base_url = env.vz.getDir( file );
-
+     console.log("load: loading",file)
      fetch( file ).then( (res) => res.text() ).then( (txt) => {
        env.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url} );
      });
   }
+}
+
+export function register_compolang(env,opts) {
+  env.onvalue("url",(url) => {
+    if (!env.params.name)
+    {
+      console.error("COMPOLANG PACKAGE WITHOUT NAME CANNOT BE REGISTERED",code);
+      return;
+    }
+    var code = env.params.name;
+    var url = env.compute_path(url);
+    compolang_modules[code] = url;
+  });
+
+  env.on("parsed",() => {
+    env.remove();
+  })
 }
 
 export function load_package(env,opts) 
@@ -59,7 +81,12 @@ export function load_package(env,opts)
   env.signalParam("files");
 
   function loadfile(file) {
-    file = env.compute_path( file );
+    if (file.indexOf(".js") > 0) // это файл
+        file = env.compute_path( file );
+    // а иначе это похоже package-specifier (айди в таблице)
+
+    console.log("load_package: loading",file);
+
     return vzPlayer.loadPackage( file )
   }
 }
@@ -103,7 +130,7 @@ export function pipe(env,opts)
   }
 }
 
-
+// регистрирует фичу name, code где code это код тела функции на яваскрипте
 export function register_feature( env ) {
   env.onvalue("code",(code) => {
     if (!env.params.name)
@@ -120,6 +147,26 @@ export function register_feature( env ) {
     env.remove();
   })
 }
+
+// регистрирует пакет name,url
+export function register_package( env ) {
+  env.onvalue("url",(url) => {
+    if (!env.params.name)
+    {
+      console.error("PACKAGE WITHOUT NAME CANNOT BE REGISTERED",code);
+      return;
+    }
+    var code = env.params.name;
+    var url = env.compute_path(url);
+    vzPlayer.addPackage( {code,url});
+  });
+
+  env.on("parsed",() => {
+    env.remove();
+  })
+}
+
+//////////////////////
 
 function add_dir_if( path, dir ) {
   if (path[0] == "/") return path;
