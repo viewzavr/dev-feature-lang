@@ -1,0 +1,29 @@
+load_package files="lib3d csv";
+
+dat: load-csv file=@user_file->value | rescale_rgb;
+ 
+register_feature name="rescale_rgb" code=`
+  env.onvalue("input",(df) => {
+    if (!df || !df.isDataFrame || !df['R']) return;
+    df = df.clone();
+    df['R'] = df['R'].map( v => v/255.0 );
+    df['G'] = df['G'].map( v => v/255.0 );
+    df['B'] = df['B'].map( v => v/255.0 );
+    env.setParam("output",df);
+  })
+`;
+
+mainscreen: screen auto-activate {
+  column gap="0.5em" padding="1em" {
+    
+cb_fn: 
+    combobox values=["TSNE_output.csv","MDS_output.csv"];
+
+user_file:
+    input_file value=@cb_fn->value;
+
+    render3d {
+      @dat | linestrips;
+    };
+  }
+}

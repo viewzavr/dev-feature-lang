@@ -1,11 +1,28 @@
-load files="lib3d csv params";
+load_package files="lib3d csv";
 
-dasparams: showparams {
-  cb1: param combo values=["TSNE_output.csv","MDS_output.csv"];
-  f1: param file value=@cb1->value;
+/*
+default_gui;
+
+left_gui text="PARAMETERS" {
+cb1:  
+  param combobox values=["TSNE_output.csv","MDS_output.csv"];
+
+user_file: 
+  param file value=@cb1->value;
+
+s1:
+  param slider min=0 max=100 step=10;
+}
+
+right_gui text="PARAMETERS" {
 };
 
-dat: load-csv file=@f1->value | rescale_rgb;
+right_gui edit-objects path="** $extras";
+
+*/
+
+dat: load-csv file=@user_file->value | rescale_rgb;
+@dat | linestrips;
  
 register_feature name="rescale_rgb" code=`
   env.onvalue("input",(df) => {
@@ -19,29 +36,31 @@ register_feature name="rescale_rgb" code=`
   })
 `;
 
+register_feature name="auto-activate" code=`
+  env.activate();
+`;
+
 mainscreen: screen auto-activate {
   column gap="0.5em" padding="1em" {
+    
+cb_fn: 
+    combobox values=["TSNE_output.csv","MDS_output.csv"];
 
-    objects-guis objects="** @showparams";
-    //objects-guis objects="** @showparams";
+user_file:
+    input_file value=@cb_fn->value;
 
-  };
-  render3d {
-    @dat | linestrips;
-  };
-  render3d {
-    //@dat | points;
-  };  
-};
+    //edit-params input="/";
 
-/*
-    text text="PARAMETERS";
-    edit-params input=@dasparams;
-    text text="SCENE CODE";
-    edit-params input="/";
-*/
-
-// @dat | linestrips;
+    /*
+    render3d {
+      @dat | linestrips;
+    };
+    render3d {
+      //@dat | points;
+    };
+    */
+  }
+}
 
 //call cmd="@mainscreen->activate";
 
@@ -83,25 +102,4 @@ button text="MDS_output.csv" cmd=(setparam target="@thecsv->file" value="MDS_out
 
     button text="TSNE_output.csv" cmd="@action1->perform";
     button text="MDS_output.csv" cmd="@action2->perform";
-*/
-
-/*
-default_gui;
-
-left_gui text="PARAMETERS" {
-cb1:  
-  param combo values=["TSNE_output.csv","MDS_output.csv"];
-
-user_file: 
-  param file value=@cb1->value;
-
-s1:
-  param slider min=0 max=100 step=10;
-}
-
-right_gui text="PARAMETERS" {
-};
-
-right_gui edit-objects path="** $extras";
-
 */

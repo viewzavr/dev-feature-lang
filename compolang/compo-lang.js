@@ -22,6 +22,8 @@ export function simple_lang(env)
 }
 
 var compolang_modules = {};
+// короче решено все делать через load и пусть она разбирается что там.
+// а то уже взрыв мозга, что загружать, package или combolang.
 export function load(env,opts) 
 {
   env.feature("simple-lang");
@@ -36,15 +38,15 @@ export function load(env,opts)
   env.signalParam("files");
 
   function loadfile(file) {
-     if (file.endsWith( ".js")) {
-       return env.vz.loadPackage( file )
+     if (file.endsWith( ".js") || vzPlayer.getPackageByCode(file)) {
+       return vzPlayer.loadPackage( file )
      }
 
      if (compolang_modules[file])
       file = compolang_modules[file];
      else
       file = env.compute_path( file );
-    
+
      var new_base_url = env.vz.getDir( file );
      console.log("load: loading",file)
      fetch( file ).then( (res) => res.text() ).then( (txt) => {
@@ -70,6 +72,18 @@ export function register_compolang(env,opts) {
   })
 }
 
+export function do_register_compolang( name,url ) 
+{
+  compolang_modules[code] = url;
+}
+
+export function register_compolang_func( env ) 
+{
+  env.register_compalang = (code,url) => {
+    compolang_modules[code] = url;
+  }
+}
+
 export function load_package(env,opts) 
 {
   env.parsed_alive = false;
@@ -87,7 +101,7 @@ export function load_package(env,opts)
 
     console.log("load_package: loading",file);
 
-    return vzPlayer.loadPackage( file )
+    return vzPlayer.loadPackage( file );
   }
 }
 
@@ -147,6 +161,8 @@ export function register_feature( env ) {
     env.remove();
   })
 }
+
+
 
 // регистрирует пакет name,url
 export function register_package( env ) {
