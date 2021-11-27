@@ -6,24 +6,17 @@ dasparams: showparams {
 };
 
 dat: load-csv file=@f1->value | rescale_rgb;
-
-register_feature name="rescale_rgb" {
-  df_div column="R" coef=255.0 | df_div column="G" coef=255.0 | df_div column="B" coef=255.0;
-};
-
  
-register_feature name="df_div" code=`
-  env.onvalue("input",process);
-  env.onvalue("coef",process);
-  env.onvalue("column",process);
-
-  function process() {
-    var df = env.params.input;
-    if (!df || !df.isDataFrame || !df[ env.params.column ] || !env.params.coef) return;
+register_feature name="rescale_rgb" code=`
+  env.onvalue("input",(df) => {
+    if (!df || !df.isDataFrame || !df['R']) return;
+// идея - сделать mul и div. и выразить rescale_rgb как набор div. как?
     df = df.clone();
-    df[env.params.column] = df[env.params.column].map( v => v / env.params.coef );
+    df['R'] = df['R'].map( v => v/255.0 );
+    df['G'] = df['G'].map( v => v/255.0 );
+    df['B'] = df['B'].map( v => v/255.0 );
     env.setParam("output",df);
-  }
+  })
 `;
 
 mainscreen: screen auto-activate {

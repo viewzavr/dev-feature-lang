@@ -156,6 +156,7 @@ export function pipe(env,opts)
   function chain_children() {
       let cprev;
       let cfirst;
+      
       for (let c of env.ns.getChildren()) {
          if (c.is_link) continue;
          if (!cfirst) cfirst = c;
@@ -180,17 +181,61 @@ export function pipe(env,opts)
 }
 
 // регистрирует фичу name, code где code это код тела функции на яваскрипте
-export function register_feature( env ) {
-  env.onvalue("code",(code) => {
-    if (!env.params.name)
-    {
-      console.error("FEATURE CODE WITHOUT NAME CANNOT BE REGISTERED",code);
+export function register_feature( env, fopts, envopts ) {
+  var children = {};
+  env.restoreFromDump = (dump,manualParamsMode) => {
+    env.vz.restoreParams( dump, env,manualParamsMode );
+    env.vz.restoreLinks( dump, env,manualParamsMode );
+    env.vz.restoreFeatures( dump, env,manualParamsMode );
+    children = dump.children;
+    compile();
+    return Promise.resolve("success");
+  }
+  
+  var apply_feature = () => {};
+
+/*
+  env.onvalue("name",() => {
+    env.vz.register_feature( env.params.name, (e,...args) => {
+      apply_feature(e,...args)
+    } );
+  });
+*/  
+
+  function compile() {
+    if (!env.params.name) {
+      console.error("RESIGTER-FEATURE: feature have no name.")
       return;
     }
-    code = "(env,args) => { " + code + "}";
-    var f = eval( code );
-    env.vz.register_feature( env.params.name, f );
-  });
+
+    var js_part = () => {};
+    if (env.params.code) {
+      var code = "(env,args) => { " + env.params.code + "}";
+      try {
+        js_part = eval( code );
+      } catch(err) {
+        console.error("REGISTER-FEATURE: error while compiling js!",err,"\n********* code=",code);
+      }
+    }
+    var compalang_part = () => {};
+    if (Object.keys( children ).length > 0) {
+      var firstc = Object.keys( children )[0];
+      compalang_part = (tenv) => {
+        tenv.restoreFromDump( children[firstc] );
+      }
+    }
+
+    apply_feature = (e,...args) => {
+      js_part( e,...args);
+      compalang_part( e,...args);
+    }
+
+    env.vz.register_feature( env.params.name, (e,...args) => {
+      apply_feature(e,...args)
+    } );
+  }
+
+  //env.onvalue("code",compile );
 
   env.on("parsed",() => {
     env.remove();
