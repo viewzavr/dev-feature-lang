@@ -18,47 +18,21 @@
 // [5] https://www.tbray.org/ongoing/When/201x/2014/03/05/RFC7159-JSON
 
 {
-  function new_env( name ) {
-    var new_env = { features: {}, params: {}, children: {}, links: {} };
-    new_env.$base_url = base_url;
-    if (!name) name="item";
-    new_env.$name = name;
-    return new_env;
-  }
-
-  function append_children_envs( env, envs ) {
-    var counter=0;
-    for (let e of envs) {
-      if ( Object.keys(e.features).length > 0
-        || Object.keys(e.params).length > 0
-        || Object.keys(e.children).length > 0
-        || Object.keys(e.links).length > 0)
-        {
-           var cname = e.$name;
-           while (env.children[ cname ])
-             cname = `${cname}_${counter++}`;
-
-           env.children[ cname ] = e;
-        }
-    }
-  }
+  var current_parent = options.parent;
+  var current_env = null;
+  var vz = options.vz;
+  var parents_stack = [];
 
   var envs_stack = [];
   var base_url = options.base_url || "";
-  var current_env;
-  new_env();
-
   if (!options.base_url) console.error("COMPOLANG PARSER: base_url option is not defined")
+  if (!options.vz) console.error("COMPOLANG PARSER: vz option is not defined")
 }
 
 // ----- 2. JSON Grammar -----
 
 JSON_text
-  = ws envs:env_list ws {
-     var env = new_env();
-     append_children_envs( env, envs );
-     return env;
-  }
+  = ws @env_list ws
 
 begin_array     = ws "[" ws
 begin_object    = ws "{" ws
@@ -78,22 +52,54 @@ env_modifier
 // ----- A2. attr_assignment
 attr_assignment
   = name:attr_name ws "=" ws value:value {
-    return { param: true, name: name, value: value }
+    //console.log("AAAAAAAAAAAAAAAA",value);
+    if (current_env.parsed_alive === undefined) current_env.parsed_alive = true;
+    current_env.setParam( name, value );
   }
   
 link_assignment
   = name:attr_name ws "=" ws linkvalue:link {
-    //var linkrecordname = `link_${Object.keys(current_env.links).length}`;
-    //while (current_env.links[ linkrecordname ]) linkrecordname = linkrecordname + "x";
-    //current_env.links[linkrecordname] = { to: `.->${name}`, from: linkvalue.value };
-    return { link: true, to: `.->${name}`, from: linkvalue.value }
-    //console.log("LINK",linkvalue);
+    console.log("LINK",linkvalue);
+    if (current_env.parsed_alive === undefined) current_env.parsed_alive = true;
+    current_env.linkParam( name, linkvalue.value );
   }
+
+/*  
+  / linkvalue:link {
+    var re = linkvalue.value.replaceAll("->.","->output");
+    console.log("POSITIONAL LINK",linkvalue,re);
+    current_env.linkParam( "input", re );
+    if (current_env.parsed_alive === undefined) current_env.parsed_alive = true;
+  }
+*/  
   
 feature_addition
   = name:attr_name {
-    return { feature: true, name: name, params: {} }
-    //current_env.features[name] = true;
+    if (current_env.parsed_alive === undefined) {
+      // особая проверка 
+      // если с таким именем нет, а объект (тип) есть - пересоздадим как объект !current_env.vz.feature_table.get(name) && 
+      // фича с таким именем всегда есть... окей, попробуем опираться на тип
+
+      if (current_env.vz.getTypeInfo(name)) {
+        var orig_env_name = current_env.ns.name;
+        var orig_env_parent = current_env.ns.parent;
+        current_env.remove();
+        current_env = current_env.vz.createObjByType( name, {parent: orig_env_parent , name: orig_env_name} );  
+        //current_env.base_url = base_url;
+        current_env.feature("base_url_tracing",{base_url});
+        current_parent = current_env;
+        envs_stack.pop();
+        envs_stack.push( current_env );
+        //parents_stack.pop();
+        //parents_stack.push(current_parent);
+        current_env.finalize_parse = () => { 
+           current_env.emit("parsed"); 
+           current_parent = parents_stack.pop();
+        }
+      }
+      current_env.parsed_alive = true;
+    }
+    current_env.feature( name );
   }
   
 // ------ A3. attr_name
@@ -109,35 +115,35 @@ obj_id
 // ------- A. envs
 one_env
   =
-  envid: (__ @(@attr_name ws ":")?)
-  env_modifiers:(__ @env_modifier)*
-  child_envs:(__ "{" ws @env_list ws "}" __)*
+  (__ envid:(attr_name ws ":")? {
+    current_env = vz.createObj( {parent:current_parent, name: (envid || [])[0]} );
+    //current_env.base_url = base_url;
+    current_env.feature("base_url_tracing",{base_url});
+    parents_stack.push(current_parent);
+    current_parent = current_env;
+    current_env.finalize_parse = () => { 
+       current_parent = parents_stack.pop();
+       if (!current_env.parsed_alive) 
+         current_env.remove();
+       else {
+         current_env.emit("parsed");
+       }
+    };
+    envs_stack.push( current_env );
+    // + еще событие надо будет
+  })
+  __
+  env_modifiers:(head:env_modifier tail:(__ @env_modifier)*)*
+  child_envs:(__ "{" ws env_list ws "}" __)*
   {
-    var env = new_env( envid );
-    var linkcounter = 0;
-    for (let m of env_modifiers) {
-      if (m.feature)
-        env.features[ m.name ] = m.params;
-      else
-      if (m.param)
-        env.params[ m.name ] = m.value;
-      else
-      if (m.link)
-        env.links[ `link_${linkcounter++}` ] = { from: m.from, to: m.to }
-    }
-
-    append_children_envs( env, child_envs[0] || [] );
-
-    //console.log("final, env.$name=",env.$name)
-    if (env.$name == "item" && Object.keys( env.features ).length > 0) {
-        env.$name = Object.keys( env.features ).join("_");
-    }
-
-    return env;
+    var ce = envs_stack.pop();
+    ce.finalize_parse();
+    if (!ce.removed)
+         return ce;
   }
 
 env
-  = __ @env_pipe
+  = __ env_pipe
 //  = one_env  
 //  / one_env
   
@@ -145,39 +151,34 @@ env_pipe
  = pipeid:(attr_name __ ":")? __ input_link:link tail:(__ "|" @one_env)+
  {
    console.log("found env pipe with input link:",input_link,tail)
-   var pipe = new_env( (pipeid || [])[0] );
-   pipe.features["pipe"] = true;
-
-   append_children_envs( pipe, tail );
+   var pipe_env = vz.createObj( {parent:current_parent, name: (pipeid || [])[0]} );
+   pipe_env.feature("pipe");
+   for (let c of tail)
+      pipe_env.ns.appendChild( c, c.ns.name );
 
    var input_link_v = input_link.value.replaceAll("->.","->output");
-   pipe.links["input"] = { to: ".->input", from: input_link_v}
-   //return finish_env();
-   return pipe;
+   pipe_env.createLinkTo( {param:"input",from:input_link_v} )
  }
  / head:one_env tail:(__ "|" @one_env)*
  {
    if (head && tail.length > 0) {
-     console.log("found env pipe of objects:",head,tail)
+   console.log("found env pipe of objects:",head,tail)
      // прямо пайпа
      // переименуем голову, т.к. имя заберет пайпа
-     var orig_env_id = head.$name;
-     head.$name = "head";
-     var pipe = new_env( orig_env_id );
-     pipe.features["pipe"] = true;
-     append_children_envs( pipe, [head,...tail] );
-     
-     return pipe;
+     var orig_env_id = head.ns.name;
+     head.ns.parent.ns.renameChild( head.ns.name, orig_env_id + "-future-head");
+
+     var pipe_env = vz.createObj( {parent:current_parent, name: orig_env_id} );
+     pipe_env.feature("pipe");
+     pipe_env.ns.appendChild( head, "head" );
+     for (let c of tail)
+        pipe_env.ns.appendChild( c, c.ns.name );
    }
-   else {
-     return head;
-   }
+   //for (var i=0; i<tail.length; i++);
  }
   
 env_list
-  = head:env tail:(__ ";" @env)* { 
-    return [head,...tail]; 
-    }
+  = head:env tail:(__ ";" @env)*
 
 link
   = "@" obj_id "->" attr_name

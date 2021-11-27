@@ -1,8 +1,8 @@
 load files="lib3d csv params";
 
 dasparams: showparams {
-  cb1: param combo values=["TSNE_output.csv","MDS_output.csv"];
-  f1: param file value=@cb1->value;
+  cb1: combo values=["TSNE_output.csv","MDS_output.csv"];
+  f1:  file  value=@cb1->value;
 };
 
 dat: load-csv file=@f1->value | rescale_rgb;

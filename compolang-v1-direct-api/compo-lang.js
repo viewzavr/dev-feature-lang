@@ -9,51 +9,16 @@ export function simple_lang(env)
 {
   env.parseSimpleLang = function( code, opts={} ) {
     try {
-      var parsed = P.parse( code, { vz: env.vz, parent: (opts.parent || env), base_url:opts.base_url } );
-      var dump = parsed2dump( env.vz, parsed, opts.base_url || "" );
-      return env.restoreFromDump( dump );
-    }
+      return P.parse( code, { vz: env.vz, parent: (opts.parent || env), base_url:opts.base_url } );
+    } 
     catch (e) 
     {
       console.error(e);
       if (typeof e.format === "function")
           console.log( e.format( [{text:code}] ));
+
     }
   }
-}
-
-// преобразовать результат парсинга во вьюзавр-дамп
-function parsed2dump( vz, parsed, base_url ) {
-/* они почти похожи.
-   надо обработать массив link - привести к объектам
-   и пока во вьюзавре есть типы обработать type
-*/
-  // links
-  /* я думал links запихать в объекты. но у нас функторы - они не активируют детей напрямую.
-     поэтому links на этапе restore надо обрабатывать отдельно.
-  for (var lname of Object.keys(parsed.links)) {
-    var lrec = parsed.links[lname];
-    var newlinkobj = { type: "link", params: {...lrec.params,tied_to_parent: true} }
-    while (parsed.children[ lname ]) lname=lname+"y";
-    parsed.children[ lname ] = newlinkobj;
-  }
-  */
-  // type
-  if (Object.keys( parsed.features ).length > 0) {
-    var first_feature_name = Object.keys( parsed.features )[0];
-    var first_feature_code = first_feature_name;
-    //var first_feature = parsed.features[  ]
-    if (vz.getTypeInfo(first_feature_code))
-      parsed.type = first_feature_code;
-  }
-  for (let c of Object.keys(parsed.children)) {
-    let cc = parsed.children[c];
-    parsed2dump( vz, cc, base_url );
-  }
-  parsed.forcecreate = true;
-  parsed.features[ "base_url_tracing" ] = {params: {base_url}};
-  //feature("base_url_tracing",{base_url});
-  return parsed;
 }
 
 var compolang_modules = {};

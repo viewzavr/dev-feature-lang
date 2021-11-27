@@ -1,0 +1,2 @@
+load-csv file="afla.csv" @dat
+points input=@dat
