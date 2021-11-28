@@ -1,0 +1,34 @@
+{
+  "name": "vrungel",
+  "version": "1.0.32",
+  "description": "Visualizes scenes written in Compalang.",
+  "main": "app.js",
+  "directories": {
+    "example": "examples"
+  },
+  "bin": {
+    "vrungel": "./server.mjs",
+    "vrungel-setup": "./local-data-server_setup/setup.mjs",
+    "vrungel-setup-off": "./local-data-server-setup/setup.mjs off"
+  },
+  "scripts": {
+    "start": "./server.mjs",
+    "setup": "./local-data-server-setup/setup.mjs",
+    "setupoff": "./local-data-server-setup/setup.mjs off"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/viewzavr/vrungel.git"
+  },
+  "author": "Pavel Vasev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/viewzavr/vrungel/issues"
+  },
+  "homepage": "https://github.com/viewzavr/vrungel#readme",
+  "dependencies": {
+    "node-static": "^0.7.11",
+    "opener": "^1.5.2",
+    "ws": "^7.4.4"
+  }
+}
