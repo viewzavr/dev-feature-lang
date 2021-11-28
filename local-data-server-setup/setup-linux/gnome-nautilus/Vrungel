@@ -1,4 +1,4 @@
 #!/bin/bash
 
 #xterm -e "npx --yes github:viewzavr/vr-cinema -d $1"
-xterm -e "npx --yes vr-cinema -d $1"
+xterm -e "npx --yes vrungel -d $1"

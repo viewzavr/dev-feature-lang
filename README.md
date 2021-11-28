@@ -13,6 +13,15 @@ Cd to directory and run:
 npx vrungel
 ```
 
+# Windows Explorer menu
+
+"Open with Vrungel..." windows explorer menu is available. Use command:
+* `npx -p vrungel vrungel-setup` - add menu.
+* `npx -p vrungel vrungel-setup-off` - remove menu.
+
+On Linux, this will add menu to GNOME Nautilus.
+
+
 # Development
 
 ```
