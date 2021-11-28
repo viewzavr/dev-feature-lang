@@ -1,4 +1,4 @@
-load files="lib3d csv params";
+load files="lib3d csv params alfa.js";
 
 dasparams: showparams {
   cb1: combo values=["TSNE_output.csv","MDS_output.csv"];

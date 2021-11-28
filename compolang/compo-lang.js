@@ -73,9 +73,13 @@ export function load(env,opts)
   env.signalParam("files");
 
   function loadfile(file) {
-     if (file.endsWith( ".js") || vzPlayer.getPackageByCode(file)) {
+     if (file.endsWith( ".js")) {
+       file = env.compute_path( file );
        return vzPlayer.loadPackage( file )
      }
+     if (vzPlayer.getPackageByCode(file)) {
+       return vzPlayer.loadPackage( file )
+     }     
 
      if (compolang_modules[file])
       file = compolang_modules[file];
