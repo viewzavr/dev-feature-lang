@@ -13,6 +13,17 @@ Cd to directory and run:
 npx vrungel
 ```
 
+# Development
+
+```
+git clone https://github.com/viewzavr/vr-cinema.git
+cd vr-cinema
+git submodule update --init --recursive
+npm install
+npm start
+```
+
+
 # Copyright
 
 2021+ (c) Pavel Vasev. Available with MIT license.

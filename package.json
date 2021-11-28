@@ -1,6 +1,6 @@
 {
   "name": "vrungel",
-  "version": "1.0.32",
+  "version": "1.0.35",
   "description": "Visualizes scenes written in Compalang.",
   "main": "app.js",
   "directories": {
@@ -8,8 +8,8 @@
   },
   "bin": {
     "vrungel": "./server.mjs",
-    "vrungel-setup": "./local-data-server_setup/setup.mjs",
-    "vrungel-setup-off": "./local-data-server-setup/setup.mjs off"
+    "vrungel-setup": "./local-data-server-setup/setup.mjs",
+    "vrungel-setup-off": "./local-data-server-setup/setup-off.mjs"
   },
   "scripts": {
     "start": "./server.mjs",
