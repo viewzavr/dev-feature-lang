@@ -69,10 +69,13 @@ export function load(env,opts)
     console.log("load: gonna load files",files)
     if (!files) return;
     files.split(/\s+/).map( loadfile )
-  })
+  });
+
   env.signalParam("files");
 
   function loadfile(file) {
+     if (!file) return;
+
      if (file.endsWith( ".js")) {
        file = env.compute_path( file );
        return vzPlayer.loadPackage( file )
@@ -285,4 +288,79 @@ export function base_url_tracing( env, opts )
       return add_dir_if( file, opts.base_url );
     return file;
   }
+}
+
+//////////////////////////////////////////
+export function setter( obj, options )
+{
+   obj.addParamRef("target","");
+   obj.addObjectRef("object","");
+
+   obj.addCmd( "apply",() => {
+
+      if (obj.params.target) {
+        var arr = obj.params.target.split("->");
+        var tobj = obj.findByPath( arr[0] );
+        if (tobj) {
+          tobj.setParam( arr[1], obj.params.value, obj.params.manual );
+        }
+      }
+
+      if (obj.params.object) {
+        obj.params.object.setParam( obj.params.param, obj.params.value, obj.params.manual );
+      }
+   } )
+
+}
+
+export function func( obj, options )
+{
+   obj.feature("call_cmd_by_path");
+
+   obj.addCmd( "apply",() => {
+      if (obj.params.code) {
+        var env = obj;
+        eval( obj.params.code );
+      }
+      if (obj.params.cmd) {
+        obj.callCmdByPath(obj.params.cmd)
+      }
+      for (let c of obj.ns.getChildren()) {
+        c.callCmd("apply");
+      }
+   } )
+}
+
+export function call_cmd_by_path(obj) {
+
+  obj.callCmdByPath = ( target_path, ...args ) => {
+      if (!target_path) return;
+      if (typeof(target_path) == "function") {
+        return target_path( ...args )
+      }
+      var arr = target_path.split("->");
+      if (arr.length != 2) {
+        //console.error("btn: cmd arr length not 2!",arr );
+        return;
+      }
+      var objname = arr[0];
+      var paramname = arr[1];
+      //var sobj = obj.findByPath( objname );
+      //R-LINKS-FROM-OBJ
+      var sobj = obj.findByPath( objname );
+      if (!sobj) {
+        console.error("callCmdByPath: cmd target obj not found",objname );
+        return; 
+      }
+      if (!sobj.hasCmd( paramname)) {
+        if (typeof( sobj[paramname] ) === "function") {
+          sobj[paramname].apply( sobj );
+          return;
+        }
+        console.error("btn: cmd target obj has nor such cmd, nor function",objname,paramname );
+        return; 
+      }
+      sobj.callCmd( paramname );
+  }
+
 }

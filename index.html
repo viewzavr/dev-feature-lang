@@ -73,11 +73,19 @@
     var htmldir = vz.getDir(import.meta.url)  
     vzPlayer.loadPackage( htmldir + "./viewzavr-system-a/features/list.txt" ).then( () => {
     
-    vzPlayer.addPackage( {code:"lib3d",url:(htmldir + "./lib3d/lib3d.js")});
-    vzPlayer.addPackage( {code:"csv",url:(htmldir + "./csv/features.js")});
-    //vzPlayer.addPackage( {code:"params",url:(htmldir + "./params.cl")});
+    vzPlayer.addPackage( {code:"lib3d",url:(htmldir + "./libs/lib3d/lib3d.js")});
+    vzPlayer.addPackage( {code:"csv",url:(htmldir + "./libs/csv/features.js")});
+
+    //vzPlayer.addPackage( {code:"basic",url:(htmldir + "./libs/basic/basic.js")});
+    
+    //vzPlayer.addPackage( {code:"params",url:(htmldir + "./libs/params/params.cl")});
     vzPlayer.feature("register_compolang_func");
-    vzPlayer.register_compalang( "params",(htmldir + "./params.cl"));
+    vzPlayer.register_compalang( "params",(htmldir + "./libs/params/params.cl"));
+
+    // короче идея такая что загружать из стандартного чего-то типа list.txt или еще что
+    // а то получается знание из пакета кочует сюда и это коряво. пусть пакет живет в папке, это можно пережить..
+    // например как альтернативный вариант..
+    vzPlayer.register_compalang( "guidom",(htmldir + "./libs/guidom/init.cl"));
 
     fetch( file ).then( (res) => res.text() ).then( (txt) => {
         obj.setParam("base_url",filedir);

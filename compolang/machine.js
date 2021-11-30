@@ -34,7 +34,6 @@ export function compolang_machine(obj) {
 
 }
 
-
 // create function should return Viewzavr object
 export function create22( vz, opts ) {
   opts.name ||= "compolang";

@@ -106,6 +106,9 @@ attr_name
 obj_id
   = [a-zA-Z0-9_]+ { return text(); }
 
+obj_path
+  = [\.\\]+ { return text(); }  
+
 // ------- A. envs
 one_env
   =
@@ -187,6 +190,14 @@ link
   / "@" obj_id
   {
     return { link: true, value: text() + "->." }
+  }
+  / "@" path:(obj_path "->" attr_name)
+  {
+    return { link: true, value: path.join("") }
+  }
+  / "@" path:obj_path 
+  {
+    return { link: true, value: path + "->." }
   }
 
 // ----- 3. Values -----
