@@ -285,10 +285,16 @@ zero
 // ----- 7. Strings -----
 
 string "string"
-  = quotation_mark chars:char* quotation_mark { return chars.join(""); }
-  / "`" chars:(!"`" SourceCharacter)* "`" { 
+  = "`" chars:(!"`" SourceCharacter)* "`" { 
     return chars.map(c=>c[1]).join(""); 
   }
+  / "'" chars:(!"'" SourceCharacter)* "'" { 
+    return chars.map(c=>c[1]).join(""); 
+  }
+  / "\"" chars:(!"\"" SourceCharacter)* "\"" { 
+    return chars.map(c=>c[1]).join(""); 
+  }  
+  / quotation_mark chars:char* quotation_mark { return chars.join(""); }
 
 //  / quotation_mark2 chars:char* quotation_mark2 { return chars.join(""); }
 //  / quotation_mark3 chars:char* quotation_mark3 { return chars.join(""); }

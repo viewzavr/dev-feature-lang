@@ -4,4 +4,5 @@ layout.js
 screen.js
 style.js
 dom-event.js
+gui-elements.cl
 `;

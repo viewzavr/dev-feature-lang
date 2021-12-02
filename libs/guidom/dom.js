@@ -50,21 +50,67 @@ export function dom( obj, options )
 
   obj.setParamOption("dom","internal",true);
 
-  function trigger_all_params() {
+  function trigger_dom_params() {
+    if (obj.dom)
     for( let pn of obj.getParamsNames()) {
-      if (!obj.hasCmd( pn ))
-        obj.signalParam( pn );
+      maybe_apply_dom_attr( pn,obj.getParam(pn) );
+      //if (!obj.hasCmd( pn )) obj.signalParam( pn );
       // тут и аттрибуты dom будут и наши параметры
     }
   }
 
   // волшебный мостик
   obj.on('param_changed',(name,value) => {
-    if (name.startsWith("dom_")) {
-      name = name.substring(4);
-      obj.dom.setAttribute(name,value);
-    }
+    maybe_apply_dom_attr( name, value );
   });
+
+  function maybe_apply_dom_attr( name, value ) {
+    if (obj.dom && name.startsWith("dom_")) {
+       name = name.substring(4);
+       obj.dom.setAttribute(name,value);
+    }
+  }
+
+  function apply_dom_params() {
+    //// фишка участия во flex-раскладке (пока тут)
+    obj.addString("flex","",(v) => {
+      obj.dom.style.flex = v;
+    })
+
+    obj.addText("style","",(v) => {
+      obj.dom.style.cssText = obj.dom.style.cssText + ";" + v; // todo странная вещь - будет расти
+    })
+
+    obj.addString("padding","0em",(v) => {
+      obj.dom.style.padding = v;
+    })
+
+    obj.addString("margin","0em",(v) => {
+      obj.dom.style.margin = v;
+    })
+
+    obj.addString("class","",(v) => {
+      obj.dom.className = v;
+    })
+
+    obj.addString("innerHTML","",(v) => {
+      console.log("dom:innerHTML assign",obj.getPath(),v)
+      obj.dom.innerHTML = v.toString ? v.toString() : v;
+    })
+
+    // ну это вестимо да, всем надо..
+    obj.addCheckbox("visible",true,(v) => {
+      /*
+       if (v) dom.removeAttribute("hidden")
+        else
+       dom.setAttribute("hidden", true)
+     */
+        //v ? dom.classList.remove("vz_gui_hide") : dom.classList.add("vz_gui_hide");
+        
+        obj.dom.hidden = !v;
+        //dom.style.visibility = v ? 'visible' : 'collapse';
+    })    
+  }
 
   obj.on("remove",() => {
     if (obj.dom)
@@ -116,9 +162,12 @@ export function dom( obj, options )
            if (!Array.isArray(od)) od = [od];
            //od = od.flat(8);
            for (let odd of od) {
-             target.appendChild( odd );
-             //console.log("adding child dom",odd);
-             odd.viewzavr_combination_source  = c; // в него прям поселим
+             // там в output всякого напихать могут..
+             if (odd instanceof Element) {
+               target.appendChild( odd );
+               //console.log("adding child dom",odd);
+               odd.viewzavr_combination_source  = c; // в него прям поселим
+             }
            } 
        }
     }
@@ -136,43 +185,6 @@ export function dom( obj, options )
       dc.remove();
   }
 
-  //// фишка участия во flex-раскладке (пока тут)
-  obj.addString("flex","",(v) => {
-    obj.dom.style.flex = v;
-  })
-
-  obj.addText("style","",(v) => {
-    obj.dom.style.cssText = obj.dom.style.cssText + ";" + v; // todo странная вещь - будет расти
-  })
-
-  obj.addString("padding","0em",(v) => {
-    obj.dom.style.padding = v;
-  })
-
-  obj.addString("margin","0em",(v) => {
-    obj.dom.style.margin = v;
-  })
-
-  obj.addString("class","",(v) => {
-    obj.dom.className = v;
-  })
-
-  obj.addString("innerHTML","",(v) => {
-    obj.dom.innerHTML = v;
-  })
-
-  // ну это вестимо да, всем надо..
-  obj.addCheckbox("visible",true,(v) => {
-    /*
-     if (v) dom.removeAttribute("hidden")
-      else
-     dom.setAttribute("hidden", true)
-   */
-      //v ? dom.classList.remove("vz_gui_hide") : dom.classList.add("vz_gui_hide");
-      
-      obj.dom.hidden = !v;
-      //dom.style.visibility = v ? 'visible' : 'collapse';
-  })
   Object.defineProperty(obj, "visible", { 
      set: function (x) { obj.setParam("visible",x); },
      get: function() { return obj.params.visible; }
@@ -190,6 +202,7 @@ export function dom( obj, options )
   }
 */  
   // это надо для слотов
+/*
   if (options?.params?.name)
     obj.dom.setAttribute("name",opts.params.name);
 
@@ -199,18 +212,23 @@ export function dom( obj, options )
   // тыркнем родителя
   if (obj.ns.parent?.rescan_children) obj.ns.parent.rescan_children();
   // @todo переделать на нормальную ТПУ
+*/  
 
   function create_this_dom() {
     var t = obj.params.tag || "div";
     if (obj?.dom?.$cl_tag_name == t) return;
 
     if (obj.dom) obj.dom.remove();
-    
+
     obj.dom = document.createElement( t );
     obj.dom.$cl_tag_name = t;
-    obj.setParam("dom",dom);
+    obj.setParam("dom",obj.dom);
     rescan_children();
-    trigger_all_params();
+    trigger_dom_params();
+    apply_dom_params();
+
+    //trigger_all_params();
+    if (obj.ns.parent?.rescan_children) obj.ns.parent.rescan_children();
   }
   
 

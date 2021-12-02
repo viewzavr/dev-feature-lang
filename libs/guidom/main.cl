@@ -8,6 +8,36 @@ screen auto-activate layout flow="column" padding="1em" {
   	button text="кнопку!" cmd=@f1->apply;
   };
   file padding="1em";
+
+cb1:  combobox values=["afla.csv","beta.csv","teta.csv"];
+
+
+  row {
+     text text="combo value = ";
+     lab0: text text=@cb1->value;
+  };
+  row {  
+     text text="combo index = ";
+     lab1: text text=@cb1->index;
+  };
+
+
+  tabview {
+    button text="1";
+	button text="2";
+  };
+
+/*
+  tabview {
+  	tab text="первая" {
+  		button text="1";
+  	};
+  	tab text="вторая" {
+  		button text="2";
+  	};
+  };
+*/  
+  
 };
 
 f1: func {
@@ -21,8 +51,9 @@ setter1a: func {
 func2: func code=`console.log(333)`;
 
   
+/*	  
 register_feature name="button" {
-	dom tag="button" innerHTML=@.->text {
+	dom tag="button" innerHTML=@.->text dom_type="file" {
 		dom_event object=@.. name="click" cmd=@..->cmd;
 	}
 };
@@ -35,6 +66,7 @@ register_feature name="file" {
 		`
 	}
 };
+*/
 
 /*
 register_feature name="file" {

@@ -25,38 +25,16 @@ export function layout( obj, opts )
   var dom;
   var flextype = 'inline-flex'; // flex
 
-  obj.onvalue("dom",() => {
-    dom = obj.dom;
-    if (!obj.dom)
-        debugger;
+  obj.onvalue("dom",(dom) => {
     dom.style.display=flextype; 
-    /* вроде как стало не надо - dom триггерит всех
-    obj.signalParam( "flow" );
-    obj.signalParam( "justify-content" );
-    obj.signalParam( "align-items" );
-    obj.signalParam( "align-content" );
-    obj.signalParam( "gap" );
-    obj.signalParam( "visible" );
-    */
-  
-
+    
     obj.addComboValue( "flow","row",["row","column","row wrap","column wrap"],(v) => {
       if (!dom)
           debugger;
-        if (!dom.style)
+      if (!dom.style)
           debugger;
       dom.style.flexFlow = v; //v.replace("_"," ");
     });
-
-    /*
-    obj.addComboValue( "direction","row",["row","column"],(v) => {
-      dom.style.flexDirection = v;
-    });
-
-    obj.addComboValue( "wrap","nowrap",["nowrap","wrap"],(v) => {
-      dom.style.flexWrap = v;
-    });
-    */
 
     obj.addComboValue( "justify-content","flex-start",["flex-start","flex-end","center","space-between","space-around","space-evenly"],(v) => {
       dom.style.justifyContent = v;

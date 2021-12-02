@@ -52,13 +52,12 @@ export function screen( obj, opts )
   //obj.env("add_css_style").feature("add_css_style",{content:`[hidden] { display: none !important; }`);
 
   obj.feature("dom");
+  obj.setParam("visible",false);
+  obj.setParam("class","vz-screen");
 
-  obj.onvalue("dom",() => {
-    console.log("screen: dom changed", obj.dom)
-    console.trace();
-    
-    obj.setParam("visible",false);
-    obj.setParam("class","vz-screen");
+  obj.onvalue("dom",(dom) => {
+    console.log("screen: dom changed", dom)
+    //console.trace();
     
     obj.addCmd("activate",() => {
       console.log("ACTIVATE CALLED");
@@ -66,13 +65,8 @@ export function screen( obj, opts )
       vzPlayer.feature("screens-api");
       vzPlayer.setParam("active_screen",obj,true);
     });
-    
-    // пока пусть тут будет
-    if (!obj.dom) {
-        debugger;
-    }
 
-    qmlEngine.rootObject.dom.appendChild( obj.dom );
+    qmlEngine.rootObject.dom.appendChild( dom );
 
     console.log("screen is emitting");
     obj.emit("screen-created");

@@ -20,6 +20,7 @@ export function simple_lang(env)
           console.log( e.format( [{text:code}] ));
     }
   }
+  env.compalang = env.parseSimpleLang;
 }
 
 // преобразовать результат парсинга во вьюзавр-дамп
@@ -291,6 +292,9 @@ export function base_url_tracing( env, opts )
 }
 
 //////////////////////////////////////////
+// устанавливает указанный параметр при вызове команды apply
+// * target - полная ссылка на объект
+// * пара object="some-path" и param="..."
 export function setter( obj, options )
 {
    obj.addParamRef("target","");
@@ -313,6 +317,7 @@ export function setter( obj, options )
 
 }
 
+// выполняет указанный код при вызове команды apply
 export function func( obj, options )
 {
    obj.feature("call_cmd_by_path");
@@ -329,6 +334,33 @@ export function func( obj, options )
         c.callCmd("apply");
       }
    } )
+}
+
+// автоматический вызов команды apply при изменении любых параметров
+// (кстати странно - даже выходных получается)
+export function auto_apply( obj ) {
+  function evl() {
+    obj.callCmd("apply");
+  }
+  env.feature("delayed");
+  var eval_delayed = env.delayed( evl )
+
+  env.on('param-changed', (name) => {
+    if (name == "output") return;
+    if (env.getParamOption(name,"iotype") == "output") return;
+    eval_delayed();
+  });
+}
+
+// выполняет заданный код. если код поменяется - выполнит его еще раз.
+export function js( obj, options )
+{
+  obj.onvalue("code",() => {
+    if (obj.params.code) {
+     var env = obj;
+     eval( obj.params.code );
+    }
+  });
 }
 
 export function call_cmd_by_path(obj) {
@@ -363,4 +395,75 @@ export function call_cmd_by_path(obj) {
       sobj.callCmd( paramname );
   }
 
+}
+
+//////////////////////////////////
+export function repeater( env, fopts, envopts ) {
+  var children = {};
+  env.restoreFromDump = (dump,manualParamsMode) => {
+    children = dump.children;
+    env.vz.restoreParams( dump, env,manualParamsMode );
+    env.vz.restoreLinks( dump, env,manualParamsMode );
+    env.vz.restoreFeatures( dump, env,manualParamsMode );
+    
+    return Promise.resolve("success");
+  }
+
+  var created_envs = [];
+
+  env.onvalue("model",(model) => {
+     for (let old_env of created_envs) {
+       old_env.remove();
+     }
+
+     var firstc = Object.keys( children )[0];
+
+     for (let element of model) {
+       var p = env.vz.createSyncFromDump( children[firstc],null,env.ns.parent );
+       p.then( (child_env) => {
+          // todo epochs
+          child_env.setParam("modelData",element);
+          child_env.setParam("modelIndex",element);
+          created_envs.push( child_env );
+       });
+     }
+  })
+}
+
+////////////////////////////
+export function compute( env, fopts ) {
+  env.setParam("output",undefined);
+  env.setParamOption("output","internal",true);
+
+  function evl() {
+    if (env.params.code) {
+     var params = env.params;
+     eval( env.params.code );
+    }
+  }
+
+  env.feature("delayed");
+  var eval_delayed = env.delayed( evl )
+
+  env.on('param_changed', eval_delayed );
+  eval_delayed();
+}
+
+export function compute_output( env, fopts ) {
+  env.setParam("output",{});
+  env.setParamOption("output","internal",true);
+
+  function evl() {
+    if (env.params.code) {
+     var params = env.params;
+     var res = eval( env.params.code );
+     env.setParam("output",res);
+    }
+  }
+
+  env.feature("delayed");
+  var eval_delayed = env.delayed( evl )
+
+  env.on('param_changed', eval_delayed );
+  eval_delayed();
 }
