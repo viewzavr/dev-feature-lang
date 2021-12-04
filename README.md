@@ -25,8 +25,8 @@ On Linux, this will add menu to GNOME Nautilus.
 # Development
 
 ```
-git clone https://github.com/viewzavr/vr-cinema.git
-cd vr-cinema
+git clone https://github.com/viewzavr/vrungel.git
+cd vrungel
 git submodule update --init --recursive
 npm install
 npm start
