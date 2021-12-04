@@ -23,8 +23,18 @@ cb1:  combobox values=["afla.csv","beta.csv","teta.csv"];
 
 
   tabview index=@cb1->index {
-    	text text="first";
-    	text text="second";
+    	tab text="first" padding="0.2em" {
+    		button text="куку";
+    	};
+    	tab text="second" padding="0.2em" {
+    		row gap="0.5em" {
+    			button text="крякря";
+    			combobox values=["sigma","ulundi"];
+    		}
+    	};
+    	tab text="и ищще" padding="0.2em" {
+    		button text="куку-2";
+    	};    	
   };
   
 

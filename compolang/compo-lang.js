@@ -479,7 +479,9 @@ export function compute_output( env, fopts ) {
   function evl() {
     if (env.params.code) {
      var params = env.params;
-     var res = eval( env.params.code );
+     var func = new Function('env',env.params.code)
+     var res = func( env );
+     //var res = eval( env.params.code );
      env.setParam("output",res);
     }
   }

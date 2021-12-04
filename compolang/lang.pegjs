@@ -107,7 +107,7 @@ obj_id
   = [a-zA-Z0-9_]+ { return text(); }
 
 obj_path
-  = [\.\\]+ { return text(); }  
+  = [\.\/]+ { return text(); }  
 
 // ------- A. envs
 one_env

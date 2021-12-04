@@ -79,7 +79,8 @@ export function dom( obj, options )
     })
 
     obj.addText("style","",(v) => {
-      obj.dom.style.cssText = obj.dom.style.cssText + ";" + v; // todo странная вещь - будет расти
+      obj.dom.style.cssText = v;
+      // как делать несколько стилей по разным причинам?
     })
 
     obj.addString("padding","0em",(v) => {
@@ -95,9 +96,13 @@ export function dom( obj, options )
     })
 
     obj.addString("innerHTML","",(v) => {
-      console.log("dom:innerHTML assign",obj.getPath(),v)
+      //console.log("dom:innerHTML assign",obj.getPath(),v)
       obj.dom.innerHTML = v.toString ? v.toString() : v;
     })
+    obj.addString("innerText","",(v) => {
+      //console.log("dom:innerText assign",obj.getPath(),v)
+      obj.dom.innerText = v.toString ? v.toString() : v;
+    });
 
     // ну это вестимо да, всем надо..
     obj.addCheckbox("visible",true,(v) => {

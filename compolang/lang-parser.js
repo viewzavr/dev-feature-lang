@@ -216,7 +216,7 @@ function peg$parse(input, options) {
   var peg$r0 = /^[ \t\n\r]/;
   var peg$r1 = /^[a-zA-Z0-9_\-]/;
   var peg$r2 = /^[a-zA-Z0-9_]/;
-  var peg$r3 = /^[.\\]/;
+  var peg$r3 = /^[.\/]/;
   var peg$r4 = /^[1-9]/;
   var peg$r5 = /^[eE]/;
   var peg$r6 = /^[^\0-\x1F"\\]/;
@@ -236,7 +236,7 @@ function peg$parse(input, options) {
   var peg$e8 = peg$literalExpectation("=", false);
   var peg$e9 = peg$classExpectation([["a", "z"], ["A", "Z"], ["0", "9"], "_", "-"], false, false);
   var peg$e10 = peg$classExpectation([["a", "z"], ["A", "Z"], ["0", "9"], "_"], false, false);
-  var peg$e11 = peg$classExpectation([".", "\\"], false, false);
+  var peg$e11 = peg$classExpectation([".", "/"], false, false);
   var peg$e12 = peg$literalExpectation("|", false);
   var peg$e13 = peg$literalExpectation(";", false);
   var peg$e14 = peg$literalExpectation("@", false);
