@@ -2,7 +2,7 @@ export function setup(vz, m) {
   vz.register_feature_set( m );
 }
 
-import * as utils from "../utils.js";
+import * as utils from "./utils.js";
 
 export function points( env ) {
   var obj = env.vz.vis.addPoints( env, "points" );

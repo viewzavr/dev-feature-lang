@@ -37,7 +37,7 @@ register_feature name="slider" code=`
   });
 `;
 
-register_feature name="file" code=`
+register_feature name="file_param" code=`
   var t;
   env.onvalue( "value", (v) => env.ns.parent.setParam( env.ns.name,v) );
   function setup() {

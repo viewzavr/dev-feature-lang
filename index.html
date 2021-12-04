@@ -85,7 +85,8 @@
     // короче идея такая что загружать из стандартного чего-то типа list.txt или еще что
     // а то получается знание из пакета кочует сюда и это коряво. пусть пакет живет в папке, это можно пережить..
     // например как альтернативный вариант..
-    vzPlayer.register_compalang( "guidom",(htmldir + "./libs/guidom/init.cl"));
+    vzPlayer.register_compalang( "gui",(htmldir + "./libs/gui/init.cl"));
+    vzPlayer.register_compalang( "io",(htmldir + "./libs/io/init.cl"));
 
     fetch( file ).then( (res) => res.text() ).then( (txt) => {
         obj.setParam("base_url",filedir);

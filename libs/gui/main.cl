@@ -1,4 +1,4 @@
-load files="guidom";
+load files="gui";
 
 screen auto-activate layout flow="column" padding="1em" {
   dom tag="h1" innerHTML="Привет мир!";

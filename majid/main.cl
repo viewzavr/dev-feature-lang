@@ -1,11 +1,12 @@
-load files="lib3d csv params alfa.js";
+load files="lib3d csv params io alfa.js gui";
+//load files="gui";
 
 dasparams: showparams {
-  cb1: combo values=["TSNE_output.csv","MDS_output.csv"];
-  f1:  file  value=@cb1->value;
+  cb1: combo values=["http://viewlang.ru/assets/majid/2021-11/TSNE_output.csv","http://viewlang.ru/assets/majid/2021-11/MDS_output.csv"];
+  f1:  file_param  value=@cb1->value;
 };
 
-dat: load-csv file=@f1->value | rescale_rgb;
+dat: load-file file=@f1->value | parse_csv | rescale_rgb;
 
 register_feature name="rescale_rgb" {
   df_div column="R" coef=255.0 | df_div column="G" coef=255.0 | df_div column="B" coef=255.0;
@@ -26,12 +27,11 @@ register_feature name="df_div" code=`
   }
 `;
 
-mainscreen: screen auto-activate {
+mainscreen: screen auto-activate padding="1em" {
+  dom tag="h4" innerText="Параметры";
   column gap="0.5em" padding="1em" {
-
     objects-guis objects="** @showparams";
     //objects-guis objects="** @showparams";
-
   };
   render3d {
     @dat | linestrips;

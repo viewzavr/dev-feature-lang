@@ -5,31 +5,14 @@ export function setup(vz, m) {
 import CSV from "./csv.js";
 import * as df from "./df.js";
 
-export function load_csv( env ) {
+export function parse_csv( env ) {
   env.feature("load_file_func");
   //var empty_df = df.create();
-  env.addFile("file");
-  env.trackParam("file",(file) => {
-    console.log("gonna load csv from",file);
-    //env.setParam("output",df );
-    // возможно стоит compute_path внедрить в load_file
-    file = env.compute_path( file );
-
-    env.loadFile( file,(text) => {
-      var df = CSV( text );
-      env.setParam("output",df );
-    },(err) => {
-      env.setParam("output",[] );
-    });
-    /* fetch не работает с файловыми объектами
-    fetch( file ).then( (res) => res.text() ).then( (text) => {
-      var df = CSV( text )
-      env.setParam("output",df );
-    });
-    */
+  env.addText("input");
+  env.onvalue("input",(text) => {
+    var df = CSV( text );
+    env.setParam("output",df );
   })
-  if (env.params.file)
-      env.signalParam("file");
 }
 
 // тут set считается что в своем окружении и опирается на параметры этого окружения

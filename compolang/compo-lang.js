@@ -78,8 +78,9 @@ export function load(env,opts)
      if (!file) return;
 
      if (file.endsWith( ".js")) {
-       file = env.compute_path( file );
-       return vzPlayer.loadPackage( file )
+       var file2 = env.compute_path( file );
+       console.log("loading package",file,"=>",file2);
+       return vzPlayer.loadPackage( file2 )
      }
      if (vzPlayer.getPackageByCode(file)) {
        return vzPlayer.loadPackage( file )
@@ -90,10 +91,15 @@ export function load(env,opts)
      else
       file = env.compute_path( file );
 
-     var new_base_url = env.vz.getDir( file );
+     let new_base_url = env.vz.getDir( file );
      console.log("load: loading",file)
      fetch( file ).then( (res) => res.text() ).then( (txt) => {
-       env.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url} );
+       // нужна sub-env для отслеживания base-url
+       var subenv = env.create_obj( {} );
+       subenv.feature("simple-lang");
+       subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url} );
+       // было
+       //subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url} );
      });
   }
 }
@@ -286,11 +292,12 @@ function add_dir_if( path, dir ) {
 
 export function base_url_tracing( env, opts ) 
 {
-  //env.$base_url = opts.base_url;
+  env.$base_url = opts.base_url;
   env.compute_path = (file) => {
     //if (Array.isArray(file))
     if (typeof(file) === "string")
-      return add_dir_if( file, opts.base_url );
+      return add_dir_if( file, env.$base_url );
+      //return add_dir_if( file, opts.base_url );
     return file;
   }
 }
