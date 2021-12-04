@@ -49,7 +49,7 @@ register_feature name="combobox" {
 	dom tag="select" {
 
     ///////////////////////////////////////////////
-    // мостик из cl в dom
+    // мостик из CL в dom
 	  js code='
 	 var main = env.ns.parent;
    main.onvalue("index",(i) => {
@@ -110,45 +110,64 @@ register_feature name="combobox" {
 
 // index - номер текущей табы
 register_feature name="tabview" {
-	tabview: column {
-		row {
-			repeater model=@tabview->titles {
-				button text=@.->modelData cmd=@clicked->trigger {
-					clicked: setter target="@tabview->index" value=@..->modelIndex;
+	column index=0 {
+		shadow: shadow_dom {
+			row {
+				 /// model=@../../..->titles
+				repeater model=@titles_computer->output {
+					button text=@.->modelData cmd=@clicked->apply {
+						clicked: setter target="../../../..->index" value=@..->modelIndex;
+					};
 				};
 			};
-		};
-		tabshere: row {
-		};
-		js code=`
-		  debugger;
-		  var tabsobj = env.ns.parent.ns.childrenTable.tabshere;
-		  env.ns.parent.ns.appendChild = (...args) => {
-		  	debugger;
-		    tabsobj.ns.appendChild(...args);
-		  }
+			tabshere: row {	};
 
-		  tabsobj.on('change_in_tree',() => {
-		  	var child_items = tabsobj.ns.getChildren() || [];
-		  	var titles = [];
-        child_items.forEach( (elem,eindex) => {
-        	 titles.push( elem.params.text );
-        });
-        env.ns.parent.setParam("titles",titles);
-        update_visible_tab();
-		  });
+			js code=`
+			  var shadow = env.ns.parent;
+			  var tabview = shadow.ns.parent;
+			  var tabshere = shadow.ns.childrenTable.tabshere;
 
-		  env.ns.parent.onvalue("index",update_visible_tab )
+			  tabshere.inputObjectsList = () => tabview.ns.children;
+			  tabview.on("childrenChanged",() => {
+			    tabshere.callCmd("rescan_children");;
+			    update_visible_tab();
+			  } ); // dom hack
 
-		  function update_visible_tab() {
-		  	var index = env.ns.parent.params.index;
-		  	var child_items = tabsobj.ns.getChildren() || [];
-        child_items.forEach( (elem,eindex) => {
-        	elem.setParam("visible", eindex == index)
-        })
-		  }
-		`;
-	 };
+			  tabview.onvalue("index",update_visible_tab )
+
+			  function update_visible_tab() {
+			  	var index = tabview.params.index;
+   	      tabview.ns.children.forEach( (elem,eindex) => {
+	        	 elem.setParam("visible", eindex == index)
+	        })
+			  }
+		    
+		    tabshere.callCmd("rescan_children");;
+  	    update_visible_tab();
+
+			 `;
+
+			 titles_computer: compute code=`
+			  var shadow = env.ns.parent;
+			  var tabview = shadow.ns.parent;
+			  var tabshere = shadow.ns.childrenTable.tabshere;
+
+				function scan_titles() 
+			  {
+			  	var titles = [];
+	        tabview.ns.children.forEach( (elem,eindex) => {
+	        	 titles.push( elem.params.text );
+	        });
+	        env.setParam("output",titles);
+	        env.setParamOption("output","internal",true);
+			  }
+
+			  tabview.on("childrenChanged",scan_titles ); // dom hack
+			  scan_titles();
+			  		  
+			 `;
+  	}; // shadow_dom
+	 }; // column
 };
 
 register_feature name="tab" {

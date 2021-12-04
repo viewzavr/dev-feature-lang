@@ -229,7 +229,11 @@ export function register_feature( env, fopts, envopts ) {
     if (Object.keys( children ).length > 0) {
       var firstc = Object.keys( children )[0];
       compalang_part = (tenv) => {
-        tenv.restoreFromDump( children[firstc] );
+        var edump = children[firstc];
+        edump.keepExistingChildren = true; // смехопанорама
+        edump.keepExistingParams = true;
+        tenv.restoreFromDump( edump );
+        //tenv.vz.createChildrenByDump( dump, obj, manualParamsMode );
       }
     }
 
@@ -357,8 +361,14 @@ export function js( obj, options )
 {
   obj.onvalue("code",() => {
     if (obj.params.code) {
-     var env = obj;
-     eval( obj.params.code );
+       var env = obj;
+       try {
+         eval( obj.params.code );
+       }
+       catch (e) 
+       {
+         console.error(e);
+       }
     }
   });
 }
@@ -418,15 +428,19 @@ export function repeater( env, fopts, envopts ) {
 
      var firstc = Object.keys( children )[0];
 
-     for (let element of model) {
-       var p = env.vz.createSyncFromDump( children[firstc],null,env.ns.parent );
+     model.forEach( (element,eindex) => {
+       var edump = children[firstc];
+       edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
+
+       var p = env.vz.createSyncFromDump( edump,null,env.ns.parent );
        p.then( (child_env) => {
           // todo epochs
           child_env.setParam("modelData",element);
-          child_env.setParam("modelIndex",element);
+          child_env.setParam("modelIndex",eindex);
+
           created_envs.push( child_env );
        });
-     }
+     });
   })
 }
 
@@ -435,17 +449,26 @@ export function compute( env, fopts ) {
   env.setParam("output",undefined);
   env.setParamOption("output","internal",true);
 
+  var imsetting_params_maybe;
   function evl() {
     if (env.params.code) {
      var params = env.params;
-     eval( env.params.code );
+     imsetting_params_maybe = true;
+     try {
+      eval( env.params.code );
+     } finally {
+      imsetting_params_maybe=false;
+     }
     }
   }
 
   env.feature("delayed");
   var eval_delayed = env.delayed( evl )
 
-  env.on('param_changed', eval_delayed );
+  env.on('param_changed', () => {
+    if (!imsetting_params_maybe)
+       eval_delayed()
+  } );
   eval_delayed();
 }
 
@@ -464,6 +487,9 @@ export function compute_output( env, fopts ) {
   env.feature("delayed");
   var eval_delayed = env.delayed( evl )
 
-  env.on('param_changed', eval_delayed );
+  env.on('param_changed', (name) => {
+     if (name != "output")
+        eval_delayed();
+   });
   eval_delayed();
 }

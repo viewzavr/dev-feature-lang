@@ -32,7 +32,6 @@ export function setup( vz, m ) {
 */
 
 
-
 // здесь f это функция создания dom-элемента
 export function dom( obj, options )
 {
@@ -50,7 +49,8 @@ export function dom( obj, options )
 
   obj.setParamOption("dom","internal",true);
 
-  function trigger_dom_params() {
+  // это dom_attributes
+  function apply_dom_attrs() {
     if (obj.dom)
     for( let pn of obj.getParamsNames()) {
       maybe_apply_dom_attr( pn,obj.getParam(pn) );
@@ -70,7 +70,8 @@ export function dom( obj, options )
        obj.dom.setAttribute(name,value);
     }
   }
-
+  
+  // это наши параметры
   function apply_dom_params() {
     //// фишка участия во flex-раскладке (пока тут)
     obj.addString("flex","",(v) => {
@@ -124,30 +125,34 @@ export function dom( obj, options )
   //// поведение контейнера
   // todo надо будет разделить dom и childdom т.к. формально это разное
 
-  obj.outputDom = () => obj.dom;    // выходной дом для кобминаций
-  obj.combiningDom = () => obj.dom; // целевой комбинирующий дом
-  obj.inputObjectsList = () => obj.ns.children;
+  obj.outputDom ||= () => obj.dom;    // выходной дом для кобминаций
+  obj.combiningDom ||= () => obj.dom; // целевой комбинирующий дом
+  obj.inputObjectsList ||= () => obj.ns.children;
 
   obj.setParam("output",() => obj.outputDom() )
 
-  obj.on("appendChild",rescan_children);
-  obj.on("forgetChild",rescan_children);
+  obj.on("appendChild",rescan_children2);
+  obj.on("forgetChild",rescan_children2);
 
   create_this_dom();
 
   // это у нас по сути - алгоритм комбинации из SICP.
   // ВОЗМОЖНО его надо будет сделать перенастраиваемым
 
-  obj.rescan_children = delayed(rescan_children);
+  //obj.rescan_children = delayed(rescan_children);
+  var rescan_children_delayed = delayed(rescan_children2);
+  obj.addCmd("rescan_children",() => rescan_children_delayed() )
+  //obj.addCmd("rescan_children",() => rescan_children2() )
 
   //obj.rescan_children = rescan_children;
   
-  function rescan_children() {
+  function rescan_children2() {
+    console.log("rescan_children2 called")
     clear_viewzavr_dom_children();
 
     let target  = obj.combiningDom();
-    //let inputs = obj.inputObjectsList();
-    let inputs = obj.ns.children;
+    let inputs = obj.inputObjectsList();
+    //let inputs = obj.ns.children;
     for (let c of inputs) {
       if (c.protected) continue;
 
@@ -223,12 +228,15 @@ export function dom( obj, options )
     obj.dom = document.createElement( t );
     obj.dom.$cl_tag_name = t;
     obj.setParam("dom",obj.dom);
-    rescan_children();
-    trigger_dom_params();
+    rescan_children2();
+    apply_dom_attrs();
     apply_dom_params();
 
     //trigger_all_params();
-    if (obj.ns.parent?.rescan_children) obj.ns.parent.rescan_children();
+    //if (obj.ns.parent?.rescan_children) obj.ns.parent.rescan_children();
+    if (obj.ns.parent) {
+        obj.ns.parent.callCmd("rescan_children");
+    }
   }
   
 
@@ -286,4 +294,32 @@ function delayed( f,delay=0 ) {
   }
 
   return res;
+}
+
+///////////////////////////////////////////
+
+/*
+нужна возможность задавать новое тело для реализации.
+идеи возмьем из вебовского shadow-dom, но тут у нас своя реализация.
+*/
+export function shadow_dom( obj, options )
+{
+  // 1 модифицировать у парента поведение выбора чего добавлять в дом
+  obj.inputObjectsList = () => obj.ns.children;
+  obj.ns.parent.inputObjectsList = () => {
+    return obj.inputObjectsList();
+  }
+  // сделано так чтобы смогла получиться рекурсия.
+
+  // 2 убрать себя из списка детей парента
+  var shadow_parent = obj.ns.parent;
+  obj.ns.parent.ns.forgetChild( obj );
+  // после этого связть только через inputObjectsList получается, что в принципе норм.
+  
+  // 3. будут вызывать rescan_children и еще события слать
+  obj.rescan_children = function() {
+    shadow_parent.rescan_children();
+  }
+  obj.on("appendChild",obj.rescan_children);
+  obj.on("forgetChild",obj.rescan_children);
 }

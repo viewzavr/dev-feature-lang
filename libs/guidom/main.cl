@@ -22,10 +22,11 @@ cb1:  combobox values=["afla.csv","beta.csv","teta.csv"];
   };
 
 
-  tabview {
-    button text="1";
-	button text="2";
+  tabview index=@cb1->index {
+    	text text="first";
+    	text text="second";
   };
+  
 
 /*
   tabview {
