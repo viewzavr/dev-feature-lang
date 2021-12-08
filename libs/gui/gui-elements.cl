@@ -9,13 +9,15 @@ register_feature name="text" {
 	};
 };
 
+//
 register_feature name="file" {
 	dom tag="input" dom_type="file" {
 		dom_event object=@.. name="change" code=`
-		  object.setParam("output",env.params.object.dom.files[0],true)
-		`
+		  object.setParam("value",env.params.object.dom.files[0],true)
+		`;
 	};
 };
+
 
 ///////////////////////////////////////////////////// radio_button
 /* входы
@@ -30,6 +32,27 @@ register_feature name="radio_button" {
 		text text=@..->text;
 		dom_event object=@.. name="click" cmd=@..->cmd;
 	};
+};
+
+///////////////////////////////////////////////////// slider
+register_feature name="slider" {
+	dom tag="slider" dom_type="range" 
+	    min=0 max=100 step=1 value=0
+	    sliding=true 
+	{
+		 link from=@..->min to=@..->dom_min;
+		 link from=@..->max to=@..->dom_max;
+		 link from=@..->step to=@..->dom_step;
+		 link from=@..->value to=@..->dom_value;
+		 dom_event name="input" code=`
+		 	if (object.params.sliding)
+		 		  object.setParam("output", parseFloat( object.params.dom.value ) );
+		 `;
+		 dom_event name="change" code=`
+		 		  object.setParam("output", parseFloat( object.params.dom.value ) );
+		 `;
+
+  };
 };
 
 ///////////////////////////////////////////////////// combobox
@@ -51,7 +74,7 @@ register_feature name="combobox" {
 
     ///////////////////////////////////////////////
     // мостик из CL в dom
-	  js code='
+	 js code='
 	 var main = env.ns.parent;
    main.onvalue("index",(i) => {
    	 setup_index();
@@ -69,7 +92,9 @@ register_feature name="combobox" {
    }
    function setup_values() {
    	  if (!main.params.dom) return;
+   	  if (!main.params.values?.map) return;
    	  var t = "";
+
    	  main.params.values.map( (v,index) => {
          var s = `<option value="${v}">${v}</option>\n`;
          t = t+s;
@@ -83,7 +108,7 @@ register_feature name="combobox" {
 		dom_event name="change" code=`
       console.log("dom onchange")
 		  if (object.params.values) {
-		  	object.setParam("output",object.params.values[ object.dom.selectedIndex ]);
+		  	//object.setParam("output",object.params.values[ object.dom.selectedIndex ]);
 			  object.setParam("value",object.params.values[ object.dom.selectedIndex ]);
 		  }
 		`;

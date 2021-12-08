@@ -70,6 +70,16 @@ export function dom( obj, options )
        obj.dom.setAttribute(name,value);
     }
   }
+  /*
+
+  function maybe_apply_dom_param( name, value ) {
+    if (obj.dom && name.startsWith("dom_prop_")) {
+       name = name.substring(4);
+       //obj.dom.setAttribute(name,value);
+       obj.dom[name] = value;
+    }
+  }
+  */
   
   // это наши параметры
   function apply_dom_params() {

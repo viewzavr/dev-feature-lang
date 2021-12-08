@@ -2,6 +2,7 @@ register_feature name="combo" code=`
   
   env.onvalue( "values", setup );
   env.onvalue( "value", (v) => {
+    console.log("combo param value changed",v)
     env.ns.parent.setParam( env.ns.name,v) 
   });
   var t;
@@ -10,6 +11,7 @@ register_feature name="combo" code=`
     env.ns.parent.addComboValue( env.ns.name,nv,env.params.values );
     if (t) t();
     t = env.ns.parent.trackParam( env.ns.name,(v) => {
+      console.log("combo param value changed m2",v);
       env.setParam("value",v);
     });
     if (!env.params.value) env.setParam("value",nv);
@@ -39,7 +41,11 @@ register_feature name="slider" code=`
 
 register_feature name="file_param" code=`
   var t;
-  env.onvalue( "value", (v) => env.ns.parent.setParam( env.ns.name,v) );
+  env.onvalue( "value", (v) => {
+    //debugger;
+    console.log("file_param value changed",v)
+    env.ns.parent.setParam( env.ns.name,v) 
+  });
   function setup() {
     env.ns.parent.addFile( env.ns.name,env.params.value );
     if (t) t();

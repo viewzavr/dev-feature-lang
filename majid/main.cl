@@ -1,12 +1,15 @@
-load files="lib3d csv params io alfa.js gui";
+load files="lib3d csv params io alfa.js gui render-params";
 //load files="gui";
 
-dasparams: showparams {
-  cb1: combo values=["http://viewlang.ru/assets/majid/2021-11/TSNE_output.csv","http://viewlang.ru/assets/majid/2021-11/MDS_output.csv"];
-  f1:  file_param  value=@cb1->value;
+mainparams: {
+  cb1: combo 
+       values=["http://viewlang.ru/assets/majid/2021-11/TSNE_output.csv",
+               "http://viewlang.ru/assets/majid/2021-11/MDS_output.csv"];
+  f1:  file_param value=@cb1->value;
 };
 
-dat: load-file file=@f1->value | parse_csv | rescale_rgb;
+// робит dat: load-file file=@f1->value | parse_csv | rescale_rgb;
+dat: load-file file=@mainparams->f1 | parse_csv | rescale_rgb;
 
 register_feature name="rescale_rgb" {
   df_div column="R" coef=255.0 | df_div column="G" coef=255.0 | df_div column="B" coef=255.0;
@@ -20,7 +23,10 @@ register_feature name="df_div" code=`
 
   function process() {
     var df = env.params.input;
-    if (!df || !df.isDataFrame || !df[ env.params.column ] || !env.params.coef) return;
+    if (!df || !df.isDataFrame || !df[ env.params.column ] || !env.params.coef) {
+      env.setParam("output",[]);
+      return;
+    }
     df = df.clone();
     df[env.params.column] = df[env.params.column].map( v => v / env.params.coef );
     env.setParam("output",df);
@@ -30,8 +36,9 @@ register_feature name="df_div" code=`
 mainscreen: screen auto-activate padding="1em" {
   dom tag="h4" innerText="Параметры";
   column gap="0.5em" padding="1em" {
-    objects-guis objects="** @showparams";
     //objects-guis objects="** @showparams";
+    //objects-guis objects="** @showparams";
+    render-params input="@mainparams";
   };
   render3d {
     @dat | linestrips;

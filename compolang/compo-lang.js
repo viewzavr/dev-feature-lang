@@ -435,6 +435,11 @@ export function repeater( env, fopts, envopts ) {
 
      var firstc = Object.keys( children )[0];
 
+     if (!model.forEach) {
+       console.error("repeater: passed model is not iterable.",model)
+       return;
+     }
+
      model.forEach( (element,eindex) => {
        var edump = children[firstc];
        edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
