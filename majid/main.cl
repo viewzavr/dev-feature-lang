@@ -34,8 +34,8 @@ register_feature name="df_div" code=`
 `;
 
 mainscreen: screen auto-activate padding="1em" {
-  dom tag="h4" innerText="Параметры";
-  column gap="0.5em" padding="1em" {
+  dom tag="h3" innerText="Параметры" style="margin-bottom: 0.3em;";
+  column gap="0.5em" padding="0em" {
     //objects-guis objects="** @showparams";
     //objects-guis objects="** @showparams";
     render-params input="@mainparams";

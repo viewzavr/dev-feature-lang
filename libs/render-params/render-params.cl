@@ -4,11 +4,15 @@
 */
 
 register_feature name="render-params" {
-  column {
+  column gap="0.1em" {
     link to=".->object" from=@..->input;
     repeater model=@getparamnames->output {
+      column {
 //      render_one_param obj=@objfind->output name=name=@..->modelData;
-      render-one-param obj=@..->object name=@.->modelData;
+//        render-one-param obj=@..->object name=@.->modelData;
+        text text=@..->modelData;
+        render-one-param obj=@../..->object name=@..->modelData;
+      }
     };
 
 //    objfind: path2obj input=@..->input;
