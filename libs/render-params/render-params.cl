@@ -5,7 +5,7 @@
 
 register_feature name="render-params" {
   column gap="0.1em" {
-    link to=".->object" from=@..->input;
+    link to="..->object" from=@..->input;
     repeater model=@getparamnames->output {
       column {
 //      render_one_param obj=@objfind->output name=name=@..->modelData;
@@ -52,7 +52,7 @@ register_feature name="render-one-param" code='
 
 register_feature name="render-param-string" {
   dom tag="input" {
-    link from=@..->param_path to="..->dom_value";
+    link from=@..->param_path to="..->dom_value" tied_to_parent=true;
     dom_event name="change" code=`
       object.setParam("output",env.params.object.dom.value,true);
     `;
@@ -61,8 +61,8 @@ register_feature name="render-param-string" {
 
 register_feature name="render-param-float" {
   dom tag="input" {
-    link from=@..->param_path to="..->dom_value";
-    link to=@..->param_path from="..->output";
+    link from=@..->param_path to="..->dom_value" tied_to_parent=true;
+    link to=@..->param_path from="..->output" tied_to_parent=true;
     dom_event name="change" code=`
       object.setParam("output",env.params.object.dom.value,true);
     `;
@@ -71,14 +71,14 @@ register_feature name="render-param-float" {
 
 register_feature name="render-param-file" {
   file {
-    link from=@..->param_path to=".->value";
-    link to=@..->param_path from=".->value";
+    link from=@..->param_path to=".->value" tied_to_parent=true;
+    link to=@..->param_path from=".->value" tied_to_parent=true;
   };
 };
 
 register_feature name="render-param-slider" {
   slider {
-    link from=@..->param_path to="..->value";
+    link from=@..->param_path to="..->value" tied_to_parent=true;
     //link from=@..->param_path->min to="..->min";
     js code=`
     `;
@@ -88,12 +88,10 @@ register_feature name="render-param-slider" {
 register_feature name="render-param-combovalue"
 {
   combobox {
-    link from=@..->param_path to=".->value";
-    link to=@..->param_path from=".->value";
+    link from=@..->param_path to=".->value" tied_to_parent=true;
+    link to=@..->param_path from=".->value" tied_to_parent=true;
     //link from=@..->param_path" to="..->min";
-    js code=`
-       //env.ns.parent.onvalue("obj",(obj) => {
-    `;
+
     compute obj=@..->obj name=@..->name code=`
       
       if (env.params.obj && env.params.name) {

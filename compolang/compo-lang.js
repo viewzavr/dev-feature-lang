@@ -436,7 +436,7 @@ export function repeater( env, fopts, envopts ) {
      var firstc = Object.keys( children )[0];
 
      if (!model.forEach) {
-       console.error("repeater: passed model is not iterable.",model)
+       console.error("repeater: passed model is not iterable.",model,env.getPath())
        return;
      }
 

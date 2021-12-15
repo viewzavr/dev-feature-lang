@@ -129,8 +129,8 @@ register_feature name="combobox" {
 		   var val = (params.values || [])[ params.index ];
 		   env.setParam("output",val);
 		`;
-		link to=".->index" from="@val2index->output";
-	  link to=".->value" from="@index2val->output";
+		link to="..->index" from="@val2index->output";
+	  link to="..->value" from="@index2val->output";
 	};
 };
 
