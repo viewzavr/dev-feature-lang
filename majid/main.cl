@@ -1,4 +1,4 @@
-load files="lib3d csv params io alfa.js gui render-params";
+load files="lib3dv2 csv params io alfa.js gui render-params";
 //load files="gui";
 
 mainparams: {
@@ -14,7 +14,6 @@ dat: load-file file=@mainparams->f1 | parse_csv | rescale_rgb;
 register_feature name="rescale_rgb" {
   df_div column="R" coef=255.0 | df_div column="G" coef=255.0 | df_div column="B" coef=255.0;
 };
-
  
 register_feature name="df_div" code=`
   env.onvalue("input",process);
@@ -40,12 +39,25 @@ mainscreen: screen auto-activate padding="1em" {
     //objects-guis objects="** @showparams";
     render-params input="@mainparams";
   };
-  render3d {
+  
+  r1: render3d 
+     bgcolor=[0,1,0]
+     style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2"
+  {
+    camera3d pos=[0,100,0] center=[0,0,0];
+    orbit_control;
+
     @dat | linestrips;
   };
-  render3d {
-    //@dat | points;
-  };  
+
+  render3d bgcolor=[1,0,0] style="position: absolute; right: 20px; bottom: 20px; width:30%; height: 35%; z-index: -1;" 
+  //camera=@r1->camera
+  input=@r1->scene // scene= почему-то не робит
+  {
+    camera3d pos=[0,100,0] center=[0,0,0];
+    orbit_control;
+  };
+  
 };
 
 /*

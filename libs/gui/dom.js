@@ -162,7 +162,7 @@ export function dom( obj, options )
   //obj.rescan_children = rescan_children;
   
   function rescan_children2() {
-    console.log("rescan_children2 called")
+   //console.log("rescan_children2 called")
     clear_viewzavr_dom_children();
 
     let target  = obj.combiningDom();

@@ -2,6 +2,11 @@
 
 Visualizes scenes written in compalang language.
 
+# Prepare computer
+
+For Vrungel to run, a NodeJS program should be installed on computer.
+You may install NodeJS using installer from https://nodejs.org/en/download/.
+
 # Prepare scene
 
 Create a directory and put `main.cl` file into it.

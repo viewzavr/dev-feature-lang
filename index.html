@@ -89,6 +89,8 @@
     vzPlayer.register_compalang( "io",(htmldir + "./libs/io/init.cl"));
     vzPlayer.register_compalang( "render-params",(htmldir + "./libs/render-params/init.cl"));
 
+    vzPlayer.register_compalang( "lib3dv2",(htmldir + "./libs/lib3dv2/init.cl"));
+
     fetch( file ).then( (res) => res.text() ).then( (txt) => {
         obj.setParam("base_url",filedir);
         obj.setParam("text",txt);

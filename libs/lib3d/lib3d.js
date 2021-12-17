@@ -2,6 +2,19 @@ export function setup(vz, m) {
   vz.register_feature_set( m );
 }
 
+export function render3d( env ) {
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+  var renderer;
+
+  obj.setParam("tag","canvas");
+  env.feature("dom");
+  obj.onvalue("dom",(dom) => {
+    renderer = new THREE.WebGLRenderer( {canvas: dom});
+  });
+
+}
+
 import * as utils from "./utils.js";
 
 export function points( env ) {
