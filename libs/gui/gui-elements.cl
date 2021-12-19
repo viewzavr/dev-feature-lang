@@ -36,20 +36,27 @@ register_feature name="radio_button" {
 
 ///////////////////////////////////////////////////// slider
 register_feature name="slider" {
-	dom tag="slider" dom_type="range" 
+	dom tag="input" dom_type="range" 
 	    min=0 max=100 step=1 value=0
 	    sliding=true 
 	{
-		 link from=@..->min to=@..->dom_min;
-		 link from=@..->max to=@..->dom_max;
-		 link from=@..->step to=@..->dom_step;
-		 link from=@..->value to=@..->dom_value;
+		/*
+		 link from="..->min"   to="..->dom_min";
+		 link from="..->max"   to="..->dom_max";
+		 link from="..->step"  to="..->dom_step";
+		 link from="..->value" to="..->dom_value";
+		*/ 
+		 setter value=@..->min target="..->dom_min" auto_apply;
+		 setter value=@..->max target="..->dom_max" auto_apply;
+		 setter value=@..->step target="..->dom_step" auto_apply;
+		 setter value=@..->value target="..->dom_value" auto_apply;
+		 
 		 dom_event name="input" code=`
 		 	if (object.params.sliding)
-		 		  object.setParam("output", parseFloat( object.params.dom.value ) );
+		 		  object.setParam("output", parseFloat( object.params.dom.value ), true );
 		 `;
 		 dom_event name="change" code=`
-		 		  object.setParam("output", parseFloat( object.params.dom.value ) );
+		 		  object.setParam("output", parseFloat( object.params.dom.value ), true );
 		 `;
 
   };
@@ -75,32 +82,32 @@ register_feature name="combobox" {
     ///////////////////////////////////////////////
     // мостик из CL в dom
 	 js code='
-	 var main = env.ns.parent;
-   main.onvalue("index",(i) => {
-   	 setup_index();
-   });
-   main.onvalue("values",() => {
-     setup_values();
-   });
-   main.onvalue("dom",() => {
-     setup_index();
-     setup_values();
-   });
-   function setup_index() {
-   	  if (!main.params.dom) return;
-   	  main.params.dom.selectedIndex = main.params.index;
-   }
-   function setup_values() {
-   	  if (!main.params.dom) return;
-   	  if (!main.params.values?.map) return;
-   	  var t = "";
+		 var main = env.ns.parent;
+	   main.onvalue("index",(i) => {
+	   	 setup_index();
+	   });
+	   main.onvalue("values",() => {
+	     setup_values();
+	   });
+	   main.onvalue("dom",() => {
+	     setup_index();
+	     setup_values();
+	   });
+	   function setup_index() {
+	   	  if (!main.params.dom) return;
+	   	  main.params.dom.selectedIndex = main.params.index;
+	   }
+	   function setup_values() {
+	   	  if (!main.params.dom) return;
+	   	  if (!main.params.values?.map) return;
+	   	  var t = "";
 
-   	  main.params.values.map( (v,index) => {
-         var s = `<option value="${v}">${v}</option>\n`;
-         t = t+s;
-   	  })
-   	  main.params.dom.innerHTML = t;
-   }
+	   	  main.params.values.map( (v,index) => {
+	         var s = `<option value="${v}">${v}</option>\n`;
+	         t = t+s;
+	   	  })
+	   	  main.params.dom.innerHTML = t;
+	   }
  ';	
 
     ///////////////////////////////////////////////
@@ -109,7 +116,7 @@ register_feature name="combobox" {
       console.log("dom onchange")
 		  if (object.params.values) {
 		  	//object.setParam("output",object.params.values[ object.dom.selectedIndex ]);
-			  object.setParam("value",object.params.values[ object.dom.selectedIndex ]);
+			  object.setParam("value",object.params.values[ object.dom.selectedIndex ], true);
 		  }
 		`;
 

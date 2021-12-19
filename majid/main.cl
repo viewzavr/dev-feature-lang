@@ -2,10 +2,13 @@ load files="lib3dv2 csv params io alfa.js gui render-params";
 //load files="gui";
 
 mainparams: {
-  cb1: combo 
-       values=["http://viewlang.ru/assets/majid/2021-11/TSNE_output.csv",
-               "http://viewlang.ru/assets/majid/2021-11/MDS_output.csv"];
-  f1:  file_param value=@cb1->value;
+  cb1: param_combo values=["TSNE","MDS"];
+  f1:  param_file value=@map->output {
+             map: mapping 
+                    values=["http://viewlang.ru/assets/majid/2021-11/TSNE_output.csv",
+                            "http://viewlang.ru/assets/majid/2021-11/MDS_output.csv"]
+                    input=@cb1->index;
+  }
 };
 
 // робит dat: load-file file=@f1->value | parse_csv | rescale_rgb;
@@ -33,29 +36,64 @@ register_feature name="df_div" code=`
 `;
 
 mainscreen: screen auto-activate padding="1em" {
-  dom tag="h3" innerText="Параметры" style="margin-bottom: 0.3em;";
-  column gap="0.5em" padding="0em" {
-    //objects-guis objects="** @showparams";
-    //objects-guis objects="** @showparams";
-    render-params input="@mainparams";
+  column style="z-index: 3; position:absolute;" {
+    dom tag="h3" innerText="Параметры" style="margin-bottom: 0.3em;";
+    column gap="0.5em" padding="0em" {
+      //objects-guis objects="** @showparams";
+      //objects-guis objects="** @showparams";
+      render-params input="@mainparams";
+    };
+
+    column gap="0.5em" padding="0em" {
+      dom tag="h4" innerText="Визуальные объекты";
+      
+      repeater model=@find_objs->output {
+        column {
+          button text=@btntitle->output cmd="@pcol->trigger_visible";
+          /*
+          render-params object=@..->modelData;
+
+          btntitle: compute_output object=@..->modelData code=`
+              return env.params.object?.ns.name;
+            `;
+            */
+
+          
+          pcol: column {
+            render-params object=@../..->modelData;
+            btntitle: compute_output object=@../..->modelData code=`
+              return env.params.object?.ns.name;
+            `;
+          }
+          
+        };
+      };
+
+      find_objs: find-objects pattern="** myvisual";
+    };
+
   };
   
   r1: render3d 
-     bgcolor=[0,1,0]
+     bgcolor=[0.1,0.2,0.3]
      style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2"
   {
     camera3d pos=[0,100,0] center=[0,0,0];
     orbit_control;
 
-    @dat | linestrips;
+    @dat | linestrips myvisual;
   };
 
-  render3d bgcolor=[1,0,0] style="position: absolute; right: 20px; bottom: 20px; width:30%; height: 35%; z-index: -1;" 
-  //camera=@r1->camera
-  input=@r1->scene // scene= почему-то не робит
+  render3d bgcolor=[1,0,0] 
+  //style="position: absolute; right: 20px; bottom: 20px; width:30%; height: 35%; z-index: -1;" 
+  style="position: absolute; right: 20px; bottom: 20px; width:500px; height: 200px; z-index: 5;" 
+  camera=@r1->camera
+  // input=@r1->scene // scene= почему-то не робит
   {
-    camera3d pos=[0,100,0] center=[0,0,0];
+    //camera3d pos=[0,100,0] center=[0,0,0];
     orbit_control;
+
+    @dat | points radius=0.15 myvisual;
   };
   
 };

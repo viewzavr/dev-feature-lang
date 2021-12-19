@@ -89,8 +89,12 @@ export function dom( obj, options )
     })
 
     obj.addText("style","",(v) => {
-      obj.dom.style.cssText = v;
+      //obj.dom.style.cssText = v;
       // как делать несколько стилей по разным причинам?
+
+      // с методом выше выяснилась засада - он перебивает остальное
+      // пробуем так (хотя насколько этого хватит..)
+      obj.dom.style.cssText += ";"+v;
     })
 
     obj.addString("padding","0em",(v) => {

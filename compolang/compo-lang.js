@@ -304,7 +304,9 @@ export function base_url_tracing( env, opts )
 
 //////////////////////////////////////////
 // устанавливает указанный параметр при вызове команды apply
+// * value - значение которое устанавливать
 // * target - полная ссылка на объект
+// либо
 // * пара object="some-path" и param="..."
 export function setter( obj, options )
 {
@@ -329,6 +331,7 @@ export function setter( obj, options )
 }
 
 // выполняет указанный код при вызове команды apply
+// вход: cmd, code
 export function func( obj, options )
 {
    obj.feature("call_cmd_by_path");
@@ -353,12 +356,12 @@ export function auto_apply( obj ) {
   function evl() {
     obj.callCmd("apply");
   }
-  env.feature("delayed");
-  var eval_delayed = env.delayed( evl )
+  obj.feature("delayed");
+  var eval_delayed = obj.delayed( evl )
 
-  env.on('param-changed', (name) => {
+  obj.on('param_changed', (name) => {
     if (name == "output") return;
-    if (env.getParamOption(name,"iotype") == "output") return;
+    if (obj.getParamOption(name,"iotype") == "output") return;
     eval_delayed();
   });
 }
@@ -390,6 +393,7 @@ export function call_cmd_by_path(obj) {
       var arr = target_path.split("->");
       if (arr.length != 2) {
         //console.error("btn: cmd arr length not 2!",arr );
+        // на самом деле можно ходить по стрелкам
         return;
       }
       var objname = arr[0];
@@ -482,8 +486,11 @@ export function compute( env, fopts ) {
        eval_delayed()
   } );
   eval_delayed();
+
+  env.addCmd("recompute",eval_delayed);
 }
 
+// отличается от compute тем что то что код return-ит и записывается в output
 export function compute_output( env, fopts ) {
   env.setParam("output",{});
   env.setParamOption("output","internal",true);
@@ -505,5 +512,54 @@ export function compute_output( env, fopts ) {
      if (name != "output")
         eval_delayed();
    });
+
+  env.addCmd("recompute",eval_delayed);
+
   eval_delayed();
+}
+
+// искалка объектов. вход строка pattern выход output набор найденных окружений.
+// см criteria-finder.js
+export function find_objects( env, fopts ) {
+  env.feature("find_by_criteria");
+  
+  env.addObjects( "pattern","",(objects_list) => {
+    //console.log("FIND-OBJECTS-OBJ returns",objects_list)
+    env.setParam("output",objects_list);
+  })
+  env.onvalue("pattern",(v) => {
+    //console.log(v);
+    //debugger;
+  })
+}
+
+// ловит события, направляет куда скажут
+export function connection( env, options )
+{
+   env.feature("func"); // см выше
+
+   var tracking = () => {};;
+   env.onvalues(["event_name","object"],(en,obj) => {
+      tracking();
+      //console.log("GPN tracking name=",en,obj)
+      tracking = obj.on( en, () => {
+         //console.log("GPN tracking DETECTED! name=",en,obj) 
+         env.apply(); // вызов метода окружения func
+      })
+   })
+
+   env.on("remove",() => {
+    tracking(); tracking = ()=>{};
+   })
+   
+}
+
+export function mapping( env, options )
+{
+  env.onvalues(["values","input"],(values,input) => {
+    var v = values[input];
+    env.setParam("output",v);
+  });
+  env.addString("input");
+
 }

@@ -16,6 +16,13 @@ export function render3d( env ) {
   //env.setParamOption("camera","internal",true);
   //env.renderer;
 
+  let installed_w, installed_h;
+
+  // забавно конечно что я придумал что renderer это заодно и dom-элемент.
+  // ведь по идее он может работать с любым дом-элементом. итого, зачем же я так сделал?
+  // это кстати дало мне неудобство в том, что у рендерера output не может быть сценой теперь
+  // надо поскетчить что если он отдельно все-таки. ну т.е. canvas или там view остается
+  // а к нему рендерер уже цепляется как-то
   env.setParam("tag","canvas");
   env.feature("dom");
   env.onvalue("dom",(dom) => {
@@ -24,13 +31,39 @@ export function render3d( env ) {
     animate();
   });
 
+  
   function animate() {
     requestAnimationFrame( animate );
     var cam = env.params.camera;
     if (cam.params) cam = cam.params.output; // случай когда камеру залинковали на объект
     // т.е render3d camera=@somecam
 
+    // фича - управление размерами. Альтернативно можно сделать Resize Observer Api
+    // и опять вечный вопрос компоновки. вот жеж оно опять вылазиет
+    // пишем фичу - и надо сюда вписать и код выше. надо бы как-то по-другому..
+    // хотя бы башню функций с приоритетами или что.. кстати почему у меня до сих пор такой нет
+    // были начатки в cu..
+    let de = env.renderer.domElement;
+    if (de.clientWidth != installed_w || de.clientHeight != installed_h) {
+      installed_w = de.clientWidth;
+      installed_h = de.clientHeight;
+
+      // вот тут криминал - мы пишем в камеру которую могут использовать и другие рендереры
+      // но можно конечно переписывать каждый раз мы не гордые
+
+      if (installed_h > 0) {
+        cam.aspect = installed_w / installed_h;
+        cam.updateProjectionMatrix();  
+      }
+
+      env.renderer.setSize( installed_w,installed_h, false );
+    }  
+    // если делаем на каждом такте то ном, однако..
+    cam.aspect = installed_w / installed_h;
+    cam.updateProjectionMatrix();  
+
     env.renderer.render( env.scene, cam );
+    
   }
 
   env.feature("renderer_bg_color");
@@ -239,6 +272,15 @@ export function linestrips( env ) {
   painter_env.linkParam( "input","@convertor->output");
   painter_env.feature("lines");
   env.linkParam("output","lines-env->output");
+
+  env.feature("param_mirror");
+  for (var g of painter_env.getGuiNames()) {
+    env.addParamMirror(g,"lines-env->"+g);
+  };
+  // типа потом еще могут добавить (так и оказвыается - lines не сразу применяются)
+  painter_env.on("gui-added",(g) => {
+    env.addParamMirror(g,"lines-env->"+g);
+  })
 }
 export function linestrip( env ) {
   return linestrips(env);

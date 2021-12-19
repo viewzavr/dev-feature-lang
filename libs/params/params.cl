@@ -1,9 +1,10 @@
-register_feature name="combo" code=`
+register_feature name="param_combo" code=`
   
   env.onvalue( "values", setup );
   env.onvalue( "value", (v) => {
     console.log("combo param value changed",v)
     env.ns.parent.setParam( env.ns.name,v) 
+    update_index(v);
   });
   var t;
   function setup() {
@@ -13,15 +14,23 @@ register_feature name="combo" code=`
     t = env.ns.parent.trackParam( env.ns.name,(v) => {
       console.log("combo param value changed m2",v);
       env.setParam("value",v);
+      update_index(v);
     });
     if (!env.params.value) env.setParam("value",nv);
   }
   env.on("remove",() => {
     if (t) t(); t = null;
   });
+
+  function update_index(v) {
+    if (env.params.values) {
+       let ind = env.params.values.indexOf(v);
+       env.setParam("index",ind);
+    }
+  }
 `;
 
-register_feature name="slider" code=`
+register_feature name="param_slider" code=`
   env.onvalue( "min", setup );
   env.onvalue( "max", setup );
   env.onvalue( "step", setup );
@@ -39,7 +48,7 @@ register_feature name="slider" code=`
   });
 `;
 
-register_feature name="file_param" code=`
+register_feature name="param_file" code=`
   var t;
   env.onvalue( "value", (v) => {
     //debugger;

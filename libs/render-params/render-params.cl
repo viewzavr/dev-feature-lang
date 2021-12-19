@@ -1,11 +1,11 @@
 
 /* вход: input - путь к объекту.. или сам объект наверное..
-     ну пусть будет путь
+         ну пусть будет путь
 */
 
 register_feature name="render-params" {
   column gap="0.1em" {
-    link to="..->object" from=@..->input;
+    link to="..->object" from=@..->input; // тут надо maybe что там объект и тогда норм будет..
     repeater model=@getparamnames->output {
       column {
 //      render_one_param obj=@objfind->output name=name=@..->modelData;
@@ -17,9 +17,13 @@ register_feature name="render-params" {
 
 //    objfind: path2obj input=@..->input;
     getparamnames: compute_output input=@..->object code=`
+      // console.log("GPN: object=",env.params.input, "GN=",env.params.input ? env.params.input.getGuiNames() : "null")
       if (env.params.input)
-          return env.params.input.getGuiNames();
+          return env.params.input.getGuiNames(); /// так-то было бы удобно если бы эти gui-names были тоже просто параметром
     `;
+
+    // а кстати классно было бы cmd="(** file_uploads)->recompute"
+    connection object=@..->object event_name="gui-added" cmd="@getparamnames->recompute";
 
   };
 };
@@ -78,9 +82,16 @@ register_feature name="render-param-file" {
 
 register_feature name="render-param-slider" {
   slider {
-    link from=@..->param_path to="..->value" tied_to_parent=true;
+    link from=@..->param_path to=".->value" tied_to_parent=true;
+    link to=@..->param_path from=".->output" tied_to_parent=true;
     //link from=@..->param_path->min to="..->min";
-    js code=`
+    compute obj=@..->object name=@..->name gui=@..->gui code=`
+      var sl = env.ns.parent;
+      if (env.params.gui) {
+        sl.setParam("min", env.params.gui.min );
+        sl.setParam("max", env.params.gui.max );
+        sl.setParam("step", env.params.gui.step );
+      }
     `;
   }
 };
