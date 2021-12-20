@@ -3,7 +3,7 @@ export function setup(vz, m) {
 }
 
 import CSV from "./csv.js";
-import * as df from "./df.js";
+import * as df from "../df/df.js";
 
 export function parse_csv( env ) {
   env.feature("load_file_func");

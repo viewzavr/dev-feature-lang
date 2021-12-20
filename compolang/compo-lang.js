@@ -421,7 +421,7 @@ export function call_cmd_by_path(obj) {
 
 //////////////////////////////////
 export function repeater( env, fopts, envopts ) {
-  var children = {};
+  var children;
   /* оказалось что env.restoreFromDump уже вызывают, 
      если repeater первый в register-feature стоит.. - то он не успел получается это переопределить
      поэтому я перешел на переопределение restoreChildrenFromDump...
@@ -437,17 +437,32 @@ export function repeater( env, fopts, envopts ) {
 
   env.restoreChildrenFromDump = (dump, ismanual) => {
     children = dump.children;
+    if (pending_perform)
+      env.signalParam("model");
     return Promise.resolve("success");
   }
 
   var created_envs = [];
 
+  var pending_perform;
   env.onvalue("model",(model) => {
      for (let old_env of created_envs) {
        old_env.remove();
      }
 
+     if (!children) {
+        pending_perform=true;
+        return;
+     }
+     pending_perform=false;
+
      var firstc = Object.keys( children )[0];
+
+     if (!firstc) {
+       // children чето не приехали.. странно все это..
+       console.error("repeater: children is blank during model change...");
+       return;
+     }
 
      if (!model.forEach) {
        console.error("repeater: passed model is not iterable.",model,env.getPath())
@@ -573,5 +588,64 @@ export function mapping( env, options )
     env.setParam("output",v);
   });
   env.addString("input");
+
+}
+
+/// if
+/// вход: condition - условие (будет проверено оператором ?)
+///       children - два дитя, первое если true второе false
+/// сообразно if проверяет условие и создает либо первого либо второго
+/// todo можно кейс еще сделать
+export function feature_if( env, options )
+{
+  var created_envs = [];
+
+  // засада в том что undefined нам не присылают первоначально
+  var activated=false;
+  env.onvalue("condition",(cond) => {
+    var res = cond ? true : false;
+    env.setParam("condition_result",res);
+    perform( res ? 0 : 1 );
+    activated=true;
+  });
+  if (!activated) perform( 1 );
+
+  env.addString("condition_result");
+
+  // далее натырено с репитера
+  var children;
+  env.restoreChildrenFromDump = (dump, ismanual) => {
+    children = dump.children;
+    if (typeof(pending_perform) !== "undefined") perform( pending_perform );
+    return Promise.resolve("success");
+  }
+
+  var pending_perform;
+  function perform( num ) {
+     for (let old_env of created_envs) {
+       old_env.remove();
+     }
+     created_envs=[];
+
+     if (!children) {
+       pending_perform=num;
+       return;
+     }
+     pending_perform=undefined;
+
+     var selected_c = Object.keys( children )[ num ];
+     if (!selected_c) {
+      //pending_perform
+      return;
+     }
+
+     var edump = children[selected_c];
+     edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
+
+     var p = env.vz.createSyncFromDump( edump,null,env.ns.parent );
+     p.then( (child_env) => {
+          created_envs.push( child_env );
+      });
+   };
 
 }

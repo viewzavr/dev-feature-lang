@@ -4,7 +4,7 @@
 // separator - regexp encoded as string
 // output - an object with a field .colnames and fields for each of columns, e.g. h[columnname] => array-of-values
 
-import * as df from "./df.js";
+import * as df from "../df/df.js";
 
 export default function parse_csv(data,separator) { // data is text blob
   if (df.is_df(data)) {
