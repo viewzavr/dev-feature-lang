@@ -237,6 +237,7 @@ export function register_feature( env, fopts, envopts ) {
       compalang_part = (tenv) => {
         var edump = children[firstc];
         edump.keepExistingChildren = true; // смехопанорама
+        // но иначе применение фичи может затереть созданное другими фичами или внешним клиентом
         edump.keepExistingParams = true;
         tenv.restoreFromDump( edump );
         //tenv.vz.createChildrenByDump( dump, obj, manualParamsMode );
@@ -421,12 +422,21 @@ export function call_cmd_by_path(obj) {
 //////////////////////////////////
 export function repeater( env, fopts, envopts ) {
   var children = {};
+  /* оказалось что env.restoreFromDump уже вызывают, 
+     если repeater первый в register-feature стоит.. - то он не успел получается это переопределить
+     поэтому я перешел на переопределение restoreChildrenFromDump...
+
   env.restoreFromDump = (dump,manualParamsMode) => {
     children = dump.children;
     env.vz.restoreParams( dump, env,manualParamsMode );
     env.vz.restoreLinks( dump, env,manualParamsMode );
     env.vz.restoreFeatures( dump, env,manualParamsMode );
     
+    return Promise.resolve("success");
+  }*/
+
+  env.restoreChildrenFromDump = (dump, ismanual) => {
+    children = dump.children;
     return Promise.resolve("success");
   }
 
@@ -526,11 +536,13 @@ export function find_objects( env, fopts ) {
   env.addObjects( "pattern","",(objects_list) => {
     //console.log("FIND-OBJECTS-OBJ returns",objects_list)
     env.setParam("output",objects_list);
+    env.setParam("found_objects_count",objects_list?.length)
   })
   env.onvalue("pattern",(v) => {
     //console.log(v);
     //debugger;
   })
+  env.addString("found_objects_count");
 }
 
 // ловит события, направляет куда скажут

@@ -100,8 +100,6 @@ export function render3d( env ) {
     // это то что рендерера попросили нарисовать явно
     if (env.params.input?.isObject3D)
         env.scene.add( env.params.input );
-    if (env.params.scene?.isObject3D)
-        env.scene.add( env.params.scene );
 
   }
 

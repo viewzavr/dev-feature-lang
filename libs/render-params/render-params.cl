@@ -1,6 +1,28 @@
+/*
+  вход 
+  * object - массив объектов, параметры которых следует нарисовать
+*/
+
+register_feature name="render-guis" {
+  repeater model=@.->objects {
+        column {
+          button text=@btntitle->output cmd="@pcol->trigger_visible";
+          
+          pcol: column {
+            render-params object=@../..->modelData;
+            btntitle: compute_output object=@../..->modelData code=`
+              return env.params.object?.ns.name;
+            `;
+          }
+          
+        };
+      };
+};
 
 /* вход: input - путь к объекту.. или сам объект наверное..
          ну пусть будет путь
+         либо 
+         object - прямо  объект
 */
 
 register_feature name="render-params" {
@@ -17,10 +39,27 @@ register_feature name="render-params" {
 
 //    objfind: path2obj input=@..->input;
     getparamnames: compute_output input=@..->object code=`
+      
       // console.log("GPN: object=",env.params.input, "GN=",env.params.input ? env.params.input.getGuiNames() : "null")
       if (env.params.input)
           return env.params.input.getGuiNames(); /// так-то было бы удобно если бы эти gui-names были тоже просто параметром
-    `;
+    ` {
+      js code=`
+            env.ns.parent.on("remove",() => {
+        console.log("getparamnames removes..");
+        debugger;
+        });
+
+      env.ns.parent.on("parentChanged",() => {
+        console.log("getparamnames parent changed..");
+        debugger;
+      });
+      env.ns.parent.on("parent_change",() => {
+        console.log("getparamnames parent changed..");
+        debugger;
+      });
+      `;
+    };
 
     // а кстати классно было бы cmd="(** file_uploads)->recompute"
     connection object=@..->object event_name="gui-added" cmd="@getparamnames->recompute";
@@ -88,6 +127,7 @@ register_feature name="render-param-slider" {
     compute obj=@..->object name=@..->name gui=@..->gui code=`
       var sl = env.ns.parent;
       if (env.params.gui) {
+
         sl.setParam("min", env.params.gui.min );
         sl.setParam("max", env.params.gui.max );
         sl.setParam("step", env.params.gui.step );
