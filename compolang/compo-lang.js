@@ -436,9 +436,14 @@ export function repeater( env, fopts, envopts ) {
   }*/
 
   env.restoreChildrenFromDump = (dump, ismanual) => {
-    children = dump.children;
-    if (pending_perform)
-      env.signalParam("model");
+    // короче выяснилось, что если у нас создана фича которая основана на repeater,
+    // то у этого repeater свое тело поступает в restoreChildrenFromDump
+    // а затем внешнее тело, которое сообразно затирает собственное тело репитера.
+    if (!children) {
+      children = dump.children;
+      if (pending_perform)
+        env.signalParam("model");
+    }
     return Promise.resolve("success");
   }
 
@@ -465,7 +470,7 @@ export function repeater( env, fopts, envopts ) {
      }
 
      if (!model.forEach) {
-       console.error("repeater: passed model is not iterable.",model,env.getPath())
+       //console.error("repeater: passed model is not iterable.",model,env.getPath())
        return;
      }
 

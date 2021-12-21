@@ -1,14 +1,18 @@
 /*
   вход 
   * object - массив объектов, параметры которых следует нарисовать
+
+  * todo:
+  * opened_states - массив что раскрыть а что схлопнуть
+  * opened - true/false сразу про всех
 */
 
 register_feature name="render-guis" {
-  repeater model=@.->objects {
+  repeater model=@.->objects opened=true {
         column {
           button text=@btntitle->output cmd="@pcol->trigger_visible";
           
-          pcol: column {
+          pcol: column visible=false { /* @../../..->opened */
             render-params object=@../..->modelData;
             btntitle: compute_output object=@../..->modelData code=`
               return env.params.object?.ns.name;
@@ -30,8 +34,6 @@ register_feature name="render-params" {
     link to="..->object" from=@..->input; // тут надо maybe что там объект и тогда норм будет..
     repeater model=@getparamnames->output {
       column {
-//      render_one_param obj=@objfind->output name=name=@..->modelData;
-//        render-one-param obj=@..->object name=@.->modelData;
         text text=@..->modelData;
         render-one-param obj=@../..->object name=@..->modelData;
       }
