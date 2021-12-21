@@ -1,19 +1,20 @@
 
-***** Visalization task
+# Visalization task
 
-* Visualize CSV as following.
+* Visualize CSV according to specs.
 * CSV should be specified in query param.
 
-****** Solution
+# Solution
 
-Входной файл должен быть указан в query-строке в параметре csv_file
+* Implemented in [main.cl](main.cl) file.
+* Input path to CSV is specified in `csv_file` query parameter.
 
-Пример запуска:
+Example of how to start it:
 http://127.0.0.1:8080/vrungel/index.html?src=http://127.0.0.1:8080/vrungel/examples/majid_one_file/main.cl&csv_file=http://viewlang.ru/assets/majid/2021-11/TSNE_output.csv
 
-****** Setup and Embedding
+# Setup and Embedding
 
-Task: use 100% local installation and show it inside IFRAME.
+Task: use local installation of Vrungel and show 3D scene inside IFRAME.
 
 1. Download `Vrungel` project as following:
 ```
@@ -37,17 +38,18 @@ git submodule update --init --recursive
 
 ```
 
-Here in src attribute:
+The iframe's src attribute considers following:
 * "/vrungel/" is a web path to Vrungel project.
 * `src` parameter is a path to Vrungel script `main.cl` which describes visualization.
 * `csv_file` parameter is a path to CSV file according to specs.
 
 
-************ Testing.
+# Test of embedding
 
-For testing, there is (test-iframe.html) file.
+For testing, see [test-iframe.html](test-iframe.html) file.
 
 * Start web server so vrungel is on "/vrungel" path.
-> For example using nodejs: `http-server --cors`
+
+For example using nodejs: `http-server --cors`
 
 * Open http://127.0.0.1:8081/vrungel/examples/majid_one_file/test-iframe.html
