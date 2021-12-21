@@ -2,7 +2,7 @@
 # Visualization task
 
 * Visualize CSV according to specs.
-* CSV should be specified in query param.
+* CSV should be specified in query parameter.
 
 ## Solution
 
