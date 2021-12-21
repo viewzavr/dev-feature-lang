@@ -1,10 +1,10 @@
 
-# Visalization task
+# Visualization task
 
 * Visualize CSV according to specs.
 * CSV should be specified in query param.
 
-# Solution
+## Solution
 
 * Implemented in [main.cl](main.cl) file.
 * Input path to CSV is specified in `csv_file` query parameter.
@@ -44,7 +44,7 @@ The iframe's src attribute considers following:
 * `csv_file` parameter is a path to CSV file according to specs.
 
 
-# Test of embedding
+## Testing
 
 For testing, see [test-iframe.html](test-iframe.html) file.
 
