@@ -1,4 +1,4 @@
-load files="lib3dv2 csv params io alfa.js gui render-params";
+load files="lib3dv3 csv params io alfa.js gui render-params";
 //load files="gui";
 
 mainparams: {
@@ -73,22 +73,26 @@ mainscreen: screen auto-activate padding="1em" {
     };
 
   };
+
+  v1: view3d style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2";
+  v2: view3d style="position: absolute; right: 20px; bottom: 20px; width:500px; height: 200px; z-index: 5;";
   
   r1: render3d 
-     bgcolor=[0.1,0.2,0.3]
-     style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2"
+      bgcolor=[0.1,0.2,0.3]
+      target=@v1
   {
     camera3d pos=[0,100,0] center=[0,0,0];
     orbit_control;
 
     @dat | linestrips myvisual;
+
+    text3d text="Privet Mir!";
   };
 
   render3d bgcolor=[1,0,0] 
-  //style="position: absolute; right: 20px; bottom: 20px; width:30%; height: 35%; z-index: -1;" 
-  style="position: absolute; right: 20px; bottom: 20px; width:500px; height: 200px; z-index: 5;" 
-  camera=@r1->camera
-  // input=@r1->scene // scene= почему-то не робит
+    camera=@r1->camera
+    target=@v2
+    // input=@r1->scene // scene= почему-то не робит
   {
     //camera3d pos=[0,100,0] center=[0,0,0];
     orbit_control;
