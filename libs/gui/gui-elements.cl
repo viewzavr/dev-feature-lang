@@ -81,7 +81,7 @@ register_feature name="select_color" {
   dom tag="input" dom_type="color" {
 
     // value передаем в dom
-    setter to="..->dom_value" value=@val2dom->output;
+    setter target="..->dom_value" value=@val2dom->output auto_apply;
     //link from="@val2dom->output" to="..->dom_value";
     val2dom: compute inp=@..->value code=`
       /// работа с цветом    

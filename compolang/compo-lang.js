@@ -321,13 +321,15 @@ export function setter( obj, options )
         var tobj = obj.findByPath( arr[0] );
         if (tobj) {
           tobj.setParam( arr[1], obj.params.value, obj.params.manual );
-        }
+        } else console.log("setter: target obj not found",arr);
       }
-
+      else
       if (obj.params.object) {
         obj.params.object.setParam( obj.params.param, obj.params.value, obj.params.manual );
       }
-   } )
+      else
+        console.log("setter: has no target defined");
+   } );
 
 }
 
