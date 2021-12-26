@@ -51,7 +51,7 @@ export function text3d( env ) {
   });
 
   env.onvalue("color",(v) => {
-    
+     
      material.color = utils.somethingToColor(v);
      material.needsUpdate = true;
   });

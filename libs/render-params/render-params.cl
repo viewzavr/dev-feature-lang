@@ -27,6 +27,7 @@ register_feature name="render-guis" {
          ну пусть будет путь
          либо 
          object - прямо  объект
+
 */
 
 register_feature name="render-params" {
@@ -70,6 +71,7 @@ register_feature name="render-params" {
 };
 
 // вход: obj объект, name имя параметра
+
 register_feature name="render-one-param" code='
   var tr;
   env.onvalue("obj",(obj) => {
@@ -89,17 +91,20 @@ register_feature name="render-one-param" code='
 
 /* апи рисования параметров
    вход
-   param_path - путь к параметру (объект->имя)
-   obj объект
-   name имя параметра
-   gui - gui-запись о параметре
+     param_path - путь к параметру (объект->имя)
+     obj объект
+     name имя параметра
+     gui - gui-запись о параметре
+   выход
+     ожидается что фича будет отображать визуально значение указанного параметра,
+     и менять значения указанного параметра по мере ввода пользователя
 */
 
 register_feature name="render-param-string" {
   dom tag="input" {
     link from=@..->param_path to="..->dom_value" tied_to_parent=true;
     dom_event name="change" code=`
-      object.setParam("output",env.params.object.dom.value,true);
+      object.setParam("value",env.params.object.dom.value,true);
     `;
   };
 };
@@ -107,79 +112,18 @@ register_feature name="render-param-string" {
 register_feature name="render-param-float" {
   dom tag="input" {
     link from=@..->param_path to=".->dom_value" tied_to_parent=true;
-    link to=@..->param_path from=".->output" tied_to_parent=true;
+    link to=@..->param_path from=".->value" tied_to_parent=true;
     dom_event name="change" code=`
-      object.setParam("output",env.params.object.dom.value,true);
+      object.setParam("value",env.params.object.dom.value,true);
     `;
   };
 };
 
 register_feature name="render-param-color" {
-  dom tag="input" dom_type="color" {
-    // передаем в дом
-    // было:
-    // link from=@..->param_path to=".->dom_value" tied_to_parent=true;
-
-    // все-таки напрашивается в link вставить code. и на его базе можно делать экстракторы как у Дениса
-    // или например даже создать ссылку на внешний метод обработки какой-то (в каком-то объекте cmd)
-
-    // стало:
-    link from=@..->param_path to=".->param_value" tied_to_parent=true;
-    link from="@e1->output" to="..->dom_value";
-    //e1: transform from=@..->param_path to="..->dom_value" code=`
-    e1: compute inp=@..->param_value code=`
-      /// работа с цветом    
-      // c число от 0 до 255
-      function componentToHex(c) {
-          if (typeof(c) === "undefined") {
-            debugger;
-          }
-          var hex = c.toString(16);
-          return hex.length == 1 ? "0" + hex : hex;
-      }
-
-      // r g b от 0 до 255
-      function rgbToHex(r, g, b) {
-          return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-      }  
-
-      // triarr массив из трех чисел 0..1
-      function tri2hex( triarr ) {
-         return rgbToHex( Math.floor(triarr[0]*255),Math.floor(triarr[1]*255),Math.floor(triarr[2]*255) )
-      }
-
-      //if (env.params.inp)
-      if (Array.isArray(env.params.inp)) {
-          let h=tri2hex( env.params.inp );
-          console.log("CC: computed dom elem color,",h)
-          env.setParam("output", h)
-      }
-      //    return tri2hex( env.params.inp );
-      //else
-      //    return "#ffffff";
-    `;
-
-    
-    // ловим событие от dom
-    js code=`
-      env.ns.parent.hex2tri = (hex) => {
-        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        return result ? [
-            parseInt(result[1], 16) / 255.0,
-            parseInt(result[2], 16) / 255.0,
-            parseInt(result[3], 16) / 255.0
-        ] : [1,1,1];
-      }
-    `;
-    d1: dom_event name="change" code=`
-      var c = env.ns.parent.hex2tri(env.params.object.dom.value);
-      console.log("CC: setting param output to ",c);
-      object.setParam("output",c,true);
-    `;
-    dom_event name="input" code=@d1->code;
-
-    link to=@..->param_path from=".->output" tied_to_parent=true;
-  };
+  select_color {
+    link from=@..->param_path to=".->value" tied_to_parent=true;
+    link to=@..->param_path from=".->value" tied_to_parent=true manual_mode=true;
+  }
 };
 
 register_feature name="render-param-file" {
@@ -197,7 +141,6 @@ register_feature name="render-param-slider" {
     compute obj=@..->object name=@..->name gui=@..->gui code=`
       var sl = env.ns.parent;
       if (env.params.gui) {
-
         sl.setParam("min", env.params.gui.min );
         sl.setParam("max", env.params.gui.max );
         sl.setParam("step", env.params.gui.step );

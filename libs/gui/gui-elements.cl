@@ -72,6 +72,70 @@ register_feature name="slider" {
   };
 };
 
+
+///////////////////////////////////////////////////// select_color
+
+// вход, выход: value - значение в форме массива [r,g,b] (от 0 до 1)
+
+register_feature name="select_color" {
+  dom tag="input" dom_type="color" {
+
+    // value передаем в dom
+    setter to="..->dom_value" value=@val2dom->output;
+    //link from="@val2dom->output" to="..->dom_value";
+    val2dom: compute inp=@..->value code=`
+      /// работа с цветом    
+      // c число от 0 до 255
+      function componentToHex(c) {
+          if (typeof(c) === "undefined") {
+            debugger;
+          }
+          var hex = c.toString(16);
+          return hex.length == 1 ? "0" + hex : hex;
+      }
+
+      // r g b от 0 до 255
+      function rgbToHex(r, g, b) {
+          return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+      }  
+
+      // triarr массив из трех чисел 0..1
+      function tri2hex( triarr ) {
+         return rgbToHex( Math.floor(triarr[0]*255),Math.floor(triarr[1]*255),Math.floor(triarr[2]*255) )
+      }
+
+      //if (env.params.inp)
+      if (Array.isArray(env.params.inp)) {
+          let h=tri2hex( env.params.inp );
+          console.log("CC: computed dom elem color,",h,"from",env.params.inp)
+          env.setParam("output", h)
+      }
+      //    return tri2hex( env.params.inp );
+      //else
+      //    return "#ffffff";
+    `;
+
+    
+    // ловим событие от dom
+    js code=`
+      env.ns.parent.hex2tri = (hex) => {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? [
+            parseInt(result[1], 16) / 255.0,
+            parseInt(result[2], 16) / 255.0,
+            parseInt(result[3], 16) / 255.0
+        ] : [1,1,1];
+      }
+    `;
+    d1: dom_event name="change" code=`
+      var c = env.ns.parent.hex2tri(env.params.object.dom.value);
+      console.log("CC: setting param output to ",c, object.getPath() );
+      object.setParam("value",c,true);
+    `;
+    dom_event name="input" code=@d1->code;
+  };
+};
+
 ///////////////////////////////////////////////////// combobox
 /*
    входы 
