@@ -18,6 +18,16 @@ register_feature name="file" {
 	};
 };
 
+/*
+register_feature name="color" {
+	dom tag="input" dom_type="file" {
+		dom_event object=@.. name="change" code=`
+		  object.setParam("value",env.params.object.dom.files[0],true)
+		`;
+	};
+};
+*/
+
 
 ///////////////////////////////////////////////////// radio_button
 /* входы
@@ -53,10 +63,10 @@ register_feature name="slider" {
 		 
 		 dom_event name="input" code=`
 		 	if (object.params.sliding)
-		 		  object.setParam("output", parseFloat( object.params.dom.value ), true );
+		 		  object.setParam("value", parseFloat( object.params.dom.value ), true );
 		 `;
 		 dom_event name="change" code=`
-		 		  object.setParam("output", parseFloat( object.params.dom.value ), true );
+		 		  object.setParam("value", parseFloat( object.params.dom.value ), true );
 		 `;
 
   };

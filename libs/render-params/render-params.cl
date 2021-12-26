@@ -49,16 +49,16 @@ register_feature name="render-params" {
       js code=`
             env.ns.parent.on("remove",() => {
         console.log("getparamnames removes..");
-        debugger;
+        //debugger;
         });
 
       env.ns.parent.on("parentChanged",() => {
         console.log("getparamnames parent changed..");
-        debugger;
+        //debugger;
       });
       env.ns.parent.on("parent_change",() => {
         console.log("getparamnames parent changed..");
-        debugger;
+        //debugger;
       });
       `;
     };
@@ -106,11 +106,79 @@ register_feature name="render-param-string" {
 
 register_feature name="render-param-float" {
   dom tag="input" {
-    link from=@..->param_path to="..->dom_value" tied_to_parent=true;
-    link to=@..->param_path from="..->output" tied_to_parent=true;
+    link from=@..->param_path to=".->dom_value" tied_to_parent=true;
+    link to=@..->param_path from=".->output" tied_to_parent=true;
     dom_event name="change" code=`
       object.setParam("output",env.params.object.dom.value,true);
     `;
+  };
+};
+
+register_feature name="render-param-color" {
+  dom tag="input" dom_type="color" {
+    // передаем в дом
+    // было:
+    // link from=@..->param_path to=".->dom_value" tied_to_parent=true;
+
+    // все-таки напрашивается в link вставить code. и на его базе можно делать экстракторы как у Дениса
+    // или например даже создать ссылку на внешний метод обработки какой-то (в каком-то объекте cmd)
+
+    // стало:
+    link from=@..->param_path to=".->param_value" tied_to_parent=true;
+    link from="@e1->output" to="..->dom_value";
+    //e1: transform from=@..->param_path to="..->dom_value" code=`
+    e1: compute inp=@..->param_value code=`
+      /// работа с цветом    
+      // c число от 0 до 255
+      function componentToHex(c) {
+          if (typeof(c) === "undefined") {
+            debugger;
+          }
+          var hex = c.toString(16);
+          return hex.length == 1 ? "0" + hex : hex;
+      }
+
+      // r g b от 0 до 255
+      function rgbToHex(r, g, b) {
+          return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+      }  
+
+      // triarr массив из трех чисел 0..1
+      function tri2hex( triarr ) {
+         return rgbToHex( Math.floor(triarr[0]*255),Math.floor(triarr[1]*255),Math.floor(triarr[2]*255) )
+      }
+
+      //if (env.params.inp)
+      if (Array.isArray(env.params.inp)) {
+          let h=tri2hex( env.params.inp );
+          console.log("CC: computed dom elem color,",h)
+          env.setParam("output", h)
+      }
+      //    return tri2hex( env.params.inp );
+      //else
+      //    return "#ffffff";
+    `;
+
+    
+    // ловим событие от dom
+    js code=`
+      env.ns.parent.hex2tri = (hex) => {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? [
+            parseInt(result[1], 16) / 255.0,
+            parseInt(result[2], 16) / 255.0,
+            parseInt(result[3], 16) / 255.0
+        ] : [1,1,1];
+      }
+    `;
+    d1: dom_event name="change" code=`
+      var c = env.ns.parent.hex2tri(env.params.object.dom.value);
+      console.log("CC: setting param output to ",c);
+      object.setParam("output",c,true);
+    `;
+    dom_event name="input" code=@d1->code;
+
+    link to=@..->param_path from=".->output" tied_to_parent=true;
   };
 };
 
@@ -124,7 +192,7 @@ register_feature name="render-param-file" {
 register_feature name="render-param-slider" {
   slider {
     link from=@..->param_path to=".->value" tied_to_parent=true;
-    link to=@..->param_path from=".->output" tied_to_parent=true;
+    link to=@..->param_path from=".->value" tied_to_parent=true;
     //link from=@..->param_path->min to="..->min";
     compute obj=@..->object name=@..->name gui=@..->gui code=`
       var sl = env.ns.parent;

@@ -1,3 +1,4 @@
+import * as THREE from './three.js/build/three.module.js';
 import * as utils from "./utils.js";
 
 export function setup(vz, m) {

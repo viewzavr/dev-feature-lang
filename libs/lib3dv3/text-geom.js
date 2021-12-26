@@ -1,3 +1,6 @@
+import * as THREE from './three.js/build/three.module.js';
+import { FontLoader }   from './three.js/examples/jsm/loaders/FontLoader.js';
+import { TextGeometry } from './three.js/examples/jsm/geometries/TextGeometry.js';
 import * as utils from "./utils.js";
 
 export function setup(vz, m) {
@@ -9,13 +12,16 @@ export function text3d( env ) {
   var group = new THREE.Group();
   env.setParam("output",group ); // я это сделал чтобы позицию понимаешь сохранять можно было..
 
-  env.onvalues(["text","loaded_font"],(t,font) => {
+  env.addSlider("size",2,0,10,0.1 );
+
+  env.onvalues(["text","loaded_font","size"],(t,font,size) => {
+
         var geometry = new TextGeometry( t, {
           font: font,
-          size: 80,
-          height: 5,
+          size: size,
+          height: size/2,
           curveSegments: 12,
-          bevelEnabled: true,
+          bevelEnabled: false,
           bevelThickness: 10,
           bevelSize: 8,
           bevelOffset: 0,
@@ -37,13 +43,15 @@ export function text3d( env ) {
         env.signalParam("output");
   })
 
-  const loader = new THREE.FontLoader();
+  const loader = new FontLoader();
 
-  loader.load( 'fonts/helvetiker_regular.typeface.json', function ( font ) {  
+  var path = env.vz.getDir( import.meta.url ) + "three.js/examples/";
+  loader.load( path+'fonts/helvetiker_regular.typeface.json', function ( font ) {  
     env.setParam("loaded_font",font);
   });
 
   env.onvalue("color",(v) => {
+    
      material.color = utils.somethingToColor(v);
      material.needsUpdate = true;
   });

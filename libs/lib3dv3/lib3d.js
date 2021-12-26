@@ -1,3 +1,4 @@
+import * as THREE from './three.js/build/three.module.js';
 import * as utils from "./utils.js";
 
 export function setup(vz, m) {
@@ -110,7 +111,20 @@ export function render3d( env ) {
 
     // todo можно будет сделать что render выдает свою scene
 
-  }, () => nested_items.clear() )
+  }, () => {
+    nested_items.clear();
+
+    // времянка - шобы свет мешей работал
+    
+    const pointLight = new THREE.PointLight( 0xffffff, 1.5 );
+    pointLight.position.set( 0, 100, 90 );
+    nested_items.add( pointLight );        
+    
+    var light = new THREE.AmbientLight( 0x444444 );
+    //var light = new THREE.AmbientLight( 0xffffff );
+    nested_items.add( light );
+    
+  } )
   
   // теперь у нас в сцене есть то что задали во вложенных окружениях
 
@@ -226,6 +240,8 @@ export function camera3d( env ) {
   env.setParam("output",cam );
 }
 
+import {OrbitControls} from "./three.js/examples/jsm/controls/OrbitControls.js";
+
 export function orbit_control( env ) {
   // смотрим на камеру верхнего окружения
   env.linkParam("camera","..->camera");
@@ -244,9 +260,8 @@ export function orbit_control( env ) {
     if (!c) return;
 
     if (cc) cc.dispose();
-
     
-    cc = new THREE.OrbitControls( c, dom );
+    cc = new OrbitControls( c, dom );
 
     //sceneControl.addEventListener( 'change', function() {
   }

@@ -81,12 +81,12 @@ mainscreen: screen auto-activate padding="1em" {
       bgcolor=[0.1,0.2,0.3]
       target=@v1
   {
-    camera3d pos=[0,100,0] center=[0,0,0];
+    camera3d pos=[0,0,100] center=[0,0,0];
     orbit_control;
 
     @dat | linestrips myvisual;
 
-    text3d text="Privet Mir!";
+    text3d text="Privet Mir!" myvisual color=[1,0.2,0.3];
   };
 
   render3d bgcolor=[1,0,0] 
