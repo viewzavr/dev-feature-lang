@@ -23,6 +23,12 @@ export function linestrips( env ) {
   painter_env.on("gui-added",(g) => {
     env.addParamMirror(g,"lines-env->"+g);
   })
+
+  env.trackParam("color",(v) => {
+    console.log("LL:",v);
+    debugger;
+  });
+
 }
 
 export function linestrip( env ) {

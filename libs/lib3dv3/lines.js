@@ -78,7 +78,7 @@ export function lib3d_visual( env ) {
 // добавляет input, подразумевая под этим data-frame
 export function lines_df_input( env ) {
   env.onvalue("input",(df) => {
-    console.log("gonna paint df=",df);
+    //console.log("gonna paint df=",df);
     var dat = df;
     env.setParam("positions", utils.combine( [ dat.X, dat.Y, dat.Z, dat.X2, dat.Y2, dat.Z2 ] ) );
     if (dat.R2)

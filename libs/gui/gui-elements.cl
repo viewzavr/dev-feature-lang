@@ -197,7 +197,7 @@ register_feature name="combobox" {
     ///////////////////////////////////////////////
 		// конвертация value<=>index
 		val2index: compute value=@..->value values=@..->values code=`
-		    console.log("val2index")
+		    //console.log("val2index")
 			  if (typeof(params.value) != "undefined" && params.values) {
 		    	var index = (params.values || []).indexOf( params.value );
         	env.setParam("output",index);
@@ -206,7 +206,7 @@ register_feature name="combobox" {
           env.setParam("output",0);
 		`;
 		index2val: compute index=@..->index values=@..->values code=`
-		   console.log("index2val")
+		   //console.log("index2val")
 		   var val = (params.values || [])[ params.index ];
 		   env.setParam("output",val);
 		`;

@@ -339,16 +339,18 @@ export function func( obj, options )
 {
    obj.feature("call_cmd_by_path");
 
-   obj.addCmd( "apply",() => {
+   obj.addCmd( "apply",(...args) => {
       if (obj.params.code) {
         var env = obj;
-        eval( obj.params.code );
+        var func = new Function( obj.params.code );
+        func.call( null, ...args );
+        //eval( obj.params.code );
       }
       if (obj.params.cmd) {
-        obj.callCmdByPath(obj.params.cmd)
+        obj.callCmdByPath(obj.params.cmd,...args)
       }
       for (let c of obj.ns.getChildren()) {
-        c.callCmd("apply");
+        c.callCmd("apply",...args);
       }
    } )
 }
@@ -576,9 +578,9 @@ export function connection( env, options )
    env.onvalues(["event_name","object"],(en,obj) => {
       tracking();
       //console.log("GPN tracking name=",en,obj)
-      tracking = obj.on( en, () => {
+      tracking = obj.on( en, (...args) => {
          //console.log("GPN tracking DETECTED! name=",en,obj) 
-         env.apply(); // вызов метода окружения func
+         env.apply(...args); // вызов метода окружения func
       })
    })
 

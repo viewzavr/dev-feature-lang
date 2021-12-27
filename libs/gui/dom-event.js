@@ -39,7 +39,7 @@ export function dom_event( obj, options )
         //console.error("dom_event: bound_event is null",bound_event);
         return;
       }
-      console.log("dom_event: success bound_event",bound_event,obj.getPath(),bound_dom);
+//      console.log("dom_event: success bound_event",bound_event,obj.getPath(),bound_dom);
 
       bound_dom.addEventListener( bound_event,callcmd )
 

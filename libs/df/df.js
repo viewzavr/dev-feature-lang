@@ -7,6 +7,8 @@ export function create() {
   var df =  { "colnames": [], length: 0, isDataFrame: true, string_columns: {} }
   df.clone = clone.bind(df,df);
   df.is_df = true;
+  // времянка такая
+  df.create_from_df_filter = (f) => create_from_df_filter( df, f );
   return df;
 }
 
@@ -89,7 +91,35 @@ export function create_from_df_no_slice( src ) {
   var r = create();
 
   get_column_names(src).forEach( function(name) {
-      add_column( r, name, get_column(src,name).slice() );
+      add_column( r, name, get_column(src,name) );
+  });
+
+  return r;
+}
+
+export function create_from_df_filter( src, filter_func ) {
+  var r = create();
+  var good_indices = [];
+  var len = get_length( src );
+
+  var conames = get_column_names(src);
+  var line = {};
+
+  for (var i=0; i<len; i++) {
+    // подготовим строку
+    conames.forEach( (name) => line[name] = get_column(src,name)[i] );
+    // вызовем функцию
+    var res = filter_func( line );
+    if (res) good_indices.push( i );
+  }
+
+  // скопируем найденные значения
+  get_column_names(src).forEach( function(name) {
+    var col = get_column(src,name);
+    var newcol = new Array( good_indices.length ); // todo поработать с колонками float32..
+    for (var j=0; j<good_indices.length; j++)
+      newcol[j] = col[ good_indices[j] ];
+    add_column( r, name, newcol );
   });
 
   return r;

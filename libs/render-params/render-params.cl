@@ -81,6 +81,7 @@ register_feature name="render-one-param" code='
         // итак есть объект, есть параметр в переменной name
         var g = obj.getGui(name);
         if (!g) return;
+        //if (name.length <= 1 || name == "object") debugger;
         env.setParam("param_path",obj.getPath() + "->" + name);
         env.setParam("gui",g);
         env.feature( `render-param-${g.type}` );
@@ -119,10 +120,14 @@ register_feature name="render-param-float" {
   };
 };
 
-register_feature name="render-param-color" {
+register_feature name="render-param-color-todo" {
   select_color {
     link from=@..->param_path to=".->value" tied_to_parent=true;
     link to=@..->param_path from=".->value" tied_to_parent=true manual_mode=true;
+
+    connection event_name="param_value_changed" object=@.. code=`
+      debugger;
+    `;
   }
 };
 

@@ -1,4 +1,4 @@
-load files="lib3dv3 csv params io alfa.js gui render-params";
+load files="lib3dv3 csv params io alfa.js gui render-params df";
 //load files="gui";
 
 mainparams: {
@@ -18,23 +18,6 @@ register_feature name="rescale_rgb" {
   df_div column="R" coef=255.0 | df_div column="G" coef=255.0 | df_div column="B" coef=255.0;
 };
  
-register_feature name="df_div" code=`
-  env.onvalue("input",process);
-  env.onvalue("coef",process);
-  env.onvalue("column",process);
-
-  function process() {
-    var df = env.params.input;
-    if (!df || !df.isDataFrame || !df[ env.params.column ] || !env.params.coef) {
-      env.setParam("output",[]);
-      return;
-    }
-    df = df.clone();
-    df[env.params.column] = df[env.params.column].map( v => v / env.params.coef );
-    env.setParam("output",df);
-  }
-`;
-
 mainscreen: screen auto-activate padding="1em" {
   column style="z-index: 3; position:absolute;" {
     dom tag="h3" innerText="Параметры" style="margin-bottom: 0.3em;";
@@ -86,7 +69,10 @@ mainscreen: screen auto-activate padding="1em" {
 
     @dat | linestrips myvisual;
 
-    text3d text="Privet Mir!" myvisual color=[1,0.2,0.3];
+    //text3d text="Privet Mir!" myvisual color=[1,0.2,0.3];
+    // text3d_many lines=["Privet Mir!","Ya rad"] myvisual color=[1,0.2,0.3] positions=[-20,0,0,20,10,0];
+
+    @dat | df_filter code=`(line) => line.TEXT?.length > 0` | text3d myvisual size=0.1; // color=[0,1,0];
   };
 
   render3d bgcolor=[1,0,0] 
