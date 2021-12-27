@@ -28,6 +28,24 @@ register_feature name="color" {
 };
 */
 
+///////////////////////////////////////////////////// checkbox
+/* входы
+     text - надпись
+   выходы
+     cmd - вызывается когда кликнули
+*/
+register_feature name="checkbox" {
+	dom tag="label" value=true {
+		dom tag="input" dom_type="checkbox" dom_checked=@..->value {
+			dom_event name="change" code=`
+				var v = env.params.object.dom.checked;
+				env.params.object.ns.parent.setParam("value",v);;
+			`;
+		};
+		text text=@..->text;
+	};
+};
+
 
 ///////////////////////////////////////////////////// radio_button
 /* входы

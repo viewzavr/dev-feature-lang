@@ -73,6 +73,9 @@ export function text3d( env ) {
   env.onvalue("positions",(v) => {
     apply_positions();
   });
+  env.onvalue("colors",(v) => {
+    apply_colors();
+  });
 
   env.onvalues(["lines","loaded_font","size"],(lines,font,size) => {
     generate( lines, font, size );
@@ -88,6 +91,7 @@ export function text3d( env ) {
        group.add( m );
     }
     apply_positions();
+    apply_colors();
   }
 
   function apply_positions() {
@@ -99,13 +103,29 @@ export function text3d( env ) {
           pos[0] = env.params.positions[i3];
           pos[1] = env.params.positions[i3+1];
           pos[2] = env.params.positions[i3+2];
-        } else continue;
+        } else break;
 
         m.position.x = m.position.x0 + pos[0];
         m.position.y = pos[1];
         m.position.z = pos[2];
      }
   }
+
+  function apply_colors() {
+    return;
+     
+     for (var i=0; i<group.children.length; i++) {
+        var m = group.children[i];
+        var i3 = 3*i;
+        if (env.params.colors.length < i3) break;
+        //m.material[1].color =  tri2int( env.params.colors[i3],env.params.colors[i3+1],env.params.colors[i3+2] )
+        m.material[1].color = new THREE.Color( env.params.colors[i3],env.params.colors[i3+1],env.params.colors[i3+2] )
+     }
+  }  
+
+  function rgb2int( r,g,b ) {
+    return Math.floor(r*255) * (256*256) + Math.floor(g*255)*256  + Math.floor(b*255);
+  }          
 
   function create_one( text, font, size ) {
     // todo вот это надо выделять в очередь
@@ -128,6 +148,9 @@ export function text3d( env ) {
         geometry.computeBoundingBox();
         const centerOffset = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
 
+        var own_material = new THREE.MeshPhongMaterial( { color: 0xffffff } ); // front , flatShading: true
+
+        //var textMesh1 = new THREE.Mesh( geometry, [material,own_material] );
         var textMesh1 = new THREE.Mesh( geometry, material );
 
         textMesh1.position.x = centerOffset;
@@ -139,10 +162,20 @@ export function text3d( env ) {
 
   const loader = new FontLoader();
 
-  var path = env.vz.getDir( import.meta.url ) + "three.js/examples/";
-  loader.load( path+'fonts/helvetiker_regular.typeface.json', function ( font ) {  
-    env.setParam("loaded_font",font);
-  });
+  var path = env.vz.getDir( import.meta.url ) + "three.js/examples/fonts/";
+  env.addComboValue( "font_name","helvetiker_regular",
+      ["helvetiker_regular","helvetiker_bold","optimer_regular","optimer_bold","gentilis_regular","gentilis_bold",
+       "droid/droid_sans_regular","droid/droid_sans_bold","droid/droid_serif_regular","droid/droid_serif_bold"])
+
+  env.onvalue("font_name",(name) => {
+     // https://threejs.org/docs/#examples/en/geometries/TextGeometry
+    env.setParam( "font_url",path+name+".typeface.json");
+  })
+  env.onvalue("font_url",(url) => {
+    loader.load( url, function ( font ) {  
+      env.setParam("loaded_font",font);
+    });
+  })
 
   env.onvalue("color",(v) => {
      material.color = utils.somethingToColor(v);

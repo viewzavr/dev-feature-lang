@@ -8,10 +8,13 @@ dat: load-file file=@pq->output | parse_csv | rescale_rgb;
 render3d bgcolor=[0.1,0.2,0.3] target=@view
 {
     orbit_control;
-    camera3d pos=[0,40,0] center=[0,0,0];
+    camera3d pos=[0,0,40] center=[0,0,0];
 
-    @dat | linestrips myvisual;
-    // @dat | points myvisual radius=1.2;
+    @dat | linestrips;
+
+    @dat 
+      | df_filter code="(line) => line.TEXT?.length > 0"
+      | text3d size=0.2 visible=@cb1->value color=[0.9, 0.9, 0.9 ];
 };
 
 /// интерфейс пользователя gui
@@ -20,10 +23,9 @@ screen auto-activate {
 
   column padding="1em" style="z-index: 3; position:absolute;"{
     if condition=@pq->output {
-      column gap="0.5em" {
+      column gap="0.5em" padding="0.5em" style="background-color: rgba(255 255 255 / 45%)" {
         dom tag="h3" innerText="Visual settings" style="margin:0;";
-        render-guis objects=@find_objs->output opened=true;
-        find_objs:  find-objects pattern="** myvisual";
+        cb1: checkbox text="Show titles";
       };
       text text="Please specify path to CSV file in <b>csv_file</b> query parameter." style="color:red";
     }

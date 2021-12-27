@@ -70,7 +70,18 @@ export function lib3d_visual( env ) {
   env.addCheckbox("visible",true,(v) => {
     //obj.visible=v;
   });
+
+  env.onvalues(["output","visible"],(so,vis) => {
+    so.visible = vis;
+  })
+
   env.addColor("color")
+
+
+  // отдельная фича - отключаем frustum culling
+  env.onvalue("output",(so) => {
+    so.frustumCulled = false;
+  })
 
   //obj.addString("count","0");
 }

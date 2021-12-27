@@ -53,6 +53,8 @@ mainscreen: screen auto-activate padding="1em" {
       };
 
       find_objs: find-objects pattern="** myvisual";
+
+      cb1: checkbox text="Show text";
     };
 
   };
@@ -72,7 +74,7 @@ mainscreen: screen auto-activate padding="1em" {
     //text3d text="Privet Mir!" myvisual color=[1,0.2,0.3];
     // text3d_many lines=["Privet Mir!","Ya rad"] myvisual color=[1,0.2,0.3] positions=[-20,0,0,20,10,0];
 
-    @dat | df_filter code=`(line) => line.TEXT?.length > 0` | text3d myvisual size=0.1; // color=[0,1,0];
+    @dat | df_filter code=`(line) => line.TEXT?.length > 0` | text3d myvisual size=0.1 visible=@cb1->value; // color=[0,1,0];
   };
 
   render3d bgcolor=[1,0,0] 
