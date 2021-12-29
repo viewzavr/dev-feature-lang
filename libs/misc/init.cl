@@ -1,4 +1,4 @@
 load files=`
-misc.cl
-misc.js
+ misc.cl
+ misc.js
 `;

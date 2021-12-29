@@ -31,7 +31,7 @@ register_feature name="render-guis" {
 
 register_feature name="render-params" {
   column gap="0.1em" {
-    link to="..->object" from=@..->input; // тут надо maybe что там объект и тогда норм будет..
+    link to=".->object" from=@..->object_path tied_to_parent=true; // тут надо maybe что там объект и тогда норм будет..
     repeater model=@getparamnames->output {
       column {
         //text text=@..->modelData;
@@ -101,12 +101,19 @@ register_feature name="render-one-param" code='
 */
 
 register_feature name="render-param-string" {
-  dom tag="input" {
-    link from=@..->param_path to="..->dom_value" tied_to_parent=true;
-    dom_event name="change" code=`
-      object.setParam("value",env.params.object.dom.value,true);
-    `;
+  column {
+    text text=@..->name;
+    dom tag="input" {
+      link from=@../..->param_path to=".->dom_value" tied_to_parent=true;
+      dom_event name="change" code=`
+        object.ns.parent.setParam("value",env.params.object.dom.value,true);
+      `;
+    };
   };
+};
+
+register_feature name="render-param-cmd" {
+  button text=@.->name cmd=@.->param_path;
 };
 
 register_feature name="render-param-float" {
@@ -141,6 +148,16 @@ register_feature name="render-param-file" {
   file {
     link from=@..->param_path to=".->value" tied_to_parent=true;
     link to=@..->param_path from=".->value" tied_to_parent=true;
+  };
+};
+
+register_feature name="render-param-label" {
+  row {
+    text text=@..->name;
+    text text=" = ";
+    text {
+      link to=".->text" from=@../..->param_path tied_to_parent=true;
+    };
   };
 };
 

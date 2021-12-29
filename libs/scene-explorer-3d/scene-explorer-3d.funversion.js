@@ -1,3 +1,5 @@
+// версия где оно все шевелится
+
 //import ThreeForceGraph from 'three-forcegraph';
 
 // https://github.com/vasturiano/3d-force-graph#data-input
@@ -14,7 +16,7 @@ function addnode( rec, objrec ) {
 
 function addlink( rec, linkrec ) {
   rec.links.push( linkrec );
-  let linkid = linkrec.table_key || `${linkrec.source}=>${linkrec.target}`;
+  let linkid = `${linkrec.source}=>${linkrec.target}`;
   rec.links_table[ linkid ] = linkrec;
   linkrec.table_key = linkid;
 }
@@ -138,8 +140,7 @@ function genlink( obj,rec ) {
       //return `(${objname}) ..> (${objname2}) : "link ${paramname} -> ${paramname2} TPU"\n`;
       addlink( rec, {target: objname2 + "->" + paramname2,
                        source: objname + "->" + paramname,
-                       islink: true,
-                       object_path: id })
+                       islink: true })
 }
 
 function fixup( obj, rec ) {
@@ -200,7 +201,7 @@ export function scene_explorer_graph( env ) {
   var stop_process = ()=>{};
   env.onvalue("input",(obj) => {
     // запускаем процесс генерации
-    var interv = setInterval( () => perform_generate( obj ), 5000 );
+    var interv = setInterval( () => perform_generate( obj ), 1000 );
     stop_process = () => clearInterval( interv );
   });
   env.on("remove",stop_process);
@@ -309,7 +310,7 @@ export function scene_explorer_3d( env ) {
         .linkColor(link => link.islink ? 'purple' : ( link.ischild ? 'red' : 'green' ))
         .linkOpacity(1)
         .linkCurvature( 0.2 )
-        .linkWidth(link => link.islink ? 2 : 0 ) // 2 : 1 красиво но медленно
+        .linkWidth(link => link.islink ? 2 : 1 )
         .linkDirectionalArrowLength(link => link.islink ? 13.5 : 0 )
         //.linkDirectionalArrowRelPos(1)
          //.linkDirectionalArrowLength(13.5)
@@ -319,14 +320,6 @@ export function scene_explorer_3d( env ) {
         .nodeLabel('id')
         .onNodeClick(node => {
           console.log("clicked node",node );
-          env.setParam("current_object_path", node.object_path );
-
-          var obj = env.findByPath( node.object_path );
-          console.log("object is",obj);
-          console.log("object params are ",obj?.$vz_params);
-        })
-        .onLinkClick(node => {
-          console.log("clicked link",node );
           env.setParam("current_object_path", node.object_path );
 
           var obj = env.findByPath( node.object_path );

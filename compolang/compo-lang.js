@@ -69,6 +69,8 @@ export function load(env,opts)
   //env.parsed_alive = false;
   //env.finalize_parse = () => { current_parent = parents_stack.pop() };
 
+  env.addString("files");
+
   env.trackParam("files",(files) => {
     console.log("load: gonna load files",files)
     if (!files) return;
@@ -349,8 +351,8 @@ export function func( obj, options )
    obj.addCmd( "apply",(...args) => {
       if (obj.params.code) {
         var env = obj;
-        var func = new Function( obj.params.code );
-        func.call( null, ...args );
+        var func = new Function( "env",obj.params.code );
+        func.call( null, env, ...args );
         //eval( obj.params.code );
       }
       if (obj.params.cmd) {
@@ -396,10 +398,14 @@ export function js( obj, options )
 }
 
 export function add_cmd( env ) {
+  env.feature("func");
+
   env.onvalue("name",(name) => {
+  
     env.ns.parent.addCmd(name,f);
 
     function f() {
+  
       env.callCmd("apply");
     }
   });
