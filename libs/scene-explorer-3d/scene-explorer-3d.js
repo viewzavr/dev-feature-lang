@@ -20,7 +20,7 @@ function gen( obj,rec={nodes: [], links: [], nodes_table: {}} ) {
 
 
   //rec.nodes.push( { id: id, name: id } );
-  addnode( rec, { id: id, name: id, isobject: true } )
+  addnode( rec, { id: id, name: id, object_path: id, isobject: true } )
 
   // параметры все
   var params = obj.getParamsNames();
@@ -28,7 +28,7 @@ function gen( obj,rec={nodes: [], links: [], nodes_table: {}} ) {
 
   params.forEach( (pn,index) => {
     //rec.nodes.push( { id: id + "->" + pn, name: pn } );
-    addnode( rec, { id: id + "->" + pn, name: pn } )
+    addnode( rec, { id: id + "->" + pn, name: pn, object_path: id } )
     rec.links.push( { source: id, target: id + "->" + pn, isparam: true } );
   })
   
@@ -131,11 +131,14 @@ function fixup( obj, rec ) {
     if (!rec.nodes_table[ link.source ])
     {
       addnode( rec, {id: link.source, problematic: true })
+      // todo object-path
+      // todo быть может узел объекта добавить или связь с ним
     }
     if (!rec.nodes_table[ link.target ])
     {
       addnode( rec, {id: link.target, problematic: true })
       // ну может это и не проблема
+      // todo object-path
     }
   })
 }
@@ -248,6 +251,9 @@ export function scene_explorer_3d( env ) {
         .nodeColor( (node) => node.isobject ? 'red' : 'yellow')
         .nodeVal( (node) => node.isobject ? 10 : 1 )
         .nodeLabel('id')
+        .onNodeClick(node => {
+          env.setParam("current_object_path", node.object_path )
+        })
         .graphData( dat );
 
     const linkForce = graph

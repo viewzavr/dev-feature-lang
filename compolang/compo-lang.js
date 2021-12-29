@@ -100,6 +100,8 @@ export function load(env,opts)
        // нужна sub-env для отслеживания base-url
        var subenv = env.create_obj( {} );
        subenv.feature("simple-lang");
+       subenv.addLabel("source_file", file );
+       //subenv.setParam("source_file", file );
        subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url, diag_file: file } );
        // было
        //subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url} );
@@ -210,6 +212,8 @@ export function register_feature( env, fopts, envopts ) {
   }
   
   var apply_feature = () => {};
+
+  env.addLabel("name");
 
 /*
   env.onvalue("name",() => {
@@ -337,7 +341,7 @@ export function setter( obj, options )
 }
 
 // выполняет указанный код при вызове команды apply
-// вход: cmd, code
+// вход: cmd, code, и еще children - у них будет вызвано apply
 export function func( obj, options )
 {
    obj.feature("call_cmd_by_path");
@@ -387,6 +391,16 @@ export function js( obj, options )
        {
          console.error(e);
        }
+    }
+  });
+}
+
+export function add_cmd( env ) {
+  env.onvalue("name",(name) => {
+    env.ns.parent.addCmd(name,f);
+
+    function f() {
+      env.callCmd("apply");
     }
   });
 }

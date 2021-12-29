@@ -1,5 +1,5 @@
 load files="lib3dv3 csv params io gui render-params df
-            scene-explorer-3d
+            scene-explorer-3d misc
             ";
 
 s1: screen auto_activate activate_by_hotkey hotkey='i' {
@@ -12,3 +12,6 @@ s1: screen auto_activate activate_by_hotkey hotkey='i' {
 
 s2: scene-explorer-screen activate_by_hotkey hotkey='b';
 
+apply_by_hotkey hotkey='q' {
+  rotate_screens;
+};
