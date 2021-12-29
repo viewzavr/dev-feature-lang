@@ -252,7 +252,12 @@ export function scene_explorer_3d( env ) {
         .nodeVal( (node) => node.isobject ? 10 : 1 )
         .nodeLabel('id')
         .onNodeClick(node => {
-          env.setParam("current_object_path", node.object_path )
+          console.log("clicked node",node );
+          env.setParam("current_object_path", node.object_path );
+
+          var obj = env.findByPath( node.object_path );
+          console.log("object is",obj);
+          console.log("object params are ",obj?.$vz_params);
         })
         .graphData( dat );
 
