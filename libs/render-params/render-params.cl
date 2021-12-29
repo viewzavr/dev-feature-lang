@@ -35,7 +35,7 @@ register_feature name="render-params" {
     link to="..->object" from=@..->input; // тут надо maybe что там объект и тогда норм будет..
     repeater model=@getparamnames->output {
       column {
-        text text=@..->modelData;
+        //text text=@..->modelData;
         render-one-param obj=@../..->object name=@..->modelData;
       }
     };
@@ -120,6 +120,13 @@ register_feature name="render-param-float" {
   };
 };
 
+register_feature name="render-param-checkbox" {
+  checkbox text=@.->name {
+    link from=@..->param_path to=".->value" tied_to_parent=true;
+    link to=@..->param_path from=".->value" tied_to_parent=true manual_mode=true;
+  }
+};
+
 register_feature name="render-param-color-todo" {
   select_color {
     link from=@..->param_path to=".->value" tied_to_parent=true;
@@ -139,19 +146,35 @@ register_feature name="render-param-file" {
 };
 
 register_feature name="render-param-slider" {
-  slider {
-    link from=@..->param_path to=".->value" tied_to_parent=true;
-    link to=@..->param_path from=".->value" tied_to_parent=true;
-    //link from=@..->param_path->min to="..->min";
-    compute obj=@..->object name=@..->name gui=@..->gui code=`
-      var sl = env.ns.parent;
-      if (env.params.gui) {
-        sl.setParam("min", env.params.gui.min );
-        sl.setParam("max", env.params.gui.max );
-        sl.setParam("step", env.params.gui.step );
+  column {
+    text text=@..->name;
+    row {
+      slider {
+        link from=@../../..->param_path to=".->value" tied_to_parent=true;
+        link to=@../../..->param_path from=".->value" tied_to_parent=true;
+        //link from=@..->param_path->min to="..->min";
+        compute obj=@../../..->object name=@../../..->name gui=@../../..->gui code=`
+          var sl = env.ns.parent;
+          if (env.params.gui) {
+            sl.setParam("min", env.params.gui.min );
+            sl.setParam("max", env.params.gui.max );
+            sl.setParam("step", env.params.gui.step );
+          }
+        `;
+      };
+      if2: input_float style="width:30px;" {
+        link from=@../../..->param_path to=".->value" tied_to_parent=true;
+        link to=  @../../..->param_path from=".->value" tied_to_parent=true;
+      };
+      console_log text="IF2 value=" input=@if2->value;
+
+      /*
+      dom tag="input" style="width:30px;" {
+        link from=@../../..->param_path to=".->dom_value" tied_to_parent=true;
       }
-    `;
-  }
+      */
+    };
+  };
 };
 
 register_feature name="render-param-combovalue"

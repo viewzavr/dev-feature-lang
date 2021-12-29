@@ -81,14 +81,42 @@ export function screen( obj, opts )
 
 export function auto_activate(env) {
   //env.feature("screen").then( () => env.activate() );
-  console.log("a1")
-
   if (env.activate) {
-    console.log("a2")
     env.activate();
   }
   else {
-    console.log("a3") 
     env.once('screen-created', () => env.activate() )
   }
 }
+
+export function activate_by_hotkey(env) {
+  
+
+ var unsub = () => {};
+ env.onvalue( "hotkey",(key) => {
+
+  unsub();
+
+  function f(e) {
+    if ( e.ctrlKey && ( String.fromCharCode(e.which) == key || String.fromCharCode(e.which) == key.toUpperCase() ) ) {
+       var cur = vzPlayer.getParam( "active_screen");
+       if (cur == env) {
+          var prev = vzPlayer.getParam( "prev_screen");
+          if (prev?.activate)
+            prev.activate();
+       }
+       else
+        env.activate();
+    }
+  }
+
+  document.addEventListener('keydown', f );
+  unsub = () => { document.removeEventListener('keydown', f ) };
+ })
+
+ env.on("remove",() => {
+  debugger;
+  unsub();
+});
+
+};

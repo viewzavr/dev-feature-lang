@@ -65,21 +65,29 @@ export function dom( obj, options )
   });
 
   function maybe_apply_dom_attr( name, value ) {
-    if (obj.dom && name.startsWith("dom_")) {
+    if (obj.dom && (name.startsWith("dom_") && !name.startsWith("dom_obj_"))) {
        name = name.substring(4);
        obj.dom.setAttribute(name,value);
+       return true;
     }
+    else
+    if (obj.dom && name.startsWith("dom_attr_")) {
+       name = name.substring(9);
+       obj.dom.setAttribute(name,value);
+       return true;
+    }
+    return maybe_apply_dom_prop( name, value );
   }
-  /*
 
-  function maybe_apply_dom_param( name, value ) {
-    if (obj.dom && name.startsWith("dom_prop_")) {
-       name = name.substring(4);
+  function maybe_apply_dom_prop( name, value ) {
+    if (obj.dom && name.startsWith("dom_obj_")) {
+       name = name.substring(8);
        //obj.dom.setAttribute(name,value);
        obj.dom[name] = value;
+       return true;
     }
+    return false;
   }
-  */
   
   // это наши параметры
   function apply_dom_params() {

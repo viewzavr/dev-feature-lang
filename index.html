@@ -14,6 +14,8 @@
   <div id="qmlSpace">
       target space for qml...
   </div>
+  
+
   <style>
   #qmlSpace {
     width: 100vw !important;
@@ -28,6 +30,8 @@
   </style>
 
   <script src="./viewzavr-system-a/lib/viewlang/code//threejs_driver/init.js"></script>
+
+  <script src="//unpkg.com/3d-force-graph@1.70.5/dist/3d-force-graph.js"></script>
 
   <script type="module">
 
@@ -93,6 +97,8 @@
     vzPlayer.register_compalang( "lib3dv3",(htmldir + "./libs/lib3dv3/init.cl"));
     vzPlayer.register_compalang( "df",(htmldir + "./libs/df/init.cl"));
     vzPlayer.register_compalang( "misc",(htmldir + "./libs/misc/init.cl"));
+
+    vzPlayer.register_compalang( "scene-explorer-3d",(htmldir + "./libs/scene-explorer-3d/init.cl"));
 
     fetch( file ).then( (res) => res.text() ).then( (txt) => {
         obj.setParam("base_url",filedir);

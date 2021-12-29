@@ -31,8 +31,12 @@ register_feature name="color" {
 ///////////////////////////////////////////////////// checkbox
 /* входы
      text - надпись
+     value - значение true/false
    выходы
-     cmd - вызывается когда кликнули
+     value - значение true/false
+
+   кстати вот вопрос, у меня везде value есть входное и выходное значение
+   а не следует ли сделать их разными?.. если да то почему, если нет то почему?  
 */
 register_feature name="checkbox" {
 	dom tag="label" value=true {
@@ -43,6 +47,21 @@ register_feature name="checkbox" {
 			`;
 		};
 		text text=@..->text;
+	};
+};
+
+///////////////////////////////////////////////////// input_float
+/* входы
+     value - начальное значение
+   выходы
+     value - выбираемое значение
+*/
+register_feature name="input_float" {
+	dom tag="input" dom_obj_value=@.->value {
+		dom_event name="change" code=`
+				var v = parseFloat( env.params.object.dom.value );
+				env.params.object.setParam("value",v);;
+			`;
 	};
 };
 

@@ -15,9 +15,12 @@ export function simple_lang(env)
     }
     catch (e) 
     {
+
       console.error(e);
+      if (opts.diag_file) console.log("parse error in file ",opts.diag_file)
       if (typeof e.format === "function")
           console.log( e.format( [{text:code}] ));
+
     }
   }
   env.compalang = env.parseSimpleLang;
@@ -97,7 +100,7 @@ export function load(env,opts)
        // нужна sub-env для отслеживания base-url
        var subenv = env.create_obj( {} );
        subenv.feature("simple-lang");
-       subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url} );
+       subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url, diag_file: file } );
        // было
        //subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url} );
      });
@@ -598,6 +601,17 @@ export function mapping( env, options )
   });
   env.addString("input");
 
+}
+
+export function console_log( env, options )
+{
+  function print() {
+    console.log( env.params.text, env.params.input );
+  }
+  env.onvalue("text",print);
+  env.onvalue("input",print);
+  
+  env.addString("text");
 }
 
 /// if

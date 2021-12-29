@@ -1,4 +1,6 @@
-load files="lib3dv3 csv params io alfa.js gui render-params df";
+load files="lib3dv3 csv params io alfa.js gui render-params df
+            scene-explorer-3d
+            ";
 //load files="gui";
 
 mainparams: {
@@ -17,6 +19,8 @@ dat: load-file file=@mainparams->f1 | parse_csv | rescale_rgb;
 register_feature name="rescale_rgb" {
   df_div column="R" coef=255.0 | df_div column="G" coef=255.0 | df_div column="B" coef=255.0;
 };
+
+scene-explorer-screen activate_by_hotkey hotkey='b';
  
 mainscreen: screen auto-activate padding="1em" {
   column style="z-index: 3; position:absolute;" {
@@ -26,6 +30,10 @@ mainscreen: screen auto-activate padding="1em" {
       //objects-guis objects="** @showparams";
       render-params input="@mainparams";
     };
+
+    text text="test float";
+    i1: input_float value=1555;
+    console_log text="input value" input=@i1->value;
 
     column gap="0.5em" padding="0em" {
       dom tag="h4" innerText="Визуальные объекты";
@@ -61,6 +69,15 @@ mainscreen: screen auto-activate padding="1em" {
 
   v1: view3d style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2";
   v2: view3d style="position: absolute; right: 20px; bottom: 20px; width:500px; height: 200px; z-index: 5;";
+
+/*
+  scene_explorer_graph input=@/ 
+  | 
+  scene-explorer-3d
+    style="position: absolute; right: 20px; bottom: 220px; width:500px; height: 200px; z-index: 5;
+           background-color: blue;";
+*/           
+    
   
   r1: render3d 
       bgcolor=[0.1,0.2,0.3]
