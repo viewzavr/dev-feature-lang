@@ -44,7 +44,7 @@ export function dom_event( obj, options )
       bound_dom.addEventListener( bound_event,callcmd )
 
       forget_bound_dom = () => {
-        console.log("dom_event: done unbound_event",bound_event,obj.getPath(),bound_dom);
+        //console.log("dom_event: done unbound_event",bound_event,obj.getPath(),bound_dom);
         bound_dom.removeEventListener(bound_event,callcmd );
       }
     })

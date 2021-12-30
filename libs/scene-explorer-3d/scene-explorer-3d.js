@@ -1,4 +1,5 @@
 //import ThreeForceGraph from 'three-forcegraph';
+//import {ForceGraph3D} from './3d-force-graph.js';
 
 // https://github.com/vasturiano/3d-force-graph#data-input
 
@@ -32,7 +33,6 @@ function gen( obj,rec ) {
   
   if (id == "/state") return "";
 
-
   //rec.nodes.push( { id: id, name: id } );
   addnode( rec, { id: id, name: id, object_path: id, isobject: true } )
 
@@ -40,6 +40,8 @@ function gen( obj,rec ) {
   var params = obj.getParamsNames();
   if (!obj.params.hasOwnProperty("children")) params = params.concat( ["children"] );
 
+  //params=["children"];
+  //params=[];
   params.forEach( (pn,index) => {
     //rec.nodes.push( { id: id + "->" + pn, name: pn } );
     addnode( rec, { id: id + "->" + pn, name: pn, object_path: id } )
@@ -59,7 +61,12 @@ function gen( obj,rec ) {
       else {
         gen( c,rec );
 
-        addlink( rec, {target:id+"->children",source: cid, ischild: true, isstruct: true })
+        addlink( rec, {target:id+"->children",
+                       source: cid, 
+                       ischild: true, 
+                       isstruct: true,
+                       target_obj_path: id
+                      })
       }
   });
   
@@ -150,22 +157,22 @@ function fixup( obj, rec ) {
   rec.links.forEach( (link) => {
     if (!rec.nodes_table[ link.source ])
     {
-      addnode( rec, {id: link.source, problematic: true })
+      addnode( rec, {id: link.source, problematic: true, object_path: link.source_obj_path })
       // todo object-path
       // todo быть может узел объекта добавить или связь с ним
 
       // если этого параметра еще не было в источнике - ддобавим его
-      if (rec.nodes_table[ link.source_obj_path ])
+      if (link.source_obj_path && rec.nodes_table[ link.source_obj_path ])
         addlink( rec, { source: link.source_obj_path, target: link.source, isparam: true, noparamrecord: true } );
     }
     if (!rec.nodes_table[ link.target ])
     {
-      addnode( rec, {id: link.target, problematic: true })
+      addnode( rec, {id: link.target, problematic: true, object_path: link.target_obj_path })
       // ну может это и не проблема
       // todo object-path
 
       // если этого параметра еще не было в приемнике - ддобавим его
-      if (rec.nodes_table[ link.target_obj_path ])
+      if (link.target_obj_path && rec.nodes_table[ link.target_obj_path ])
         addlink( rec, { source: link.target_obj_path, target: link.target, isparam: true, noparamrecord: true } );
     }
   })
@@ -282,8 +289,13 @@ export function scene_explorer_3d( env ) {
   env.onvalues(["input","target_dom"],(gdata,dom) => {
     graph = create_graph( dom, graph );
 
+    env.setParam("graph",graph); // точка прицепления различных фич
+
     var exisiting_gdata = graph.graphData();
     var newgdata = merge( exisiting_gdata, gdata );
+
+    env.setParam("gdata",newgdata); // новые данные тут
+
     graph.graphData( newgdata );
   });
 
@@ -349,6 +361,7 @@ export function scene_explorer_3d( env ) {
         
     const linkForce = graph
       .d3Force('link')
+      //.distance(link => link.islink ? 10 : 0.1 );
       .distance(link => link.islink ? 1 : 10 );
       //.distance(link => link.islink ? 10 : (link.isstruct ? 0.1 : 1) );
 

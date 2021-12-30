@@ -26,9 +26,25 @@ addStyle(`[hidden] {
 }
 
 .vz-screen {
+  pointer-events: none !important;
+}
+
+.vz-screen > * {
   pointer-events: all !important;
 }
 `)
+
+// вот это выше очень важная история для работы orbitcontrol и т.п. у three-js вещей
+// если экрану оставить события, то он почему-то не дает работать орбит-контролу
+// поэтому мы у экрана события забираем, а оставляем тем кто в него вложен непосредственно
+// пока так
+
+/*
+.vz-screen {
+  pointer-events: all !important;
+}
+*/
+
 
 function addStyle( styles ) {
   var styleSheet = document.createElement("style");
