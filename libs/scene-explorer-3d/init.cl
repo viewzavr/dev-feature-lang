@@ -15,12 +15,17 @@ register_feature name="scene-explorer-screen"  {
     };
     
     //scene_explorer_graph | explr: scene_explorer_3d target=@d1;
-    sgraph: scene_explorer_graph;
+    sgraph: scene_explorer_graph
+               add_all_params
+               add_all_features;
+
     explr: scene_explorer_3d 
               target=@graph_dom 
               input=@sgraph->output
-              struc_z
+              struc_z_golova_naverhu
               curvature1
+              objects_big
+              features_big
               ;
 
     graph_dom: dom style="position: absolute; width:100%; height: 100%; top: 0; left: 0; z-index:-2";
@@ -68,6 +73,21 @@ register_feature name="plane_nodes" code=`
 register_feature name="struc_z" code=`
   env.onvalue("gdata",(rec) => {
       let r = 50;
+      rec.nodes.forEach( (node) => {
+          if (!node.struc_computed) {
+             if (node.object_path)
+                 node.fz = node.object_path == "/" ? 0 : node.object_path.split("/").length * r;
+             node.struc_computed = true;
+          } 
+      })
+  })
+`;
+
+// располагает всех таким образом чтобы они были по плоскостям
+// в зависимости от вложенности
+register_feature name="struc_z_golova_naverhu" code=`
+  env.onvalue("gdata",(rec) => {
+      let r = -50;
       rec.nodes.forEach( (node) => {
           if (!node.struc_computed) {
              if (node.object_path)

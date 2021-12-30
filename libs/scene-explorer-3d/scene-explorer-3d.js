@@ -24,8 +24,8 @@ function create_rec() {
   return {nodes: [], links: [], nodes_table: {}, links_table: {} }
 }
 
-// https://github.com/vasturiano/3d-force-graph#input-json-syntax
-// пляся от корня заданного obj, генерить согласно описанию
+
+
 function gen( obj,rec ) {
   rec ||= create_rec();
 
@@ -34,19 +34,39 @@ function gen( obj,rec ) {
   if (id == "/state") return "";
 
   //rec.nodes.push( { id: id, name: id } );
-  addnode( rec, { id: id, name: id, object_path: id, isobject: true } )
+  addnode( rec, { id: id, name: id, object_path: id, isobject: true, color: 'red' } )
 
   // параметры все
   var params = obj.getParamsNames();
-  if (!obj.params.hasOwnProperty("children")) params = params.concat( ["children"] );
+  //if (!obj.params.hasOwnProperty("children")) params = params.concat( ["children"] );
 
   //params=["children"];
-  //params=[];
+  params=[];
+  
   params.forEach( (pn,index) => {
     //rec.nodes.push( { id: id + "->" + pn, name: pn } );
-    addnode( rec, { id: id + "->" + pn, name: pn, object_path: id } )
+    addnode( rec, { id: id + "->" + pn, name: pn, object_path: id, color: 'yellow' } )
     // IFROMTO
     addlink( rec, { source: id, target: id + "->" + pn, isparam: true, isstruct:(pn=="children") } );
+  })
+
+  // фичи
+  var fa = Object.keys( obj.$features_applied );
+  fa.forEach( (pn,index) => {
+    if (pn.startsWith("vzf") 
+      || pn.startsWith("viewzavr")
+      || pn.startsWith("base-url")
+      ) return;
+    //rec.nodes.push( { id: id + "->" + pn, name: pn } );
+    addnode( rec, { id: id + " feature " + pn, 
+                        name: pn, 
+                        label: pn,
+                        object_path: id, isfeature: true } )
+    // IFROMTO
+    addlink( rec, { source: id, 
+                    target: id + " feature " + pn, 
+                    isfeature: true 
+                  } );
   })
   
   var ch = obj.ns.getChildNames();
@@ -61,49 +81,15 @@ function gen( obj,rec ) {
       else {
         gen( c,rec );
 
-        addlink( rec, {target:id+"->children",
+        addlink( rec, {target:id,
                        source: cid, 
                        ischild: true, 
                        isstruct: true,
-                       target_obj_path: id
+                       target_obj_path: id,
+                       source_obj_path: cid
                       })
       }
   });
-  
-
-  // ссылки объектов
-  /*
-  for (var refname of Object.keys( obj.references || {})) {
-      var path = obj.getParam( refname );
-      var ref = path && path.getPath ? path.getPath() : path; // R-SETREF-OBJ
-      if (ref) {
-         if (obj.getParamOption( refname,"backref" ))
-         t += `(${id}) <== (${ref}) : "obj ref TPU"\n`;
-         else
-         t += `(${id}) ==> (${ref}) : "obj ref TPU"\n`;
-      }
-  }
-  */
-  
-  /*
-  // неведомое
-  if (obj.extraTpus) {
-    var extras = obj.extraTpus();
-    for (var e of Object.keys(extras)) {
-      var ecomment = extras[e];
-      if (typeof(ecomment) !== "string") ecomment = "";
-      t += `(${id}) ==> (${e}) : "${ecomment}"\n`;
-    }
-  }
-  if (obj.extraTpusBack) {
-    var extras = obj.extraTpusBack();
-    for (var e of Object.keys(extras)) {
-      var ecomment = extras[e];
-      if (typeof(ecomment) !== "string") ecomment = "";
-      t += `(${id}) <== (${e}) : "${ecomment}"\n`;
-    }
-  }
-  */  
   
   return rec;
 }
@@ -157,7 +143,7 @@ function fixup( obj, rec ) {
   rec.links.forEach( (link) => {
     if (!rec.nodes_table[ link.source ])
     {
-      addnode( rec, {id: link.source, problematic: true, object_path: link.source_obj_path })
+      addnode( rec, {id: link.source, problematic: true, object_path: link.source_obj_path, color: 'yellow' })
       // todo object-path
       // todo быть может узел объекта добавить или связь с ним
 
@@ -167,7 +153,7 @@ function fixup( obj, rec ) {
     }
     if (!rec.nodes_table[ link.target ])
     {
-      addnode( rec, {id: link.target, problematic: true, object_path: link.target_obj_path })
+      addnode( rec, {id: link.target, problematic: true, object_path: link.target_obj_path, color: 'yellow' })
       // ну может это и не проблема
       // todo object-path
 
@@ -221,11 +207,16 @@ export function scene_explorer_graph( env ) {
     // запускаем процесс генерации
     var interv = setInterval( () => perform_generate( obj ), 5000 );
     stop_process = () => clearInterval( interv );
+
+    perform_generate( obj );
   });
   env.on("remove",stop_process);
 
   function perform_generate( root_obj ) {
     var res = gen( root_obj );
+
+    // вот может тут - добавить фич, добавить параметров?
+
     fixup( root_obj, res);
     env.setParam("output",res )    
   }
@@ -339,9 +330,11 @@ export function scene_explorer_3d( env ) {
         //.linkDirectionalArrowRelPos(1)
          //.linkDirectionalArrowLength(13.5)
         .linkDirectionalArrowRelPos(1)
-        .nodeColor( (node) => node.isobject ? 'red' : 'yellow')
-        .nodeVal( (node) => node.isobject ? 10 : 1 )
-        .nodeLabel('id')
+        //.nodeColor( (node) => node.isobject ? 'red' : (node.isfeature ? undefined : 'yellow'))
+        .nodeAutoColorBy( 'name' )
+        .nodeVal( (node) => node.isfeature ? 10 : 1 )
+        //.nodeLabel('id')
+        .nodeLabel( node => node.label || node.id)
         .onNodeClick(node => {
           console.log("clicked node",node );
           env.setParam("current_object_path", node.object_path );
@@ -399,3 +392,89 @@ export function scene_explorer_3d( env ) {
 
 }
 
+
+
+
+// https://github.com/vasturiano/3d-force-graph#input-json-syntax
+// пляся от корня заданного obj, генерить согласно описанию
+function gen0( obj,rec ) {
+  rec ||= create_rec();
+
+  var id = obj.getPath();
+  
+  if (id == "/state") return "";
+
+  //rec.nodes.push( { id: id, name: id } );
+  addnode( rec, { id: id, name: id, object_path: id, isobject: true } )
+
+  // параметры все
+  var params = obj.getParamsNames();
+  if (!obj.params.hasOwnProperty("children")) params = params.concat( ["children"] );
+
+  //params=["children"];
+  //params=[];
+  params.forEach( (pn,index) => {
+    //rec.nodes.push( { id: id + "->" + pn, name: pn } );
+    addnode( rec, { id: id + "->" + pn, name: pn, object_path: id } )
+    // IFROMTO
+    addlink( rec, { source: id, target: id + "->" + pn, isparam: true, isstruct:(pn=="children") } );
+  })
+  
+  var ch = obj.ns.getChildNames();
+  ch.forEach( function(cname,index) {
+      var c = obj.ns.getChildByName( cname );
+      var cid = c.getPath();
+      
+      if (c.historicalType == "link") { // ссылки параметры
+        genlink( c,rec );
+        
+      }
+      else {
+        gen( c,rec );
+
+        addlink( rec, {target:id+"->children",
+                       source: cid, 
+                       ischild: true, 
+                       isstruct: true,
+                       target_obj_path: id
+                      })
+      }
+  });
+  
+
+  // ссылки объектов
+  /*
+  for (var refname of Object.keys( obj.references || {})) {
+      var path = obj.getParam( refname );
+      var ref = path && path.getPath ? path.getPath() : path; // R-SETREF-OBJ
+      if (ref) {
+         if (obj.getParamOption( refname,"backref" ))
+         t += `(${id}) <== (${ref}) : "obj ref TPU"\n`;
+         else
+         t += `(${id}) ==> (${ref}) : "obj ref TPU"\n`;
+      }
+  }
+  */
+  
+  /*
+  // неведомое
+  if (obj.extraTpus) {
+    var extras = obj.extraTpus();
+    for (var e of Object.keys(extras)) {
+      var ecomment = extras[e];
+      if (typeof(ecomment) !== "string") ecomment = "";
+      t += `(${id}) ==> (${e}) : "${ecomment}"\n`;
+    }
+  }
+  if (obj.extraTpusBack) {
+    var extras = obj.extraTpusBack();
+    for (var e of Object.keys(extras)) {
+      var ecomment = extras[e];
+      if (typeof(ecomment) !== "string") ecomment = "";
+      t += `(${id}) <== (${e}) : "${ecomment}"\n`;
+    }
+  }
+  */  
+  
+  return rec;
+}
