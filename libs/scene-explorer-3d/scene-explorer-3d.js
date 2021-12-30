@@ -44,7 +44,7 @@ function gen( obj,rec ) {
     //rec.nodes.push( { id: id + "->" + pn, name: pn } );
     addnode( rec, { id: id + "->" + pn, name: pn, object_path: id } )
     // IFROMTO
-    addlink( rec, { source: id, target: id + "->" + pn, isparam: true } );
+    addlink( rec, { source: id, target: id + "->" + pn, isparam: true, isstruct:(pn=="children") } );
   })
   
   var ch = obj.ns.getChildNames();
@@ -59,7 +59,7 @@ function gen( obj,rec ) {
       else {
         gen( c,rec );
 
-        addlink( rec, {target:id+"->children",source: cid, ischild: true })
+        addlink( rec, {target:id+"->children",source: cid, ischild: true, isstruct: true })
       }
   });
   
@@ -320,6 +320,7 @@ export function scene_explorer_3d( env ) {
         .nodeLabel(node => node.id)
         .linkColor(link => link.islink ? 'purple' : ( link.ischild ? 'red' : 'green' ))
         .linkOpacity(1)
+        //.linkCurvature( link => link.islink ? 0.2 : 0 )
         .linkCurvature( 0.2 )
         .linkWidth(link => link.islink ? 2 : 0 ) // 2 : 1 красиво но медленно
         .linkDirectionalArrowLength(link => link.islink ? 13.5 : 0 )
@@ -346,10 +347,10 @@ export function scene_explorer_3d( env ) {
           console.log("object params are ",obj?.$vz_params);
         });
         
-
     const linkForce = graph
       .d3Force('link')
       .distance(link => link.islink ? 1 : 10 );
+      //.distance(link => link.islink ? 10 : (link.isstruct ? 0.1 : 1) );
 
 
     var installed_w, installed_h;
