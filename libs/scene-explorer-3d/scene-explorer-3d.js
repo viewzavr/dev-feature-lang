@@ -136,8 +136,12 @@ function genlink( obj,rec ) {
       // короче отдельно проверим..
       
       //return `(${objname}) ..> (${objname2}) : "link ${paramname} -> ${paramname2} TPU"\n`;
-      addlink( rec, {target: objname2 + "->" + paramname2,
+      addlink( rec,   {target: objname2 + "->" + paramname2,
                        source: objname + "->" + paramname,
+                       source_obj_path: objname,                       
+                       source_param: paramname, 
+                       target_obj_path: objname2,
+                       target_param: paramname2,
                        islink: true,
                        object_path: id })
 }
@@ -149,12 +153,20 @@ function fixup( obj, rec ) {
       addnode( rec, {id: link.source, problematic: true })
       // todo object-path
       // todo быть может узел объекта добавить или связь с ним
+
+      // если этого параметра еще не было в источнике - ддобавим его
+      if (rec.nodes_table[ link.source_obj_path ])
+        addlink( rec, { source: link.source_obj_path, target: link.source, isparam: true, noparamrecord: true } );
     }
     if (!rec.nodes_table[ link.target ])
     {
       addnode( rec, {id: link.target, problematic: true })
       // ну может это и не проблема
       // todo object-path
+
+      // если этого параметра еще не было в приемнике - ддобавим его
+      if (rec.nodes_table[ link.target_obj_path ])
+        addlink( rec, { source: link.target_obj_path, target: link.target, isparam: true, noparamrecord: true } );
     }
   })
 }

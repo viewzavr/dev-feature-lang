@@ -15,10 +15,10 @@ register_feature name="scene-explorer-screen"  {
     };
     
     //scene_explorer_graph | explr: scene_explorer_3d target=@d1;
-    sg: scene_explorer_graph;
-    explr: scene_explorer_3d target=@d1 input=@sg->output;
+    sgraph: scene_explorer_graph;
+    explr: scene_explorer_3d target=@graph_dom input=@sgraph->output;
 
-    d1: dom style="position: absolute; width:100%; height: 100%; top: 0; left: 0; z-index:-2";
+    graph_dom: dom style="position: absolute; width:100%; height: 100%; top: 0; left: 0; z-index:-2";
     //d1: dom style="width:500px; height: 500px; ";
   }
 }
