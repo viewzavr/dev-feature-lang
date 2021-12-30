@@ -16,15 +16,17 @@ register_feature name="scene-explorer-screen"  {
     
     //scene_explorer_graph | explr: scene_explorer_3d target=@d1;
     sgraph: scene_explorer_graph
-               add_all_params
-               add_all_features;
+               //add_all_params
+               add_all_features
+               //children_node=true
+               ;
 
     explr: scene_explorer_3d 
               target=@graph_dom 
               input=@sgraph->output
               struc_z_golova_naverhu
               curvature1
-              objects_big
+              //objects_big
               features_big
               ;
 
@@ -46,6 +48,20 @@ register_feature name="curvature1" code=`
       g.linkCurvature( link => link.isstruct ? 0.0 : 0.2 )
   })
 `;
+
+// корявые соединения на структуре, остальные попрямее
+register_feature name="objects_big" code=`
+  env.onvalue("graph",(g) => {
+      g.nodeVal( (node) => node.isobject ? 10 : 1 )
+  })
+`;
+
+register_feature name="features_big" code=`
+  env.onvalue("graph",(g) => {
+      g.nodeVal( (node) => node.isfeature ? 10 : 1 )
+  })
+`;
+
 
 // фиксирует узел после перетаскивания
 register_feature name="fixdrag" code=`
@@ -97,3 +113,5 @@ register_feature name="struc_z_golova_naverhu" code=`
       })
   })
 `;
+
+

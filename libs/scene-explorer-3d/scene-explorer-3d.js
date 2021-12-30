@@ -24,9 +24,48 @@ function create_rec() {
   return {nodes: [], links: [], nodes_table: {}, links_table: {} }
 }
 
+export function add_all_params( env ) {
+  env.on("genobj",(obj,rec, id) => {
+    // параметры все
+    var params = obj.getParamsNames();
+    //if (!obj.params.hasOwnProperty("children")) params = params.concat( ["children"] );
+    //params=["children"];
+    //params=[];
+
+    params.forEach( (pn,index) => {
+      //rec.nodes.push( { id: id + "->" + pn, name: pn } );
+      addnode( rec, { id: id + "->" + pn, name: pn, object_path: id, color: 'yellow' } )
+      // IFROMTO
+      addlink( rec, { source: id, target: id + "->" + pn, isparam: true, isstruct:(pn=="children") } );
+    })
+  })
+}
+
+export function add_all_features( env ) {
+  env.on("genobj",(obj,rec, id) => {
+    // фичи
+    var fa = Object.keys( obj.$features_applied );
+    fa.forEach( (pn,index) => {
+      if (pn.startsWith("vzf") 
+        || pn.startsWith("viewzavr")
+        || pn.startsWith("base-url")
+        ) return;
+      //rec.nodes.push( { id: id + "->" + pn, name: pn } );
+      addnode( rec, { id: id + " feature " + pn, 
+                          name: pn, 
+                          label: pn,
+                          object_path: id, isfeature: true } )
+      // IFROMTO
+      addlink( rec, { source: id, 
+                      target: id + " feature " + pn, 
+                      isfeature: true 
+                    } );
+    })
+  })
+}
 
 
-function gen( obj,rec ) {
+function gen( obj,rec, env ) {
   rec ||= create_rec();
 
   var id = obj.getPath();
@@ -36,38 +75,8 @@ function gen( obj,rec ) {
   //rec.nodes.push( { id: id, name: id } );
   addnode( rec, { id: id, name: id, object_path: id, isobject: true, color: 'red' } )
 
-  // параметры все
-  var params = obj.getParamsNames();
-  //if (!obj.params.hasOwnProperty("children")) params = params.concat( ["children"] );
-
-  //params=["children"];
-  params=[];
-  
-  params.forEach( (pn,index) => {
-    //rec.nodes.push( { id: id + "->" + pn, name: pn } );
-    addnode( rec, { id: id + "->" + pn, name: pn, object_path: id, color: 'yellow' } )
-    // IFROMTO
-    addlink( rec, { source: id, target: id + "->" + pn, isparam: true, isstruct:(pn=="children") } );
-  })
-
-  // фичи
-  var fa = Object.keys( obj.$features_applied );
-  fa.forEach( (pn,index) => {
-    if (pn.startsWith("vzf") 
-      || pn.startsWith("viewzavr")
-      || pn.startsWith("base-url")
-      ) return;
-    //rec.nodes.push( { id: id + "->" + pn, name: pn } );
-    addnode( rec, { id: id + " feature " + pn, 
-                        name: pn, 
-                        label: pn,
-                        object_path: id, isfeature: true } )
-    // IFROMTO
-    addlink( rec, { source: id, 
-                    target: id + " feature " + pn, 
-                    isfeature: true 
-                  } );
-  })
+  // точка передачи управления доп-алгоритмам
+  env.emit("genobj",obj,rec,id);
   
   var ch = obj.ns.getChildNames();
   ch.forEach( function(cname,index) {
@@ -79,9 +88,11 @@ function gen( obj,rec ) {
         
       }
       else {
-        gen( c,rec );
+        gen( c,rec, env );
 
-        addlink( rec, {target:id,
+        var tid = env.params.children_node ? id + "->children" : id;
+
+        addlink( rec, {target: tid,
                        source: cid, 
                        ischild: true, 
                        isstruct: true,
@@ -169,7 +180,12 @@ function fixup( obj, rec ) {
 // но при этом сохранило свойства графа из prevrec
 function merge( prevrec, newrec ) {
 
-  if (!prevrec.nodes_table) return newrec; // если в старом нет наших таблиц - берем тупо новое
+  if (!prevrec.nodes_table) {
+      newrec.has_changed = true;
+      return newrec; 
+      // если в старом нет наших таблиц - берем тупо новое
+      // потому что оно значит совсем куку, дефолтное  какое-то
+  }
 
   // https://bl.ocks.org/vasturiano/2f602ea6c51c664c29ec56cbe2d6a5f6
 
@@ -178,21 +194,25 @@ function merge( prevrec, newrec ) {
   prevrec.nodes.forEach( node => {
     if (newrec.nodes_table[ node.table_key ]) 
         addnode( rec, node );
+      else rec.has_changed = true;
   })
   prevrec.links.forEach( node => {
     if (newrec.links_table[ node.table_key ]) 
         addlink( rec, node );
+      else rec.has_changed = true;
   })
 
   // добавим то что появилось в новом сверху
   newrec.nodes.forEach( node => {
     if (!prevrec.nodes_table[ node.table_key ]) {
       addnode( rec,node );
+      rec.has_changed = true;
     }
   } )
   newrec.links.forEach( node => {
     if (!prevrec.links_table[ node.table_key ]) {
       addlink( rec,node );
+      rec.has_changed = true;
     }
   } )
 
@@ -205,7 +225,7 @@ export function scene_explorer_graph( env ) {
   var stop_process = ()=>{};
   env.onvalue("input",(obj) => {
     // запускаем процесс генерации
-    var interv = setInterval( () => perform_generate( obj ), 5000 );
+    var interv = setInterval( () => perform_generate( obj ), 500 );
     stop_process = () => clearInterval( interv );
 
     perform_generate( obj );
@@ -213,10 +233,7 @@ export function scene_explorer_graph( env ) {
   env.on("remove",stop_process);
 
   function perform_generate( root_obj ) {
-    var res = gen( root_obj );
-
-    // вот может тут - добавить фич, добавить параметров?
-
+    var res = gen( root_obj, null, env );
     fixup( root_obj, res);
     env.setParam("output",res )    
   }
@@ -284,6 +301,7 @@ export function scene_explorer_3d( env ) {
 
     var exisiting_gdata = graph.graphData();
     var newgdata = merge( exisiting_gdata, gdata );
+    if (!newgdata.has_changed) return;
 
     env.setParam("gdata",newgdata); // новые данные тут
 
@@ -322,6 +340,7 @@ export function scene_explorer_3d( env ) {
     const graph = ForceGraph3D()(dom)
         .nodeLabel(node => node.id)
         .linkColor(link => link.islink ? 'purple' : ( link.ischild ? 'red' : 'green' ))
+        //.linkColor(link => link.islink ? 'purple' : ( link.ischild ? 'green' : 'red' ))
         .linkOpacity(1)
         //.linkCurvature( link => link.islink ? 0.2 : 0 )
         .linkCurvature( 0.2 )
@@ -332,18 +351,40 @@ export function scene_explorer_3d( env ) {
         .linkDirectionalArrowRelPos(1)
         //.nodeColor( (node) => node.isobject ? 'red' : (node.isfeature ? undefined : 'yellow'))
         .nodeAutoColorBy( 'name' )
-        .nodeVal( (node) => node.isfeature ? 10 : 1 )
+        //.nodeOpacity( node => 0.5 )
+        .nodeVal( (node) => {
+          /*
+           if (node.object_path == env.params.current_object_path) {
+              debugger;
+              return 100;
+           }
+           */
+           return node.isfeature ? 10 : 1 
+         }
+        )
         //.nodeLabel('id')
         .nodeLabel( node => node.label || node.id)
         .onNodeClick(node => {
+
+          // фича "фиксировать узел при клике на нево"
+          // а то к нему начинают цепляться стрелочки от других
+          node.fx = node.x;
+          node.fy = node.y;
+          node.fz = node.z;
+
           console.log("clicked node",node );
           env.setParam("current_object_path", node.object_path );
 
           var obj = env.findByPath( node.object_path );
           console.log("object is",obj);
           console.log("object params are ",obj?.$vz_params);
+
+          // особая штука чтобы обновить раскраску
+          //graph.nodeColor(graph.nodeColor())
+          //graph.nodeVal(graph.nodeVal());
         })
         .onLinkClick(node => {
+
           console.log("clicked link",node );
           env.setParam("current_object_path", node.object_path );
 
@@ -355,8 +396,8 @@ export function scene_explorer_3d( env ) {
     const linkForce = graph
       .d3Force('link')
       //.distance(link => link.islink ? 10 : 0.1 );
-      .distance(link => link.islink ? 1 : 10 );
-      //.distance(link => link.islink ? 10 : (link.isstruct ? 0.1 : 1) );
+      //.distance(link => link.islink ? 1 : 10 );
+      .distance(link => link.islink ? 10 : (link.isstruct ? 1 : 0.1) );
 
 
     var installed_w, installed_h;
