@@ -2,23 +2,47 @@ load files=`
 scene-explorer-3d.js
 `;
 
+register_feature name="two_side_columns" {
+  row justify-content="space-between" 
+      align-items="flex-start"
+      style="width: 100%" class="vz-mouse-transparent-layout";
+  // вот я тут опираюсь на хрень vz-mouse-transparent-layout которая определена непойми где...
+  // непроговоренные ожидания.. хоть бы module-specifier указал бы как-то..
+};
+
 register_feature name="scene-explorer-screen"  {
   screen {
     //button text="click me 2" cmd="@s1->activate";
 
-    column gap="0.5em" padding="0.5em" margin="1em" style="background: rgba( 255 255 255 / 25% ); color: white;" {
-      dom tag="h3" innerText="Selected object" style="margin:0;";
-      text text="path:";
-      text text=@explr->current_object_path;
-      text text="params:";
-      render-params object_path=@explr->current_object_path;
+    two_side_columns {
+
+      column gap="0.5em" padding="0.5em" margin="1em" style="background: rgba( 255 255 255 / 25% ); color: white;" {
+        dom tag="h3" innerText="Selected object" style="margin:0;";
+        text text="path:";
+        text text=@explr->current_object_path;
+        text text="params:";
+        render-params object_path=@explr->current_object_path;
+      };
+
+      column gap="0.5em" padding="0.5em" margin="1em" 
+             style="background: rgba( 255 255 255 / 25% ); color: white;" {
+        dom tag="h3" innerText="Graph params" style="margin:0;";
+
+        //ueb: checkbox text="update_every_beat" value=false;
+        render-params object=@sgraph;
+        render-params object=@explr;
+      };
+
     };
+    
     
     //scene_explorer_graph | explr: scene_explorer_3d target=@d1;
     sgraph: scene_explorer_graph
                //add_all_params
                add_all_features
+               //sibling_connection
                //children_node=true
+               //update_interval=100
                ;
 
     explr: scene_explorer_3d 
@@ -28,6 +52,7 @@ register_feature name="scene-explorer-screen"  {
               curvature1
               //objects_big
               features_big
+              //update_every_beat=@ueb->value
               ;
 
     graph_dom: dom style="position: absolute; width:100%; height: 100%; top: 0; left: 0; z-index:-2";

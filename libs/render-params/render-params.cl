@@ -117,12 +117,16 @@ register_feature name="render-param-cmd" {
 };
 
 register_feature name="render-param-float" {
-  dom tag="input" {
-    link from=@..->param_path to=".->dom_value" tied_to_parent=true;
-    link to=@..->param_path from=".->value" tied_to_parent=true;
-    dom_event name="change" code=`
-      object.setParam("value",env.params.object.dom.value,true);
-    `;
+  column {
+    text text=@..->name;
+
+    dom tag="input" {
+      link from=@../..->param_path to=".->dom_value" tied_to_parent=true;
+      link to=@../..->param_path from=".->value" tied_to_parent=true;
+      dom_event name="change" code=`
+        object.setParam("value",env.params.object.dom.value,true);
+      `;
+    };
   };
 };
 
@@ -195,21 +199,26 @@ register_feature name="render-param-slider" {
 
 register_feature name="render-param-combovalue"
 {
-  combobox {
-    link from=@..->param_path to=".->value" tied_to_parent=true;
-    link to=@..->param_path from=".->value" tied_to_parent=true;
-    //link from=@..->param_path" to="..->min";
+  column {
+    text text=@..->name;
 
-    compute obj=@..->obj name=@..->name code=`
-      
-      if (env.params.obj && env.params.name) {
-        var values = env.params.obj.getParamOption( env.params.name,"values" ) || [];
+    combobox {
+      link from=@../..->param_path to=".->value" tied_to_parent=true;
+      link to=@../..->param_path from=".->value" tied_to_parent=true;
+      //link from=@..->param_path" to="..->min";
 
-        env.ns.parent.setParam("values",values);
-        // todo ловить когда эти values меняются.
-        // по сути все-таки "параметр" с его ключами
-        // должен вести себя как объект, тогда можно к нему залинковаться..
-      }
-    `;
-  }
+      compute obj=@../..->obj name=@../..->name code=`
+        
+        if (env.params.obj && env.params.name) {
+          var values = env.params.obj.getParamOption( env.params.name,"values" ) || [];
+
+          env.ns.parent.setParam("values",values);
+          // todo ловить когда эти values меняются.
+          // по сути все-таки "параметр" с его ключами
+          // должен вести себя как объект, тогда можно к нему залинковаться..
+        }
+      `;
+    };
+
+  };
 };

@@ -32,6 +32,15 @@ addStyle(`[hidden] {
 .vz-screen > * {
   pointer-events: all !important;
 }
+
+.vz-mouse-transparent-layout {
+  pointer-events: none !important;
+}
+
+.vz-mouse-transparent-layout > * {
+  pointer-events: all !important;
+}
+
 `)
 
 // вот это выше очень важная история для работы orbitcontrol и т.п. у three-js вещей

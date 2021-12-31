@@ -24,6 +24,33 @@ function create_rec() {
   return {nodes: [], links: [], nodes_table: {}, links_table: {} }
 }
 
+
+export function sibling_connection( env ) {
+  env.on("genobj",(obj,rec, id) => {
+
+    var ch = obj.ns.getChildNames();
+    let prevchild;
+    ch.forEach( function(cname,index) {
+        var c = obj.ns.getChildByName( cname );
+        
+        if (c.historicalType == "link")  // ссылки параметры
+          return;
+
+        if (prevchild)
+        addlink( rec, {target: c.getPath(),
+                       source: prevchild.getPath(), 
+                       isstruct: true,
+                       color: 'black'
+
+                       })
+        
+        prevchild = c;
+    });
+
+
+  })
+}
+
 export function add_all_params( env ) {
   env.on("genobj",(obj,rec, id) => {
     // параметры все
@@ -223,9 +250,18 @@ function merge( prevrec, newrec ) {
 export function scene_explorer_graph( env ) {
 
   var stop_process = ()=>{};
-  env.onvalue("input",(obj) => {
+
+  env.addFloat( "update_interval", 500 );
+
+  //if (!env.params.update_interval) env.params.update_interval = 500;
+
+  env.onvalues(["input","update_interval"],(obj) => {
+    stop_process()
     // запускаем процесс генерации
-    var interv = setInterval( () => perform_generate( obj ), 500 );
+    var interv = setInterval( 
+        () => perform_generate( obj ),
+        env.params.update_interval
+    );
     stop_process = () => clearInterval( interv );
 
     perform_generate( obj );
@@ -293,6 +329,8 @@ export function scene_explorer_3d( env ) {
   });
   env.on("remove",unsub_target);
 
+  env.addCheckbox("update_every_beat",false);
+
   var graph;
   env.onvalues(["input","target_dom"],(gdata,dom) => {
     graph = create_graph( dom, graph );
@@ -301,7 +339,12 @@ export function scene_explorer_3d( env ) {
 
     var exisiting_gdata = graph.graphData();
     var newgdata = merge( exisiting_gdata, gdata );
-    if (!newgdata.has_changed) return;
+
+    if (env.params.update_every_beat)
+    {}
+    else
+      if (!newgdata.has_changed) return;
+    
 
     env.setParam("gdata",newgdata); // новые данные тут
 
@@ -339,7 +382,7 @@ export function scene_explorer_3d( env ) {
 
     const graph = ForceGraph3D()(dom)
         .nodeLabel(node => node.id)
-        .linkColor(link => link.islink ? 'purple' : ( link.ischild ? 'red' : 'green' ))
+        .linkColor(link => link.islink ? 'purple' : ( link.ischild ? 'red' : (link.color || 'green') ))
         //.linkColor(link => link.islink ? 'purple' : ( link.ischild ? 'green' : 'red' ))
         .linkOpacity(1)
         //.linkCurvature( link => link.islink ? 0.2 : 0 )
@@ -397,7 +440,7 @@ export function scene_explorer_3d( env ) {
       .d3Force('link')
       //.distance(link => link.islink ? 10 : 0.1 );
       //.distance(link => link.islink ? 1 : 10 );
-      .distance(link => link.islink ? 10 : (link.isstruct ? 1 : 0.1) );
+      .distance(link => link.islink ? 10 : (link.isstruct ? 0.5 : 0.1) );
 
 
     var installed_w, installed_h;

@@ -17,9 +17,11 @@ export function simple_lang(env)
     {
 
       console.error(e);
-      if (opts.diag_file) console.log("parse error in file ",opts.diag_file)
+      
       if (typeof e.format === "function")
           console.log( e.format( [{text:code}] ));
+
+      if (opts.diag_file) console.log("parse error in file ",opts.diag_file)  
 
     }
   }
