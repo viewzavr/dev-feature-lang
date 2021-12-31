@@ -100,7 +100,8 @@ function gen( obj,rec, env ) {
   if (id == "/state") return "";
 
   //rec.nodes.push( { id: id, name: id } );
-  addnode( rec, { id: id, name: id, object_path: id, isobject: true, color: 'red' } )
+  addnode( rec, { id: id, name: obj.ns.name, 
+                  object_path: id, isobject: true, color: 'red' } )
 
   // точка передачи управления доп-алгоритмам
   env.emit("genobj",obj,rec,id);
@@ -165,10 +166,14 @@ function genlink( obj,rec ) {
       // если нет источника - его надо создать и обозначить что его нет
       // но наверное лучше это сделать то ли позже, то ли когда
       // короче отдельно проверим..
+
+      // микрофишка - у нас параметр . означает сам объект - нарисуем стрелку из объекта тогда..
+      var source = objname + "->" + paramname;
+      if (paramname == ".") source = objname;
       
       //return `(${objname}) ..> (${objname2}) : "link ${paramname} -> ${paramname2} TPU"\n`;
       addlink( rec,   {target: objname2 + "->" + paramname2,
-                       source: objname + "->" + paramname,
+                       source: source,
                        source_obj_path: objname,                       
                        source_param: paramname, 
                        target_obj_path: objname2,

@@ -53,6 +53,7 @@ register_feature name="scene-explorer-screen"  {
               //objects_big
               features_big
               //update_every_beat=@ueb->value
+              node_titles
               ;
 
     graph_dom: dom style="position: absolute; width:100%; height: 100%; top: 0; left: 0; z-index:-2";
@@ -140,3 +141,22 @@ register_feature name="struc_z_golova_naverhu" code=`
 `;
 
 
+// фиксирует узел после перетаскивания
+register_feature name="node_titles" code=`
+  env.onvalue("graph",(g) => {
+      g
+      .nodeThreeObjectExtend(true)
+      .nodeThreeObject(node => {
+          if (node.isobject) {
+            if (node.name.startsWith("item_")) return; // это выглядит лишним
+
+            const sprite = new SpriteText(node.name);
+            sprite.material.depthWrite = false; // make sprite background transparent
+            sprite.color = 'white'; //node.color;
+            sprite.textHeight = 12;
+            sprite.position.z=10;
+            return sprite;
+            }
+      });
+  })
+`;
