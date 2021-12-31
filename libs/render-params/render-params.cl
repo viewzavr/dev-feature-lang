@@ -137,7 +137,7 @@ register_feature name="render-param-checkbox" {
   }
 };
 
-register_feature name="render-param-color-todo" {
+register_feature name="render-param-color" {
   select_color {
     link from=@..->param_path to=".->value" tied_to_parent=true;
     link to=@..->param_path from=".->value" tied_to_parent=true manual_mode=true;

@@ -10,7 +10,9 @@ s1: screen auto_activate activate_by_hotkey hotkey='i' {
   
 };
 
-s2: scene-explorer-screen activate_by_hotkey hotkey='q';
+// activate_by_hotkey hotkey='q';
+
+s2: scene-explorer-screen;
 
 apply_by_hotkey hotkey='b' {
   rotate_screens;

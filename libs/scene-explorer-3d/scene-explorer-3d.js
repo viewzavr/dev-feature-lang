@@ -129,6 +129,33 @@ function gen( obj,rec, env ) {
                       })
       }
   });
+
+  // addParamRef + отладить ссылки
+
+  // ссылки на
+  for (var refname of Object.keys( obj.references || {})) {
+      var path = obj.getParam( refname );
+      var ref = path && path.getPath ? path.getPath() : path; // R-SETREF-OBJ
+      if (ref) {
+         
+         addlink( rec, {target:id+"->"+refname, 
+                        source:ref,
+                        target_obj_path: id,
+                        source_obj_path: ref,
+                        targeT_param: refname,
+                        islink: true});
+         /* 
+         if (obj.getParamOption( refname,"backref" ))
+           addlink( rec, {target:id+"->"+refname, source:ref});
+         else
+          addlink( rec, {source:id, target:ref});
+
+         t += `(${id}) <== (${ref}) : "obj ref TPU"\n`;
+         else
+         t += `(${id}) ==> (${ref}) : "obj ref TPU"\n`;
+         */
+      }
+  }  
   
   return rec;
 }
