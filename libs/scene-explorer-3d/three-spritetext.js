@@ -536,4 +536,4 @@
   return _default;
 
 }));
-//# sourceMappingURL=three-spritetext.js.map
+

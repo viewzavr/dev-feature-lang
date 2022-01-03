@@ -61,7 +61,7 @@ export function add_all_params( env ) {
 
     params.forEach( (pn,index) => {
       //rec.nodes.push( { id: id + "->" + pn, name: pn } );
-      addnode( rec, { id: id + "->" + pn, name: pn, object_path: id, color: 'yellow' } )
+      addnode( rec, { id: id + "->" + pn, name: pn, object_path: id, color: 'yellow', isparam: true } )
       // IFROMTO
       addlink( rec, { source: id, target: id + "->" + pn, isparam: true, isstruct:(pn=="children") } );
     })
@@ -142,7 +142,7 @@ function gen( obj,rec, env ) {
                         source:ref,
                         target_obj_path: id,
                         source_obj_path: ref,
-                        targeT_param: refname,
+                        target_param: refname,
                         islink: true});
          /* 
          if (obj.getParamOption( refname,"backref" ))
@@ -213,7 +213,11 @@ function fixup( obj, rec ) {
   rec.links.forEach( (link) => {
     if (!rec.nodes_table[ link.source ])
     {
-      addnode( rec, {id: link.source, problematic: true, object_path: link.source_obj_path, color: 'yellow' })
+      addnode( rec, {id: link.source, problematic: true, 
+                     object_path: link.source_obj_path,
+                     color: 'yellow',
+                     name: link.source_param,
+                     isparam: true })
       // todo object-path
       // todo быть может узел объекта добавить или связь с ним
 
@@ -223,7 +227,11 @@ function fixup( obj, rec ) {
     }
     if (!rec.nodes_table[ link.target ])
     {
-      addnode( rec, {id: link.target, problematic: true, object_path: link.target_obj_path, color: 'yellow' })
+      addnode( rec, {id: link.target, problematic: true, 
+                     object_path: link.target_obj_path,
+                     name: link.target_param,
+                     color: 'yellow',
+                     isparam: true })
       // ну может это и не проблема
       // todo object-path
 

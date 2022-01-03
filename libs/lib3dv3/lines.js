@@ -75,8 +75,7 @@ export function lib3d_visual( env ) {
     so.visible = vis;
   })
 
-  env.addColor("color")
-
+  env.addColor("color",[1,1,1]);
 
   // отдельная фича - отключаем frustum culling
   env.onvalue("output",(so) => {

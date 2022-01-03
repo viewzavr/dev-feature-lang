@@ -53,7 +53,8 @@ register_feature name="scene-explorer-screen"  {
               //objects_big
               features_big
               //update_every_beat=@ueb->value
-              node_titles
+              obj_titles
+              params_preview_values
               ;
 
     graph_dom: dom style="position: absolute; width:100%; height: 100%; top: 0; left: 0; z-index:-2";
@@ -75,13 +76,14 @@ register_feature name="curvature1" code=`
   })
 `;
 
-// корявые соединения на структуре, остальные попрямее
+// большие узлы объектов остальное помельче
 register_feature name="objects_big" code=`
   env.onvalue("graph",(g) => {
       g.nodeVal( (node) => node.isobject ? 10 : 1 )
   })
 `;
 
+// большие узлы фич остальное помельче
 register_feature name="features_big" code=`
   env.onvalue("graph",(g) => {
       g.nodeVal( (node) => node.isfeature ? 10 : 1 )
@@ -111,7 +113,7 @@ register_feature name="plane_nodes" code=`
 `;
 
 // располагает всех таким образом чтобы они были по плоскостям
-// в зависимости от вложенности
+// в зависимости от вложенности - корень внизу
 register_feature name="struc_z" code=`
   env.onvalue("gdata",(rec) => {
       let r = 50;
@@ -126,7 +128,7 @@ register_feature name="struc_z" code=`
 `;
 
 // располагает всех таким образом чтобы они были по плоскостям
-// в зависимости от вложенности
+// в зависимости от вложенности - корень вверху
 register_feature name="struc_z_golova_naverhu" code=`
   env.onvalue("gdata",(rec) => {
       let r = -50;
@@ -141,8 +143,8 @@ register_feature name="struc_z_golova_naverhu" code=`
 `;
 
 
-// фиксирует узел после перетаскивания
-register_feature name="node_titles" code=`
+// добавить названия объектов
+register_feature name="obj_titles" code=`
   env.onvalue("graph",(g) => {
       g
       .nodeThreeObjectExtend(true)
@@ -160,3 +162,28 @@ register_feature name="node_titles" code=`
       });
   })
 `;
+
+// добавить значения параметров при наведении мышки
+register_feature name="params_preview_values" code='
+  env.onvalue("graph",(g) => {
+      g
+       .nodeLabel( node => {
+
+          let s1=node.label || node.id;
+          if (!node.isparam) return s1;
+
+          let preview = "cant preview value, no node.name";
+          if (node.name) {
+            var refobj = env.findByPath( node.object_path );
+            //console.log("nodelabel called");
+            var val = refobj.getParam( node.name );
+            if (typeof(val) != "undefined" && val.toString)
+              preview = val.toString ? val.toString().slice(0,80) : val;
+            else
+              preview = val;
+          };
+          
+          return s1 + "<br/><br/>"+preview;
+       })
+  });
+';

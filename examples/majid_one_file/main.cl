@@ -1,3 +1,6 @@
+// dev run:
+// http://127.0.0.1:8080/vrungel/index.html?src=http://127.0.0.1:8080/vrungel/examples/majid_one_file/main.cl&csv_file=http://127.0.0.1:8080/vrungel/examples/majid_one_file/TSNE_output.csv
+
 load files="lib3dv3 csv params io gui render-params df misc
             scene-explorer-3d";
 
