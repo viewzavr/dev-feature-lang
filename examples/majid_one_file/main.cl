@@ -18,7 +18,7 @@ render3d bgcolor=[0.1,0.2,0.3] target=@view
 
     @dat 
       | df_filter code="(line) => line.TEXT?.length > 0"
-      | t3d: text3d size=0.2; // visible=@cb1->value color=@titlecol->value;
+      | t3d: text3d size=0.2 visible=@cb1->value color=@titlecol->value;
 };
 
 /// интерфейс пользователя gui
@@ -30,9 +30,10 @@ screen auto-activate {
       column gap="0.5em" padding="0.5em" style="background-color: rgba(255 255 255 / 45%)" {
         dom tag="h3" innerText="Visual settings" style="margin:0;";
 
-        //cb1: checkbox text="Show titles";
-        //titlecol: select_color value=[1,1,1];
-        render-params object=@t3d;
+        cb1: checkbox text="Show titles";
+        titlecol: select_color value=[1,1,1];
+        
+        //render-params object=@t3d;
       };
       text text="Please specify path to CSV file in <b>csv_file</b> query parameter." style="color:red";
     }

@@ -177,6 +177,9 @@ register_feature name="params_preview_values" code='
             var refobj = env.findByPath( node.object_path );
             //console.log("nodelabel called");
             var val = refobj.getParam( node.name );
+
+            // todo: добавить тут наш превьювер строчек
+
             if (typeof(val) != "undefined" && val.toString)
               preview = val.toString ? val.toString().slice(0,80) : val;
             else

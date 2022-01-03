@@ -138,14 +138,19 @@ register_feature name="render-param-checkbox" {
 };
 
 register_feature name="render-param-color" {
-  select_color {
-    link from=@..->param_path to=".->value" tied_to_parent=true;
-    link to=@..->param_path from=".->value" tied_to_parent=true manual_mode=true;
-
-    connection event_name="param_value_changed" object=@.. code=`
-      debugger;
-    `;
-  }
+  column {
+    text text=@..->name;
+    //text text=" : ";
+    select_color {
+      link from=@../..->param_path to=".->value" tied_to_parent=true;
+      link to=@../..->param_path from=".->value" tied_to_parent=true manual_mode=true;
+/*
+      connection event_name="param_value_changed" object=@.. code=`
+        debugger;
+      `;
+*/      
+    };
+  };
 };
 
 register_feature name="render-param-file" {
