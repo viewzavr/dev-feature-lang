@@ -32,11 +32,11 @@ screen auto-activate {
 
         cb1: checkbox text="Show titles";
         titlecol: select_color value=[1,1,1];
-        
+
         //render-params object=@t3d;
       };
       text text="Please specify path to CSV file in <b>csv_file</b> query parameter." style="color:red";
-    }
+    };
   };
 
   view: view3d style="position: absolute; width:100%; height: 100%; z-index:-2";
