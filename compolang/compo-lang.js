@@ -235,7 +235,7 @@ export function register_feature( env, fopts, envopts ) {
 
     var js_part = () => {};
     if (env.params.code) {
-      var code = "(env,args) => { " + env.params.code + "}";
+      var code = "(env,feature_env,args) => { " + env.params.code + "}";
       try {
         js_part = eval( code );
       } catch(err) {
@@ -245,23 +245,30 @@ export function register_feature( env, fopts, envopts ) {
     var compalang_part = () => {};
     if (Object.keys( children ).length > 0) {
       var firstc = Object.keys( children )[0];
-      compalang_part = (tenv) => {
+      compalang_part = (tenv,feature_env) => {
         var edump = children[firstc];
         edump.keepExistingChildren = true; // смехопанорама
         // но иначе применение фичи может затереть созданное другими фичами или внешним клиентом
         edump.keepExistingParams = true;
-        tenv.restoreFromDump( edump );
+        if (tenv === feature_env) 
+          tenv.restoreFromDump( edump );
+          else
+          {
+            edump.master_env = tenv; // F-FEAT-PARAMS
+            feature_env.restoreFromDump( edump );
+          }
+            
         //tenv.vz.createChildrenByDump( dump, obj, manualParamsMode );
       }
     }
 
-    apply_feature = (e,...args) => {
-      js_part( e,...args);
-      compalang_part( e,...args);
+    apply_feature = (e,fe,...args) => {
+      js_part( e,fe,...args);
+      compalang_part( e,fe,...args);
     }
 
-    env.vz.register_feature( env.params.name, (e,...args) => {
-      apply_feature(e,...args)
+    env.vz.register_feature( env.params.name, (e,fe,...args) => {
+      apply_feature(e,fe,...args)
     } );
   }
 
@@ -302,7 +309,7 @@ function add_dir_if( path, dir ) {
   return dir + path;
 }
 
-export function base_url_tracing( env, opts ) 
+export function base_url_tracing( env, fenv, opts ) 
 {
   env.$base_url = opts.base_url;
   env.compute_path = (file) => {
@@ -383,11 +390,16 @@ export function auto_apply( obj ) {
 }
 
 // выполняет заданный код. если код поменяется - выполнит его еще раз.
-export function js( obj, options )
+/*
+export function js0( obj, options )
 {
   obj.onvalue("code",() => {
     if (obj.params.code) {
        var env = obj;
+       var feature_env = env;
+
+       if (env.master_env) env = env.master_env; 
+
        try {
          eval( obj.params.code );
        }
@@ -396,6 +408,20 @@ export function js( obj, options )
          console.error(e);
        }
     }
+  });
+}
+*/
+
+export function js( env, feature_env )
+{
+  feature_env.onvalue("code",(code) => {
+     try {
+       eval( code );
+     }
+     catch (e) 
+     {
+       console.error(e);
+     }
   });
 }
 

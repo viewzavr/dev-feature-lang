@@ -25,7 +25,7 @@ render3d bgcolor=[0.1,0.2,0.3] target=@view
 
 screen auto-activate {
 
-  column padding="1em" style="z-index: 3; position:absolute;"{
+  column padding="1em" style="z-index: 3; position:absolute;" {
     if condition=@pq->output {
       column gap="0.5em" padding="0.5em" style="background-color: rgba(255 255 255 / 45%)" {
         dom tag="h3" innerText="Visual settings" style="margin:0;";

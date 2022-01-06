@@ -176,7 +176,7 @@ register_feature name="params_preview_values" code='
           if (node.name) {
             var refobj = env.findByPath( node.object_path );
             //console.log("nodelabel called");
-            var val = refobj.getParam( node.name );
+            var val = refobj ? refobj.getParam( node.name ) : "refobj is null";
 
             // todo: добавить тут наш превьювер строчек
 

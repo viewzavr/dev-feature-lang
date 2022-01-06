@@ -87,11 +87,23 @@ export function add_all_features( env ) {
                       target: id + " feature " + pn, 
                       isfeature: true 
                     } );
-    })
+    });
+
+    // фичи из доп-списка F-FEAT-PARAMS
+    (obj.$feature_list_envs || []).forEach( (fenv,index) => {
+      var fid = fenv.getPath();
+      gen( fenv, rec, env );
+
+      // IFROMTO
+      addlink( rec, { source: id, 
+                      target: fid, 
+                    } );
+    });
   })
 }
 
 
+// здесь env это env генератора
 function gen( obj,rec, env ) {
   rec ||= create_rec();
 

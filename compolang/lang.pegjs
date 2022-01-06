@@ -95,6 +95,10 @@ feature_addition
     return { feature: true, name: name, params: {} }
     //current_env.features[name] = true;
   }
+  / "{{" ws env_list:env_list ws "}}" {
+    // F-FEAT-PARAMS
+    return { feature_list: env_list }
+  }
   
 // ------ A3. attr_name
 Word
@@ -121,6 +125,9 @@ one_env
     for (let m of env_modifiers) {
       if (m.feature)
         env.features[ m.name ] = m.params;
+      if (m.feature_list) { // F-FEAT-PARAMS
+        env.features_list = (env.features_list || []).concat( m.feature_list );
+      }
       else
       if (m.param)
         env.params[ m.name ] = m.value;

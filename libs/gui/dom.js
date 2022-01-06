@@ -64,8 +64,9 @@ export function dom( obj, options )
     maybe_apply_dom_attr( name, value );
   });
 
+  // todo в будущем можно сделать аттрибут фичи, типа dom.attr, dom. и dom.style ....
   function maybe_apply_dom_attr( name, value ) {
-    if (obj.dom && (name.startsWith("dom_") && !name.startsWith("dom_obj_"))) {
+    if (obj.dom && (name.startsWith("dom_") && !name.startsWith("dom_obj_") && !name.startsWith("dom_style_"))) {
        name = name.substring(4);
        obj.dom.setAttribute(name,value);
        return true;
@@ -76,7 +77,7 @@ export function dom( obj, options )
        obj.dom.setAttribute(name,value);
        return true;
     }
-    return maybe_apply_dom_prop( name, value );
+    return maybe_apply_dom_prop( name, value ) || maybe_apply_dom_style( name, value );
   }
 
   function maybe_apply_dom_prop( name, value ) {
@@ -88,6 +89,18 @@ export function dom( obj, options )
     }
     return false;
   }
+
+  function maybe_apply_dom_style( name, value ) {
+    if (obj.dom && name.startsWith("dom_style_")) {
+       name = name.substring(10);
+       obj.dom.style[name] = value;
+       if (name == "width")
+          console.log("DOM STYLE width assigned=",value)
+        
+       return true;
+    }
+    return false;
+  }  
   
   // это наши параметры
   function apply_dom_params() {
