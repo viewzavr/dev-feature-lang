@@ -81,7 +81,7 @@ export function screen( obj, opts )
   //obj.env("add_css_style").feature("add_css_style",{content:`[hidden] { display: none !important; }`);
 
   obj.feature("dom");
-  obj.setParam("visible",false);
+  obj.setParam("visible", false ); // obj.params.visible || false);
   obj.setParam("class","vz-screen");
 
   obj.onvalue("dom",(dom) => {
@@ -92,6 +92,7 @@ export function screen( obj, opts )
       console.log("ACTIVATE CALLED");
       //qmlEngine.rootObject.setActiveScreen( obj );
       vzPlayer.feature("screens-api");
+      vzPlayer.activateScreen( obj );
       vzPlayer.setParam("active_screen",obj,true);
     });
 
@@ -110,7 +111,10 @@ export function auto_activate(env) {
     env.activate();
   }
   else {
-    env.once('screen-created', () => env.activate() )
+    env.once('screen-created', () => {
+      
+      env.activate()
+    } );
   }
 }
 

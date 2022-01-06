@@ -11,7 +11,7 @@ register_feature name="two_side_columns" {
 };
 
 register_feature name="scene-explorer-screen"  {
-  screen {
+scr: screen {
     //button text="click me 2" cmd="@s1->activate";
 
     two_side_columns {
@@ -55,6 +55,7 @@ register_feature name="scene-explorer-screen"  {
               //update_every_beat=@ueb->value
               obj_titles
               params_preview_values
+              active=@scr->visible
               ;
 
     graph_dom: dom style="position: absolute; width:100%; height: 100%; top: 0; left: 0; z-index:-2";

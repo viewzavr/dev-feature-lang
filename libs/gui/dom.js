@@ -94,8 +94,7 @@ export function dom( obj, options )
     if (obj.dom && name.startsWith("dom_style_")) {
        name = name.substring(10);
        obj.dom.style[name] = value;
-       if (name == "width")
-          console.log("DOM STYLE width assigned=",value)
+       //if (name == "width") console.log("DOM STYLE width assigned=",value)
         
        return true;
     }

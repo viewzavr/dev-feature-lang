@@ -11,6 +11,7 @@ export function simple_lang(env)
     try {
       var parsed = P.parse( code, { vz: env.vz, parent: (opts.parent || env), base_url:opts.base_url } );
       var dump = parsed2dump( env.vz, parsed, opts.base_url || "" );
+      dump.keepExistingChildren = true; 
       return env.restoreFromDump( dump );
     }
     catch (e) 
@@ -54,6 +55,9 @@ function parsed2dump( vz, parsed, base_url ) {
   }
   for (let c of Object.keys(parsed.children)) {
     let cc = parsed.children[c];
+    parsed2dump( vz, cc, base_url );
+  }
+  for (let cc of (parsed.features_list || [])) {
     parsed2dump( vz, cc, base_url );
   }
   parsed.forcecreate = true;
@@ -324,7 +328,7 @@ export function base_url_tracing( env, fenv, opts )
 //////////////////////////////////////////
 // устанавливает указанный параметр при вызове команды apply
 // * value - значение которое устанавливать
-// * target - полная ссылка на объект
+// * target - полная ссылка на цель (объект->параметр)
 // либо
 // * пара object="some-path" и param="..."
 export function setter( obj, options )
@@ -333,6 +337,7 @@ export function setter( obj, options )
    obj.addObjectRef("object","");
 
    obj.addCmd( "apply",() => {
+
 
       if (obj.params.target) {
         var arr = obj.params.target.split("->");
@@ -353,21 +358,21 @@ export function setter( obj, options )
 
 // выполняет указанный код при вызове команды apply
 // вход: cmd, code, и еще children - у них будет вызвано apply
-export function func( obj, options )
+export function func( env, feature_env )
 {
-   obj.feature("call_cmd_by_path");
+   feature_env.feature("call_cmd_by_path");
 
-   obj.addCmd( "apply",(...args) => {
-      if (obj.params.code) {
-        var env = obj;
-        var func = new Function( "env",obj.params.code );
-        func.call( null, env, ...args );
+   feature_env.addCmd( "apply",(...args) => {
+      if (feature_env.params.code) {
+        //var env = feature_env;
+        var func = new Function( "env","feature_env","args", feature_env.params.code );
+        func.call( null, env, feature_env, args );
         //eval( obj.params.code );
       }
-      if (obj.params.cmd) {
-        obj.callCmdByPath(obj.params.cmd,...args)
+      if (feature_env.params.cmd) {
+        feature_env.callCmdByPath(feature_env.params.cmd,...args)
       }
-      for (let c of obj.ns.getChildren()) {
+      for (let c of feature_env.ns.getChildren()) {
         c.callCmd("apply",...args);
       }
    } )
@@ -546,59 +551,65 @@ export function repeater( env, fopts, envopts ) {
 }
 
 ////////////////////////////
-export function compute( env, fopts ) {
-  env.setParam("output",undefined);
-  env.setParamOption("output","internal",true);
+export function compute( env, feature_env ) {
+  feature_env.setParam("output",undefined);
+  feature_env.setParamOption("output","internal",true);
 
   var imsetting_params_maybe;
   function evl() {
-    if (env.params.code) {
-     var params = env.params;
+    if (feature_env.params.code) {
+     var params = feature_env.params;
      imsetting_params_maybe = true;
      try {
-      eval( env.params.code );
+      let res = eval( feature_env.params.code );
+
+      if (feature_env.params.param) {
+        env.setParam( feature_env.params.param,res );
+      }
+
      } finally {
       imsetting_params_maybe=false;
      }
     }
   }
 
-  env.feature("delayed");
-  var eval_delayed = env.delayed( evl )
 
-  env.on('param_changed', () => {
+  feature_env.feature("delayed");
+  var eval_delayed = feature_env.delayed( evl )
+
+  feature_env.on('param_changed', () => {
     if (!imsetting_params_maybe)
        eval_delayed()
   } );
   eval_delayed();
 
-  env.addCmd("recompute",eval_delayed);
+  feature_env.addCmd("recompute",eval_delayed);
 }
 
 // отличается от compute тем что то что код return-ит и записывается в output
-export function compute_output( env, fopts ) {
-  env.setParam("output",{});
-  env.setParamOption("output","internal",true);
+export function compute_output( env, feature_env ) {
+  feature_env.setParam("output",{});
+  feature_env.setParamOption("output","internal",true);
 
   function evl() {
-    if (env.params.code) {
-     var params = env.params;
-     var func = new Function('env',env.params.code)
-     var res = func( env );
+    if (feature_env.params.code) {
+     var params = feature_env.params;
+     var func = new Function('env','feature_env',feature_env.params.code)
+     var res = func( env,feature_env );
      //var res = eval( env.params.code );
-     env.setParam("output",res);
+     feature_env.setParam("output",res);
     }
   }
 
-  env.feature("delayed");
-  var eval_delayed = env.delayed( evl )
+  feature_env.feature("delayed");
+  var eval_delayed = feature_env.delayed( evl )
 
-  env.on('param_changed', (name) => {
+  feature_env.on('param_changed', (name) => {
      if (name != "output")
         eval_delayed();
    });
 
-  env.addCmd("recompute",eval_delayed);
+  feature_env.addCmd("recompute",eval_delayed);
 
   eval_delayed();
 }
@@ -648,7 +659,6 @@ export function mapping( env, options )
     env.setParam("output",v);
   });
   env.addString("input");
-
 }
 
 export function console_log( env, options )
@@ -660,6 +670,36 @@ export function console_log( env, options )
   env.onvalue("input",print);
   
   env.addString("text");
+}
+
+export function feature_debugger( env, feature_env )
+{
+  if (feature_env.params.msg)
+    console.log( feature_env.params.msg );
+
+  debugger;
+}
+
+export function onremove( env, feature_env )
+{
+  feature_env.feature("func");
+  env.on("remove",() => {
+    feature_env.callCmd("apply");
+  })
+}
+
+export function onevent( env, feature_env )
+{
+  feature_env.feature("func");
+  var u1 = () => {};
+  feature_env.onvalue( "name", (name) => {
+    u1();
+    u1 = env.on( feature_env.params.name ,() => {
+      feature_env.callCmd("apply");
+    })
+  })
+  feature_env.on("remove",u1);
+  
 }
 
 /// if
