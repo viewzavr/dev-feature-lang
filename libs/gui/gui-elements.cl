@@ -1,7 +1,7 @@
 register_feature name="button" {
-	dom tag="button" innerHTML=@.->text {
-		dom_event object=@.. name="click" cmd=@..->cmd;
-	};
+	dom tag="button" innerHTML=@.->text {{
+		dom_event name="click" cmd=@.->cmd;
+	}};
 };
 
 register_feature name="text" {

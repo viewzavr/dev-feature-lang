@@ -38,6 +38,9 @@
            while (env.children[ cname ])
              cname = `${cname}_${counter++}`;
 
+           e.$name = cname; // ладно уж не пожадничаем...
+           // но в целом тут вопросы, надо какие-то контексты вводить
+           // если разные тела присылают одинаковые имена... (это же раньше было что 1 класс=тело, а теперь многофичье..)
            env.children[ cname ] = e;
         }
     }
@@ -217,6 +220,7 @@ value
   / array
   / number
   / string
+  / "{" ws @env_list ws "}"
 
 false = "false" { return false; }
 null  = "null"  { return null;  }

@@ -6,7 +6,7 @@ register_feature name="rslider" {
   {
     //deploy item=@..->item dom_style_position="relative" y="-12px" {{ }}
     rect width="40px" height="40px" color="green" dom_style_position="relative" y="-12px" {{
-
+      //attach_features input=@..->item_features;
 /*
       compute param="x" v=@..->value w=@..->width mw=@.->width 
               code=`
@@ -57,7 +57,9 @@ register_feature name="rslider" {
 };
 
 screen auto_activate padding="1em" {
-  sl1: rslider x="50px" y="150px" {
+  sl1: rslider x="50px" y="150px" 
+       //item_features={ set param="color" value="yellow"; alter_shape shape="round"; }
+  {
     rect width="200px" color="white"
          {{ 
             compute param="width" in1=@sl1->value in2=@sl1->width code=`

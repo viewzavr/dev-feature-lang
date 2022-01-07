@@ -331,6 +331,45 @@ export function base_url_tracing( env, fenv, opts )
 // * target - полная ссылка на цель (объект->параметр)
 // либо
 // * пара object="some-path" и param="..."
+export function setter( env, feature_env )
+{
+   feature_env.addParamRef("target","");
+   feature_env.addObjectRef("object","");
+
+   feature_env.addCmd( "apply",() => {
+      if (feature_env.params.target) {
+        var arr = feature_env.params.target.split("->");
+        var tobj = feature_env.findByPath( arr[0] );
+        if (tobj) {
+          tobj.setParam( arr[1], feature_env.params.value, feature_env.params.manual );
+        } else console.log("setter: target obj not found",arr);
+      }
+      else
+      if (feature_env.params.object) {
+        feature_env.params.object.setParam( feature_env.params.param, feature_env.params.value, feature_env.params.manual );
+      }
+      if (feature_env.params.name) {
+        env.setParam( feature_env.params.name, feature_env.params.value, feature_env.params.manual );
+      }
+      else
+        console.log("setter: has no target defined");
+   } );
+}
+
+// отличается от setter тем что сразу же делает
+// по сути это то же самое что compute.. только на вход не код а value..
+export function set_param( obj, feature_env )
+{
+   feature_env.feature("setter");
+   feature_env.callCmd("apply");
+   feature_env.onvalues_any(["target","object","param","name","value","manual"], () => {
+       
+       feature_env.callCmd("apply");      
+   })
+}
+
+
+/*
 export function setter( obj, options )
 {
    obj.addParamRef("target","");
@@ -355,6 +394,7 @@ export function setter( obj, options )
    } );
 
 }
+*/
 
 // выполняет указанный код при вызове команды apply
 // вход: cmd, code, и еще children - у них будет вызвано apply
@@ -573,7 +613,6 @@ export function compute( env, feature_env ) {
     }
   }
 
-
   feature_env.feature("delayed");
   var eval_delayed = feature_env.delayed( evl )
 
@@ -585,6 +624,8 @@ export function compute( env, feature_env ) {
 
   feature_env.addCmd("recompute",eval_delayed);
 }
+
+
 
 // отличается от compute тем что то что код return-ит и записывается в output
 export function compute_output( env, feature_env ) {
@@ -752,11 +793,115 @@ export function feature_if( env, options )
 
      var edump = children[selected_c];
      edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
-
      var p = env.vz.createSyncFromDump( edump,null,env.ns.parent );
      p.then( (child_env) => {
           created_envs.push( child_env );
       });
    };
 
+}
+
+/// template
+/// вход: 
+///    children - список вложенных окружений
+/// выход:
+///    output - дамп списка вложенных окружений
+
+export function template( env, options )
+{
+  // далее натырено с репитера
+  env.restoreChildrenFromDump = (dump, ismanual) => {
+    
+    // приведем к массиву.. вопросы конечно это вызывает, зачем нам тогда хеш, ну ладно пока..
+    var arr = [];
+    for (let c of Object.keys(dump.children))
+       arr.push( dump.children[c] );
+
+    //env.setParam("output", dump.children )
+    env.setParam("output", arr );
+     
+    return Promise.resolve("success");
+  }
+}
+
+// deploy
+// вход: input - список фич для деплоя из 1 элемента
+// результат: deploy заменяется на результат
+// может по другому назвать, paste?
+// что делать если input меняется? отменять? как?..
+
+// короче находясь в режиме master_env этот деплой должен действовать по-другому
+// а именно деплоить все заложенные фичи а не 1, и не в себя а в качестве sibling
+
+// возможно будет стоит разделить их на 2 версии
+// плюс может быть добавить ключи типа deploy_features input=... to=@someobj;
+// и аналогично с deploy - там можно to по умолчанию родителя или себя поставить.
+export function deploy( env, feature_env )
+{
+  
+  feature_env.onvalue("input",(input) => {
+     input ||= [];
+     if (feature_env === env) {
+        deploy_normal_env(input);
+     }
+     else
+        deploy_in_master_env(input);
+  })
+
+ let original_dump;
+ function deploy_normal_env(input) {
+     //console.log("DEPLOY INPUT=",input);
+     let edump = input[0];
+     edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
+
+     // попробуем сохранять состояние и пере-создавать его
+     if (original_dump)
+         env.restoreFromDump( original_dump )
+    else
+         original_dump = env.dump();
+
+     //var p = env.vz.createSyncFromDump( edump,env );
+     env.restoreFromDump( edump );
+ }
+
+ // todo мб стоит отслеживать списки фич.. хотя мы их еще не научились толком удалять...
+ // но уже скоро научимся..
+ function deploy_in_master_env(input) {
+    for (let rec of input)
+      env.vz.importAsParametrizedFeature( rec, env );
+ }
+
+}
+
+// создает все объекты из поданного массива описаний
+// подключая их к родителю
+// тут кстати напрашивается сделать case - фильтрацию массива... ну и if через это попробовать сделать например...
+// вариантов много получается...
+export function deploy_many( env, feature_env )
+{
+  
+  feature_env.onvalue("input",(input) => {
+     deploy_normal_env_all(input);
+  })
+
+ // режим "repeater-mode" - развернуть всех в родителя (хотя может и можно не в родителя)
+ var created_envs = [];
+ function close_envs() {
+     for (let old_env of created_envs) {
+       old_env.remove();
+     }
+     created_envs = [];
+ }
+     
+ function deploy_normal_env_all(input) {
+     close_envs();
+     for (let edump of input) {
+        edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
+        var p = env.vz.createSyncFromDump( edump,null,env.ns.parent );
+        p.then( (child_env) => {
+           created_envs.push( child_env );
+        });
+     }
+ }
+ env.on("remove",close_envs)
 }

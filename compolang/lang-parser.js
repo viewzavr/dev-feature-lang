@@ -310,6 +310,7 @@ function peg$parse(input, options) {
       //current_env.features[name] = true;
     };
   var peg$f4 = function(env_list) {
+      // F-FEAT-PARAMS
       return { feature_list: env_list }
     };
   var peg$f5 = function() { return text(); };
@@ -319,7 +320,7 @@ function peg$parse(input, options) {
       for (let m of env_modifiers) {
         if (m.feature)
           env.features[ m.name ] = m.params;
-        if (m.feature_list) {
+        if (m.feature_list) { // F-FEAT-PARAMS
           env.features_list = (env.features_list || []).concat( m.feature_list );
         }
         else
@@ -1486,7 +1487,7 @@ function peg$parse(input, options) {
   }
 
   function peg$parsevalue() {
-    var s0;
+    var s0, s1, s2, s3, s4, s5;
 
     s0 = peg$parsefalse();
     if (s0 === peg$FAILED) {
@@ -1501,6 +1502,42 @@ function peg$parse(input, options) {
               s0 = peg$parsenumber();
               if (s0 === peg$FAILED) {
                 s0 = peg$parsestring();
+                if (s0 === peg$FAILED) {
+                  s0 = peg$currPos;
+                  if (input.charCodeAt(peg$currPos) === 123) {
+                    s1 = peg$c1;
+                    peg$currPos++;
+                  } else {
+                    s1 = peg$FAILED;
+                    if (peg$silentFails === 0) { peg$fail(peg$e1); }
+                  }
+                  if (s1 !== peg$FAILED) {
+                    s2 = peg$parsews();
+                    s3 = peg$parseenv_list();
+                    if (s3 !== peg$FAILED) {
+                      s4 = peg$parsews();
+                      if (input.charCodeAt(peg$currPos) === 125) {
+                        s5 = peg$c3;
+                        peg$currPos++;
+                      } else {
+                        s5 = peg$FAILED;
+                        if (peg$silentFails === 0) { peg$fail(peg$e3); }
+                      }
+                      if (s5 !== peg$FAILED) {
+                        s0 = s3;
+                      } else {
+                        peg$currPos = s0;
+                        s0 = peg$FAILED;
+                      }
+                    } else {
+                      peg$currPos = s0;
+                      s0 = peg$FAILED;
+                    }
+                  } else {
+                    peg$currPos = s0;
+                    s0 = peg$FAILED;
+                  }
+                }
               }
             }
           }
@@ -3038,6 +3075,9 @@ function peg$parse(input, options) {
              while (env.children[ cname ])
                cname = `${cname}_${counter++}`;
 
+             e.$name = cname; // ладно уж не пожадничаем...
+             // но в целом тут вопросы, надо какие-то контексты вводить
+             // если разные тела присылают одинаковые имена... (это же раньше было что 1 класс=тело, а теперь многофичье..)
              env.children[ cname ] = e;
           }
       }
