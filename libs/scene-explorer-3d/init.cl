@@ -10,6 +10,14 @@ register_feature name="two_side_columns" {
   // непроговоренные ожидания.. хоть бы module-specifier указал бы как-то..
 };
 
+register_feature name="debugger_screen_r" {
+  scene-explorer-screen hotkey='b' {{
+    apply_by_hotkey hotkey=@.->hotkey {
+      rotate_screens;
+    };
+  }}
+};
+
 register_feature name="scene-explorer-screen"  {
 scr: screen {
     //button text="click me 2" cmd="@s1->activate";

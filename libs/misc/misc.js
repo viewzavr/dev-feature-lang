@@ -2,19 +2,21 @@ export function setup(vz, m) {
   vz.register_feature_set( m );
 }
 
-export function apply_by_hotkey(env) {
+export function apply_by_hotkey(env,feature_env) {
 
-  env.feature("func");
+ feature_env.feature("func");
 
  var unsub = () => {};
- env.onvalue( "hotkey",(key) => {
+ feature_env.onvalue( "hotkey",(key) => {
 
     unsub();
 
     function f(e) {
+
+
       if ( e.ctrlKey && ( String.fromCharCode(e.which) == key || String.fromCharCode(e.which) == key.toUpperCase() ) ) {
         
-        env.callCmd( "apply" );
+        feature_env.callCmd( "apply" );
       }
     }
 
@@ -22,8 +24,8 @@ export function apply_by_hotkey(env) {
     unsub = () => { document.removeEventListener('keydown', f ) };
  })
 
- env.on("remove",() => {
-  unsub();
-});
+ feature_env.on("remove",() => {
+   unsub();
+ });
 
 };

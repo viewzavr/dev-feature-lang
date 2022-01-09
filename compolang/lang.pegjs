@@ -51,6 +51,8 @@
   var current_env;
   new_env();
 
+  var expr_env_counter=0;
+
   if (!options.base_url) console.error("COMPOLANG PARSER: base_url option is not defined")
 }
 
@@ -89,7 +91,7 @@ link_assignment
     //var linkrecordname = `link_${Object.keys(current_env.links).length}`;
     //while (current_env.links[ linkrecordname ]) linkrecordname = linkrecordname + "x";
     //current_env.links[linkrecordname] = { to: `.->${name}`, from: linkvalue.value };
-    return { link: true, to: `.->${name}`, from: linkvalue.value }
+    return { link: true, to: `~->${name}`, from: linkvalue.value }
     //console.log("LINK",linkvalue);
   }
   
@@ -130,6 +132,22 @@ one_env
         env.features[ m.name ] = m.params;
       if (m.feature_list) { // F-FEAT-PARAMS
         env.features_list = (env.features_list || []).concat( m.feature_list );
+      }
+      else
+      if (m.param && m.value.env_expression) {
+        // преобразуем здесь параметр-выражение в суб-фичи
+        // нам проще работать пока с одним окружением а не с массивом
+        let expr_env = m.value.env_expression[0];
+        expr_env.$name = `expr_env_${expr_env_counter++}`; // скорее всего не прокатит
+
+        env.features_list = (env.features_list || []).concat( expr_env );
+
+        expr_env.links[ `link_${linkcounter++}` ] = { from: "~->output", to: ".->"+m.name }  
+        
+
+        //let from = "@~:${expr_env.$name}->output"; // ссылка обращение к своей суб-фиче
+        //env.links[ `link_${linkcounter++}` ] = { from: from, to: m.name }
+        // но быть может стоит просто наружу это вытащить в форме env.param_expressions и там уже разбираться..
       }
       else
       if (m.param)
@@ -221,6 +239,10 @@ value
   / number
   / string
   / "{" ws @env_list ws "}"
+  / "(" ws env_list:env_list ws ")" {
+    // attr expression
+    return { env_expression: env_list }
+  }
 
 false = "false" { return false; }
 null  = "null"  { return null;  }

@@ -470,16 +470,17 @@ export function js( env, feature_env )
   });
 }
 
-export function add_cmd( env ) {
-  env.feature("func");
-
-  env.onvalue("name",(name) => {
+// добавляет команду в целевое окружение
+// сама прикидывается func и поэтому можно прицепить code и все такое
+export function add_cmd( env,feature_env ) {
   
-    env.ns.parent.addCmd(name,f);
+  feature_env.feature("func");
+  feature_env.onvalue("name",(name) => {
+
+    env.addCmd(name,f);
 
     function f() {
-  
-      env.callCmd("apply");
+      feature_env.callCmd("apply");
     }
   });
 }
@@ -604,6 +605,7 @@ export function compute( env, feature_env ) {
       let res = eval( feature_env.params.code );
 
       if (feature_env.params.param) {
+        debugger;
         env.setParam( feature_env.params.param,res );
       }
 
@@ -624,7 +626,6 @@ export function compute( env, feature_env ) {
 
   feature_env.addCmd("recompute",eval_delayed);
 }
-
 
 
 // отличается от compute тем что то что код return-ит и записывается в output
@@ -657,19 +658,19 @@ export function compute_output( env, feature_env ) {
 
 // искалка объектов. вход строка pattern выход output набор найденных окружений.
 // см criteria-finder.js
-export function find_objects( env, fopts ) {
-  env.feature("find_by_criteria");
-  
-  env.addObjects( "pattern","",(objects_list) => {
+export function find_objects( env, feature_env ) {
+  feature_env.feature("find_by_criteria");
+
+  feature_env.addObjects( "pattern","",(objects_list) => {
     //console.log("FIND-OBJECTS-OBJ returns",objects_list)
-    env.setParam("output",objects_list);
-    env.setParam("found_objects_count",objects_list?.length)
+    feature_env.setParam("output",objects_list);
+    feature_env.setParam("found_objects_count",objects_list?.length)
   })
-  env.onvalue("pattern",(v) => {
+  feature_env.onvalue("pattern",(v) => {
     //console.log(v);
     //debugger;
   })
-  env.addString("found_objects_count");
+  feature_env.addString("found_objects_count");
 }
 
 // ловит события, направляет куда скажут
