@@ -124,7 +124,7 @@ register_feature name="render-param-float" {
       link from=@../..->param_path to=".->dom_value" tied_to_parent=true;
       link to=@../..->param_path from=".->value" tied_to_parent=true;
       dom_event name="change" code=`
-        object.setParam("value",env.params.object.dom.value,true);
+        env.params.object.setParam("value",env.params.object.dom.value,true);
       `;
     };
   };
