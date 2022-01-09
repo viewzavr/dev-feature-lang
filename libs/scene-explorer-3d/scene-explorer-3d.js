@@ -367,6 +367,18 @@ export function scene_explorer_3d( env ) {
 
   //setup();
 
+  // возможность постановки на паузу
+  env.onvalues(["active","graph"],(active,graph) => {
+    if (active) {
+        graph.resumeAnimation();
+        console.log("GRAPH RESUMED");
+      }
+      else {
+        graph.pauseAnimation();
+        console.log("GRAPH PAUSED");
+      }
+  })
+
   ///////////////////////////////////////  
   var unsub_target=()=>{};
   env.onvalue("target",(target) => {

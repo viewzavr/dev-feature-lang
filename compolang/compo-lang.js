@@ -214,6 +214,7 @@ export function register_feature( env, fopts, envopts ) {
     env.vz.restoreParams( dump, env,manualParamsMode );
     env.vz.restoreLinks( dump, env,manualParamsMode );
     env.vz.restoreFeatures( dump, env,manualParamsMode );
+
     children = dump.children;
     compile();
     return Promise.resolve("success");
@@ -254,13 +255,22 @@ export function register_feature( env, fopts, envopts ) {
         edump.keepExistingChildren = true; // смехопанорама
         // но иначе применение фичи может затереть созданное другими фичами или внешним клиентом
         edump.keepExistingParams = true;
+        var tgt_env;
         if (tenv === feature_env) 
-          tenv.restoreFromDump( edump );
+          tgt_env = tenv;
           else
           {
             edump.master_env = tenv; // F-FEAT-PARAMS
-            feature_env.restoreFromDump( edump );
+            tgt_env = feature_env;
           }
+
+        tgt_env.restoreFromDump( edump );  
+
+        // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
+        // todo тут надо scope env делать и детям назначать, или вроде того
+        // но пока обойдемся так
+        tgt_env.$env_extra_names ||= {};
+        tgt_env.$env_extra_names[ firstc ] = true;
             
         //tenv.vz.createChildrenByDump( dump, obj, manualParamsMode );
       }
