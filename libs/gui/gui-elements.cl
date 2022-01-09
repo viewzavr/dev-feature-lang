@@ -166,8 +166,8 @@ register_feature name="select_color" {
     `;
     d1: dom_event name="change" code=`
       var c = env.ns.parent.hex2tri(env.params.object.dom.value);
-      console.log("CC: setting param output to ",c, object.getPath() );
-      object.setParam("value",c,true);
+      //console.log("CC: setting param output to ",c, env.params.object.getPath() );
+      env.params.object.setParam("value",c,true);
     `;
     dom_event name="input" code=@d1->code;
   };

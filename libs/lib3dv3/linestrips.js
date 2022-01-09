@@ -26,7 +26,7 @@ export function linestrips( env ) {
 
   env.trackParam("color",(v) => {
     console.log("LL:",v);
-    debugger;
+    //debugger;
   });
 
 }
