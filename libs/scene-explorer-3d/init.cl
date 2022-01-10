@@ -30,6 +30,10 @@ scr: screen {
         text text=@explr->current_object_path;
         text text="params:";
         render-params object_path=@explr->current_object_path;
+
+        button text="js debugger" curpath=@explr->current_object_path code=`
+           let obj = env.findByPath( env.params.curpath );
+           debugger`;
       };
 
       column gap="0.5em" padding="0.5em" margin="1em" 
@@ -186,6 +190,10 @@ register_feature name="params_preview_values" code='
             var refobj = env.findByPath( node.object_path );
             //console.log("nodelabel called");
             var val = refobj ? refobj.getParam( node.name ) : "refobj is null";
+            if (!refobj) {
+              debugger;
+              refobj = env.findByPath( node.object_path );
+            }
 
             // todo: добавить тут наш превьювер строчек
 

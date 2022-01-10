@@ -173,18 +173,21 @@ export function load_package(env,opts)
 // открытый вопрос: куда идет output c3 ? это pipe.output = @c3->output ?
 // кстати интересная идея от Кости - linestrips output это 3d object..
 //import {delayed} from "viewzavr/utils.js";
-export function pipe(env,opts) 
+export function pipe(env,feature_env) 
 {
   // var delayed = require("delayed");
-  env.feature("delayed");
-  var delayed_chain_children = env.delayed(chain_children)
-  env.on('appendChild',delayed_chain_children);
+  feature_env.feature("delayed");
+  var delayed_chain_children = feature_env.delayed(chain_children)
+  feature_env.on('appendChild',delayed_chain_children);
+  //delayed_chain_children(); // тырнем разик вручную
+
+  let created_links = [];
 
   function chain_children() {
       let cprev;
       let cfirst;
       
-      for (let c of env.ns.getChildren()) {
+      for (let c of feature_env.ns.getChildren()) {
          if (c.is_link) continue;
          if (!cfirst) cfirst = c;
          // пропускаем ссылки.. вообще странное решение конечно.. сделать ссылки объектами
@@ -196,9 +199,9 @@ export function pipe(env,opts)
       }
       // output последнего ставим как output всей цепочки
       if (cprev)
-          env.linkParam("output",`${cprev.ns.name}->output`)
+          feature_env.linkParam("output",`${cprev.ns.name}->output`)
       else
-          env.linkParam("output",``)
+          feature_env.linkParam("output",``)
       // input первого ставим на инпут пайпы
       if (cfirst) {
           if (!cfirst.hasLinksToParam("input") && !cfirst.hasParam("input"))
@@ -408,7 +411,7 @@ export function setter( obj, options )
 
 // выполняет указанный код при вызове команды apply
 // вход: cmd, code, и еще children - у них будет вызвано apply
-export function func( env, feature_env )
+export function feature_func( env, feature_env )
 {
    feature_env.feature("call_cmd_by_path");
 
@@ -495,9 +498,9 @@ export function add_cmd( env,feature_env ) {
   });
 }
 
-export function call_cmd_by_path(obj) {
+export function call_cmd_by_path(env,feature_env) {
 
-  obj.callCmdByPath = ( target_path, ...args ) => {
+  feature_env.callCmdByPath = ( target_path, ...args ) => {
       if (!target_path) return;
       if (typeof(target_path) == "function") {
         return target_path( ...args )
@@ -512,7 +515,7 @@ export function call_cmd_by_path(obj) {
       var paramname = arr[1];
       //var sobj = obj.findByPath( objname );
       //R-LINKS-FROM-OBJ
-      var sobj = obj.findByPath( objname );
+      var sobj = feature_env.findByPath( objname );
       if (!sobj) {
         console.error("callCmdByPath: cmd target obj not found",objname );
         return; 
@@ -648,8 +651,9 @@ export function compute_output( env, feature_env ) {
      var params = feature_env.params;
      var func = new Function('env','feature_env',feature_env.params.code)
      var res = func( env,feature_env );
-     //var res = eval( env.params.code );
-     feature_env.setParam("output",res);
+
+    //var res = eval( env.params.code );
+    feature_env.setParam("output",res);
     }
   }
 

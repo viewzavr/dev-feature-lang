@@ -33,7 +33,7 @@ export function setup( vz, m ) {
 
 
 // здесь f это функция создания dom-элемента
-export function dom( obj, options )
+export function dom( obj, feature_env, options={} )
 {
 
   /////// собственный html-код
@@ -264,7 +264,7 @@ export function dom( obj, options )
 
     if (obj.dom) obj.dom.remove();
 
-    obj.dom = document.createElement( t );
+    obj.dom = options.elem_creator_f ? options.elem_creator_f( t ) : document.createElement( t );
     obj.dom.$cl_tag_name = t;
     obj.setParam("dom",obj.dom);
     rescan_children2();

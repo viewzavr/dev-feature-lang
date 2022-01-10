@@ -1,6 +1,6 @@
 register_feature name="button" {
-	dom tag="button" innerHTML=@.->text {{
-		dom_event name="click" cmd=@.->cmd;
+	dom tag="button" innerHTML=@.->text func {{
+		dom_event name="click" cmd=".->apply";
 	}};
 };
 

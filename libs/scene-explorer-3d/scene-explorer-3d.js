@@ -371,11 +371,11 @@ export function scene_explorer_3d( env ) {
   env.onvalues(["active","graph"],(active,graph) => {
     if (active) {
         graph.resumeAnimation();
-        console.log("GRAPH RESUMED");
+        //console.log("GRAPH RESUMED");
       }
       else {
         graph.pauseAnimation();
-        console.log("GRAPH PAUSED");
+        //console.log("GRAPH PAUSED");
       }
   })
 

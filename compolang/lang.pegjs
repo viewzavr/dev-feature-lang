@@ -107,16 +107,16 @@ feature_addition
   
 // ------ A3. attr_name
 Word
-  = [a-zA-Z0-9_-]+ { return text(); }
+  = [a-zA-Zа-яА-Я0-9_-]+ { return text(); }
 
 attr_name
   = Word
 
 obj_id
-  = [a-zA-Z0-9_]+ { return text(); }
+  = [a-zA-Zа-яА-Я0-9_]+ { return text(); }
 
 obj_path
-  = [\.\/]+ { return text(); }  
+  = [\.\/~]+ { return text(); }  
 
 // ------- A. envs
 one_env
@@ -142,8 +142,7 @@ one_env
 
         env.features_list = (env.features_list || []).concat( expr_env );
 
-        expr_env.links[ `link_${linkcounter++}` ] = { from: "~->output", to: ".->"+m.name }  
-        
+        expr_env.links[ `output_link_${linkcounter++}` ] = { from: "~->output", to: ".->"+m.name }  
 
         //let from = "@~:${expr_env.$name}->output"; // ссылка обращение к своей суб-фиче
         //env.links[ `link_${linkcounter++}` ] = { from: from, to: m.name }
@@ -189,7 +188,7 @@ env_pipe
  / head:one_env tail:(__ "|" @one_env)*
  {
    if (head && tail.length > 0) {
-     console.log("found env pipe of objects:",head,tail)
+     // console.log("found env pipe of objects:",head,tail)
      // прямо пайпа
      // переименуем голову, т.к. имя заберет пайпа
      var orig_env_id = head.$name;
