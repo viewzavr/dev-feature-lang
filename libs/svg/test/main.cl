@@ -24,7 +24,10 @@ screen auto_activate {
 //новое имя="абстракция_номер_2" {
 register_feature name="абстракция_номер_2" {  
   свггруппа подсчет_размеров {
-    абстракция_номер_1 икс=0 игрек=0 {{ сверху от=@кмал; горизонталь как=@кмал; }};
+    абстракция_номер_1 икс=0 игрек=0 {{ 
+      сверху от=@кмал; 
+      горизонталь как=@кмал; 
+    }};
     кмал: квадрат_малевича икс=100 игрек=100 ширина=300;    
   };
 };
@@ -108,6 +111,10 @@ register_feature name="circle" {
        x2=(compute_output x=@main->x w=@main->width code=`return feature_env.params.x + feature_env.params.w` | check_finite)
        y2=(compute_output y=@main->y h=@main->height code=`return feature_env.params.y + feature_env.params.h` | check_finite)
        ;
+
+       // краткость qml:
+       // cx: x+r
+       // x: cx-r
 };
 
 register_feature name="rect" {
