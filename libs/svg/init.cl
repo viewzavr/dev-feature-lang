@@ -1,5 +1,6 @@
 load files=`
 vz-svg.js
-svg-things.cl
+svg-elements.cl
+svg-relations.cl
 `;
 

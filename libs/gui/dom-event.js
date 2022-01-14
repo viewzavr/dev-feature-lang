@@ -10,16 +10,6 @@ export function dom_event( obj )
 
    function callcmd(event_data) {
       obj.callCmd("apply",event_data);
-      /*
-      if (obj.params.cmd)
-        obj.callCmdByPath( obj.params.cmd );
-      if (obj.params.code) {
-        var env = obj;
-        var object = obj.params.object;
-        if (object) 
-            eval(obj.params.code);
-      }
-      */
    }
 
    var unbind;
@@ -55,7 +45,6 @@ export function dom_event( obj )
 
    obj.addObjRef("object",null,null,dobind )
    obj.trackParam("name",dobind)
-
    
    if (!obj.params.object) {
       if (obj.hosted) // мы хостируимси - тогда object это хост

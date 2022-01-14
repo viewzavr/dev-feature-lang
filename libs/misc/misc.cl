@@ -12,3 +12,7 @@ register_feature name="get_query_param" code=`
       env.setParam("output",v);
     })  
 `;
+
+register_feature name="fill_parent" {
+  style="position: absolute; width:100%; height: 100%; left: 0px; top: 0px;"
+};

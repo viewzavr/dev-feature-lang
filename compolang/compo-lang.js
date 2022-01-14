@@ -211,7 +211,7 @@ export function pipe(env)
 }
 
 // регистрирует фичу name, code где code это код тела функции на яваскрипте
-export function register_feature( env, fopts, envopts ) {
+export function register_feature( env, envopts ) {
   var children = {};
   env.restoreFromDump = (dump,manualParamsMode) => {
     env.vz.restoreParams( dump, env,manualParamsMode );
@@ -330,11 +330,13 @@ export function base_url_tracing( env, opts )
 }
 
 //////////////////////////////////////////
-// устанавливает в host указанный параметр при вызове команды apply
+// устанавливает параметр при вызове команды apply
 // * value - значение которое устанавливать
 // * target - полная ссылка на цель (объект->параметр)
-// либо
-// * пара object="some-path" и param="..."
+//   либо
+//   * пара object="some-path" и param="..."
+//   либо
+//   * имя name и тогда будет выставлено значение параметру объекта host
 export function setter( env )
 {
    env.addParamRef("target","");
@@ -352,6 +354,7 @@ export function setter( env )
       if (env.params.object) {
         env.params.object.setParam( env.params.param, env.params.value, env.params.manual );
       }
+      else
       if (env.params.name) {
         env.host.setParam( env.params.name, env.params.value, env.params.manual );
       }
@@ -807,7 +810,8 @@ export function template( env, options )
   }
 }
 
-// deploy
+// deploy 
+// см F-ENVS-TO-PARAMS
 // вход: input - список фич для деплоя из 1 элемента
 // результат: deploy заменяется на результат
 // может по другому назвать, paste?

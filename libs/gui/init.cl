@@ -5,6 +5,7 @@ screen.js
 style.js
 dom-event.js
 gui-elements.cl
+gui-events.cl
 `;
 
 register_feature name="rotate_screens" {

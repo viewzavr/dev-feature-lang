@@ -5,7 +5,10 @@ register_feature name="rslider" {
        // item={ rect width="40px" height="40px" color="green" ; }
   {
     //deploy item=@..->item dom_style_position="relative" y="-12px" {{ }}
-    rect width="40px" height="40px" color="green" dom_style_position="relative" y="-12px" {{
+    rect width="40px" height="40px" color="green" dom_style_position="relative" y="-12px" 
+
+    {{
+
       //attach_features input=@..->item_features;
 /*
       compute param="x" v=@..->value w=@..->width mw=@.->width 
