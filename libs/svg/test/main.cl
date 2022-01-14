@@ -5,7 +5,7 @@ screen auto_activate {
 
   свггруппа занять_родителя {
     штука1: 
-    абстракция_номер_2;
+       абстракция_номер_2;
 
     абстракция_номер_2 {{ 
       справа от=@штука1; 
@@ -74,9 +74,9 @@ register_feature name="fill_parent" {
 // решение - поставим проверку check_finite которая будет пропускать данные если они норм числа
 register_feature name="check_finite" {
   compute code=`
-    feature_env.onvalue("input",(i) => {
+    env.onvalue("input",(i) => {
        if (isFinite(i))
-         feature_env.setParam("output",i);
+         env.setParam("output",i);
     })
   `;
 };
@@ -100,16 +100,16 @@ register_feature name="circle" {
        dom_r=@.->r
        dom_cx=@.->cx
        dom_cy=@.->cy
-       x=(compute_output cx=@main->cx r=@main->r code=`return feature_env.params.cx - feature_env.params.r` | check_finite)
-       y=(compute_output cy=@main->cy r=@main->r code=`return feature_env.params.cy - feature_env.params.r` | check_finite)
-       width=(compute_output r=@main->r code=`return 2*feature_env.params.r` | check_finite)
+       x=(compute_output cx=@main->cx r=@main->r code=`return env.params.cx - env.params.r` | check_finite)
+       y=(compute_output cy=@main->cy r=@main->r code=`return env.params.cy - env.params.r` | check_finite)
+       width=(compute_output r=@main->r code=`return 2*env.params.r` | check_finite)
        height=@.->width
        // обратные расчеты - на случай если будут выставлять x,y
-       cx=(compute_output x=@main->x r=@main->r code=`return feature_env.params.x + feature_env.params.r` | check_finite)
-       cy=(compute_output y=@main->y r=@main->r code=`return feature_env.params.y + feature_env.params.r` | check_finite)
+       cx=(compute_output x=@main->x r=@main->r code=`return env.params.x + env.params.r` | check_finite)
+       cy=(compute_output y=@main->y r=@main->r code=`return env.params.y + env.params.r` | check_finite)
 
-       x2=(compute_output x=@main->x w=@main->width code=`return feature_env.params.x + feature_env.params.w` | check_finite)
-       y2=(compute_output y=@main->y h=@main->height code=`return feature_env.params.y + feature_env.params.h` | check_finite)
+       x2=(compute_output x=@main->x w=@main->width code=`return env.params.x + env.params.w` | check_finite)
+       y2=(compute_output y=@main->y h=@main->height code=`return env.params.y + env.params.h` | check_finite)
        ;
 
        // краткость qml:
@@ -127,8 +127,8 @@ register_feature name="rect" {
        dom_x=@.->x
        dom_y=@.->y
 
-       x2=(compute_output x=@main->x w=@main->width code=`return feature_env.params.x + feature_env.params.w` | check_finite)
-       y2=(compute_output y=@main->y h=@main->height code=`return feature_env.params.y + feature_env.params.h` | check_finite)
+       x2=(compute_output x=@main->x w=@main->width code=`return env.params.x + env.params.w` | check_finite)
+       y2=(compute_output y=@main->y h=@main->height code=`return env.params.y + env.params.h` | check_finite)
        ;
 };
 
@@ -137,6 +137,7 @@ register_feature name="square" {
 };
 
 /////////////// соотношения CSS
+
 /*
 register_feature name="right" {
   js code='
@@ -191,16 +192,16 @@ register_feature name="right" {
     let u1=()=>{};
     let u2=()=>{};
 
-    u1 = feature_env.onvalue("to",(other) => {
+    u1 = env.onvalue("to",(other) => {
        
        u2();
        u2 = other.onvalues( ["x","width"], (x,w) => {
-          env.setParam("x", parseFloat(x) + parseFloat(w) );
+          env.host.setParam("x", parseFloat(x) + parseFloat(w) );
           // это вопрос конечно.. может стоит фичу положения завести?..
        });
     });
 
-    feature_env.on("remove",() => { u1(); u2(); })
+    env.on("remove",() => { u1(); u2(); })
   ';
 };
 
@@ -209,16 +210,16 @@ register_feature name="left" {
     let u1=()=>{};
     let u2=()=>{};
     let u3=()=>{};
-    u1 = feature_env.onvalue("to",(other) => {
+    u1 = env.onvalue("to",(other) => {
        u2();
        u2 = other.onvalues( ["x"], (x) => {
           u3();
-          u3 = env.onvalue( "width",(myw) => {
+          u3 = env.host.onvalue( "width",(myw) => {
             env.setParam("x", parseFloat(x) - parseFloat(myw) );
           });
        });
     });
-    feature_env.on("remove",() => { u1(); u2(); u3(); })
+    env.on("remove",() => { u1(); u2(); u3(); })
   ';
 };
 
@@ -227,16 +228,16 @@ register_feature name="bottom" {
     let u1=()=>{};
     let u2=()=>{};
 
-    u1 = feature_env.onvalue("to",(other) => {
+    u1 = env.onvalue("to",(other) => {
        //debugger;
        u2();
        u2 = other.onvalues( ["y","height"], (y,h) => {
-          env.setParam("y", parseFloat(y) + parseFloat(h) );
+          env.host.setParam("y", parseFloat(y) + parseFloat(h) );
           // это вопрос конечно.. может стоит фичу положения завести?..
        });
     });
 
-    feature_env.on("remove",() => { u1(); u2(); })
+    env.on("remove",() => { u1(); u2(); })
   ';
 };
 
@@ -245,52 +246,54 @@ register_feature name="top" {
     let u1=()=>{};
     let u2=()=>{};
     let u3=()=>{};
-    u1 = feature_env.onvalue("to",(other) => {
+    u1 = env.onvalue("to",(other) => {
        u2();
        u2 = other.onvalues( ["y"], (y) => {
           u3();
-          u3 = env.onvalue( "height",(myh) => {
-            env.setParam("y", parseFloat(y) - parseFloat(myh) );
+          u3 = env.host.onvalue( "height",(myh) => {
+            env.host.setParam("y", parseFloat(y) - parseFloat(myh) );
           });
        });
     });
-    feature_env.on("remove",() => { u1(); u2(); u3(); })
+    env.on("remove",() => { u1(); u2(); u3(); })
   ';
 };
 
+// выравнивает по y-центру
 register_feature name="y_align" {
   js code='
     let u1=()=>{};
     let u2=()=>{};
     let u3=()=>{};
-    u1 = feature_env.onvalue("to",(other) => {
+    u1 = env.onvalue("to",(other) => {
        u2();
        u2 = other.onvalues( ["y","height"], (y,h) => {
           u3();
-          u3 = env.onvalue( "height",(myh) => {
-            env.setParam("y", parseFloat(y) + parseFloat(h)/2 - parseFloat(myh)/2 );
+          u3 = env.host.onvalue( "height",(myh) => {
+            env.host.setParam("y", parseFloat(y) + parseFloat(h)/2 - parseFloat(myh)/2 );
           });
        });
     });
-    feature_env.on("remove",() => { u1(); u2(); u3(); })
+    env.on("remove",() => { u1(); u2(); u3(); })
   ';
 };
 
+// выравнивает по x-центру
 register_feature name="x_align" {
   js code='
     let u1=()=>{};
     let u2=()=>{};
     let u3=()=>{};
-    u1 = feature_env.onvalue("to",(other) => {
+    u1 = env.onvalue("to",(other) => {
        u2();
        u2 = other.onvalues( ["x","width"], (x,w) => {
           u3();
-          u3 = env.onvalue( "width",(myw) => {
-            env.setParam("x", parseFloat(x) + parseFloat(w)/2 - parseFloat(myw)/2 );
+          u3 = env.host.onvalue( "width",(myw) => {
+            env.host.setParam("x", parseFloat(x) + parseFloat(w)/2 - parseFloat(myw)/2 );
           });
        });
     });
-    feature_env.on("remove",() => { u1(); u2(); u3(); })
+    env.on("remove",() => { u1(); u2(); u3(); })
   ';
 };
 
@@ -314,7 +317,7 @@ register_feature name="compute_width_height" {
        env.setParam("height",box.height);
        */
       let rect={x:0,y:0,x2:0,y2:0}
-      for (let c of feature_env.ns.getChildren()) {
+      for (let c of env.ns.getChildren()) {
         let mx = (c.params.x||0) + c.params.width;
         if (isFinite(mx))
           rect.x2 = Math.max( rect.x2, mx );
@@ -335,7 +338,7 @@ register_feature name="compute_width_height" {
     function monitor_children() {  
       unsub_func();
       acc = [];
-      for (let c of feature_env.ns.getChildren()) {
+      for (let c of env.ns.getChildren()) {
         let sub = c.onvalues_any(["x","y","width","height"],() => {
            delayed_f();
         });
@@ -365,10 +368,10 @@ register_feature name="translate_color" {
     // такая идея = вот мы эту таблицу тут копим. а хотелось бы уметь еще доп-ом ее распределенно копить
     // итого нужна операция "добавить-в-таблицу( цветов, новые-записи )"
     
-    feature_env.onvalue("input",(c) => {
+    env.onvalue("input",(c) => {
       
       let res = colors[c] || c;
-      feature_env.setParam("output",res);
+      env.setParam("output",res);
     })
   `;
 };

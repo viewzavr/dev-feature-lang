@@ -8,7 +8,7 @@ export function setup(vz, m) {
 // https://stackoverflow.com/questions/3492322/javascript-createelementns-and-svg
 // поэтому вот:
 
-export function svg( env,feature_env ) {
+export function svg( env ) {
   let f = function(tag) {
     return document.createElementNS("http://www.w3.org/2000/svg",tag);
   }

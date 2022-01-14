@@ -79,7 +79,7 @@ screen auto_activate padding="1em" {
     rect width="200px" color="white"
          {{ 
             compute param="width" in1=@sl1->value in2=@sl1->width code=`
-              feature_env.params.in1 * parseFloat(feature_env.params.in2) + "px";
+              env.params.in1 * parseFloat(env.params.in2) + "px";
             `;
          }};
     /*
@@ -130,7 +130,7 @@ register_feature name="clicked" {
     func 
     {{ js code=`
        let monitored_dom;
-       env.master_env.onvalue("dom",(dom) => {
+       env.host.onvalue("dom",(dom) => {
           unsub();
           dom.addEventListener( "click", f);
        })
@@ -144,7 +144,7 @@ register_feature name="clicked" {
               monitored_dom.removeEventListener( "clicked", f);
           monitored_dom = null;
        }
-       feature_env.on("remove",unsub);
+       env.on("remove",unsub);
     `;
   }}
 };
@@ -173,14 +173,14 @@ register_feature name="right" {
     let u1=()=>{};
     let u2=()=>{};
 
-    u1 = feature_env.onvalue("to",(other) => {
+    u1 = env.onvalue("to",(other) => {
        u2();
        u2 = other.onvalues( ["x","width"], (x,w) => {
-          env.setParam("x", `calc(${x} + ${w})` );
+          env.host.setParam("x", `calc(${x} + ${w})` );
        });
     });
 
-    feature_env.on("remove",() => { u1(); u2(); })
+    env.on("remove",() => { u1(); u2(); })
   ';
 };
 
@@ -190,16 +190,16 @@ register_feature name="left" {
     let u2=()=>{};
     let u3=()=>{};
 
-    u1 = feature_env.onvalue("to",(other) => {
+    u1 = env.onvalue("to",(other) => {
        u2();
        u2 = other.onvalues( ["x"], (x) => {
           u3();
-          u3 = env.onvalue( "width",(myw) => {
+          u3 = env.host.onvalue( "width",(myw) => {
              env.setParam("x", `calc(${x} - ${myw})` );
           });
        });
     });
-    feature_env.on("remove",() => { u1(); u2(); u3(); })
+    env.on("remove",() => { u1(); u2(); u3(); })
   ';
 };
 
@@ -209,16 +209,16 @@ register_feature name="y_line" {
     let u1=()=>{};
     let u2=()=>{};
     let u3=()=>{};
-    u1 = feature_env.onvalue("to",(other) => {
+    u1 = env.onvalue("to",(other) => {
        u2();
        u2 = other.onvalues( ["y","height"], (y,h) => {
           u3();
-          u3 = env.onvalue( "height",(myh) => {
+          u3 = env.host.onvalue( "height",(myh) => {
             env.setParam("y", `calc(${y} + ${h}/2 - ${myh}/2)` );
           });
        });
     });
-    feature_env.on("remove",() => { u1(); u2(); u3(); })
+    env.on("remove",() => { u1(); u2(); u3(); })
   ';
 };
 
@@ -226,13 +226,13 @@ register_feature name="size" {
   js code=`
     console.warn("'size' feature code called");
 
-    feature_env.onvalue("width",(v) => {
+    env.onvalue("width",(v) => {
       console.log("SIZE feature is assigning width",v)
       //if (v == "200px") debugger;
       //env.setParam("dom_style_width",v)
-      env.setParam("width",v)
+      env.host.setParam("width",v)
     });
-    feature_env.onvalue("height",(v) => env.setParam("height",v));
+    env.onvalue("height",(v) => env.setParam("height",v));
     
     //env.setParam("dom_style_width",  feature_env.getParam("width") );
     //env.setParam("dom_style_height", feature_env.getParam("height") );

@@ -33,7 +33,7 @@ export function setup( vz, m ) {
 
 
 // здесь f это функция создания dom-элемента
-export function dom( obj, feature_env, options={} )
+export function dom( obj, options={} )
 {
 
   /////// собственный html-код

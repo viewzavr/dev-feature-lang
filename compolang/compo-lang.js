@@ -173,12 +173,12 @@ export function load_package(env,opts)
 // открытый вопрос: куда идет output c3 ? это pipe.output = @c3->output ?
 // кстати интересная идея от Кости - linestrips output это 3d object..
 //import {delayed} from "viewzavr/utils.js";
-export function pipe(env,feature_env) 
+export function pipe(env) 
 {
   // var delayed = require("delayed");
-  feature_env.feature("delayed");
-  var delayed_chain_children = feature_env.delayed(chain_children)
-  feature_env.on('appendChild',delayed_chain_children);
+  env.feature("delayed");
+  var delayed_chain_children = env.delayed(chain_children)
+  env.on('appendChild',delayed_chain_children);
   //delayed_chain_children(); // тырнем разик вручную
 
   let created_links = [];
@@ -187,7 +187,7 @@ export function pipe(env,feature_env)
       let cprev;
       let cfirst;
       
-      for (let c of feature_env.ns.getChildren()) {
+      for (let c of env.ns.getChildren()) {
          if (c.is_link) continue;
          if (!cfirst) cfirst = c;
          // пропускаем ссылки.. вообще странное решение конечно.. сделать ссылки объектами
@@ -199,9 +199,9 @@ export function pipe(env,feature_env)
       }
       // output последнего ставим как output всей цепочки
       if (cprev)
-          feature_env.linkParam("output",`${cprev.ns.name}->output`)
+          env.linkParam("output",`${cprev.ns.name}->output`)
       else
-          feature_env.linkParam("output",``)
+          env.linkParam("output",``)
       // input первого ставим на инпут пайпы
       if (cfirst) {
           if (!cfirst.hasLinksToParam("input") && !cfirst.hasParam("input"))
@@ -243,7 +243,7 @@ export function register_feature( env, fopts, envopts ) {
 
     var js_part = () => {};
     if (env.params.code) {
-      var code = "(env,feature_env,args) => { " + env.params.code + "}";
+      var code = "(env,args) => { " + env.params.code + "}";
       try {
         js_part = eval( code );
       } catch(err) {
@@ -253,39 +253,30 @@ export function register_feature( env, fopts, envopts ) {
     var compalang_part = () => {};
     if (Object.keys( children ).length > 0) {
       var firstc = Object.keys( children )[0];
-      compalang_part = (tenv,feature_env) => {
+      compalang_part = (tenv) => {
         var edump = children[firstc];
         edump.keepExistingChildren = true; // смехопанорама
         // но иначе применение фичи может затереть созданное другими фичами или внешним клиентом
         edump.keepExistingParams = true;
-        var tgt_env;
-        if (tenv === feature_env) 
-          tgt_env = tenv;
-          else
-          {
-            edump.master_env = tenv; // F-FEAT-PARAMS
-            tgt_env = feature_env;
-          }
-
-        tgt_env.restoreFromDump( edump );  
+        tenv.restoreFromDump( edump );  
 
         // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
         // todo тут надо scope env делать и детям назначать, или вроде того
         // но пока обойдемся так
-        tgt_env.$env_extra_names ||= {};
-        tgt_env.$env_extra_names[ firstc ] = true;
+        tenv.$env_extra_names ||= {};
+        tenv.$env_extra_names[ firstc ] = true;
             
         //tenv.vz.createChildrenByDump( dump, obj, manualParamsMode );
       }
     }
 
-    apply_feature = (e,fe,...args) => {
-      js_part( e,fe,...args);
-      compalang_part( e,fe,...args);
+    apply_feature = (e,...args) => {
+      js_part( e,...args);
+      compalang_part( e,...args);
     }
 
-    env.vz.register_feature( env.params.name, (e,fe,...args) => {
-      apply_feature(e,fe,...args)
+    env.vz.register_feature( env.params.name, (e,...args) => {
+      apply_feature(e,...args)
     } );
   }
 
@@ -326,7 +317,7 @@ function add_dir_if( path, dir ) {
   return dir + path;
 }
 
-export function base_url_tracing( env, fenv, opts ) 
+export function base_url_tracing( env, opts ) 
 {
   env.$base_url = opts.base_url;
   env.compute_path = (file) => {
@@ -339,30 +330,30 @@ export function base_url_tracing( env, fenv, opts )
 }
 
 //////////////////////////////////////////
-// устанавливает указанный параметр при вызове команды apply
+// устанавливает в host указанный параметр при вызове команды apply
 // * value - значение которое устанавливать
 // * target - полная ссылка на цель (объект->параметр)
 // либо
 // * пара object="some-path" и param="..."
-export function setter( env, feature_env )
+export function setter( env )
 {
-   feature_env.addParamRef("target","");
-   feature_env.addObjectRef("object","");
+   env.addParamRef("target","");
+   env.addObjectRef("object","");
 
-   feature_env.addCmd( "apply",() => {
-      if (feature_env.params.target) {
-        var arr = feature_env.params.target.split("->");
-        var tobj = feature_env.findByPath( arr[0] );
+   env.addCmd( "apply",() => {
+      if (env.params.target) {
+        var arr = env.params.target.split("->");
+        var tobj = env.findByPath( arr[0] );
         if (tobj) {
-          tobj.setParam( arr[1], feature_env.params.value, feature_env.params.manual );
+          tobj.setParam( arr[1], env.params.value, env.params.manual );
         } else console.log("setter: target obj not found",arr);
       }
       else
-      if (feature_env.params.object) {
-        feature_env.params.object.setParam( feature_env.params.param, feature_env.params.value, feature_env.params.manual );
+      if (env.params.object) {
+        env.params.object.setParam( env.params.param, env.params.value, env.params.manual );
       }
-      if (feature_env.params.name) {
-        env.setParam( feature_env.params.name, feature_env.params.value, feature_env.params.manual );
+      if (env.params.name) {
+        env.host.setParam( env.params.name, env.params.value, env.params.manual );
       }
       else
         console.log("setter: has no target defined");
@@ -371,13 +362,13 @@ export function setter( env, feature_env )
 
 // отличается от setter тем что сразу же делает
 // по сути это то же самое что compute.. только на вход не код а value..
-export function set_param( obj, feature_env )
+export function set_param( env, opts )
 {
-   feature_env.feature("setter");
-   feature_env.callCmd("apply");
-   feature_env.onvalues_any(["target","object","param","name","value","manual"], () => {
+   env.feature("setter");
+   env.callCmd("apply");
+   env.onvalues_any(["target","object","param","name","value","manual"], () => {
        
-       feature_env.callCmd("apply");      
+       env.callCmd("apply");      
    })
 }
 
@@ -411,21 +402,20 @@ export function setter( obj, options )
 
 // выполняет указанный код при вызове команды apply
 // вход: cmd, code, и еще children - у них будет вызвано apply
-export function feature_func( env, feature_env )
+export function feature_func( env )
 {
-   feature_env.feature("call_cmd_by_path");
+   env.feature("call_cmd_by_path");
 
-   feature_env.addCmd( "apply",(...args) => {
-      if (feature_env.params.code) {
-        //var env = feature_env;
-        var func = new Function( "env","feature_env","args", feature_env.params.code );
-        func.call( null, env, feature_env, args );
+   env.addCmd( "apply",(...args) => {
+      if (env.params.code) {
+        var func = new Function( "env","args", env.params.code );
+        func.call( null, env, args );
         //eval( obj.params.code );
       }
-      if (feature_env.params.cmd) {
-        feature_env.callCmdByPath(feature_env.params.cmd,...args)
+      if (env.params.cmd) {
+        env.callCmdByPath(env.params.cmd,...args)
       }
-      for (let c of feature_env.ns.getChildren()) {
+      for (let c of env.ns.getChildren()) {
         c.callCmd("apply",...args);
       }
    } )
@@ -447,32 +437,10 @@ export function auto_apply( obj ) {
   });
 }
 
-// выполняет заданный код. если код поменяется - выполнит его еще раз.
-/*
-export function js0( obj, options )
+
+export function js( env )
 {
-  obj.onvalue("code",() => {
-    if (obj.params.code) {
-       var env = obj;
-       var feature_env = env;
-
-       if (env.master_env) env = env.master_env; 
-
-       try {
-         eval( obj.params.code );
-       }
-       catch (e) 
-       {
-         console.error(e);
-       }
-    }
-  });
-}
-*/
-
-export function js( env, feature_env )
-{
-  feature_env.onvalue("code",(code) => {
+  env.onvalue("code",(code) => {
      try {
        eval( code );
      }
@@ -485,22 +453,22 @@ export function js( env, feature_env )
 
 // добавляет команду в целевое окружение
 // сама прикидывается func и поэтому можно прицепить code и все такое
-export function add_cmd( env,feature_env ) {
+export function add_cmd( env ) {
   
-  feature_env.feature("func");
-  feature_env.onvalue("name",(name) => {
+  env.feature("func");
+  env.onvalue("name",(name) => {
 
-    env.addCmd(name,f);
+    env.host.addCmd(name,f);
 
     function f() {
-      feature_env.callCmd("apply");
+      env.callCmd("apply");
     }
   });
 }
 
-export function call_cmd_by_path(env,feature_env) {
+export function call_cmd_by_path(env) {
 
-  feature_env.callCmdByPath = ( target_path, ...args ) => {
+  env.callCmdByPath = ( target_path, ...args ) => {
       if (!target_path) return;
       if (typeof(target_path) == "function") {
         return target_path( ...args )
@@ -515,7 +483,7 @@ export function call_cmd_by_path(env,feature_env) {
       var paramname = arr[1];
       //var sobj = obj.findByPath( objname );
       //R-LINKS-FROM-OBJ
-      var sobj = feature_env.findByPath( objname );
+      var sobj = env.findByPath( objname );
       if (!sobj) {
         console.error("callCmdByPath: cmd target obj not found",objname );
         return; 
@@ -605,21 +573,21 @@ export function repeater( env, fopts, envopts ) {
 }
 
 ////////////////////////////
-export function compute( env, feature_env ) {
-  feature_env.setParam("output",undefined);
-  feature_env.setParamOption("output","internal",true);
+export function compute( env ) {
+  env.setParam("output",undefined);
+  env.setParamOption("output","internal",true);
 
   var imsetting_params_maybe;
   function evl() {
-    if (feature_env.params.code) {
-     var params = feature_env.params;
+    if (env.params.code) {
+     var params = env.params;
      imsetting_params_maybe = true;
      try {
-      let res = eval( feature_env.params.code );
+      let res = eval( env.params.code );
 
-      if (feature_env.params.param) {
+      if (env.params.param) {
         debugger;
-        env.setParam( feature_env.params.param,res );
+        env.host.setParam( env.params.param,res );
       }
 
      } finally {
@@ -628,63 +596,63 @@ export function compute( env, feature_env ) {
     }
   }
 
-  feature_env.feature("delayed");
-  var eval_delayed = feature_env.delayed( evl )
+  env.feature("delayed");
+  var eval_delayed = env.delayed( evl )
 
-  feature_env.on('param_changed', () => {
+  env.on('param_changed', () => {
     if (!imsetting_params_maybe)
        eval_delayed()
   } );
   eval_delayed();
 
-  feature_env.addCmd("recompute",eval_delayed);
+  env.addCmd("recompute",eval_delayed);
 }
 
 
 // отличается от compute тем что то что код return-ит и записывается в output
-export function compute_output( env, feature_env ) {
-  feature_env.setParam("output",{});
-  feature_env.setParamOption("output","internal",true);
+export function compute_output( env ) {
+  env.setParam("output",{});
+  env.setParamOption("output","internal",true);
 
   function evl() {
-    if (feature_env.params.code) {
-     var params = feature_env.params;
-     var func = new Function('env','feature_env',feature_env.params.code)
-     var res = func( env,feature_env );
+    if (env.params.code) {
+     var params = env.params;
+     var func = new Function('env',env.params.code)
+     var res = func( env );
 
     //var res = eval( env.params.code );
-    feature_env.setParam("output",res);
+    env.setParam("output",res);
     }
   }
 
-  feature_env.feature("delayed");
-  var eval_delayed = feature_env.delayed( evl )
+  env.feature("delayed");
+  var eval_delayed = env.delayed( evl )
 
-  feature_env.on('param_changed', (name) => {
+  env.on('param_changed', (name) => {
      if (name != "output")
         eval_delayed();
    });
 
-  feature_env.addCmd("recompute",eval_delayed);
+  env.addCmd("recompute",eval_delayed);
 
   eval_delayed();
 }
 
 // искалка объектов. вход строка pattern выход output набор найденных окружений.
 // см criteria-finder.js
-export function find_objects( env, feature_env ) {
-  feature_env.feature("find_by_criteria");
+export function find_objects( env  ) {
+  env.feature("find_by_criteria");
 
-  feature_env.addObjects( "pattern","",(objects_list) => {
+  env.addObjects( "pattern","",(objects_list) => {
     //console.log("FIND-OBJECTS-OBJ returns",objects_list)
-    feature_env.setParam("output",objects_list);
-    feature_env.setParam("found_objects_count",objects_list?.length)
+    env.setParam("output",objects_list);
+    env.setParam("found_objects_count",objects_list?.length)
   })
-  feature_env.onvalue("pattern",(v) => {
+  env.onvalue("pattern",(v) => {
     //console.log(v);
     //debugger;
   })
-  feature_env.addString("found_objects_count");
+  env.addString("found_objects_count");
 }
 
 // ловит события, направляет куда скажут
@@ -728,33 +696,33 @@ export function console_log( env, options )
   env.addString("text");
 }
 
-export function feature_debugger( env, feature_env )
+export function feature_debugger( env )
 {
-  if (feature_env.params.msg)
-    console.log( feature_env.params.msg );
+  if (env.params.msg)
+    console.log( env.params.msg );
 
   debugger;
 }
 
-export function onremove( env, feature_env )
+export function onremove( env )
 {
-  feature_env.feature("func");
-  env.on("remove",() => {
-    feature_env.callCmd("apply");
+  env.feature("func");
+  env.host.on("remove",() => {
+    env.callCmd("apply");
   })
 }
 
-export function onevent( env, feature_env )
+export function onevent( env  )
 {
-  feature_env.feature("func");
+  env.feature("func");
   var u1 = () => {};
-  feature_env.onvalue( "name", (name) => {
+  env.onvalue( "name", (name) => {
     u1();
-    u1 = env.on( feature_env.params.name ,() => {
-      feature_env.callCmd("apply");
+    u1 = env.host.on( env.params.name ,() => {
+      env.callCmd("apply");
     })
   })
-  feature_env.on("remove",u1);
+  env.on("remove",u1);
   
 }
 
@@ -845,22 +813,23 @@ export function template( env, options )
 // может по другому назвать, paste?
 // что делать если input меняется? отменять? как?..
 
-// короче находясь в режиме master_env этот деплой должен действовать по-другому
-// а именно деплоить все заложенные фичи а не 1, и не в себя а в качестве sibling
+// короче находясь в режиме модификатора этот деплой должен действовать по-другому
+// а именно деплоить все заложенные фичи а не 1, и не в себя а в качестве своих sibling
+
 
 // возможно будет стоит разделить их на 2 версии
 // плюс может быть добавить ключи типа deploy_features input=... to=@someobj;
 // и аналогично с deploy - там можно to по умолчанию родителя или себя поставить.
-export function deploy( env, feature_env )
+export function deploy( env )
 {
   
-  feature_env.onvalue("input",(input) => {
+  env.onvalue("input",(input) => {
      input ||= [];
-     if (feature_env === env) {
-        deploy_normal_env(input);
-     }
+     if (env.hosted)
+        deploy_in_host_env(input);
      else
-        deploy_in_master_env(input);
+        deploy_normal_env(input);
+        
   })
 
  let original_dump;
@@ -881,9 +850,9 @@ export function deploy( env, feature_env )
 
  // todo мб стоит отслеживать списки фич.. хотя мы их еще не научились толком удалять...
  // но уже скоро научимся..
- function deploy_in_master_env(input) {
+ function deploy_in_host_env(input) {
     for (let rec of input)
-      env.vz.importAsParametrizedFeature( rec, env );
+      env.vz.importAsParametrizedFeature( rec, env.host );
  }
 
 }
@@ -892,10 +861,10 @@ export function deploy( env, feature_env )
 // подключая их к родителю
 // тут кстати напрашивается сделать case - фильтрацию массива... ну и if через это попробовать сделать например...
 // вариантов много получается...
-export function deploy_many( env, feature_env )
+export function deploy_many( env, opts )
 {
   
-  feature_env.onvalue("input",(input) => {
+  env.onvalue("input",(input) => {
      deploy_normal_env_all(input);
   })
 

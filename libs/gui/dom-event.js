@@ -3,13 +3,13 @@ export function setup( vz, m ) {
   vz.register_feature_set( m );
 }
 
-export function dom_event( obj, feature_env )
+export function dom_event( obj )
 {
-   feature_env.feature("call_cmd_by_path");
-   feature_env.feature("func");
+   obj.feature("call_cmd_by_path");
+   obj.feature("func");
 
    function callcmd(event_data) {
-      feature_env.callCmd("apply",event_data);
+      obj.callCmd("apply",event_data);
       /*
       if (obj.params.cmd)
         obj.callCmdByPath( obj.params.cmd );
@@ -29,14 +29,14 @@ export function dom_event( obj, feature_env )
     if (unbind) { unbind(); unbind = null; }
     if (forget_bound_dom) { forget_bound_dom(); forget_bound_dom = null };
 
-    var o = feature_env.params.object;
+    var o = obj.params.object;
     if (!o) return;
 
     unbind = o.onvalue("dom",() => {
       if (forget_bound_dom) forget_bound_dom();
 
       let bound_dom = o.params.dom;
-      let bound_event = feature_env.params.name;
+      let bound_event = obj.params.name;
 
       if (!bound_event) {
         //console.error("dom_event: bound_event is null",bound_event);
@@ -53,19 +53,18 @@ export function dom_event( obj, feature_env )
     })
    }
 
-   feature_env.addObjRef("object",null,null,dobind )
-   feature_env.trackParam("name",dobind)
+   obj.addObjRef("object",null,null,dobind )
+   obj.trackParam("name",dobind)
 
    
-   if (!feature_env.params.object) {
-      // корявое
-      if (feature_env !== obj)
-        feature_env.setParam("object",obj);
+   if (!obj.params.object) {
+      if (obj.hosted) // мы хостируимси - тогда object это хост
+        obj.setParam("object",obj.host);
       else
-        feature_env.setParam("object","..");
+        obj.setParam("object","..");
    }
 
-   feature_env.on("remove",() => {
+   obj.on("remove",() => {
       if (unbind) { unbind(); unbind = null; }
       if (forget_bound_dom) { forget_bound_dom(); forget_bound_dom = null };
    })
