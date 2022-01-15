@@ -29,7 +29,7 @@ export function compolang_machine(obj) {
   
   function interpret() {
     obj.ns.removeChildren();
-    obj.parseSimpleLang( obj.params.text, {base_url: obj.params.base_url } );
+    obj.parseSimpleLang( obj.params.text, {base_url: obj.params.base_url, diag_file: obj.params.diag_file } );
   }
 
 }
