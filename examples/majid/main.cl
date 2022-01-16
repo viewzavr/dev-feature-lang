@@ -20,7 +20,7 @@ register_feature name="rescale_rgb" {
   df_div column="R" coef=255.0 | df_div column="G" coef=255.0 | df_div column="B" coef=255.0;
 };
 
-scene-explorer-screen activate_by_hotkey hotkey='b';
+debugger_screen_r;
  
 mainscreen: screen auto-activate padding="1em" {
   column style="z-index: 3; position:absolute;" {

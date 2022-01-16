@@ -1,5 +1,6 @@
 load files=`
 scene-explorer-3d.js
+misc
 `;
 
 register_feature name="two_side_columns" {
@@ -11,7 +12,7 @@ register_feature name="two_side_columns" {
 };
 
 register_feature name="debugger_screen_r" {
-  scene-explorer-screen hotkey='b' {{
+  scene-explorer-screen hotkey='q' {{
     apply_by_hotkey hotkey=@.->hotkey {
       rotate_screens;
     };
