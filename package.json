@@ -7,14 +7,14 @@
     "example": "examples"
   },
   "bin": {
-    "vrungel": "./server.mjs",
-    "vrungel-setup": "./local-data-server-setup/setup.mjs",
-    "vrungel-setup-off": "./local-data-server-setup/setup-off.mjs"
+    "vrungel": "node ./server.mjs",
+    "vrungel-setup": "node ./local-data-server-setup/setup.mjs",
+    "vrungel-setup-off": "node ./local-data-server-setup/setup-off.mjs"
   },
   "scripts": {
-    "start": "./server.mjs",
-    "setup": "./local-data-server-setup/setup.mjs",
-    "setupoff": "./local-data-server-setup/setup.mjs off"
+    "start": "node ./server.mjs",
+    "setup": "node ./local-data-server-setup/setup.mjs",
+    "setupoff": "node ./local-data-server-setup/setup.mjs off"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,7 @@
   "dependencies": {
     "node-static": "^0.7.11",
     "opener": "^1.5.2",
+    "peggy": "^1.2.0",
     "ws": "^7.4.4"
   }
 }

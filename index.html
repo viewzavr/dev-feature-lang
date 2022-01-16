@@ -106,6 +106,7 @@
 
     fetch( file ).then( (res) => res.text() ).then( (txt) => {
         obj.setParam("base_url",filedir);
+        obj.setParam("diag_file", file );
         obj.setParam("text",txt);
 
         /*
