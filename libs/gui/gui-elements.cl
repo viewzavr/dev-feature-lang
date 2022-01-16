@@ -99,10 +99,12 @@ register_feature name="slider" {
 		 setter value=@..->value target="..->dom_value" auto_apply;
 		 
 		 dom_event name="input" code=`
+		  let object = env.params.object;
 		 	if (object.params.sliding)
 		 		  object.setParam("value", parseFloat( object.params.dom.value ), true );
 		 `;
 		 dom_event name="change" code=`
+		   let object = env.params.object;
 		 		  object.setParam("value", parseFloat( object.params.dom.value ), true );
 		 `;
 
