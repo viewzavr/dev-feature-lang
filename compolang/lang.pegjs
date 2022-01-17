@@ -17,6 +17,10 @@
 // [4] http://json.org/
 // [5] https://www.tbray.org/ongoing/When/201x/2014/03/05/RFC7159-JSON
 
+{{
+  var expr_env_counter=0;
+}}
+
 {
   function new_env( name ) {
     var new_env = { features: {}, params: {}, children: {}, links: {} };
@@ -51,7 +55,7 @@
   var current_env;
   new_env();
 
-  var expr_env_counter=0;
+  
 
   if (!options.base_url) console.error("COMPOLANG PARSER: base_url option is not defined")
 }

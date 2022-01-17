@@ -586,13 +586,16 @@ export function compute( env ) {
      var params = env.params;
      imsetting_params_maybe = true;
      try {
+
       let res = eval( env.params.code );
 
       if (env.params.param) {
         debugger;
         env.host.setParam( env.params.param,res );
       }
-
+     } catch(err) {
+      console.error("COMPUTE ERROR",err);
+      console.log( env.params.code );
      } finally {
       imsetting_params_maybe=false;
      }

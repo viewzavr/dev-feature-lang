@@ -2,6 +2,10 @@
 //
 // https://peggyjs.org/
 
+
+  var expr_env_counter=0;
+
+
 function peg$subclass(child, parent) {
   function C() { this.constructor = child; }
   C.prototype = parent.prototype;
@@ -373,7 +377,7 @@ function peg$parse(input, options) {
    };
   var peg$f8 = function(head, tail) {
      if (head && tail.length > 0) {
-       console.log("found env pipe of objects:",head,tail)
+       // console.log("found env pipe of objects:",head,tail)
        // прямо пайпа
        // переименуем голову, т.к. имя заберет пайпа
        var orig_env_id = head.$name;
@@ -3148,7 +3152,7 @@ function peg$parse(input, options) {
     var current_env;
     new_env();
 
-    var expr_env_counter=0;
+    
 
     if (!options.base_url) console.error("COMPOLANG PARSER: base_url option is not defined")
 
