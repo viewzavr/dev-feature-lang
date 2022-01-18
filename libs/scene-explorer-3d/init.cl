@@ -53,6 +53,7 @@ scr: screen {
     sgraph: scene_explorer_graph
                //add_all_params
                add_all_features
+               add_all_param_refs
                active=@scr->visible
                //sibling_connection
                //children_node=true
@@ -189,6 +190,7 @@ register_feature name="params_preview_values" code='
 
           let preview = "cant preview value, no node.name";
           if (node.name) {
+            
             var refobj = env.findByPath( node.object_path );
             //console.log("nodelabel called");
             var val = refobj ? refobj.getParam( node.name ) : "refobj is null";

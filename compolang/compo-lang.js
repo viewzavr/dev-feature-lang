@@ -340,6 +340,8 @@ export function base_url_tracing( env, opts )
 export function setter( env )
 {
    env.addParamRef("target","");
+   env.setParamOption("target","is_outgoing",true);
+
    env.addObjectRef("object","");
 
    env.addCmd( "apply",() => {
@@ -352,7 +354,7 @@ export function setter( env )
       }
       else
       if (env.params.object) {
-        env.params.object.setParam( env.params.param, env.params.value, env.params.manual );
+        env.params.object.setParam( env.params.name || env.params.param, env.params.value, env.params.manual );
       }
       else
       if (env.params.name) {
@@ -370,7 +372,6 @@ export function set_param( env, opts )
    env.feature("setter");
    env.callCmd("apply");
    env.onvalues_any(["target","object","param","name","value","manual"], () => {
-       
        env.callCmd("apply");      
    })
 }
@@ -711,7 +712,10 @@ export function console_log( env, options )
     console.log( env.params.text, env.params.input );
   }
   env.onvalue("text",print);
-  env.onvalue("input",print);
+  env.onvalue("input",(input) => {
+    print();
+    env.setParam("output",input); // доп-фича - консоле-лог пропускает дальше данные
+  });
   
   env.addString("text");
 }
@@ -837,7 +841,6 @@ export function template( env, options )
 // короче находясь в режиме модификатора этот деплой должен действовать по-другому
 // а именно деплоить все заложенные фичи а не 1, и не в себя а в качестве своих sibling
 
-
 // возможно будет стоит разделить их на 2 версии
 // плюс может быть добавить ключи типа deploy_features input=... to=@someobj;
 // и аналогично с deploy - там можно to по умолчанию родителя или себя поставить.
@@ -909,4 +912,30 @@ export function deploy_many( env, opts )
      }
  }
  env.on("remove",close_envs)
+}
+
+//////////////////////////////////////// deploy_features
+/*
+  Внедряет фичи в режиме под-окружений в указанный список объектов.
+  Если список объектов меняется, ситуация синхронизируется.
+*/
+
+export function deploy_features( env )
+{
+  
+  env.onvalue("input",(input) => {
+     input ||= [];
+     dodeploy( input, env.params.features );
+  })
+
+  function dodeploy( objects_arr, features_list ) {
+
+     let to_deploy_to = objects_arr;
+
+     for (let tenv of to_deploy_to) {
+      for (let rec of features_list)
+        env.vz.importAsParametrizedFeature( rec, tenv );
+     };
+  }
+
 }

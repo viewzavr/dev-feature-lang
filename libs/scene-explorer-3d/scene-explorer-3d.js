@@ -25,6 +25,7 @@ function create_rec() {
 }
 
 
+// поставить стрелочки между детьми-соседями
 export function sibling_connection( env ) {
   env.on("genobj",(obj,rec, id) => {
 
@@ -51,6 +52,7 @@ export function sibling_connection( env ) {
   })
 }
 
+// добавить все параметры в граф
 export function add_all_params( env ) {
   env.on("genobj",(obj,rec, id) => {
     // параметры все
@@ -68,6 +70,7 @@ export function add_all_params( env ) {
   })
 }
 
+// добавить все фичи в граф
 export function add_all_features( env ) {
   env.on("genobj",(obj,rec, id) => {
     // фичи
@@ -100,6 +103,61 @@ export function add_all_features( env ) {
                     } );
     });
   })
+}
+
+// нарисоваем все paramRefs
+// (заметим ссылки рисуются отдельно)
+export function add_all_param_refs( env ) {
+  env.on("genobj",(obj,rec, id) => {
+
+  for (var refrecord of obj.getParamRefsRecords()) {
+      var refname = refrecord.name;
+      let desired_parent = refrecord.desired_parent;
+      if (!desired_parent) continue;
+
+      var ref = obj.getParam( refname );
+      let [objpath,paramname] = ref ? ref.split("->") : [null,null];
+      let tobj = desired_parent.findByPath( objpath );
+      if (!tobj) {
+        //addnode( rec, { id: id + "->" + pn, name: pn, object_path: id, color: 'yellow', isparam: true } )
+        // IFROMTO
+
+        addlink( rec, { source: id, 
+                        target: id + "->" + refname,
+                        target_obj_path: id,
+                        target_param: refname,
+                        isparam: true } );
+        return;
+         // может тут стоило бы поставить хоть ссылочку на то что нет значения..
+         //debugger;
+      }
+      let path = tobj.getPath();
+
+      if (ref) {
+        let is_outer = obj.getParamOption( refname,"is_outgoing");
+
+        if (is_outer) // стрелку нарисовать исходящей следует
+          addlink( rec, {source:id+"->"+refname, 
+                        source_obj_path: id,
+                        source_param: refname,
+                        target:path + "->" + paramname,
+                        target_param: paramname,
+                        target_obj_path: path,
+                        
+                        islink: true});
+          else
+         addlink( rec, {target:id+"->"+refname, 
+                        source:path + "->" + paramname,
+                        source_param: paramname,
+                        source_obj_path: path,
+                        target_obj_path: id,
+                        target_param: refname,
+                        islink: true});
+
+      };
+    };
+
+  });
 }
 
 
@@ -144,7 +202,7 @@ function gen( obj,rec, env ) {
 
   // addParamRef + отладить ссылки
 
-  // ссылки на
+  // ссылки из этого объекта на другие объекты addObjRef
   for (var refname of Object.keys( obj.references || {})) {
       var path = obj.getParam( refname );
       var ref = path && path.getPath ? path.getPath() : path; // R-SETREF-OBJ
@@ -167,7 +225,7 @@ function gen( obj,rec, env ) {
          t += `(${id}) ==> (${ref}) : "obj ref TPU"\n`;
          */
       }
-  }  
+  }
   
   return rec;
 }
@@ -221,6 +279,9 @@ function genlink( obj,rec ) {
                        object_path: id })
 }
 
+// починить сгенерированный граф
+// а то там не всегда ссылки и объекты совпадают почему-то
+// и рисовалка валится от этого
 function fixup( obj, rec ) {
   rec.links.forEach( (link) => {
     if (!rec.nodes_table[ link.source ])

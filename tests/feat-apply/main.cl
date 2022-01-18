@@ -10,12 +10,13 @@ register_feature name="num_mul" code=`
   });
 `;
 
+config: N=5;
+
 //rect width=30 height=30 x=(compute_output code=`Math.random()*100`) y=(random max=100)
 scr: screen auto_activate {
   column padding="1em" gap="0.5em" {
-    //sl1: slider min=10 max=1000 step=10 sliding=false;
     text text="number of squares";
-    sl1: input_float value=100;
+    sl1: input_float value=@config->N;
     button text="get svg file" {
       download_svg input=@svg1;
     }
@@ -27,11 +28,36 @@ scr: screen auto_activate {
     repeater model=@sl1->value
     {
       //rect width=10 height=10 x=50 y=(random | num_mul coef=100); 
-      rect fill="green" width=10 height=10 x=(random | num_mul coef=90) y=(random | num_mul coef=90)
-        stroke="darkgreen"
+      rect width=10 height=10 x=(random | num_mul coef=90) y=(random | num_mul coef=90)
+        {{ krasivoe; }}
+        //greeny browny
       ;
     };
   };
 };
 
+// вот тут мы видим ситуацию когда порождающий узел мог бы и развернуться
+// в итоговые узлы...
+register_feature name="krasivoe" {
+  debugger {{
+    set_param target="..->fill" value="lightgrey" ;
+    set_param target="..->stroke" value="black";
+    set_param target="..->stroke_width" value=0.1;
+  }};
+  //fill="lightgrey" stroke="black" stroke_width=0.1;
+};
+
+register_feature name="greeny" {
+  fill="green" 
+  stroke="darkgreen";
+};
+
+register_feature name="browny" {
+  set_param name="fill" value="grey";
+};
+
 debugger_screen_r;
+
+find-objects pattern="** rect krasivoe" 
+  | console_log text="###################### found rects:" 
+  | deploy_features features={ browny };

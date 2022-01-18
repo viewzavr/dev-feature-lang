@@ -11,5 +11,11 @@ load files="lib3dv3 csv params io gui render-params df scene-explorer-3d misc";
     column {
       deploy_many input=@t1->output;
       deploy_many input=@t1->output;
-    }
-  }
+      row gap="0.5em" {
+        deploy_many input={
+          text text="Salut";
+          text text="mira!";
+        };
+      };
+    };
+  };
