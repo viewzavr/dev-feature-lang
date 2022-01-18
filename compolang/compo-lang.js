@@ -554,6 +554,11 @@ export function repeater( env, fopts, envopts ) {
        return;
      }
 
+     if (isFinite(model)) { // число
+       let num = parseInt( model ); // приведем к инту
+       model = Array.from(Array(num).keys());
+     }
+
      if (!model.forEach) {
        //console.error("repeater: passed model is not iterable.",model,env.getPath())
        return;

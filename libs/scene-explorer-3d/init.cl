@@ -53,6 +53,7 @@ scr: screen {
     sgraph: scene_explorer_graph
                //add_all_params
                add_all_features
+               active=@scr->visible
                //sibling_connection
                //children_node=true
                //update_interval=100

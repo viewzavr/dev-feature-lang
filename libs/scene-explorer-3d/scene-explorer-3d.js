@@ -307,20 +307,33 @@ export function scene_explorer_graph( env ) {
 
   //if (!env.params.update_interval) env.params.update_interval = 500;
 
+  if (!env.hasParam("active")) env.params.active=true;
+
   env.onvalues(["input","update_interval"],(obj) => {
     stop_process()
     // запускаем процесс генерации
-    var interv = setInterval( 
+    var interv;
+
+    //if (env.params.active) // это есть тело фичи active
+    interv = setInterval( 
         () => perform_generate( obj ),
         env.params.update_interval
     );
-    stop_process = () => clearInterval( interv );
+    /*
+       по идее : active => regenerate_by_timer, т.е. как-то так это должно быть
+        а не то что я тут вписываюсь в коды прямо
+    */
+
+    stop_process = () => { if (interv) clearInterval( interv ); }
 
     perform_generate( obj );
   });
   env.on("remove",stop_process);
 
   function perform_generate( root_obj ) {
+    if (!env.params.active) return; // чет решил сюды воткнуть
+
+    console.log("REGENERATING GRAPH")
     var res = gen( root_obj, null, env );
     fixup( root_obj, res);
     env.setParam("output",res )    

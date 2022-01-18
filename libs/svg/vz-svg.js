@@ -10,7 +10,16 @@ export function setup(vz, m) {
 
 export function svg( env ) {
   let f = function(tag) {
-    return document.createElementNS("http://www.w3.org/2000/svg",tag);
+    let ee = document.createElementNS("http://www.w3.org/2000/svg",tag);
+
+/*  вроде как решил что неуместно это здесь - пусть пока там будет где надо кому ыыы
+    // F-NEED-EXPLICIT-XMLNS-IN-SVG-TAG
+    if (tag == "svg") {
+      ee.setAttribute("xmlns","http://www.w3.org/2000/svg");
+      //xmlns="http://www.w3.org/2000/svg" 
+    }
+*/    
+    return ee;
   }
   if (!env.params.tag) env.setParam("tag","svg");
 
