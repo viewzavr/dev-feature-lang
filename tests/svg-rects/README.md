@@ -1,0 +1,1 @@
+Here we render N rects using svg.

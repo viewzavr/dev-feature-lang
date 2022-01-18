@@ -554,7 +554,7 @@ export function repeater( env, fopts, envopts ) {
        return;
      }
 
-     if (isFinite(model)) { // число
+     if (typeof model == 'number') { // число
        let num = parseInt( model ); // приведем к инту
        model = Array.from(Array(num).keys());
      }
@@ -574,8 +574,17 @@ export function repeater( env, fopts, envopts ) {
           child_env.setParam("modelData",element);
           child_env.setParam("modelIndex",eindex);
 
-          created_envs.push( child_env );
+          created_envs.push( child_env );        
        });
+      
+       /*
+       var child_env = env.vz.createSyncFromDump( edump,null,env.ns.parent );
+          // todo epochs
+          child_env.setParam("modelData",element);
+          child_env.setParam("modelIndex",eindex);
+
+          created_envs.push( child_env );
+       */   
      });
   })
 }
