@@ -19,7 +19,8 @@ scr: screen auto_activate {
     sl1: input_float value=@config->N;
     button text="get svg file" {
       download_svg input=@svg1;
-    }
+    };
+    cb_bro: checkbox text="1. Browny";
   };
 
   svg1: svg-group fill_parent viewbox="0 0 100 100" dom_style_z-index=-1 {
@@ -78,6 +79,8 @@ find-objects pattern="** rect krasivoe"
     };
 */
 
+/* работает
+// вариант с фильтрацией
 find-objects pattern="** rect krasivoe" 
   | console_log text="###################### found rects 1:" 
   | arr_filter code="(val,index) => index%2>0"
@@ -85,6 +88,19 @@ find-objects pattern="** rect krasivoe"
   | deploy_features features={
       set_param target=".->fill" value="brown";
     };
+*/
+
+if condition=@cb_bro->value {
+find-objects pattern="** rect krasivoe" 
+  | console_log text="###################### found rects 1:" 
+  | arr_filter code="(val,index) => index%2>0"
+  | console_log text="###################### rects filtered:"
+  | deploy_features features={
+      browny;
+      //set_param target=".->fill" value="brown";
+    };
+};    
+
 
 register_feature name="arr_filter" 
   code=`

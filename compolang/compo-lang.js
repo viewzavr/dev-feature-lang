@@ -929,12 +929,27 @@ export function deploy_features( env )
 
   function dodeploy( objects_arr, features_list ) {
 
+     // ну тут поомтимизировать наверное можно, но пока тупо все давайте очищать
+     close_envs();
+
      let to_deploy_to = objects_arr;
 
      for (let tenv of to_deploy_to) {
-      for (let rec of features_list)
-        env.vz.importAsParametrizedFeature( rec, tenv );
+      for (let rec of features_list) {
+        let new_feature_env = env.vz.importAsParametrizedFeature( rec, tenv );
+        created_envs.push( new_feature_env );
+      };
      };
   }
+
+ var created_envs = [];
+ function close_envs() {
+   for (let old_env of created_envs) {
+     old_env.remove();
+   }
+   created_envs = [];
+ }
+
+ env.on("remove",close_envs)
 
 }
