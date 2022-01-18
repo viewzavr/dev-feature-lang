@@ -78,7 +78,7 @@ export function load(env,opts)
   env.addString("files");
 
   env.trackParam("files",(files) => {
-    console.log("load: gonna load files",files)
+    //console.log("load: gonna load files",files)
     if (!files) return;
     files.split(/\s+/).map( loadfile )
   });
@@ -90,7 +90,7 @@ export function load(env,opts)
 
      if (file.endsWith( ".js")) {
        var file2 = env.compute_path( file );
-       console.log("loading package",file,"=>",file2);
+       //console.log("loading package",file,"=>",file2);
        return vzPlayer.loadPackage( file2 )
      }
      if (vzPlayer.getPackageByCode(file)) {
@@ -103,7 +103,7 @@ export function load(env,opts)
       file = env.compute_path( file );
 
      let new_base_url = env.vz.getDir( file );
-     console.log("load: loading",file)
+     //console.log("load: loading",file)
      fetch( file ).then( (res) => res.text() ).then( (txt) => {
        // нужна sub-env для отслеживания base-url
        var subenv = env.create_obj( {} );
@@ -360,8 +360,7 @@ export function setter( env )
       if (env.params.name) {
         env.host.setParam( env.params.name, env.params.value, env.params.manual );
       }
-      else
-        console.log("setter: has no target defined");
+      //else console.log("setter: has no target defined",env.getPath());
    } );
 }
 

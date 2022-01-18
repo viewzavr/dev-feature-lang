@@ -21,7 +21,7 @@ scr: screen auto_activate {
     }
   };
 
-  svg1: svggroup fill_parent dom_viewBox="0 0 100 100" dom_style_z-index=-1 {
+  svg1: svg-group fill_parent dom_viewBox="0 0 100 100" dom_style_z-index=-1 {
 
     rect width=100 height=100 fill="white";
     repeater model=@sl1->value

@@ -16,11 +16,34 @@ register_feature name="group" {
  main:  svg tag="g";
 };
 
-register_feature name="svggroup" {
+register_feature name="svg-group" {
  main:  svg tag="svg" dom_x=@.->x dom_y=@.->y dom_z=@.->z
             dom_width=@.->width dom_height=@.->height
             x=0 y=0 z=0
+            dom_viewBox=@.->viewbox
             ;
+};
+
+register_feature name="svg-text" {
+  svg tag="text" svg-attrs-to-dom
+     // идея на будущее
+     //{{ svg-attrs-to-dom list={ а:а1, б:б1, .... }}
+     dom-font-family=@.->font-family
+     dom-font-size=@.->font-size
+     innerText=@.->text;
+};
+//<text x="0" y="50" font-family="Verdana" font-size="35" fill="blue">Hello</text>
+
+register_feature name="svg-attrs-to-dom" {
+   dom_fill=@.->fill
+   dom_stroke=@.->stroke
+   dom_stroke-width=@.->stroke_width
+   dom_x=@.->x
+   dom_y=@.->y
+   dom_z=@.->z
+   dom_width=@.->width
+   dom_height=@.->height
+       ;  
 };
 
 register_feature name="circle" {

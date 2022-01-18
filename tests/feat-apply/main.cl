@@ -22,7 +22,7 @@ scr: screen auto_activate {
     }
   };
 
-  svg1: svggroup fill_parent dom_viewBox="0 0 100 100" dom_style_z-index=-1 {
+  svg1: svg-group fill_parent viewbox="0 0 100 100" dom_style_z-index=-1 {
 
     rect width=100 height=100 fill="white";
     repeater model=@sl1->value
@@ -39,12 +39,16 @@ scr: screen auto_activate {
 // вот тут мы видим ситуацию когда порождающий узел мог бы и развернуться
 // в итоговые узлы...
 register_feature name="krasivoe" {
-  debugger {{
+  env {{
     set_param target="..->fill" value="lightgrey" ;
     set_param target="..->stroke" value="black";
     set_param target="..->stroke_width" value=0.1;
   }};
+  // вот так вообще-то гораздо удобнее:
   //fill="lightgrey" stroke="black" stroke_width=0.1;
+  // можно вот попробвоать будет: assign p1=.. p2=... и это есть выставление хосту параметров..
+  // по сути это как set_params
+  // но в целом конечно вопросы - зачем писать setparams если можно быб вообще не писать?
 };
 
 register_feature name="greeny" {
@@ -53,11 +57,54 @@ register_feature name="greeny" {
 };
 
 register_feature name="browny" {
-  set_param name="fill" value="grey";
+  env {{
+    set_param target="..->fill" value="brown";
+  }};
 };
 
 debugger_screen_r;
 
+/*
 find-objects pattern="** rect krasivoe" 
   | console_log text="###################### found rects:" 
   | deploy_features features={ browny };
+*/
+
+/* работает
+find-objects pattern="** rect krasivoe" 
+  | console_log text="###################### found rects:" 
+  | deploy_features features={
+      set_param target=".->fill" value="brown";
+    };
+*/
+
+find-objects pattern="** rect krasivoe" 
+  | console_log text="###################### found rects 1:" 
+  | arr_filter code="(val,index) => index%2>0"
+  | console_log text="###################### rects filtered:"
+  | deploy_features features={
+      set_param target=".->fill" value="brown";
+    };
+
+register_feature name="arr_filter" 
+  code=`
+  env.onvalues(["input","code"],process);
+
+  function process(arr,code) {
+    if (!Array.isArray(arr)) {
+      env.setParam("output",[]);
+      return;
+    }
+    //var f = new Function( "line", code );
+    //var res = dfjs.create_from_df_filter( df, f );
+    
+    var f = eval( code );
+
+    let res = [];
+    arr.forEach( (v,index) => {
+       let check = f( v,index );
+       if (check) res.push( v );
+    })
+    env.setParam("output",res);
+  }
+`;

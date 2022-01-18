@@ -41,8 +41,8 @@ register_feature name="занять_родителя" {
    fill_parent;
 };
 
-register_feature name="свггруппа" {
-   svggroup
+register_feature name="свг-группа" {
+   svg-group
        x=@.->икс
        y=@.->игрек
        z=@.->зет
