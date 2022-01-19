@@ -569,7 +569,14 @@ export function repeater( env, fopts, envopts ) {
        edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
 
        var p = env.vz.createSyncFromDump( edump,null,env.ns.parent );
+
        p.then( (child_env) => {
+          // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
+          // todo тут надо scope env делать и детям назначать, или вроде того
+          // но пока обойдемся так
+          child_env.$env_extra_names ||= {};
+          child_env.$env_extra_names[ firstc ] = true;
+
           // todo epochs
           child_env.setParam("modelData",element);
           child_env.setParam("modelIndex",eindex);
@@ -917,20 +924,32 @@ export function deploy_many( env, opts )
 /*
   Внедряет фичи в режиме под-окружений в указанный список объектов.
   Если список объектов меняется, ситуация синхронизируется.
+
+  input - список окружений куда внедрить
+  feautures - список фич
 */
 
 export function deploy_features( env )
 {
   
-  env.onvalue("input",(input) => {
+  env.onvalues(["input","features"],(input,features) => {
      input ||= [];
-     dodeploy( input, env.params.features );
-  })
+     if (!Array.isArray(input)) input=[input]; // допускаем что не список а 1 штука
+     dodeploy( input, features );
+  });
 
   function dodeploy( objects_arr, features_list ) {
-
      // ну тут поомтимизировать наверное можно, но пока тупо все давайте очищать
      close_envs();
+     //debugger;
+
+     if (!features_list) return;
+
+     if (!Array.isArray(features_list)) {
+      console.error("deploy_features: features_list is not array!");
+
+      return;
+     }
 
      let to_deploy_to = objects_arr;
 

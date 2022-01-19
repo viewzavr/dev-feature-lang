@@ -81,6 +81,8 @@ export function add_all_features( env ) {
         || pn.startsWith("base-url")
         ) return;
       //rec.nodes.push( { id: id + "->" + pn, name: pn } );
+      //obj.emit("dbg-add",nodedata); // кстати это гибче..
+
       addnode( rec, { id: id + " feature " + pn, 
                           name: pn, 
                           label: pn,
@@ -169,9 +171,16 @@ function gen( obj,rec, env ) {
   
   if (id == "/state") return "";
 
-  //rec.nodes.push( { id: id, name: id } );
-  addnode( rec, { id: id, name: obj.ns.name, 
-                  object_path: id, isobject: true, color: 'red' } )
+  let nodedata = { id: id, 
+                  name: obj.ns.name, 
+                  object_path: id, 
+                  isobject: true,
+                  color: 'red' };
+  //if (obj.$dbg_info) nodedata = {...nodedata, ...obj.$dbg_info};
+  // хотя можно было бы и событие у узла вызвать так-то...
+  obj.emit("dbg-add",nodedata); // кстати это гибче..
+
+  addnode( rec, nodedata );
 
   // точка передачи управления доп-алгоритмам
   env.emit("genobj",obj,rec,id);

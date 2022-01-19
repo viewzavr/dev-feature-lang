@@ -3,8 +3,84 @@ scene-explorer-3d.js
 misc
 `;
 
+///////////////////////////// набираем фичи
+gf1: gather-features { // выдает - набор окружений с параметрами {title:..., features1:....., features2: ..... }
+  add_struc_z_all_0;
+};
+
+///////////////////////////// необходимое для работы с фичами
+//register_feature name="gather-features" {}
+
+register_feature name="gather-features" code=`
+  env.feature('delayed');
+  // мечта: var d = vz.get('delayed'); или что-то типа..
+  // но это статическая загрузка модулей.. можно будет типа reg-feature imports={d:delayed,...}
+  // ну или еще как
+  var dp = env.delayed(process);
+
+  env.on("childrenChanged",dp);
+
+  let unsubs = [];
+  function clear_unsubs() { unsubs.forEach( q => q() ); unsubs = []; }
+
+  function process() {
+    clear_unsubs();
+    let my = [];
+    for (let c of env.ns.getChildren()) {
+      let unsub = c.trackParam('output',(oo) => {
+        // кстати вот было бы прикольно тут логи добавлять..
+        // чтобы как бы объекты писали в воздухе..
+        //console.log("gather-features child va changed")
+        //debugger;
+        dp();
+      });
+      unsubs.push(unsub);
+      //if (!c.is_feature_applied("dbg-3d-feature")) continue;
+      if (c.params.output && Array.isArray(c.params.output))
+          my = my.concat(c.params.output); // ладно уж пущай массив сразу, тогда flat не надо
+          //my.push( c.params.output ); // вот в этот момент gather-features стала у нас рекурсивной
+    }
+    //my = my.flat(10);
+    
+    env.setParam("output",my);
+  }
+  process();
+  
+  // env.vz.importAsParametrizedFeature( { type: "dbg", params { }})
+  // вот как бы нам добавить такое
+  //env.$dbg_info = {radius: 30};
+  /*
+  env.on('dbg-add',(opts) => {
+     opts.radius=130;
+  } );
+  */
+`;
+
+register_feature name="dbg-3d-feature" code=`
+  env.setParam("output", [env] );
+`;
+
+
+// меняет отладочную информацию по данному узлу в визуальном дереве
+register_feature name="dbg" code=`
+  env.host.on('dbg-add',(opts) => {
+     Object.assign( opts, {radius:100},env.params );
+  })
+`;
+
+register_feature name="get_param" code=`
+  //debugger;
+  env.onvalues( ["input","name"],(input,name) => {
+    //debugger;
+    if (input?.getParam)
+      env.setParam( "output", input.getParam( name ) );
+  })
+`;
+
+/////////////////////////////
+
 register_feature name="two_side_columns" {
-  row justify-content="space-between" 
+  row justify-content="space-between"
       align-items="flex-start"
       style="width: 100%" class="vz-mouse-transparent-layout";
   // вот я тут опираюсь на хрень vz-mouse-transparent-layout которая определена непойми где...
@@ -45,9 +121,16 @@ scr: screen {
         render-params object=@sgraph;
         render-params object=@explr;
 
-        repeater model:
+        repeater model=@gf1->output
         {
-          checkbox text=@.->modelData
+          cb: checkbox text=(@.->modelData | get_param name="title") {
+            if condition=@..->value {
+              {
+                deploy_features {{dbg v=500}} input=@explr features=(@cb->modelData | get_param name="explorer-features");
+                deploy_features {{dbg v=500}} input=@sgraph features=(@cb->modelData | get_param name="generator-features");
+              }
+            }
+          }
         }
       };
 
@@ -65,7 +148,7 @@ scr: screen {
                //update_interval=100
                ;
 
-    explr: scene_explorer_3d 
+    explr: scene_explorer_3d {{ dbg v=500 }}
               target=@graph_dom 
               input=@sgraph->output
               struc_z_golova_naverhu
@@ -107,7 +190,7 @@ register_feature name="objects_big" code=`
 // большие узлы фич остальное помельче
 register_feature name="features_big" code=`
   env.onvalue("graph",(g) => {
-      g.nodeVal( (node) => node.isfeature ? 10 : 1 )
+      g.nodeVal( (node) => node.isfeature ? 10 : (node.radius || node.v || 1) )
   })
 `;
 
@@ -120,16 +203,6 @@ register_feature name="fixdrag" code=`
           node.fy = node.y;
           node.fz = node.z;
       });
-  })
-`;
-
-// располагает всех в одной плоскости
-register_feature name="struc_z_all_0" code=`
-  env.host.onvalue("gdata",(rec) => {
-      rec.nodes.forEach( (node) => {
-          if (!node.fz)
-               node.fz = 0.000001;
-      })
   })
 `;
 
@@ -200,7 +273,7 @@ register_feature name="params_preview_values" code='
             //console.log("nodelabel called");
             var val = refobj ? refobj.getParam( node.name ) : "refobj is null";
             if (!refobj) {
-              debugger;
+              //debugger;
               refobj = env.findByPath( node.object_path );
             }
 
@@ -216,3 +289,25 @@ register_feature name="params_preview_values" code='
        })
   });
 ';
+
+//////////////////////////////// struc_z_all_0
+// располагает всех в одной плоскости
+
+// связки
+register_feature name="add_struc_z_all_0" {
+  dbg-3d-feature title="Flat mode" explorer-features={ struc_z_all_0 {{ dbg }}; }
+   ;
+};
+
+// фича
+register_feature name="struc_z_all_0" code=`
+  env.host.onvalue("gdata",(rec) => {
+    //debugger;
+      rec.nodes.forEach( (node) => {
+          //if (!node.fz)
+          node.fz = 0.000001;
+      })
+  })
+  // on remove... - хватит читать value
+  // .struc_computed
+`;

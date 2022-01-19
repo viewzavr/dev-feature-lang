@@ -364,14 +364,17 @@ function peg$parse(input, options) {
       return env;
     };
   var peg$f7 = function(pipeid, input_link, tail) {
-     console.log("found env pipe with input link:",input_link,tail)
+     // случай вида @objid | a | b | c тогда @objid считается как @objid->output
+     // и заодно случай вида @objid->paramname | a | b | c
+     
+     //console.log("found env pipe with input link:",input_link,tail)
      var pipe = new_env( (pipeid || [])[0] );
      pipe.features["pipe"] = true;
 
      append_children_envs( pipe, tail );
 
      var input_link_v = input_link.value.replaceAll("->.","->output");
-     pipe.links["input"] = { to: ".->input", from: input_link_v}
+     pipe.links["input"] = { to: "~->input", from: input_link_v}
      //return finish_env();
      return pipe;
    };
