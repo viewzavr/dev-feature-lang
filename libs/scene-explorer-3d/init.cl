@@ -44,6 +44,11 @@ scr: screen {
         //ueb: checkbox text="update_every_beat" value=false;
         render-params object=@sgraph;
         render-params object=@explr;
+
+        repeater model:
+        {
+          checkbox text=@.->modelData
+        }
       };
 
     };
@@ -119,8 +124,8 @@ register_feature name="fixdrag" code=`
 `;
 
 // располагает всех в одной плоскости
-register_feature name="plane_nodes" code=`
-  env.onvalue("gdata",(rec) => {
+register_feature name="struc_z_all_0" code=`
+  env.host.onvalue("gdata",(rec) => {
       rec.nodes.forEach( (node) => {
           if (!node.fz)
                node.fz = 0.000001;

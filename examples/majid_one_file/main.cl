@@ -45,11 +45,7 @@ screen auto-activate {
 
 ///////////////////// визуальная отладка
 
-scene-explorer-screen;
-
-apply_by_hotkey hotkey='b' {
-  rotate_screens;
-};
+debugger_screen_r;
 
 //////////////////////////////////////
 
