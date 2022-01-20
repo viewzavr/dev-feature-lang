@@ -5,7 +5,10 @@ misc
 
 ///////////////////////////// набираем фичи
 gf1: gather-features { // выдает - набор окружений с параметрами {title:..., features1:....., features2: ..... }
-  add_struc_z_all_0;
+  //one-of title="z-behaviour" { 
+    add_struc_z_all_0;
+    add_struc_golova_naverhu;
+  //};
 };
 
 ///////////////////////////// необходимое для работы с фичами
@@ -99,7 +102,7 @@ register_feature name="scene-explorer-screen"  {
 scr: screen {
     //button text="click me 2" cmd="@s1->activate";
 
-    two_side_columns {
+    cols: two_side_columns {
 
       column gap="0.5em" padding="0.5em" margin="1em" style="background: rgba( 255 255 255 / 25% ); color: white;" {
         dom tag="h3" innerText="Selected object" style="margin:0;";
@@ -123,7 +126,7 @@ scr: screen {
 
         repeater model=@gf1->output
         {
-          cb: checkbox text=(@.->modelData | get_param name="title") {
+          cb: checkbox text=(@.->modelData | get_param name="title") value=false {
             if condition=@..->value {
               {
                 deploy_features {{dbg v=500}} input=@explr features=(@cb->modelData | get_param name="explorer-features");
@@ -151,7 +154,7 @@ scr: screen {
     explr: scene_explorer_3d {{ dbg v=500 }}
               target=@graph_dom 
               input=@sgraph->output
-              struc_z_golova_naverhu
+              /////////struc_z_golova_naverhu
               curvature1
               //objects_big
               features_big
@@ -211,21 +214,6 @@ register_feature name="fixdrag" code=`
 register_feature name="struc_z" code=`
   env.onvalue("gdata",(rec) => {
       let r = 50;
-      rec.nodes.forEach( (node) => {
-          if (!node.struc_computed) {
-             if (node.object_path)
-                 node.fz = node.object_path == "/" ? 0 : node.object_path.split("/").length * r;
-             node.struc_computed = true;
-          } 
-      })
-  })
-`;
-
-// располагает всех таким образом чтобы они были по плоскостям
-// в зависимости от вложенности - корень вверху
-register_feature name="struc_z_golova_naverhu" code=`
-  env.onvalue("gdata",(rec) => {
-      let r = -50;
       rec.nodes.forEach( (node) => {
           if (!node.struc_computed) {
              if (node.object_path)
@@ -301,8 +289,10 @@ register_feature name="add_struc_z_all_0" {
 
 // фича
 register_feature name="struc_z_all_0" code=`
-  env.host.onvalue("gdata",(rec) => {
+  let lastrec;
+  let unsub = env.host.onvalue("gdata",(rec) => {
     //debugger;
+      lastrec = rec;
       rec.nodes.forEach( (node) => {
           //if (!node.fz)
           node.fz = 0.000001;
@@ -310,4 +300,52 @@ register_feature name="struc_z_all_0" code=`
   })
   // on remove... - хватит читать value
   // .struc_computed
+  env.on("remove",() => {
+    unsub();
+    lastrec?.nodes.forEach( (node) => {
+      node.fz = undefined;
+    })
+  });
+`;
+
+// апи версия 2
+// фича вида add-feature ... получает на вход target равный окружению с детьми 
+// explr, sgraph и cols. и типа пожалуйста на них влияй скока хочушь.
+// хотя.. это тоже самое что наверное сказать: activate-feature { add_struc_z_all_0; }
+///////////////////////////////////// struc_z_golova_naverhu
+// связка
+register_feature name="add_struc_golova_naverhu" {
+  dbg-3d-feature 
+     title="3d mode, root top" 
+     explorer-features={ struc_z_golova_naverhu step=100; }
+     state={
+       st: step=20  
+         explorer-features={ struc_z_golova_naverhu step=@st->step; }
+     }
+  ;
+};
+
+// располагает всех таким образом чтобы они были по плоскостям
+// в зависимости от вложенности - корень вверху
+register_feature name="struc_z_golova_naverhu" code=`
+  if (!env.params.step) env.params.step = 50;
+  let lastrec;
+  
+  let unsub = env.host.onvalue("gdata",(rec) => {
+      let r = -1*env.params.step;
+      rec.nodes.forEach( (node) => {
+          if (!node.struc_computed) {
+             if (node.object_path)
+                 node.fz = node.object_path == "/" ? 0 : node.object_path.split("/").length * r;
+             node.struc_computed = true;
+          } 
+      })
+  });
+  env.on("remove",() => {
+    unsub();
+    lastrec?.nodes.forEach( (node) => {
+      node.fz = undefined;
+      node.struc_computed = undefined;
+    })
+  });  
 `;
