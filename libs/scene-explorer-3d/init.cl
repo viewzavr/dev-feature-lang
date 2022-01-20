@@ -1,68 +1,19 @@
 load files=`
 scene-explorer-3d.js
 misc
+visual-features.cl
 `;
 
 ///////////////////////////// набираем фичи
-gf1: gather-features { // выдает - набор окружений с параметрами {title:..., features1:....., features2: ..... }
-  //one-of title="z-behaviour" { 
-    add_struc_z_all_0;
-    add_struc_golova_naverhu;
-  //};
+vf1: visual-features {{dbg v=1000}}
+{ // выдает - набор окружений с параметрами {title:..., features1:....., features2: ..... } 
+  visual-feature title="Flat mode"   body={feat_struc_z_all_0};
+  visual-feature title="Head on top" body={feat_struc_golova_naverhu};
+  // кстати тут реально можно было бы и карту построить просто... чистово гуи с группами...
+  // не знаю зачем я заморачиваюсь...
 };
 
-///////////////////////////// необходимое для работы с фичами
-//register_feature name="gather-features" {}
-
-register_feature name="gather-features" code=`
-  env.feature('delayed');
-  // мечта: var d = vz.get('delayed'); или что-то типа..
-  // но это статическая загрузка модулей.. можно будет типа reg-feature imports={d:delayed,...}
-  // ну или еще как
-  var dp = env.delayed(process);
-
-  env.on("childrenChanged",dp);
-
-  let unsubs = [];
-  function clear_unsubs() { unsubs.forEach( q => q() ); unsubs = []; }
-
-  function process() {
-    clear_unsubs();
-    let my = [];
-    for (let c of env.ns.getChildren()) {
-      let unsub = c.trackParam('output',(oo) => {
-        // кстати вот было бы прикольно тут логи добавлять..
-        // чтобы как бы объекты писали в воздухе..
-        //console.log("gather-features child va changed")
-        //debugger;
-        dp();
-      });
-      unsubs.push(unsub);
-      //if (!c.is_feature_applied("dbg-3d-feature")) continue;
-      if (c.params.output && Array.isArray(c.params.output))
-          my = my.concat(c.params.output); // ладно уж пущай массив сразу, тогда flat не надо
-          //my.push( c.params.output ); // вот в этот момент gather-features стала у нас рекурсивной
-    }
-    //my = my.flat(10);
-    
-    env.setParam("output",my);
-  }
-  process();
-  
-  // env.vz.importAsParametrizedFeature( { type: "dbg", params { }})
-  // вот как бы нам добавить такое
-  //env.$dbg_info = {radius: 30};
-  /*
-  env.on('dbg-add',(opts) => {
-     opts.radius=130;
-  } );
-  */
-`;
-
-register_feature name="dbg-3d-feature" code=`
-  env.setParam("output", [env] );
-`;
-
+///////////////////////////// утилита dbg и другие
 
 // меняет отладочную информацию по данному узлу в визуальном дереве
 register_feature name="dbg" code=`
@@ -79,6 +30,13 @@ register_feature name="get_param" code=`
       env.setParam( "output", input.getParam( name ) );
   })
 `;
+
+register_feature name="install_explorer_feature" {
+  rt: {
+    deploy_features {{dbg v=500}} input=@explr  features=(@rt->dat | get_param name="explorer-features");
+    deploy_features {{dbg v=500}} input=@sgraph features=(@rt->dat | get_param name="generator-features");
+    };
+};
 
 /////////////////////////////
 
@@ -124,16 +82,20 @@ scr: screen {
         render-params object=@sgraph;
         render-params object=@explr;
 
-        repeater model=@gf1->output
+        repeater model=@vf1->output
         {
-          cb: checkbox text=(@.->modelData | get_param name="title") value=false {
-            if condition=@..->value {
+          cb: column {
+            cbb: checkbox text=(@cb->modelData | get_param name="title") value=false {{ dbg }};
+            if condition=@cbb->value {
               {
-                deploy_features {{dbg v=500}} input=@explr features=(@cb->modelData | get_param name="explorer-features");
-                deploy_features {{dbg v=500}} input=@sgraph features=(@cb->modelData | get_param name="generator-features");
+                render-params object=@fobj;
+                fobj: deploy input=(@cb->modelData | get_param name="body");
+                install_explorer_feature dat=@fobj;
               }
             }
-          }
+            
+         }   
+
         }
       };
 
@@ -287,6 +249,13 @@ register_feature name="add_struc_z_all_0" {
    ;
 };
 
+// то есть вот это у нас - объект управления + пакет добавок (добавляется внешне!)
+// и плюс допом вверху будет гуи-запись. тройное...
+register_feature name="feat_struc_z_all_0" {
+  explorer-features={ struc_z_all_0 {{ dbg }}; }
+  ;
+};
+
 // фича
 register_feature name="struc_z_all_0" code=`
   let lastrec;
@@ -322,6 +291,15 @@ register_feature name="add_struc_golova_naverhu" {
        st: step=20  
          explorer-features={ struc_z_golova_naverhu step=@st->step; }
      }
+  ;
+};
+
+register_feature name="feat_struc_golova_naverhu" {
+  st:
+    {{
+      z-factor: add_slider min=0 max=500 step=10 value=50;
+    }}
+  explorer-features={ struc_z_golova_naverhu step=@st->z-factor; }
   ;
 };
 

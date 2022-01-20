@@ -180,6 +180,7 @@ export function pipe(env)
   var delayed_chain_children = env.delayed(chain_children)
   env.on('appendChild',delayed_chain_children);
   //delayed_chain_children(); // тырнем разик вручную
+  
 
   let created_links = [];
 
