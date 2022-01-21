@@ -476,6 +476,12 @@ export function scene_explorer_3d( env ) {
   });
   env.on("remove",unsub_target);
 
+  let update_once = false;
+  env.addCmd("refresh",() => { 
+
+    update_once=true 
+  })
+
   env.addCheckbox("update_every_beat",false);
 
   var graph;
@@ -489,9 +495,15 @@ export function scene_explorer_3d( env ) {
 
     if (env.params.update_every_beat)
     {}
-    else
-      if (!newgdata.has_changed) return;
-    
+    else {
+      if (update_once)
+      {
+         update_once = false;
+      }
+      else
+      if (!newgdata.has_changed) 
+         return;
+    }
 
     env.setParam("gdata",newgdata); // новые данные тут
 

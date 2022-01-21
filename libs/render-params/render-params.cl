@@ -30,12 +30,12 @@ register_feature name="render-guis" {
 */
 
 register_feature name="render-params" {
-  column gap="0.1em" {
+  rp: column gap="0.1em" {
     link to=".->object" from=@..->object_path tied_to_parent=true; // тут надо maybe что там объект и тогда норм будет..
     repeater model=@getparamnames->output {
       column {
         //text text=@..->modelData;
-        render-one-param obj=@../..->object name=@..->modelData;
+        render-one-param obj=@rp->object name=@..->modelData;
       }
     };
 

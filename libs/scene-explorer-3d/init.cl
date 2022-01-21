@@ -87,7 +87,7 @@ scr: screen {
           cb: column {
             cbb: checkbox text=(@cb->modelData | get_param name="title") value=false {{ dbg }};
             if condition=@cbb->value {
-              {
+              column {
                 render-params object=@fobj;
                 fobj: deploy input=(@cb->modelData | get_param name="body");
                 install_explorer_feature dat=@fobj;
@@ -308,14 +308,20 @@ register_feature name="feat_struc_golova_naverhu" {
 register_feature name="struc_z_golova_naverhu" code=`
   if (!env.params.step) env.params.step = 50;
   let lastrec;
+  let epoch=0;
+
+  env.onvalue("step",() => { 
+    epoch++; 
+    env.host.callCmd("refresh");
+  })
   
   let unsub = env.host.onvalue("gdata",(rec) => {
       let r = -1*env.params.step;
       rec.nodes.forEach( (node) => {
-          if (!node.struc_computed) {
+          if (node.struc_computed != epoch) {
              if (node.object_path)
                  node.fz = node.object_path == "/" ? 0 : node.object_path.split("/").length * r;
-             node.struc_computed = true;
+             node.struc_computed = epoch;
           } 
       })
   });
