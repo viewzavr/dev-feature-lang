@@ -189,7 +189,7 @@ env_pipe
    append_children_envs( pipe, tail );
 
    var input_link_v = input_link.value.replaceAll("->.","->output");
-   pipe.links["input_link"] = { to: "~->input", from: input_link_v}
+   pipe.links["pipe_input_link"] = { to: "~->input", from: input_link_v}
    //return finish_env();
    return pipe;
  }

@@ -297,7 +297,7 @@ register_feature name="add_struc_golova_naverhu" {
 register_feature name="feat_struc_golova_naverhu" {
   st:
     {{
-      z-factor: add_slider min=0 max=500 step=10 value=50;
+      z-factor: param_slider min=0 max=500 step=10 value=50;
     }}
   explorer-features={ struc_z_golova_naverhu step=@st->z-factor; }
   ;
