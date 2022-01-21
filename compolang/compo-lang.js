@@ -536,7 +536,11 @@ export function repeater( env, fopts, envopts ) {
   var created_envs = [];
 
   var pending_perform;
-  env.onvalue("model",(model) => {
+  env.onvalue("model",recreate );
+
+  env.addCmd("refresh",() => recreate( env.params.model ));
+
+  function recreate(model) {
      for (let old_env of created_envs) {
        old_env.remove();
      }
@@ -594,7 +598,7 @@ export function repeater( env, fopts, envopts ) {
           created_envs.push( child_env );
        */   
      });
-  })
+  } // recreate
 }
 
 ////////////////////////////

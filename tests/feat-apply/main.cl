@@ -1,4 +1,4 @@
-load files="lib3dv3 csv params io gui render-params df scene-explorer-3d misc svg";
+load files="lib3dv3 csv params io gui render-params df scene-explorer-3d misc svg set-params";
 
 register_feature name="random" code=`
   env.setParam( "output", Math.random() )
@@ -17,16 +17,18 @@ scr: screen auto_activate {
   column padding="1em" gap="0.5em" {
     text text="number of squares";
     sl1: input_float value=@config->N;
+    button text="regenerate" cmd=@rep->refresh;
     button text="get svg file" {
       download_svg input=@svg1;
     };
     cb_bro: checkbox text="1. Browny";
+    cb_gre: checkbox text="2. Greeny";
   };
 
   svg1: svg-group fill_parent viewbox="0 0 100 100" dom_style_z-index=-1 {
 
     rect width=100 height=100 fill="white";
-    repeater model=@sl1->value
+    rep: repeater model=@sl1->value
     {
       //rect width=10 height=10 x=50 y=(random | num_mul coef=100); 
       rect width=10 height=10 x=(random | num_mul coef=90) y=(random | num_mul coef=90)
@@ -96,10 +98,21 @@ find-objects pattern="** rect krasivoe"
   | arr_filter code="(val,index) => index%2>0"
   | console_log text="###################### rects filtered:"
   | deploy_features features={
-      browny;
+      set_params fill="brown";
+      // browny;
       //set_param target=".->fill" value="brown";
     };
-};    
+};
+
+if condition=@cb_gre->value {
+find-objects pattern="** rect krasivoe" 
+  | console_log text="###################### found rects 1:" 
+  | arr_filter code="(val,index) => index%3 == 0"
+  | console_log text="###################### rects filtered:"
+  | deploy_features features={
+      set_params fill="green";
+    };
+};
 
 
 register_feature name="arr_filter" 
