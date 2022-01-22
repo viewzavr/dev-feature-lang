@@ -1,6 +1,8 @@
 
 /// организует массив записей о фичах
 
+register_feature name="visual-feature" {};
+
 register_feature name="visual-features" code=`
   env.feature('delayed');
   // мечта: var d = vz.get('delayed'); или что-то типа..

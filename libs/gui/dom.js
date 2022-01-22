@@ -192,6 +192,19 @@ export function dom( obj, options={} )
     let target  = obj.combiningDom();
     let inputs = obj.inputObjectsList();
     //let inputs = obj.ns.children;
+
+    // вещь - побороться за правильный порядок. а то они вставляются каждый когда захотят
+    // прочем не помогает порядок сохранять..
+    const frag = document.createDocumentFragment();
+
+    // почистим ко - боремся за порядок
+    /* так мы уже почистили так-то...
+    while (target.firstChild) {
+      //target.firstChild.remove()
+      target.removeChild( target.firstChild );
+    }
+    */
+
     for (let c of inputs) {
       if (c.protected) continue;
 
@@ -208,13 +221,15 @@ export function dom( obj, options={} )
            for (let odd of od) {
              // там в output всякого напихать могут..
              if (odd instanceof Element) {
-               target.appendChild( odd );
+               frag.appendChild( odd );
                //console.log("adding child dom",odd);
                odd.viewzavr_combination_source  = c; // в него прям поселим
              }
            } 
        }
     }
+
+    target.appendChild( frag ); // всех запихнули в правильном порядке..
   }
 
   function clear_viewzavr_dom_children() {

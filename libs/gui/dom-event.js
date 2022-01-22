@@ -21,6 +21,7 @@ export function dom_event( obj )
 
     var o = obj.params.object;
     if (!o) return;
+    if (o.hosted) o = o.host; // такая добавка.. не знаю криминал или нет...
 
     unbind = o.onvalue("dom",() => {
       if (forget_bound_dom) forget_bound_dom();
@@ -49,8 +50,9 @@ export function dom_event( obj )
    if (!obj.params.object) {
       if (obj.hosted) // мы хостируимси - тогда object это хост
         obj.setParam("object",obj.host);
-      else
+      else {
         obj.setParam("object","..");
+      }
    }
 
    obj.on("remove",() => {

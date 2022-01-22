@@ -17,11 +17,16 @@ register_feature name="group" {
 };
 
 register_feature name="svg-group" {
- main:  svg tag="svg" dom_x=@.->x dom_y=@.->y dom_z=@.->z
-            dom_width=@.->width dom_height=@.->height
+ main:  svg tag="svg" x=0 y=0 z=0 dom_viewBox=@.->viewbox svg-attrs-to-dom
+          ;
+/*
+            dom_x=@.->x dom_y=@.->y dom_z=@.->z
+            dom_width=@.->width 
+            dom_height=@.->height
             x=0 y=0 z=0
             dom_viewBox=@.->viewbox
             ;
+*/            
 };
 
 register_feature name="svg-text" {
@@ -43,7 +48,7 @@ register_feature name="svg-attrs-to-dom" {
    dom_z=@.->z
    dom_width=@.->width
    dom_height=@.->height
-       ;  
+   ;
 };
 
 register_feature name="circle" {

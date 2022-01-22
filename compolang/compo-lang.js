@@ -212,6 +212,7 @@ export function pipe(env)
 }
 
 // регистрирует фичу name, code где code это код тела функции на яваскрипте
+// фишка - если у reg feat в детях дано несколько тел, применяются все.
 export function register_feature( env, envopts ) {
   var children = {};
   env.restoreFromDump = (dump,manualParamsMode) => {
@@ -253,19 +254,22 @@ export function register_feature( env, envopts ) {
     }
     var compalang_part = () => {};
     if (Object.keys( children ).length > 0) {
-      var firstc = Object.keys( children )[0];
+      
       compalang_part = (tenv) => {
-        var edump = children[firstc];
-        edump.keepExistingChildren = true; // смехопанорама
-        // но иначе применение фичи может затереть созданное другими фичами или внешним клиентом
-        edump.keepExistingParams = true;
-        tenv.restoreFromDump( edump );  
 
-        // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
-        // todo тут надо scope env делать и детям назначать, или вроде того
-        // но пока обойдемся так
-        tenv.$env_extra_names ||= {};
-        tenv.$env_extra_names[ firstc ] = true;
+        for (let cname of Object.keys( children )) {
+          var edump = children[cname];
+          edump.keepExistingChildren = true; // смехопанорама
+          // но иначе применение фичи может затереть созданное другими фичами или внешним клиентом
+          edump.keepExistingParams = true;
+          tenv.restoreFromDump( edump );  
+
+          // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
+          // todo тут надо scope env делать и детям назначать, или вроде того
+          // но пока обойдемся так
+          tenv.$env_extra_names ||= {};
+          tenv.$env_extra_names[ cname ] = true;
+         }; 
             
         //tenv.vz.createChildrenByDump( dump, obj, manualParamsMode );
       }
@@ -688,9 +692,17 @@ export function find_objects( env  ) {
 }
 
 // ловит события, направляет куда скажут
+
+/* пример:
+     connection event_name="moving" {
+       func code=`console.log(123)`;
+     }
+*/
 export function connection( env, options )
 {
    env.feature("func"); // см выше
+
+   env.addObjRef("object");
 
    var tracking = () => {};;
    env.onvalues(["event_name","object"],(en,obj) => {
@@ -705,6 +717,16 @@ export function connection( env, options )
    env.on("remove",() => {
     tracking(); tracking = ()=>{};
    })
+
+   // такое вот.. как в dom-event
+
+   if (!env.params.object) {
+      if (env.hosted) // мы хостируимси - тогда object это хост
+        env.setParam("object",env.host);
+      else {
+        env.setParam("object","..");
+      }
+   }
    
 }
 
@@ -892,6 +914,33 @@ export function deploy( env )
 
 }
 
+// действует как deploy_many но по команде
+export function creator( env )
+{
+
+  env.addCmd("apply",() => {
+     let input = env.params.input; // можно будет на чилдрен переделать но пока так
+     if (!input) {
+       console.error("creator: got command but input is blank;");
+       return;
+     }
+     let target = env.params.target; // можно будет на чилдрен переделать но пока так
+     if (!target) {
+       console.error("creator: got command but target is blank;");
+       return;
+     }     
+     deploy_normal_env_all(input, target);
+  })
+
+  function deploy_normal_env_all(input,target) {
+      for (let edump of input) {
+        edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
+        var p = env.vz.createSyncFromDump( edump,null,target );
+     }
+ }
+
+}
+
 // создает все объекты из поданного массива описаний
 // подключая их к родителю
 // тут кстати напрашивается сделать case - фильтрацию массива... ну и if через это попробовать сделать например...
@@ -941,6 +990,8 @@ export function deploy_features( env )
      input ||= [];
      if (!Array.isArray(input)) input=[input]; // допускаем что не список а 1 штука
      dodeploy( input, features );
+
+     env.setParam("output",input); // доп-фича - пропускать дальше данные
   });
 
   function dodeploy( objects_arr, features_list ) {
@@ -958,8 +1009,11 @@ export function deploy_features( env )
 
      let to_deploy_to = objects_arr;
 
+
+
      for (let tenv of to_deploy_to) {
       for (let rec of features_list) {
+        console.log("deploy_features is deploying",rec,"to",tenv.getPath())
         let new_feature_env = env.vz.importAsParametrizedFeature( rec, tenv );
         created_envs.push( new_feature_env );
       };

@@ -5,7 +5,7 @@ visual-features.cl
 `;
 
 ///////////////////////////// набираем фичи
-vf1: visual-features {{dbg v=1000}}
+vf1: visual-features
 { // выдает - набор окружений с параметрами {title:..., features1:....., features2: ..... } 
   visual-feature title="Flat mode"   body={feat_struc_z_all_0};
   visual-feature title="Head on top" body={feat_struc_golova_naverhu};
@@ -33,8 +33,8 @@ register_feature name="get_param" code=`
 
 register_feature name="install_explorer_feature" {
   rt: {
-    deploy_features {{dbg v=500}} input=@explr  features=(@rt->dat | get_param name="explorer-features");
-    deploy_features {{dbg v=500}} input=@sgraph features=(@rt->dat | get_param name="generator-features");
+    deploy_features input=@explr  features=(@rt->dat | get_param name="explorer-features");
+    deploy_features input=@sgraph features=(@rt->dat | get_param name="generator-features");
     };
 };
 
@@ -85,7 +85,7 @@ scr: screen {
         repeater model=@vf1->output
         {
           cb: column {
-            cbb: checkbox text=(@cb->modelData | get_param name="title") value=false {{ dbg }};
+            cbb: checkbox text=(@cb->modelData | get_param name="title") value=false;
             if condition=@cbb->value {
               column {
                 render-params object=@fobj;
@@ -113,7 +113,7 @@ scr: screen {
                //update_interval=100
                ;
 
-    explr: scene_explorer_3d {{ dbg v=500 }}
+    explr: scene_explorer_3d
               target=@graph_dom 
               input=@sgraph->output
               /////////struc_z_golova_naverhu
@@ -245,14 +245,14 @@ register_feature name="params_preview_values" code='
 
 // связки
 register_feature name="add_struc_z_all_0" {
-  dbg-3d-feature title="Flat mode" explorer-features={ struc_z_all_0 {{ dbg }}; }
+  dbg-3d-feature title="Flat mode" explorer-features={ struc_z_all_0; }
    ;
 };
 
 // то есть вот это у нас - объект управления + пакет добавок (добавляется внешне!)
 // и плюс допом вверху будет гуи-запись. тройное...
 register_feature name="feat_struc_z_all_0" {
-  explorer-features={ struc_z_all_0 {{ dbg }}; }
+  explorer-features={ struc_z_all_0 ; }
   ;
 };
 

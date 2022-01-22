@@ -24,4 +24,13 @@ export function svg( env ) {
   if (!env.params.tag) env.setParam("tag","svg");
 
   env.feature("dom", {elem_creator_f: f});
+
+  // в свг dom.hidden не катит (которое юзается в dom)
+  // и поэтому вот такое поведение добавляем
+  env.trackParam("visible",(v) => {
+    //debugger;
+    if (env.dom)
+      env.dom.setAttribute("visibility", v ? 'visible' : 'hidden' );
+      //env.dom.visibility = v ? 'visible' : 'hidden';
+  })
 }

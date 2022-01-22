@@ -15,6 +15,8 @@ export function set_params( env )
    env.on('param_changed',(name,value) => {
       channel.setParam( name, value );
    });
+   for (let c of env.getParamsNames())
+      channel.setParam( c, env.getParam(c));
 
    env.on("remove", () => channel.remove() );
 }
