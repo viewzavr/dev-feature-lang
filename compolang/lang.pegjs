@@ -25,6 +25,7 @@
   function new_env( name ) {
     var new_env = { features: {}, params: {}, children: {}, links: {} };
     new_env.$base_url = base_url;
+    new_env.this_is_env = true;
     if (!name) name="item";
     new_env.$name = name;
     return new_env;

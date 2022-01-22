@@ -21,7 +21,7 @@ scr: screen auto_activate {
     text text="Tools";
     button text="Add rect" {
       creator target=@svg1 input={
-        rect width=10 height=10 x=50 y=50 fill="green" stroke="grey" krasivoe {{ dbg }};
+        rect width=10 height=10 x=50 y=50 fill="green" stroke="grey" krasivoe {{ dbg }}
       };
     };
   };
@@ -38,7 +38,7 @@ debugger_screen_r;
 find-objects pattern="** krasivoe" | console_log | deploy_features features={
   hitmove {{
      connection event_name="moving" {
-       func code=`console.log(123)`;
+       func code=`console.log(args[0])`;
      };
   }};
 };

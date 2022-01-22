@@ -60,6 +60,12 @@ function parsed2dump( vz, parsed, base_url ) {
   for (let cc of (parsed.features_list || [])) {
     parsed2dump( vz, cc, base_url );
   }
+  for (let pv of (Object.values(parsed.params) || [])) {
+     if (Array.isArray(pv) && pv[0].this_is_env) {
+        for (let penv of pv)
+           parsed2dump( vz, penv, base_url );
+     }
+  }
   parsed.forcecreate = true;
   parsed.features[ "base_url_tracing" ] = {params: {base_url}};
   //feature("base_url_tracing",{base_url});
@@ -1008,8 +1014,6 @@ export function deploy_features( env )
      }
 
      let to_deploy_to = objects_arr;
-
-
 
      for (let tenv of to_deploy_to) {
       for (let rec of features_list) {

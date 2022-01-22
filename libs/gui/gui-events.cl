@@ -10,6 +10,9 @@ register_feature name="pointermove" {
    dom_event name="pointermove";
 };
 
+
+////////////// хитмув
+//
 register_feature name="hitmove" {
 
    st: {
@@ -20,7 +23,7 @@ register_feature name="hitmove" {
         tenv.setParam("dragging",true);
         tenv.setParam("drag_start_screen_x",args[0].screenX );
         tenv.setParam("drag_start_screen_y",args[0].screenY );
-        tenv.dom.setPointerCapture( args[0].pointerId );
+        tenv.host.dom.setPointerCapture( args[0].pointerId );
       `;
    };
 
