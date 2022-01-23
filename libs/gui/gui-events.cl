@@ -23,7 +23,12 @@ register_feature name="hitmove" {
         tenv.setParam("dragging",true);
         tenv.setParam("drag_start_screen_x",args[0].screenX );
         tenv.setParam("drag_start_screen_y",args[0].screenY );
+           let x = args[0].screenX;
+           let y = args[0].screenY;
+           let dx = x - tenv.params.drag_start_screen_x;
+           let dy = y - tenv.params.drag_start_screen_y;
         tenv.host.dom.setPointerCapture( args[0].pointerId );
+        tenv.emit("start",{x,y,dx,dy});
       `;
    };
 
@@ -35,7 +40,7 @@ register_feature name="hitmove" {
            let y = args[0].screenY;
            let dx = x - tenv.params.drag_start_screen_x;
            let dy = y - tenv.params.drag_start_screen_y;
-           tenv.emit("moving",{dx,dy});
+           tenv.emit("moving",{x,y,dx,dy});
         }
       `;
    };
@@ -44,6 +49,11 @@ register_feature name="hitmove" {
       func st=@st code=`
         let tenv=env.params.st;
         tenv.setParam("dragging",false);
+           let x = args[0].screenX;
+           let y = args[0].screenY;
+           let dx = x - tenv.params.drag_start_screen_x;
+           let dy = y - tenv.params.drag_start_screen_y;        
+        tenv.emit("finish",{x,y,dx,dy});
       `;
    };
 

@@ -24,6 +24,15 @@ scr: screen auto_activate {
         rect width=10 height=10 x=50 y=50 fill="green" stroke="grey" krasivoe {{ dbg }}
       };
     };
+
+/*
+    button text="info" {
+      func svg=@svg1 code=`
+        debugger;
+        console.log( env.params.svg.dom.getClientRect() );
+      `;
+    }
+*/    
   };
 
   svg1: svg-group fill_parent viewbox="0 0 100 100" dom_style_z-index=-1 {
@@ -36,9 +45,29 @@ scr: screen auto_activate {
 debugger_screen_r;
 
 find-objects pattern="** krasivoe" | console_log | deploy_features features={
-  hitmove {{
+   hitmove {{
+     connection event_name="start" {
+       func hm=@hitmove code=`
+         //console.log("start",args[0])
+         let hm = env.params.hm;
+         let obj = env.params.hm.host;
+         hm.startmove = [obj.params.x,obj.params.y];
+       `;
+     };
      connection event_name="moving" {
-       func code=`console.log(args[0])`;
+       func hm=@hitmove canv=@svg1 code=`
+         //console.log(args[0])
+         let hm = env.params.hm;
+         let obj = env.params.hm.host;
+
+         let bb = env.params.canv.dom.getBoundingClientRect();
+         let kx = 100 * args[0].dx / bb.width;
+         let ky = 100 * args[0].dy / bb.height;
+         
+         obj.setParam("x", hm.startmove[0] + kx );
+         obj.setParam("y", hm.startmove[1] + ky );
+       `;
      };
   }};
 };
+// ээх компонент нет

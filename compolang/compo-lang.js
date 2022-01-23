@@ -1020,6 +1020,12 @@ export function deploy_features( env )
         console.log("deploy_features is deploying",rec,"to",tenv.getPath())
         let new_feature_env = env.vz.importAsParametrizedFeature( rec, tenv );
         created_envs.push( new_feature_env );
+
+        // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
+        // todo тут надо scope env делать и детям назначать, или вроде того
+        // но пока обойдемся так
+        new_feature_env.$env_extra_names ||= {};
+        new_feature_env.$env_extra_names[ new_feature_env.$feature_name ] = true;
       };
      };
   }
