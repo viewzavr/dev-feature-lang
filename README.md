@@ -37,7 +37,26 @@ npm install
 npm start
 ```
 
+# Thanks
+
+The project is designed by Pavel Vasev.
+
+Primary co-authors of this project are: Mikhail Bakhterev, Dmitry Manakov.
+
+People influenced on the project:
+Andrey Fedotov, 
+Majid Forghani,
+Ivan Kozmin, 
+Yaroslav Kuznetsov, 
+Valery Patsko, 
+Denis Perevalov,
+Dmitry Philonenko, 
+Konstantin Ryabinin, 
+Maria Vaseva,
+Alexey Svalukhin.
+
+Also thanks to colleagues of [Vladimir Averbukh](https://www.researchgate.net/profile/Vladimir-Averbukh)'s lab at Krasovskii Institute.
 
 # Copyright
 
-2021+ (c) Pavel Vasev. Available with MIT license.
+2022 (c) Pavel Vasev. Available with MIT license.
