@@ -227,6 +227,7 @@ register_feature name="combobox" {
     // мостик из dom в cl
 		dom_event name="change" code=`
       console.log("dom onchange")
+      let object = env.params.object;
 		  if (object.params.values) {
 		  	//object.setParam("output",object.params.values[ object.dom.selectedIndex ]);
 			  object.setParam("value",object.params.values[ object.dom.selectedIndex ], true);
@@ -271,7 +272,7 @@ register_feature name="combobox" {
 */   
 
 register_feature name="tabview" {
-	column index=0 {
+	dastabs: column index=0 {
 		shadow: shadow_dom {
 			row gap="0.15em" {
 				 /// model=@../../..->titles
@@ -280,11 +281,11 @@ register_feature name="tabview" {
 					button text=@.->modelData cmd=@clicked->apply style=@bstyle->output {
 						clicked: setter target="../../../..->index" value=@..->modelIndex;
 
-						bstyle: compute_output selected_idx=@../../../..->index my_idx=@..->modelIndex code=`
+						bstyle: compute_output selected_idx=@dastabs->index my_idx=@..->modelIndex code=`
 						  if (env.params.selected_idx == env.params.my_idx)
 						    return "transform: scale(1.25);"; //font-weight: bolder;" //  border-bottom: 0px;
 						  else
-						    return "opacity: 1";
+						    return "opacity: 1; transform: scale(1);";
 						`;
 					};
 				};

@@ -103,3 +103,23 @@ register_feature name="param_file" code=`
     if (t) t(); t = null;
   });
 `;
+
+register_feature name="param_label" code=`
+  env.feature("param_base"); 
+  var t;
+  env.onvalue( "value", (v) => {
+    env.tgt().setParam( env.ns.name,v) 
+  });
+  function setup() {
+    let tgt = env.tgt();
+    tgt.addLabel( env.paramname(),env.params.value );
+    if (t) t();
+    t = tgt.trackParam( env.paramname(),(v) => {
+      env.setParam("value",v);
+    });
+  }
+  setup();
+  env.on("remove",() => {
+    if (t) t(); t = null;
+  });
+`;

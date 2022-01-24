@@ -579,11 +579,17 @@ export function repeater( env, fopts, envopts ) {
        return;
      }
 
+
+     let target_parent = env.ns.parent;
+     // особый случай - когда репитер сидит в пайпе
+     if (target_parent.is_feature_applied("pipe"))
+        target_parent = target_parent.ns.parent;
+
      model.forEach( (element,eindex) => {
        var edump = children[firstc];
        edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
 
-       var p = env.vz.createSyncFromDump( edump,null,env.ns.parent );
+       var p = env.vz.createSyncFromDump( edump,null,target_parent );
 
        p.then( (child_env) => {
           // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME

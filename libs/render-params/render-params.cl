@@ -1,6 +1,7 @@
 /*
   вход 
-  * object - массив объектов, параметры которых следует нарисовать
+  * objects - массив объектов, параметры которых следует нарисовать
+  * input - массив объектов, параметры которых следует нарисовать
 
   * todo:
   * opened_states - массив что раскрыть а что схлопнуть
@@ -8,7 +9,7 @@
 */
 
 register_feature name="render-guis" {
-  repeater model=@.->objects opened=true {
+  repeater model=@.->input opened=true {{dbg v=1000 }} {
         column {
           button text=@btntitle->output cmd="@pcol->trigger_visible";
           
@@ -23,7 +24,7 @@ register_feature name="render-guis" {
       };
 };
 
-/* вход: input - путь к объекту [или сам объект наверное..ну пусть будет путь]
+/* вход: object_path - путь к объекту
          либо 
          object - прямо  объект
 
@@ -191,7 +192,7 @@ register_feature name="render-param-slider" {
         link from=@../../..->param_path to=".->value" tied_to_parent=true;
         link to=  @../../..->param_path from=".->value" tied_to_parent=true;
       };
-      console_log text="IF2 value=" input=@if2->value;
+      // console_log text="IF2 value=" input=@if2->value;
 
       /*
       dom tag="input" style="width:30px;" {

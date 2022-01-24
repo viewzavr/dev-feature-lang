@@ -163,3 +163,281 @@ export function points_df_input( env ) {
     env.signal("changed");
   })
 }
+
+
+////////////////////////////////////////// mesh
+
+////////////////////////////////////
+export function mesh( env ) {
+  var geometry = new THREE.BufferGeometry();
+  //var material = new THREE.MeshStandardMaterial( {side: THREE.DoubleSide} );
+  //var material = new THREE.MeshPhongMaterial( {
+    var material = new THREE.MeshStandardMaterial( {
+      specular: 0x888888,
+      emissive: 0x000000,
+      shininess: 250,
+      //ambient: 0xffffff,
+      side: THREE.DoubleSide
+  } );
+  var sceneObject = new THREE.Mesh( geometry, material );
+
+  env.setParam("output",sceneObject );
+  // ну да, это правильно, писать в output
+  // потому что pipe-ы вытаскивают именно output
+  // и еще причем мы пишем не в сцену, а просто некий output.
+  // потом обходом это все соберется
+
+  env.feature("delayed");
+  let recompute_normals = env.delayed( () => { 
+    geometry.computeVertexNormals(); 
+    env.emit("normals-recomputed", sceneObject );
+  })
+
+  env.onvalue("positions",(v) => {
+    geometry.setAttribute( 'position', new THREE.BufferAttribute( new Float32Array(v), 3 ) );
+    geometry.needsUpdate = true;
+    recompute_normals();
+  });
+
+  env.onvalue("indices",(v) => {
+    geometry.setIndex( new THREE.BufferAttribute( new Uint32Array(v), 1 ) );
+    geometry.needsUpdate = true;
+    recompute_normals();
+  });
+
+
+  // geometry.computeBoundingSphere();
+  // geometry.setAttribute( 'normal', new THREE.BufferAttribute( new Float32Array(normals), 3 ) );
+
+  env.onvalue("colors",(v) => {
+    if (v?.length > 0) {
+      geometry.setAttribute( 'color', new THREE.BufferAttribute( new Float32Array(v), 3 ) );
+      material.vertexColors = true;
+    }
+    else
+    {
+      geometry.removeAttribute( 'color' );
+      material.vertexColors = false; 
+    }
+    geometry.needsUpdate = true;
+    material.needsUpdate = true;
+  })
+
+  env.onvalue("color",(v) => {
+     material.color = utils.somethingToColor(v);
+     material.needsUpdate = true;
+  });
+  
+  // а вот почему я материал сюда положил, а scale3d - туда????
+  env.onvalue("material",(v) => {
+     // тут разрешаем объект подать, сообразно проверим
+     // а давайте без давайте попробуем.. материал и все..
+     //if (v.params) v = v.params.output;
+     if (!v) return;
+     sceneObject.material = v;
+     material = v;
+     env.signalParam("colors");
+     env.signalParam("color");
+  })
+
+  env.feature("lib3d_visual");
+  // 0.004 scale
+}
+
+/////////////////////////// рисователь нормалей
+import { VertexNormalsHelper } from './three.js/examples/jsm/helpers/VertexNormalsHelper.js';
+/*
+export function render_normals( env ) {
+  env.feature("lib3d_visual");
+
+  let unsub1 = env.host.on("normals-recomputed",(threejsobj) => {
+
+      const helper = new VertexNormalsHelper( threejsobj, 2, 0x00ff00, 1 );
+      env.setParam("output",helper );
+  });
+  env.on("remove",() => {
+    unsub1();
+  })
+}
+*/
+
+/* 
+// выяснилось что а как мы об изменении то узнаем? в three-js нету сигналов никаких..
+// можно конечно change объекта ловить, но это получается на все его change-ы?
+// тем более что нормали это отд сигнал..
+export function render_normals( env ) {
+  env.feature("lib3d_visual");
+
+  function make(threejsobj) {
+      if (threejsobj?.geometry?.attributes?.normal) {
+        const helper = new VertexNormalsHelper( threejsobj, 2, 0x00ff00, 1 );
+        env.setParam("output",helper );
+      }
+      else
+      {
+         setTimeout( () => make(threejsobj), 1000 );
+      }
+    }  
+
+  env.onvalue("input", make );
+  
+}
+*/
+
+export function render_normals( env ) {
+  env.feature("lib3d_visual");
+
+  function make(threejsobj) {
+      if (threejsobj?.geometry?.attributes?.normal) {
+        //let col = env.params.color;
+        let helper = new VertexNormalsHelper( threejsobj, 2, 0x00ff00, 1 );
+        env.setParam("output",helper );
+      }
+      /*
+      else
+      {
+         setTimeout( () => make(threejsobj), 1000 );
+      }
+      */
+    }  
+
+  let unsub1 = () => {};
+  env.onvalue("input", (vzmesh) => {
+    unsub1();
+    unsub1 = vzmesh.on("normals-recomputed",make );
+    if (vzmesh.params.output) make( vzmesh.params.output );
+  } );
+
+  env.on("remove",() => {
+    unsub1();
+  })
+
+  env.onvalues(["color","output"],(v,helper)=> {
+     helper.material.color = utils.somethingToColor(v);
+     helper.material.needsUpdate = true;    
+  })
+
+  env.addSlider("length-of-normal",1,0.5, 10, 0.1);
+  env.onvalues(["length-of-normal","output"],(v,helper)=> {
+    helper.size=v;
+    helper.update(); // получается у нас двойной пересчет...
+  });
+}
+
+///////////////////// модификатор scale3d
+// кстати а вот где - отмена?.. и как ее сделать?.. тут даже канальцев нет...
+export function scale3d( env ) {
+   //env.host.value
+   // идея - групповая ловушка параметров из разных объектов
+   // unsub = vz.onvalue( [ [env.host,"output"], [env,"scale"], (o,s) => {})
+   // и еще можно как-то текущий env добавить в аргументы и тогда отписываться при remove
+
+   let unsub = () => {};
+   let unsub1 = () => {};
+   unsub1 = env.host.onvalue("output",(threejsobj) => {
+     unsub();
+     unsub = env.onvalue( "coef",(coef) => {
+       threejsobj.scale.set( coef,coef,coef );
+     }); 
+   })
+
+   env.on("remove",() => { unsub1(); unsub(); } );
+   
+   // кстати тут вопросов много.. дейсвительно, может быть выгодно действовать сразу на многих
+   // (аля compose) @compose
+   // и потом - вот мы можем добавить управление через какой-то подкласс из иерархии 3д бибилотеки
+   // но вроде интересно - отдельной фичей.. 
+}
+
+/////////////////////
+export function mesh_basic_material ( env ) {
+  env.feature( "mesh_material_common");
+
+  var material = new THREE.MeshBasicMaterial( {
+      //ambient: 0xffffff,
+      side: THREE.DoubleSide
+  } );
+
+  env.setParam("output",material);
+}
+
+export function mesh_material_common ( env ) {
+  env.addColor("color",[ 1, 1, 1] );
+  env.onvalues(["color","output"],(v,material) => material.color.setRGB( v[0],v[1],v[2] ) );
+
+  env.addSlider("opacity",1,0,1,0.01 );
+  env.onvalues(["opacity","output"],(v,material) => {
+    material.opacity=v;
+    material.transparent = (v < 1.0) ? true : false;
+    //material.transparent = true;
+    //material.needsUpdate = true;
+    // короче вот этот needsUpdate это правильно, но - без него идет полезный глюк для отображения Дубинса с чередующимися нормалями
+  });
+}
+
+export function mesh_pbr_material ( env ) {
+  env.feature( "mesh_material_common");
+
+  var material = new THREE.MeshStandardMaterial( {
+      specular: 0x888888,
+      emissive: 0x000000,
+      shininess: 250,
+      //ambient: 0xffffff,
+      side: THREE.DoubleSide
+  } );
+
+  env.setParam("output",material);
+
+
+  env.addColor("emissive",[ 0,0,0 ] );
+  env.onvalue("emissive",(v) => material.emissive.setRGB( v[0],v[1],v[2] ) );
+
+  env.addSlider("metalness",0,0,1,0.01,(v) => {
+    material.metalness=v;
+  })
+  env.addSlider("roughness",1,0,1,0.01,(v) => {
+    material.roughness=v;
+  })
+
+  env.addCheckbox("flat_shading",false,(v) => {
+    material.flatShading=v;
+    material.needsUpdate = true;
+  });
+}
+
+export function mesh_phong_material ( env ) {
+  env.feature( "mesh_material_common");  
+
+  var material = new THREE.MeshPhongMaterial( {
+      specular: 0x888888,
+      emissive: 0x000000,
+      shininess: 250,
+      //ambient: 0xffffff,
+      side: THREE.DoubleSide
+  } );
+
+  env.addColor("specular",[ 0.5, 0.5, 0.5] );
+  env.onvalue("specular",(v) => material.specular.setRGB( v[0],v[1],v[2] ) );
+
+  env.addCheckbox("flat_shading",false,(v) => {
+    material.flatShading=v;
+    material.needsUpdate = true;
+  })  
+
+  env.setParam("output",material);
+}
+
+export function mesh_lambert_material ( env ) {
+env.feature( "mesh_material_common");  
+
+
+  var material = new THREE.MeshLambertMaterial( {
+      emissive: 0x000000,
+      shininess: 250,
+      //ambient: 0xffffff,
+      side: THREE.DoubleSide
+  } );
+
+  env.setParam("output",material);
+
+}

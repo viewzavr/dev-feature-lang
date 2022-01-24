@@ -44,18 +44,19 @@ The project is designed by Pavel Vasev.
 Primary co-authors of this project are: Mikhail Bakhterev, Dmitry Manakov.
 
 People influenced on the project:
-Andrey Fedotov, 
+Andrey Fedotov,
 Majid Forghani,
-Ivan Kozmin, 
-Yaroslav Kuznetsov, 
-Valery Patsko, 
+Ivan Kozmin,
+Yaroslav Kuznetsov,
+Valery Patsko,
 Denis Perevalov,
-Dmitry Philonenko, 
-Konstantin Ryabinin, 
+Dmitry Philonenko,
+Konstantin Ryabinin,
 Maria Vaseva,
 Alexey Svalukhin.
 
-Also thanks to colleagues of [Vladimir Averbukh](https://www.researchgate.net/profile/Vladimir-Averbukh)'s lab at Krasovskii Institute.
+Also thanks to colleagues - Ilya Starodubtsev, Igor Mikhailov, of [Vladimir Averbukh](https://www.researchgate.net/profile/Vladimir-Averbukh)'s lab
+and other departments of Krasovskii Institute.
 
 # Copyright
 
