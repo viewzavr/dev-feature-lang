@@ -67,6 +67,8 @@ register_feature name="render-params" {
     // а кстати классно было бы cmd="(** file_uploads)->recompute"
     connection object=@..->object event_name="gui-added" cmd="@getparamnames->recompute";
 
+    // todo - вставить сюда рекурсию для детей и для фич.. или хотя бы для фич.. можно управляемую @idea
+
   };
 };
 

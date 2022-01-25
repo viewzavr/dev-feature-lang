@@ -1,5 +1,5 @@
 load files="lib3dv3 csv params io gui render-params df
-            scene-explorer-3d vr-vrml.js
+            scene-explorer-3d
             ";
 //load files="gui";
 

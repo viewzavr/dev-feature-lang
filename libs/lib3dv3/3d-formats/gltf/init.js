@@ -18,7 +18,7 @@ export function setup( vz,m ) {
 
 */
 
-export function gltf_render( obj ) {
+export function render_gltf( obj ) {
   obj.feature("lib3d_visual");
 
   var dir = import.meta.url.substr( 0,import.meta.url.lastIndexOf("/") ) 
@@ -40,6 +40,7 @@ export function gltf_render( obj ) {
   });
 */
 
+  obj.setParam("color",[0,0,0]); // что-то белое по умолчанию забеляет..
   obj.onvalue( "color",function(c) {
       obj.colors = c;
   })

@@ -1,0 +1,1 @@
+Paint obj model.

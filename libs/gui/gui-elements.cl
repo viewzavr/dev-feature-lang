@@ -146,7 +146,7 @@ register_feature name="select_color" {
       //if (env.params.inp)
       if (Array.isArray(env.params.inp)) {
           let h=tri2hex( env.params.inp );
-          console.log("CC: computed dom elem color,",h,"from",env.params.inp)
+          //console.log("CC: computed dom elem color,",h,"from",env.params.inp)
           env.setParam("output", h)
       }
       //    return tri2hex( env.params.inp );
