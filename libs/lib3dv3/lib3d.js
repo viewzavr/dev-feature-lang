@@ -180,11 +180,17 @@ export function node3d( env, opts={} ) {
   //env.setParam(opts.output_name || "output", object3d );
 }
 
-// сиречь узел. занимается тем что собирает вложенные окружения.
+// monitor_children_output занимается тем что мониторит окружения детей
+// на предмет параметра output.
+// когда видит какие-то изменения (дети изменились, или output чей-то изменился)
+// то производит пересбор.
+// clear_func - вызывается перед началом пересбора, а затем идет found_func на каждый найденный output
+// и затем finish_func - сбор закончен
 export function f_monitor_children_output( env, opts={} ) {
   
-  var monitor_children_output = ( found_func, clear_func ) => {
+  var monitor_children_output = ( found_func, clear_func, finish_func ) => {
     clear_func ||= ()=>{};
+    finish_func ||= ()=>{};
 
     env.on("childrenChanged", rescan );
 
@@ -201,6 +207,7 @@ export function f_monitor_children_output( env, opts={} ) {
         // todo func?
         found_func( o );
       }
+      finish_func();
     }
   rescan();
   }

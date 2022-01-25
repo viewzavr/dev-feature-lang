@@ -13,7 +13,7 @@ register_feature name="text" {
 register_feature name="file" {
 	dom tag="input" dom_type="file" {
 		dom_event object=@.. name="change" code=`
-		  object.setParam("value",env.params.object.dom.files[0],true)
+		  env.params.object.setParam("value",env.params.object.dom.files[0],true)
 		`;
 	};
 };
@@ -22,7 +22,7 @@ register_feature name="file" {
 register_feature name="color" {
 	dom tag="input" dom_type="file" {
 		dom_event object=@.. name="change" code=`
-		  object.setParam("value",env.params.object.dom.files[0],true)
+		  env.params.object.setParam("value",env.params.object.dom.files[0],true)
 		`;
 	};
 };

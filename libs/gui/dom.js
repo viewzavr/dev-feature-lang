@@ -355,11 +355,19 @@ function delayed( f,delay=0 ) {
 /*
 нужна возможность задавать новое тело для реализации.
 идеи возмьем из вебовского shadow-dom, но тут у нас своя реализация.
+
+смысл - мы меняем поведение родителя на тему dom-комбинации
+в результате родитель начинает собирать dom из детей этого shadow-dom
+при этом список children родителя остается каким был, им можно пользоваться.
+(но при этом shadow_dom не вносится в список детей)
+
 */
 export function shadow_dom( obj, options )
 {
   // 1 модифицировать у парента поведение выбора чего добавлять в дом
   obj.inputObjectsList = () => obj.ns.children;
+  // вот здесь важно - мы меняем поведение родителя, перехватывая его функцию комбинирования
+  // и уводя с его детей на детей этого shadow_dom
   obj.ns.parent.inputObjectsList = () => {
     return obj.inputObjectsList();
   }
@@ -377,3 +385,36 @@ export function shadow_dom( obj, options )
   obj.on("appendChild",obj.rescan_children);
   obj.on("forgetChild",obj.rescan_children);
 }
+
+// dom_group - цель это сделать так, чтобы все дети dom_group попали в dom-комбинацию
+// к родителю
+
+export function dom_group( env ) {
+
+  env.feature("delayed");
+  let rescan_delayed = env.delayed( rescan );
+  env.on("childrenChanged",rescan_delayed);
+
+  function rescan() {
+    env.setParam("output", () => {
+       return env.ns.children.map( 
+          (c) => {
+            let od = c.params.output;
+            if (typeof(od) === "function") od = od();
+            return od;
+          }
+       );
+    } );
+
+    // наш output изменился - надо тыркнуть родителя
+    if (env.ns.parent) 
+        env.ns.parent.callCmd("rescan_children");    
+  }
+
+  // предоставляем апи для нашего дом - это нас дети так тыркать будут
+  env.addCmd("rescan_children",rescan_delayed );
+
+  rescan();
+}
+
+// todo идея передалать dom на f_monitor_children_output

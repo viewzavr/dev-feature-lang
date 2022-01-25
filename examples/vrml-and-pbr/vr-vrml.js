@@ -10,6 +10,9 @@ export function parse_vrml( env )
     var v = vrml.construct_vrml_object_from_text( text );
     var s = vrml.get_vrml_shapes( v );
 
+    if (s.length == 0) 
+      console.error("parse_vrml: warning, imported of VRML returned 0 shapes!")
+
     var v2 = {
       positions: vrml.get_shapes_xyz_arr( s ),
       indices: vrml.get_shapes_indices_arr( s ),

@@ -10,7 +10,7 @@
 
 register_feature name="render-guis" {
   repeater model=@.->input opened=true {{dbg v=1000 }} {
-        column {
+    column {
           button text=@btntitle->output cmd="@pcol->trigger_visible";
           
           pcol: column visible=false { /* @../../..->opened */
