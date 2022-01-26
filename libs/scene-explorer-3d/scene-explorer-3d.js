@@ -54,7 +54,7 @@ export function sibling_connection( env ) {
 
 // добавить все параметры в граф
 export function add_all_params( env ) {
-  env.on("genobj",(obj,rec, id) => {
+  env.host.on("genobj",(obj,rec, id) => {
     // параметры все
     var params = obj.getParamsNames();
     //if (!obj.params.hasOwnProperty("children")) params = params.concat( ["children"] );
@@ -166,6 +166,11 @@ export function add_all_param_refs( env ) {
 // здесь env это env генератора
 function gen( obj,rec, env ) {
   rec ||= create_rec();
+
+  if (Array.isArray(obj)) {
+    obj.forEach( (realobj) => gen( realobj, rec, env ));
+    return rec;
+  }
 
   var id = obj.getPath();
   
@@ -368,7 +373,7 @@ function merge( prevrec, newrec ) {
   return rec;
 }
 
-// задача сделать граф
+// задача сделать граф (сгенерировать структуру данных)
 export function scene_explorer_graph( env ) {
 
   var stop_process = ()=>{};

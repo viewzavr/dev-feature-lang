@@ -14,7 +14,7 @@ export function apply_by_hotkey(env) {
     function f(e) {
 
 
-      if ( e.ctrlKey && ( String.fromCharCode(e.which) == key || String.fromCharCode(e.which) == key.toUpperCase() ) ) {
+      if ( e.altKey && ( String.fromCharCode(e.which) == key || String.fromCharCode(e.which) == key.toUpperCase() ) ) {
         
         env.callCmd( "apply" );
       }

@@ -9,6 +9,7 @@ vf1: visual-features
 { // выдает - набор окружений с параметрами {title:..., features1:....., features2: ..... } 
   visual-feature title="Flat mode"   body={feat_struc_z_all_0};
   visual-feature title="Head on top" body={feat_struc_golova_naverhu};
+  visual-feature title="Filter" body={feat_filter};
   // кстати тут реально можно было бы и карту построить просто... чистово гуи с группами...
   // не знаю зачем я заморачиваюсь...
 };
@@ -49,7 +50,7 @@ register_feature name="two_side_columns" {
 };
 
 register_feature name="debugger_screen_r" {
-  scene-explorer-screen hotkey='q' {{
+  scene-explorer-screen hotkey='s' {{
     apply_by_hotkey hotkey=@.->hotkey {
       rotate_screens;
     };
@@ -82,6 +83,7 @@ scr: screen {
         render-params object=@sgraph;
         render-params object=@explr;
 
+        // установка добавок
         repeater model=@vf1->output
         {
           cb: column {
@@ -333,3 +335,23 @@ register_feature name="struc_z_golova_naverhu" code=`
     })
   });  
 `;
+
+//////////////////// добавка про фильтрацию по имени
+
+
+register_feature name="feat_filter" {
+  st:
+    {{
+      pattern: param_string value="** lib3d-visual";
+    }}
+  generator-features={ graph_filter pattern=@st->pattern; add_all_params; }
+  ;
+};
+
+load files="set-params";
+
+register_feature name="graph_filter" {
+  root: set_params input=@selected->output {
+    selected: find-objects pattern=@root->pattern | console_log text="FILTERED OBJECTS";
+  };
+};
