@@ -45,6 +45,8 @@ export function lines( env ) {
   // todo потом эти все вещи про df вытащить в отдельный фиче-слой
   // и аппендом их добавлять
   env.feature( "lines_df_input" );
+
+  env.setParam("material",material);  
 }
 
 
@@ -83,6 +85,8 @@ export function lib3d_visual( env ) {
   })
 
   //obj.addString("count","0");
+
+
 }
 
 ////////////////////////////////////
@@ -106,6 +110,7 @@ export function points( env ) {
     if (v?.length > 0) {
       geometry.setAttribute( 'color', new THREE.BufferAttribute( new Float32Array(v), 3 ) );
       material.vertexColors = true;
+      env.setParam("color",[1,1,1]); // надо таки сбросить, а то эти цвета начинают на тот перемножаться
     }
     else
     {
@@ -134,6 +139,8 @@ export function points( env ) {
   env.feature( "points_df_input" );
   // но - идея новая, попробовать points с универсальной структурой
   // + затем создать отдельную raw-points без этого
+
+  env.setParam("material",material);  
 }
 
 

@@ -1,3 +1,32 @@
+// df_get
+// вход: input, column
+//   input - датафрейм
+//   column - колонку, которую вытащить
+
+/* пример: @dat | df_get column="X"
+*/
+register_feature name="df_get" 
+  code=`
+  env.setParam("output",[]);
+  env.feature("delayed");
+
+  let delayed_process = env.delayed( process );
+  env.onvalues(["input","column"],delayed_process);
+
+  function process(df,column) {
+    if (!df || !df.isDataFrame) {
+      env.setParam("output",[]);
+      return;
+    }
+
+    //let o = df.get_column( df, column ) || [];
+    let o = df[column] || [];
+    env.setParam("output",o);
+  }
+`;
+
+// df_div - делит колонку column датайферма input на коэффициент coef
+
 register_feature name="df_div" code=`
   env.onvalue("input",process);
   env.onvalue("coef",process);
@@ -18,6 +47,9 @@ register_feature name="df_div" code=`
 // вход: input, code
 //   input - датафрейм
 //   code - код функции, которая применяется построчно и если выдает результат то строка берется
+
+/* пример: @dat | df_filter code="(line) => line.X > 0";
+*/
 register_feature name="df_filter" 
   code=`
   env.onvalues(["input","code"],process);

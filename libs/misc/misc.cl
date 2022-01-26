@@ -78,7 +78,7 @@ register_feature name="download_file_to_user" {
 
 // пример: @arrsource | arr_filter code="(val,index) => index%3 == 0" | console_log
 
-register_feature name="arr_filter" 
+register_feature name="arr_filter"
   code=`
   env.onvalues(["input","code"],process);
 
@@ -102,3 +102,39 @@ register_feature name="arr_filter"
 `;
 
 
+register_feature name="arr_find_min_max" code=`
+  env.onvalues(["input"],process);
+
+  env.addCmd("refresh",() => process( env.params.input ));
+
+  function compute_array_minmax( arr,min=10e10,max=-10e10 ) {
+    for (var i=0; i<arr.length; i++) {
+      var v = arr[i];
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+    return {min: min, max:max, diff: (max-min)};
+  }
+
+  function isTypedArray(obj)
+  {
+    return !!obj && obj.byteLength !== undefined;
+  }
+
+  function process(arr) {
+
+    if (!(Array.isArray(arr) || isTypedArray(arr))) {
+      console.error("arr_find_min_max: not an array on input",arr);
+      return;
+    }
+
+    let res = compute_array_minmax( arr );
+
+    
+    env.setParam("min",res.min);
+    env.setParam("max",res.max);
+    env.setParam("diff",res.diff);
+
+    env.setParam("output",res)
+  }
+`;

@@ -676,9 +676,11 @@ export function compute_output( env ) {
      var func = new Function('env',env.params.code)
      var res = func( env );
 
-    //var res = eval( env.params.code );
-    env.setParam("output",res);
+     //var res = eval( env.params.code );
+     env.setParam("output",res);
     }
+    else
+      console.log("compute_output: code not specified",env.getPath())
   }
 
   env.feature("delayed");
