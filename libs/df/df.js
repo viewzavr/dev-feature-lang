@@ -12,13 +12,25 @@ export function create() {
   return df;
 }
 
-export function add_column( df, name, values ) {
+export function add_column( df, name, values, is_unshift ) {
   if (df.colnames.indexOf(name) < 0)
-    df.colnames.push( name );
+  {
+    if (is_unshift)
+      df.colnames.unshift( name );
+    else
+      df.colnames.push( name );
+  }
   values ||= [];
   df[name] = values;
   if (values.length > df.length) df.length = values.length;
   return df;
+}
+
+export function remove_column( df, name ) {
+  delete df[name];
+  let ind = df.colnames.indexOf(name) 
+  if (ind >=0 )
+    df.colnames.splice( ind,1 );
 }
 
 export function get_column_names( df ) {
@@ -97,6 +109,7 @@ export function create_from_df_no_slice( src ) {
   return r;
 }
 
+// filter_func получает на вход аргумент - ассоциативный массив имяколонки->значение.
 export function create_from_df_filter( src, filter_func ) {
   var r = create();
   var good_indices = [];
@@ -128,7 +141,6 @@ export function create_from_df_filter( src, filter_func ) {
 // оставляет только каждую step-тую строку
 export function skip_every( src,step ) {
   var r = create();
-  
 
   get_column_names(src).forEach( function(name) {
     var newarr = [];

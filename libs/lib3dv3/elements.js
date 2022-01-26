@@ -147,7 +147,7 @@ export function points( env ) {
 
   // todo потом эти все вещи про df вытащить в отдельный фиче-слой
   // и аппендом их добавлять
-  env.feature( "points_df_input" );
+  //env.feature( "points_df_input" );
 }
 
 // добавляет input, подразумевая под этим data-frame
@@ -161,7 +161,7 @@ export function points_df_input( env ) {
     env.setParam("radiuses", dat.RADIUS || [] );
     env.setParam("count",env.params.positions.length / 3);
     env.signal("changed");
-  })
+  });
 }
 
 

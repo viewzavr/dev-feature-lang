@@ -187,6 +187,12 @@ export function pipe(env)
   env.on('appendChild',delayed_chain_children);
   //delayed_chain_children(); // тырнем разик вручную
   
+  // микрофича - передать команду apply первому ребенку
+  env.addCmd("apply",(...args) => {
+    let firct_child = env.ns.children[0];
+    if (firct_child)
+      firct_child.callCmd("apply",...args);
+  });
 
   let created_links = [];
 
@@ -356,6 +362,8 @@ export function setter( env )
    env.addObjectRef("object","");
 
    env.addCmd( "apply",() => {
+      //console.log("called setter apply. value=",env.params.value);
+
       if (env.params.target) {
         var arr = env.params.target.split("->");
         var tobj = env.findByPath( arr[0] );

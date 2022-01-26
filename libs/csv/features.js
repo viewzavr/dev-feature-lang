@@ -15,6 +15,36 @@ export function parse_csv( env ) {
   })
 }
 
+// генерирует текст csv из df
+export function generate_csv( env ) {
+
+  env.addCmd("apply",perform);
+
+  function perform() {
+    let src = env.params.input;
+    if (!df.is_df(src)) {
+      console.error( "generate_csv: input is not data-frame",src);
+      return;
+    }
+    console.log('generate_csv: performing');    
+    
+    let cols = df.get_column_names( src );
+    let text = cols.join(",");
+    let len = df.get_length( src );
+
+    for (var i=0; i<len; i++) {
+      // подготовим строку
+      let line = cols.map( (name) =>  df.get_column(src,name)[i] );
+      text = text + "\n" + line.join(",");
+    }
+
+    console.log('generate_csv: setting output');
+    env.setParam("output","");
+    env.setParam("output",text);
+  };
+
+}
+
 // тут set считается что в своем окружении и опирается на параметры этого окружения
 export function set( env, opts ) {
  //Object.keys( args ) 

@@ -16,6 +16,7 @@ register_feature name="download_svg" {
 
 // input: svg element
 // output: it's text representation
+// performs only when `apply` cmd is called
 register_feature name="generate_svg" {
   func code=`
     
@@ -33,38 +34,3 @@ register_feature name="generate_svg" {
   `;
 };
 
-// идея что оно получает input и команду apply?
-// или просто input? и как поменялся - выдаем файл?
-
-// downloads specified file to a users browser
-// inputs: 
-//  * input - text content,  
-//  * filename - filename
-// when input changed, a new file is downloaded
-
-register_feature name="download_file_to_user" {
-  js code=`
-      // https://stackoverflow.com/a/30832210
-    // Function to download data to a file
-    function download(data, filename, type) {
-        var file = new Blob([data], {type: type});
-            var a = document.createElement("a"),
-                    url = URL.createObjectURL(file);
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(function() {
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-            }, 0);
-    }
-
-    // это у нас синхро-сигнал
-    env.onvalue("input",(input) => {
-      if (!input || input.length == 0) return;
-
-      download( input, env.params.filename || "file")
-    });
-  `;
-};

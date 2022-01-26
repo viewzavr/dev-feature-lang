@@ -18,6 +18,56 @@ register_feature name="fill_parent" {
 };
 
 
+// идея что оно получает input и команду apply?
+// или просто input? и как поменялся - выдаем файл?
+
+// downloads specified file to a users browser
+// inputs: 
+//  * input - text content,  
+//  * filename - filename
+// when input changed, a new file is downloaded
+
+/*
+  button {
+    func {
+      sv1: generate_svg input=@..->input;
+      download_file_to_user filename="kartina.svg" input=@sv1->output;
+    };
+  };
+*/
+
+register_feature name="download_file_to_user" {
+  js code=`
+      // https://stackoverflow.com/a/30832210
+    // Function to download data to a file
+    function download(data, filename, type) {
+        var file = new Blob([data], {type: type});
+            var a = document.createElement("a"),
+                    url = URL.createObjectURL(file);
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function() {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 0);
+    }
+
+    // это у нас синхро-сигнал
+    env.onvalue("input",(input) => {
+      if (!input || input.length == 0) {
+        console.error("download_file_to_user: input is empty")
+        return;
+      }
+      console.log("download_file_to_user: downloading");
+
+      download( input, env.params.filename || "file")
+    });
+  `;
+};
+
+
 ////////
 // вход:
 // input - массив
@@ -50,3 +100,5 @@ register_feature name="arr_filter"
     env.setParam("output",res);
   }
 `;
+
+

@@ -8,5 +8,6 @@ linestrips.js
 3d-formats/gltf/init.js
 3d-formats/vrml/vr-vrml.js
 3d-formats/obj/vr-obj.js
+3d-formats/vtk-points/vr-vtk-points.js
 `;
 

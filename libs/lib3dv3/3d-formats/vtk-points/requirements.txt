@@ -1,0 +1,6 @@
+# R-POINTS
+Need to visualize points from lava project.
+
+## F-VTKPOINTS
+Lava project has VTK output.
+Load points as VTK using threejs VTK loader.
