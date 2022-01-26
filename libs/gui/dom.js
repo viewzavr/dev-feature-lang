@@ -65,6 +65,9 @@ export function dom( obj, options={} )
   });
 
   // todo в будущем можно сделать аттрибут фичи, типа dom.attr, dom. и dom.style ....
+  // dom_, dom_attr_ = аттрибут dom
+  // dom_obj_ - поле объекта dom
+  // dom_style_ - кусочек стиля
   function maybe_apply_dom_attr( name, value ) {
     if (obj.dom && (name.startsWith("dom_") && !name.startsWith("dom_obj_") && !name.startsWith("dom_style_"))) {
        name = name.substring(4);
