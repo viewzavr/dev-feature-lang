@@ -81,6 +81,7 @@ export function mesh_phong_material ( env ) {
 }
 
 
+// https://threejs.org/docs/?q=stan#api/en/materials/MeshStandardMaterial
 export function mesh_std_material ( env ) {
   env.feature( "mesh_material_common");
 
@@ -109,7 +110,12 @@ export function mesh_std_material ( env ) {
     material.flatShading=v;
     material.needsUpdate = true;
   });
+
+    env.addLabel("help","<a href='https://threejs.org/docs/?q=stan#api/en/materials/MeshStandardMaterial' target='_blank'>threejs docs</a>");
 }
+
+// https://threejs.org/docs/#api/en/materials/MeshPhysicalMaterial
+// todo add help link...
 
 export function mesh_pbr_material ( env ) {
   env.feature( "mesh_material_common");
@@ -151,4 +157,6 @@ export function mesh_pbr_material ( env ) {
     material.flatShading=v;
     material.needsUpdate = true;
   });
+
+  env.addLabel("help","<a href='https://threejs.org/docs/?q=stan#api/en/materials/MeshPhysicalMaterial' target='_blank'>threejs docs</a>");
 }
