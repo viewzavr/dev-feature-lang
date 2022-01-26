@@ -8,16 +8,6 @@ export function setup(vz, m) {
 ///////////////////// набор окружений про материалы
 // output = материал threejs
 
-export function mesh_basic_material ( env ) {
-  env.feature( "mesh_material_common");
-
-  var material = new THREE.MeshBasicMaterial( {
-      //ambient: 0xffffff,
-      side: THREE.DoubleSide
-  } );
-
-  env.setParam("output",material);
-}
 
 export function mesh_material_common ( env ) {
   env.addColor("color",[ 1, 1, 1] );
@@ -33,7 +23,65 @@ export function mesh_material_common ( env ) {
   });
 }
 
-export function mesh_pbr_material ( env ) {
+export function mesh_basic_material ( env ) {
+  env.feature( "mesh_material_common");
+
+  var material = new THREE.MeshBasicMaterial( {
+      //ambient: 0xffffff,
+      side: THREE.DoubleSide
+  } );
+
+  env.setParam("output",material);
+}
+
+export function mesh_lambert_material ( env ) {
+env.feature( "mesh_material_common");  
+
+
+  var material = new THREE.MeshLambertMaterial( {
+      emissive: 0x000000,
+      shininess: 250,
+      //ambient: 0xffffff,
+      side: THREE.DoubleSide
+  } );
+
+  env.setParam("output",material);
+
+}
+
+
+
+export function mesh_phong_material ( env ) {
+  env.feature( "mesh_material_common");  
+
+  var material = new THREE.MeshPhongMaterial( {
+      specular: 0x888888,
+      emissive: 0x000000,
+      shininess: 250,
+      //ambient: 0xffffff,
+      side: THREE.DoubleSide
+  } );
+
+  env.addColor("emissive",[ 0,0,0 ] );
+  env.onvalue("emissive",(v) => material.emissive.setRGB( v[0],v[1],v[2] ) );
+
+  env.addColor("specular",[ 0.5, 0.5, 0.5] );
+  env.onvalue("specular",(v) => material.specular.setRGB( v[0],v[1],v[2] ) );
+
+  env.addSlider("specular_shininess",30,0,100,1,(v) => {
+    material.shininess=v;
+  })
+
+  env.addCheckbox("flat_shading",false,(v) => {
+    material.flatShading=v;
+    material.needsUpdate = true;
+  })  
+
+  env.setParam("output",material);
+}
+
+
+export function mesh_std_material ( env ) {
   env.feature( "mesh_material_common");
 
   var material = new THREE.MeshStandardMaterial( {
@@ -63,10 +111,10 @@ export function mesh_pbr_material ( env ) {
   });
 }
 
-export function mesh_phong_material ( env ) {
-  env.feature( "mesh_material_common");  
+export function mesh_pbr_material ( env ) {
+  env.feature( "mesh_material_common");
 
-  var material = new THREE.MeshPhongMaterial( {
+  var material = new THREE.MeshPhysicalMaterial( {
       specular: 0x888888,
       emissive: 0x000000,
       shininess: 250,
@@ -74,28 +122,33 @@ export function mesh_phong_material ( env ) {
       side: THREE.DoubleSide
   } );
 
-  env.addColor("specular",[ 0.5, 0.5, 0.5] );
-  env.onvalue("specular",(v) => material.specular.setRGB( v[0],v[1],v[2] ) );
+  env.setParam("output",material);
+
+  env.addColor("emissive",[ 0,0,0 ] );
+  env.onvalue("emissive",(v) => material.emissive.setRGB( v[0],v[1],v[2] ) );
+
+  env.addSlider("metalness",0,0,1,0.01,(v) => {
+    material.metalness=v;
+  })
+  env.addSlider("roughness",1,0,1,0.01,(v) => {
+    material.roughness=v;
+  })
+
+  env.addSlider("transmission",1,0,1,0.01,(v) => {
+    material.transmission=v;
+    material.opacity = 1;
+    material.transparent = (material.transmission > 0);
+  });
+
+  env.addSlider("clearcoat",1,0,1,0.01,(v) => {
+    material.clearcoat=v;
+  });
+
+  // todo:
+  // .ior : Float .reflectivity : Float .sheen : Float
 
   env.addCheckbox("flat_shading",false,(v) => {
     material.flatShading=v;
     material.needsUpdate = true;
-  })  
-
-  env.setParam("output",material);
-}
-
-export function mesh_lambert_material ( env ) {
-env.feature( "mesh_material_common");  
-
-
-  var material = new THREE.MeshLambertMaterial( {
-      emissive: 0x000000,
-      shininess: 250,
-      //ambient: 0xffffff,
-      side: THREE.DoubleSide
-  } );
-
-  env.setParam("output",material);
-
+  });
 }

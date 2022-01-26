@@ -8,7 +8,7 @@ render3d bgcolor=[0.1,0.2,0.3] target=@view
     orbit_control;
     camera3d pos=[0,0,40] center=[0,0,0];
 
-    model: render_gltf src="http://viewlang.ru/assets/models/Lake_IV_Heavy.glb" showparams dbg 
+    model: render_gltf src="https://viewlang.ru/assets/models/Lake_IV_Heavy.glb" showparams dbg 
        rotations=@rall->output {{ scale3d coef=@rs->value; }} ;
 
     points positions=[0,0,0,50,0,0,0,50,0];

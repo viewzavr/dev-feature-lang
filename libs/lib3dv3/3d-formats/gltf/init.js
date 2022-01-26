@@ -160,7 +160,7 @@ export function render_gltf( obj ) {
     // btw think something about caching on local File's
 
     
-    let threejs_url = dir + "/../three.js";
+    let threejs_url = dir + "/../../three.js";
     import( threejs_url + "/examples/jsm/loaders/GLTFLoader.js").then(function(m1) {
     import( threejs_url + "/examples/jsm/loaders/DRACOLoader.js").then(function(m2) {
       // Instantiate a loader

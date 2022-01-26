@@ -15,13 +15,14 @@ export function parse_vtk_points( env ) {
   
 }
 
+// попытки сделать рисование структуры типа vtk
 export function render_vtk_points( env, opts ) {
    env.feature("points");
 
    env.onvalue("input",(data) => {
       env.setParam("positions",data.XYZ);
       //env.setParam("colors",objdata.colors);
-   });  
+   });
 }
 
 export function points_vtk_input ( env, opts ) {

@@ -10,7 +10,7 @@ render3d bgcolor=[0.1,0.2,0.3] target=@view
 
     dat: load_file_binary file="https://viewlang.ru/assets/lava2/ParticleData_Fluid_1192.vtk" | parse_vtk_points;
 
-    @dat | points points_vtk_input showparams dbg 
+    @dat | points showparams dbg 
        {{ scale3d coef=0.05 showparams; 
           rotate3d showparams;
           color3d color=[0,1,0] showparams;

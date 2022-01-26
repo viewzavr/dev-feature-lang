@@ -29,19 +29,12 @@ mainscreen: screen auto-activate padding="1em" {
       tab text="PBR" { render-params object=@m4;}; 
     };
 
-    find-objects pattern="** manage_too" | console_log | render-guis;
-/*    
-    text text="M1";
-    render-params object=@m1;
-    text text="M2";
-    render-params object=@m2;
+    // было бы интригующе если бы эти все материалы были в одном окружении
+    // ну выбиралось бы какое-то текущее, а при этом общие параметры
+    // оставались бы общими. но быть может это правильнее сделать через
+    // сохранение и передачу состояния.
 
-    column {
-      text text="Material options"
-      find-objects pattern="** mat1" | console_log | render-guis;
-    };
-*/    
-    
+    find-objects pattern="** manage_too" | console_log | render-guis;
   };
 
   v1: view3d style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2";
@@ -53,7 +46,7 @@ mainscreen: screen auto-activate padding="1em" {
     camera3d pos=[0,0,100] center=[0,0,0];
     orbit_control;
 
-    @vrmlobject | vrml_render: render_vrml {{ dbg }} {{ scale3d coef=0.004 }}
+    @vrmlobject | vrml_render: mesh {{ dbg }} {{ scale3d coef=0.004 }}
     {{
       link to=".->material" from=@matptr->output;
     }};

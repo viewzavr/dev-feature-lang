@@ -85,22 +85,6 @@ export function lib3d_visual( env ) {
   //obj.addString("count","0");
 }
 
-// добавляет input, подразумевая под этим data-frame
-export function lines_df_input( env ) {
-  env.onvalue("input",(df) => {
-    //console.log("gonna paint df=",df);
-    var dat = df;
-    env.setParam("positions", utils.combine( [ dat.X, dat.Y, dat.Z, dat.X2, dat.Y2, dat.Z2 ] ) );
-    if (dat.R2)
-      env.setParam("colors", utils.combine( [ dat.R, dat.G, dat.B,dat.R2, dat.G2, dat.B2 ] ) );
-    else
-      env.setParam("colors", utils.combine( [ dat.R, dat.G, dat.B, dat.R, dat.G, dat.B ] ) ); 
-    env.setParam("radiuses", dat.RADIUS || [] );
-    env.setParam("count",env.params.positions.length / 3);
-    env.signal("changed");
-  })
-}
-
 ////////////////////////////////////
 export function points( env ) {
   var geometry = new THREE.BufferGeometry();
@@ -147,21 +131,9 @@ export function points( env ) {
 
   // todo потом эти все вещи про df вытащить в отдельный фиче-слой
   // и аппендом их добавлять
-  //env.feature( "points_df_input" );
-}
-
-// добавляет input, подразумевая под этим data-frame
-export function points_df_input( env ) {
-  env.onvalue("input",(df) => {
-    console.log("gonna paint df=",df);
-    var dat = df;
-    env.setParam("positions", utils.combine( [ dat.X, dat.Y, dat.Z ] ) );
-    if (dat.R)
-      env.setParam("colors", utils.combine( [ dat.R, dat.G, dat.B ] ) );
-    env.setParam("radiuses", dat.RADIUS || [] );
-    env.setParam("count",env.params.positions.length / 3);
-    env.signal("changed");
-  });
+  env.feature( "points_df_input" );
+  // но - идея новая, попробовать points с универсальной структурой
+  // + затем создать отдельную raw-points без этого
 }
 
 
@@ -244,6 +216,89 @@ export function mesh( env ) {
 
   env.feature("lib3d_visual");
   // 0.004 scale
+
+  env.feature("mesh_df_input");
+}
+
+
+///////////////////// история про df-input
+// заключается в попытке дать окружениям рисования некий стандартный вход
+// который затем можно было бы использовать так, чтобы разные loaders
+// выдавали структуру подобного формата на вход рисовалкам.
+
+// добавляет input, подразумевая под этим data-frame
+// считаем это универсальной структурой (попыткой ее создать)
+export function points_df_input( env ) {
+  env.onvalue("input",(df) => {
+    console.log("gonna paint df=",df);
+    var dat = df;
+    if (dat.XYZ || dat.positions)
+      env.setParam("positions", dat.XYZ || dat.positions );  
+    else
+      env.setParam("positions", utils.combine( [ dat.X, dat.Y, dat.Z ] ) );
+
+    if (dat.colors)
+      env.setParam("colors", dat.colors );
+    else
+    if (dat.R && dat.G && dat.B)
+      env.setParam("colors", utils.combine( [ dat.R, dat.G, dat.B ] ) );
+
+    env.setParam("radiuses", dat.RADIUS || [] );
+    env.setParam("count",env.params.positions.length / 3);
+    env.signal("changed");
+  });
+}
+
+
+// добавляет input, подразумевая под этим data-frame
+export function lines_df_input( env ) {
+  env.onvalue("input",(df) => {
+    //console.log("gonna paint df=",df);
+    var dat = df;
+
+    if (dat.XYZ || dat.positions)
+      env.setParam("positions", dat.XYZ || dat.positions );  
+    else
+      env.setParam("positions", utils.combine( [ dat.X, dat.Y, dat.Z, dat.X2, dat.Y2, dat.Z2 ] ) );
+
+    if (dat.colors)
+      env.setParam("colors", dat.colors );
+    else
+    if (dat.R2 && dat.G2 && dat.B2)
+      env.setParam("colors", utils.combine( [ dat.R, dat.G, dat.B,dat.R2, dat.G2, dat.B2 ] ) );
+    else
+    if (dat.R && dat.G && dat.B)
+      env.setParam("colors", utils.combine( [ dat.R, dat.G, dat.B, dat.R, dat.G, dat.B ] ) ); 
+
+    env.setParam("radiuses", dat.RADIUS || [] );
+    env.setParam("count",env.params.positions.length / 6);
+    env.signal("changed");
+  })
+}
+
+// добавляет input, подразумевая под этим data-frame
+// считаем это универсальной структурой (попыткой ее создать)
+export function mesh_df_input( env ) {
+  env.onvalue("input",(df) => {
+    console.log("gonna paint df=",df);
+    var dat = df;
+    if (dat.XYZ || dat.positions)
+      env.setParam("positions", dat.XYZ || dat.positions );  
+    else
+      env.setParam("positions", utils.combine( [ dat.X, dat.Y, dat.Z ] ) );
+
+    if ( dat.indices)
+      env.setParam("indices",dat.indices);
+
+    if (dat.colors)
+      env.setParam("colors", dat.colors );
+    else
+    if (dat.R && dat.G && dat.B)
+      env.setParam("colors", utils.combine( [ dat.R, dat.G, dat.B ] ) );
+
+    env.setParam("count",env.params.positions.length / 3);
+    env.signal("changed");
+  });
 }
 
 /////////////////////////// рисователь нормалей
