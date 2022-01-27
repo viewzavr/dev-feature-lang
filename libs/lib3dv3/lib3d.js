@@ -177,8 +177,16 @@ export function node3d( env, opts={} ) {
   rescan();
 
   //env.object3d = object3d;
-  //env.setParam(opts.output_name || "output", object3d );
+  if (!env.params.output)
+     env.setParam( "output", object3d );
 }
+
+/*
+export function group3d( env ) {
+  env.feature("node3d");
+  env.setParam("output", env.object3d );
+}
+*/
 
 // monitor_children_output занимается тем что мониторит окружения детей
 // на предмет параметра output.

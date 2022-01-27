@@ -8,19 +8,38 @@ render3d bgcolor=[0.1,0.2,0.3] target=@view
     orbit_control;
     camera3d pos=[0,0,40] center=[0,0,0];
 
+    text3d_one text="privet111" showparams;
+
+    ////////////////////////////////////// лава
+
+
     dat: load_file_binary file="https://viewlang.ru/assets/lava2/ParticleData_Fluid_1192.vtk" | parse_vtk_points;
 
+    rep: repeater model=(compute_output in=@dat->output code=`return env.params?.in?.colnames`) {
+      pts: node3d {
 
-    @dat | points showparams dbg 
-       {{ scale3d coef=0.05 showparams; 
+        @dat | points {{ scale3d coef=0.05; 
+           pos3d y=(compute_output in=@pts->modelIndex code=`return env.params.in*5`);
+        }} colors=( @dat | df_get column=@pts->modelData | arr_to_colors );
+
+        text3d_one text=@pts->modelData {{
+          pos3d y=(compute_output in=@pts->modelIndex code=`return env.params.in*5 + 90`)
+                x=60 z=-130;
+
+         }};
+      };
+        
+    };
+
+    ////////////////////////////////////// вулкан
+
+    obj: load_file file="http://viewlang.ru/assets/models/lava/rb_data_0_1.obj" | parse_obj;
+
+    @obj | mesh showparams dbg 
+       {{ scale3d  showparams coef=0.05; 
           rotate3d showparams;
           color3d color=[0,1,0] showparams;
-       }} colors=( @dat | df_get column=@cbcol->value | arr_to_colors showparams );
-
-    // вот было бы интересно репитером пройтись.. но тогда их всех надо сдвигать   
-    // но кстати хотя бы ненамного, друг над дружкой..
-
-    points positions=[0,0,0,50,0,0,0,50,0];
+       }} material = @me1->output_material;    
 };
 
 /// интерфейс пользователя gui
@@ -38,8 +57,8 @@ screen auto-activate {
 
     text text="Select column to colorize";
     cbcol: combobox values=(compute_output in=@dat->output code=`return env.params?.in?.colnames`);
-    // вот тут идея сделать checkbox-group.... и выбирать галками слои...
 
+    text text="Select material for surface";
     me1: material_gui;
   };
 

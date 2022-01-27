@@ -32,6 +32,28 @@ export function scale3d( env ) {
    env.addSlider("coef",1,0,10,0.0001);
 }
 
+///////////////////// модификатор pos3d
+// кстати а вот где - отмена?.. и как ее сделать?.. тут даже канальцев нет...
+export function pos3d( env ) {
+   
+   let unsub = () => {};
+   let unsub1 = () => {};
+   unsub1 = env.host.onvalue("output",(threejsobj) => {
+     unsub();
+     unsub = env.onvalues_any( ["x","y","z"],(x,y,z) => {
+       if (isFinite(x)) threejsobj.position.x=x;
+       if (isFinite(y)) threejsobj.position.y=y;
+       if (isFinite(z)) threejsobj.position.z=z;
+     });
+   });
+
+   env.on("remove",() => { unsub1(); unsub(); } );
+   
+   env.addFloat("x",0);
+   env.addFloat("y",0);
+   env.addFloat("z",0);
+}
+
 ///////////////////// модификатор rotate3d
 // вход angles - в радианах
 // идея - сделать в углах, и мб по отдельности.. а может быть разные модификаторы - проще будет..

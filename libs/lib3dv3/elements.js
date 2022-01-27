@@ -47,6 +47,8 @@ export function lines( env ) {
   env.feature( "lines_df_input" );
 
   env.setParam("material",material);  
+
+  env.feature("node3d",{object3d: sceneObject});s
 }
 
 
@@ -141,6 +143,8 @@ export function points( env ) {
   // + затем создать отдельную raw-points без этого
 
   env.setParam("material",material);  
+
+  env.feature("node3d",{object3d: sceneObject});
 }
 
 

@@ -26,7 +26,7 @@ screen auto-activate {
   column padding="1em" style="z-index: 3; position:absolute;" {
     find-objects pattern="** showparams" | render-guis with_features=true;
 
-    me1: material_gui;
+    
   };
 
   view: view3d style="position: absolute; width:100%; height: 100%; z-index:-2";
@@ -36,4 +36,3 @@ screen auto-activate {
 ///////////////////// визуальная отладка
 
 debugger_screen_r;
-s
