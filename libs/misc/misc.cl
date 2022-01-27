@@ -101,6 +101,39 @@ register_feature name="arr_filter"
   }
 `;
 
+//////// arr_map
+// вход:
+// input - массив
+// code  - функция преобразования
+
+// выход:
+// output - массив результатами преоразований
+
+// пример: @arrsource | arr_map code="(val,index) => val*2" | console_log
+
+register_feature name="arr_map"
+  code=`
+  env.onvalues(["input","code"],process);
+
+  function process(arr,code) {
+    if (!Array.isArray(arr)) {
+      env.setParam("output",[]);
+      return;
+    }
+    //var f = new Function( "line", code );
+    //var res = dfjs.create_from_df_filter( df, f );
+    
+    var f = eval( code );
+
+    let res = [];
+    arr.forEach( (v,index) => {
+       let check = f( v,index );
+       res.push( check );
+    })
+    env.setParam("output",res);
+  }
+`;
+
 
 register_feature name="arr_find_min_max" code=`
   env.onvalues(["input"],process);
@@ -130,11 +163,111 @@ register_feature name="arr_find_min_max" code=`
 
     let res = compute_array_minmax( arr );
 
-    
+
     env.setParam("min",res.min);
     env.setParam("max",res.max);
     env.setParam("diff",res.diff);
 
     env.setParam("output",res)
   }
+`;
+
+
+// мониторит указанные параметры params во входном массиве объектов input
+// меняет свой output при обнаружении изменений
+// вход: input - массив объектов
+//       params - массив имен параметров. 
+
+// пример: find-objects ... | monitor-params params=["alfa","beta"] | console_log;
+
+register_feature name="monitor_params" {
+  js code=`
+    let unsub_arr = [];
+    let unsub_func = ()=> { unsub_arr.forEach( (f)=>f() ); unsub_arr=[]; }
+
+    env.feature("delayed");
+    let sig_d = env.delayed( sig );
+
+    env.onvalues(["input","params"],(arr,params) => {
+      unsub_func();
+      for (let cenv of arr) {
+        let cunsub = cenv.onvalues( params, sig_d );
+        unsub_arr.push( cunsub );
+      };
+      sig_d();
+    })
+
+    env.on("remove",unsub_func);
+
+    function sig() {
+      env.setParam("output", env.params.input.slice() );
+    }
+  `;
+};
+
+// аналог monitor_params но мониторит все параметры.
+
+register_feature name="monitor_all_params" {
+  js code=`
+    let unsub_arr = [];
+    let unsub_func = ()=> { unsub_arr.forEach( (f)=>f() ); unsub_arr=[]; }
+
+    env.feature("delayed");
+    let sig_d = env.delayed( sig );
+
+    env.onvalue("input",(arr) => {
+      unsub_func();
+      for (let cenv of arr) {
+        let cunsub = cenv.on("param_changed", sig_d)
+        unsub_arr.push( cunsub );
+      };
+      sig_d();
+    })
+
+    env.on("remove",unsub_func);
+
+    function sig() {
+      env.setParam("output", env.params.input.slice() );
+    }
+  `;
+};
+
+// timeout 
+// паузит передачу input на заданное время 
+// если происходит дополнительное изменение input, то таймер рестартует
+// таким образом для частых изменений input вообще никогда не пройдет output
+
+// это кстати все начинает напоминать rxjs
+// только там промежуточные вещи съедаются, а у нас хранятся...
+
+register_feature name="timeout" code=`
+
+  let t;
+  env.feature("timers");
+  env.onvalue("input",(i) => {
+     if (t) t(); // очистим
+
+     t = env.setTimeout( () => {
+        env.setParam("output", env.params.input );
+        t = null;
+     }, env.params.ms || 1000 );
+  });
+
+  /*
+
+  env.feature("delayed");
+
+  let tpass = env.delayed( pass );
+
+  env.onvalue("input",tpass);
+
+  env.onvalue("ms",(ms) => {
+    debugger;
+    tpass = env.delayed( pass, ms );
+  })
+
+  function pass() {
+     env.setParam("output", env.params.input );
+  }
+  */
 `;

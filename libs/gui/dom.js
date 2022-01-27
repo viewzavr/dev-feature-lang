@@ -93,6 +93,7 @@ export function dom( obj, options={} )
     return false;
   }
 
+  // здесь получается доступ через js-нотацию
   function maybe_apply_dom_style( name, value ) {
     if (obj.dom && name.startsWith("dom_style_")) {
        name = name.substring(10);

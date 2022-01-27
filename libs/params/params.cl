@@ -66,7 +66,7 @@ register_feature name="param_slider" code=`
 register_feature name="param_checkbox" code=`
   env.feature("param_base"); 
   env.onvalue( "value", (v) => {
-    env.tgt().setParam( env.ns.name,v );
+    env.tgt().setParam( env.paramname(),v );
   });
   var t;
   function setup() {
@@ -77,6 +77,7 @@ register_feature name="param_checkbox" code=`
       env.setParam("value",v);
     });
   }
+  setTimeout( setup, 0 );  // треш конечно
   env.on("remove",() => {
     if (t) t(); t = null;
   });
@@ -88,7 +89,7 @@ register_feature name="param_file" code=`
   env.onvalue( "value", (v) => {
     //debugger;
     //console.log("file_param value changed",v)
-    env.tgt().setParam( env.ns.name,v) 
+    env.tgt().setParam( env.paramname(),v) 
   });
   function setup() {
     let tgt = env.tgt();
@@ -98,7 +99,8 @@ register_feature name="param_file" code=`
       env.setParam("value",v);
     });
   }
-  setup();
+  //setup();
+  setTimeout( setup, 0 );  // треш конечно
   env.on("remove",() => {
     if (t) t(); t = null;
   });
@@ -118,7 +120,8 @@ register_feature name="param_label" code=`
       env.setParam("value",v);
     });
   }
-  setup();
+  //setup();
+  setTimeout( setup, 0 );  // треш конечно
   env.on("remove",() => {
     if (t) t(); t = null;
   });
@@ -138,7 +141,8 @@ register_feature name="param_float" code=`
       env.setParam("value",v);
     });
   }
-  setup();
+  //setup();
+  setTimeout( setup, 0 );  // треш конечно
   env.on("remove",() => {
     if (t) t(); t = null;
   });
@@ -148,7 +152,7 @@ register_feature name="param_string" code=`
   env.feature("param_base"); 
   var t;
   env.onvalue( "value", (v) => {
-    env.tgt().setParam( env.ns.name,v) 
+    env.tgt().setParam( env.paramname(),v) 
   });
   function setup() {
     let tgt = env.tgt();
@@ -158,7 +162,8 @@ register_feature name="param_string" code=`
       env.setParam("value",v);
     });
   }
-  setup();
+  //setup();
+  setTimeout( setup, 0 );  // треш конечно
   env.on("remove",() => {
     if (t) t(); t = null;
   });
@@ -170,12 +175,15 @@ register_feature name="param_cmd" code=`
   env.feature("func");
   
   function setup() {
+    //console.log("=================== param_cmd name=",env.paramname())
     let tgt = env.tgt();
     tgt.addCmd( env.paramname(),(...args) => {
        //env.callCmdByPath( env.params.cmd,...args)
        env.callCmd("apply");
     } );
   }
-  setup();
+
+  setTimeout( setup, 0 );  // треш конечно
+  //setup();
   
 `;

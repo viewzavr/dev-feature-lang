@@ -8,6 +8,14 @@ gui-elements.cl
 gui-events.cl
 `;
 
+register_feature name="two_side_columns" {
+  row justify-content="space-between"
+      align-items="flex-start"
+      style="width: 100%" class="vz-mouse-transparent-layout";
+  // вот я тут опираюсь на хрень vz-mouse-transparent-layout которая определена непойми где...
+  // непроговоренные ожидания.. хоть бы module-specifier указал бы как-то..
+};
+
 register_feature name="rotate_screens" {
   func screens=(find-objects pattern="** screen") code=`
 	  var cur = vzPlayer.getParam("active_screen");

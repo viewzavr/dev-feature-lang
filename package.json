@@ -1,6 +1,6 @@
 {
   "name": "vrungel",
-  "version": "1.0.41",
+  "version": "1.0.42",
   "description": "Visualizes scenes written in Compalang.",
   "main": "app.js",
   "directories": {

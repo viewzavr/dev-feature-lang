@@ -48,15 +48,18 @@ rend: render3d bgcolor=[0.1,0.2,0.3] target=@view
       ptradius: param_slider min=0.0001 max=1 value=0.05 step=0.0001;
     };
 
-    rep: repeater model=(compute_output in=@dat->output code=`return env.params?.in?.colnames`) {
+    rep: repeater model=@selected_columns->output {
       pts: node3d {
 
-        @dat | ptsa: points radius=@lavaparams->ptradius {{
+        @dat | ptsa: points radius=@lavaparams->ptradius 
+        {{
            pos3d y=(compute_output in=@pts->modelIndex code=`return env.params.in*3`);
-
         }} 
-        {{ auto_scale size=100 input=@rend->output; }}
-        colors=( @dat | df_get column=@pts->modelData | arr_to_colors );
+        {{ 
+           auto_scale size=100 input=@rend->output; 
+        }}
+        colors=( @dat | df_get column=@pts->modelData 
+                      | arr_to_colors color_params guitext=@pts->modelData );
 
         text3d_one text=@pts->modelData {{
           box: compute_bbox input=@ptsa->output;
@@ -64,7 +67,6 @@ rend: render3d bgcolor=[0.1,0.2,0.3] target=@view
           //pos3d pos=(compute_output in=@box->center code=`return [env.params.in[0], env.params.in[1] + 5, env.params.in[2]]`);
 
           //pos3d y=(compute_output in=@pts->modelIndex code=`return env.params.in*5 + 90`) x=60 z=-130;
-
          }};
       };
         
@@ -81,19 +83,53 @@ rend: render3d bgcolor=[0.1,0.2,0.3] target=@view
        }} material = @me1->output_material;    
 };
 
+
+
 /// интерфейс пользователя gui
 
 screen auto-activate {
 
   column padding="1em" style="z-index: 3; position:absolute; background: rgba(255,255,255,0.5);" {
+
+    dom style="display: grid;  grid-template-columns: 1fr 1fr; max-width: 250px" {
+      selected_columns:
+      compute_output in=@dat->output code=`return env.params?.in?.colnames`
+      | repeater {
+        checkbox text=@.->input;
+      } 
+      | monitor_all_params
+      | console_log text="CHANGE before tm"
+      | timeout ms=1000
+      | console_log text="CHANGE after tm"
+      | compute_output code=`
+        env.onvalue("input",(arr) => {
+          let res = [];
+          arr.forEach( (rec) => {
+            if (rec.params.value) res.push( rec.params.text );
+          })
+          env.setParam("output",res);
+        })
+      `;
+    };
+
+    //find-objects pattern="** color_params" | render-guis;
+    //find-objects pattern="** color_params" | render-guis button_features={ set_params text="555" };
+    //find-objects pattern="** color_params" | render-guis button_features={ set_params text=(@..->object->text | get name="params.text" ) };
+
     find-objects pattern="** showparams" | render-guis with_features=true;
+
+    find-objects pattern="** color_params" | repeater {
+      rec: column {  
+        button text=(@rec->input | get param="guitext") cmd=@rp->trigger_visible;
+        rp: render-params object=@rec->input visible=false dom_style_paddingLeft="0.5em";
+      }
+    };
 
     bt: button text="get csv" {
       func {
         generate_csv input=(@dat | vtk_points_to_normalized_df) | download_file_to_user filename="lava.csv";
       };
     };
-
 
 /*
     text text="Select column to colorize";

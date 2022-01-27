@@ -4,6 +4,7 @@ register_feature name="button" {
 	}};
 };
 
+
 register_feature name="text" {
 	dom tag="span" innerHTML=@.->text {
 	};
@@ -39,7 +40,9 @@ register_feature name="color" {
    а не следует ли сделать их разными?.. если да то почему, если нет то почему?  
 */
 register_feature name="checkbox" {
-	dom tag="label" value=true {
+	dom tag="label" value=true 
+	    dom_style_whiteSpace="nowrap" // это важно чтобы чекбоксы не разрывались
+	  {
 		dom tag="input" dom_type="checkbox" dom_obj_checked=@..->value {
 			dom_event name="change" code=`
 				var v = env.params.object.dom.checked;

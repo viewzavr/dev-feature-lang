@@ -181,10 +181,21 @@ export function load_package(env,opts)
 //import {delayed} from "viewzavr/utils.js";
 export function pipe(env) 
 {
+  let pipe_is_generating_links;
   // var delayed = require("delayed");
   env.feature("delayed");
   var delayed_chain_children = env.delayed(chain_children)
-  env.on('appendChild',delayed_chain_children);
+  env.on('appendChild',(c) => {
+    //console.log("pipe see appendChild",c.getPath())
+    // ВАЖНО эта штука вызывается когда мы создаем ссылки
+    // и нас спасает только то что delayed не дает ходу, пока сам работает
+    // если мы изменим это поведение delayed то тут будет вечный цикл
+    // mb стоит допом вручную проверять
+
+    if (pipe_is_generating_links) return;
+
+    delayed_chain_children()
+  });
   //delayed_chain_children(); // тырнем разик вручную
   
   // микрофича - передать команду apply первому ребенку
@@ -197,10 +208,17 @@ export function pipe(env)
   let created_links = [];
 
   function chain_children() {
+      pipe_is_generating_links = true;
+
+      //console.log("chain_children: pipe ",env.getPath())
       let cprev;
       let cfirst;
+      created_links.forEach( (l) => l.remove() );
+      created_links = [];
+      // а почему бы мне не создать особый tree для ссылок да и все?
       
       for (let c of env.ns.getChildren()) {
+         //console.log("chain_children: child ",c.getPath()) 
          if (c.is_link) continue;
          if (!cfirst) cfirst = c;
          // пропускаем ссылки.. вообще странное решение конечно.. сделать ссылки объектами
@@ -212,15 +230,17 @@ export function pipe(env)
       }
       // output последнего ставим как output всей цепочки
       if (cprev)
-          env.linkParam("output",`${cprev.ns.name}->output`)
+          created_links.push( env.linkParam("output",`${cprev.ns.name}->output`) );
       else
-          env.linkParam("output",``)
+          created_links.push( env.linkParam("output",``) );
       // input первого ставим на инпут пайпы
       if (cfirst) {
           if (!cfirst.hasLinksToParam("input") && !cfirst.hasParam("input"))
-            cfirst.linkParam("input",`..->input`)
+            created_links.push( cfirst.linkParam("input",`..->input`) );
       }
-  }
+
+      pipe_is_generating_links = false;
+   }
 }
 
 // регистрирует фичу name, code где code это код тела функции на яваскрипте
@@ -545,8 +565,12 @@ export function repeater( env, fopts, envopts ) {
     // а затем внешнее тело, которое сообразно затирает собственное тело репитера.
     if (!children) {
       children = dump.children;
-      if (pending_perform)
-        env.signalParam("model");
+      if (pending_perform) {
+        if (env.params.input)
+          env.signalParam("input");
+        else
+          env.signalParam("model");
+      }
     }
     return Promise.resolve("success");
   }
@@ -555,13 +579,17 @@ export function repeater( env, fopts, envopts ) {
 
   var pending_perform;
   env.onvalue("model",recreate );
+  env.onvalue("input",recreate );
 
-  env.addCmd("refresh",() => recreate( env.params.model ));
+  env.addCmd("refresh",() => recreate());
 
-  function recreate(model) {
+  function recreate() {
+     let model = env.params.model || env.params.input;
      for (let old_env of created_envs) {
        old_env.remove();
      }
+
+     if (env.removed) return; // бывает...
 
      if (!children) {
         pending_perform=true;
@@ -582,7 +610,7 @@ export function repeater( env, fopts, envopts ) {
        model = Array.from(Array(num).keys());
      }
 
-     if (!model.forEach) {
+     if (!(model && model.forEach)) {
        //console.error("repeater: passed model is not iterable.",model,env.getPath())
        return;
      }
@@ -607,10 +635,17 @@ export function repeater( env, fopts, envopts ) {
           child_env.$env_extra_names[ firstc ] = true;
 
           // todo epochs
+          child_env.setParam("input",element);
+          child_env.setParam("inputIndex",element);
+
           child_env.setParam("modelData",element);
           child_env.setParam("modelIndex",eindex);
 
-          created_envs.push( child_env );        
+          created_envs.push( child_env );
+
+          // выдаем в output созданные объекты
+          if (created_envs.length == model.length)
+             env.setParam( "output", created_envs );
        });
       
        /*
@@ -1056,4 +1091,33 @@ export function deploy_features( env )
 
  env.on("remove",close_envs)
 
+}
+
+//////////////// get
+
+export function get( env ) {
+  env.onvalues(["input","param"],(input,param) => {
+    let v = input?.getParam ? input.getParam( param ) : undefined;
+    env.setParam("output",v );
+  });
+  env.onvalues(["input","name"],(input,param) => {
+    let v = input ? input[ param ] : undefined;
+    env.setParam("output",v );
+  });
+  env.onvalues(["input","index"],(input,param) => {
+    let v = input ? input[ param ] : undefined;
+    env.setParam("output",v );
+  });
+  env.onvalues(["input","path"],(input,param) => {
+    let arr = path.split(".");
+    v = input;
+    while (arr.length > 0) {
+       if (!v) break;
+       v = v[ arr[0] ];
+       arr.shift();
+    }
+    env.setParam("output",v );
+  });
+  // идея - уметь брать сразу несколько чего-то.. и выдавать не знаю, массив..
+  // ну например брать names или там еще что..
 }

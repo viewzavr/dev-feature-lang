@@ -41,14 +41,6 @@ register_feature name="install_explorer_feature" {
 
 /////////////////////////////
 
-register_feature name="two_side_columns" {
-  row justify-content="space-between"
-      align-items="flex-start"
-      style="width: 100%" class="vz-mouse-transparent-layout";
-  // вот я тут опираюсь на хрень vz-mouse-transparent-layout которая определена непойми где...
-  // непроговоренные ожидания.. хоть бы module-specifier указал бы как-то..
-};
-
 register_feature name="debugger_screen_r" {
   scene-explorer-screen hotkey='s' {{
     apply_by_hotkey hotkey=@.->hotkey {

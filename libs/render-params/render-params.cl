@@ -8,10 +8,23 @@
   * opened - true/false сразу про всех
 */
 
+/*
+register_feature name="render_gui_title" code=`
+  env.onvalue("text", (v) => {
+    debugger;
+    env.host.render_gui_title = v;
+
+  });
+`;
+*/
+// env.params.object?.render_gui_title ||
+
+
 register_feature name="render-guis" {
-  repeater model=@.->input opened=true {{dbg v=1000 }} {
+  rep: repeater model=@.->input opened=true {
     column {
-          button text=@btntitle->output cmd="@pcol->trigger_visible";
+          button text=@btntitle->output cmd="@pcol->trigger_visible" 
+           {{ deploy input=@rep->button_features }};
           
           pcol: column visible=false { /* @../../..->opened */
             render-params object=@../..->modelData;
@@ -21,7 +34,7 @@ register_feature name="render-guis" {
           }
           
         };
-      };
+    };
 };
 
 /* вход: object_path - путь к объекту
@@ -49,16 +62,16 @@ register_feature name="render-params" {
     ` {
       js code=`
             env.ns.parent.on("remove",() => {
-        console.log("getparamnames removes..");
+        //console.log("getparamnames removes..");
         //debugger;
         });
 
       env.ns.parent.on("parentChanged",() => {
-        console.log("getparamnames parent changed..");
+        //console.log("getparamnames parent changed..");
         //debugger;
       });
       env.ns.parent.on("parent_change",() => {
-        console.log("getparamnames parent changed..");
+        //console.log("getparamnames parent changed..");
         //debugger;
       });
       `;
