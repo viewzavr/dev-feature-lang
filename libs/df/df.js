@@ -9,16 +9,31 @@ export function create() {
   df.is_df = true;
   // времянка такая
   df.create_from_df_filter = (f) => create_from_df_filter( df, f );
+
+  // короче решено таки эти методы таскать вместе с df
+  // и тогда можно делать разные реализации...
+
+  // модификаторы
+  df.add_column = add_column.bind( undefined, df );
+  df.remove_column = remove_column.bind( undefined, df );
+  df.get_column_names = get_column_names.bind( undefined, df );
+  df.get_column = get_column.bind( undefined, df );
+  df.get_length = get_length.bind( undefined, df );
+
+  // аксессоры
+
   return df;
 }
 
-export function add_column( df, name, values, is_unshift ) {
+export function add_column( df, name, values, position=10000 ) {
   if (df.colnames.indexOf(name) < 0)
   {
-    if (is_unshift)
+    if (position < 0)
       df.colnames.unshift( name );
-    else
+    else if (position >= df.colnames.length)
       df.colnames.push( name );
+    else
+      df.colnames.splice( position, 0, name );
   }
   values ||= [];
   df[name] = values;
@@ -31,6 +46,7 @@ export function remove_column( df, name ) {
   let ind = df.colnames.indexOf(name) 
   if (ind >=0 )
     df.colnames.splice( ind,1 );
+  update_length( df );
 }
 
 export function get_column_names( df ) {

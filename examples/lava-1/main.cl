@@ -10,18 +10,48 @@ rend: render3d bgcolor=[0.1,0.2,0.3] target=@view
 
     text3d_one text="loading..." showparams;
 
-    //////////////////////////////////////
+    ////////////////////////////////////// подготовка данных лавы
     
+    dat: load_file_binary file="https://viewlang.ru/assets/lava2/ParticleData_Fluid_1192.vtk" 
+         | parse_vtk_points | compute_magnitude_col;
+
+    // вычисляет колонку magnitude по формуле sqrt( vecolity0^2+vecolity1^2+vecolity2^2 )
+    register_feature name="compute_magnitude_col" code=`
+      env.onvalue("input",(df) => { 
+        
+        if (!df || !df.isDataFrame) {
+          env.setParam("output",[]);
+          return;
+        }
+        
+        let v0 = df.get_column( "velocity0" );
+        let v1 = df.get_column( "velocity1" );
+        let v2 = df.get_column( "velocity2" );
+        if (!(v0 && v1 && v2)) {
+          env.setParam("output",df);
+          return;
+        }
+
+        df = df.clone();
+        let arr = new Float32Array( df.get_length() );
+        for (let i=0; i<arr.length; i++)
+          arr[i] = Math.sqrt( v0[i]*v0[i] + v1[i]*v1[i] + v2[i]*v2[i] );
+          
+        df.add_column( "magnitude", arr, df.get_column_names().indexOf( "velocity2" )+1 );
+        env.setParam("output",df);
+      });
+    `;
 
     ////////////////////////////////////// лава
 
-
-    dat: load_file_binary file="https://viewlang.ru/assets/lava2/ParticleData_Fluid_1192.vtk" | parse_vtk_points;
+    lavaparams: showparams {
+      ptradius: param_slider min=0.0001 max=1 value=0.05 step=0.0001;
+    };
 
     rep: repeater model=(compute_output in=@dat->output code=`return env.params?.in?.colnames`) {
       pts: node3d {
 
-        @dat | ptsa: points {{
+        @dat | ptsa: points radius=@lavaparams->ptradius {{
            pos3d y=(compute_output in=@pts->modelIndex code=`return env.params.in*3`);
 
         }} 
@@ -63,6 +93,7 @@ screen auto-activate {
         generate_csv input=(@dat | vtk_points_to_normalized_df) | download_file_to_user filename="lava.csv";
       };
     };
+
 
 /*
     text text="Select column to colorize";
