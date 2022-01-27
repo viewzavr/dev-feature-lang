@@ -5,6 +5,52 @@ export function setup(vz, m) {
   vz.register_feature_set( m );
 }
 
+export function lib3d_visual( env ) {
+
+  /*
+  obj.addArray("positions",[],3,function(v) {
+    obj.positions = v;
+  } );
+  obj.setParamOption("positions","internal",true);
+  
+  obj.addArray("radiuses",[],1,function(v) {
+    obj.radiuses = v;
+  } );
+  obj.setParamOption("radiuses","internal",true);  
+  
+  obj.addArray("colors",[],1,function(v) {
+    obj.colors = v;
+  } );
+  obj.setParamOption("colors","internal",true);
+  */
+  
+  env.addCheckbox("visible",true,(v) => {
+    //obj.visible=v;
+  });
+
+  env.onvalues(["output","visible"],(so,vis) => {
+    so.visible = vis;
+  })
+
+  env.addColor("color",[1,1,1]);
+
+  // отдельная фича - отключаем frustum culling
+  env.onvalue("output",(so) => {
+    so.frustumCulled = false;
+  })
+
+  // такая всем добавка
+  env.onvalues(["positions","output"],(p,o) => {
+    o.geometry.computeBoundingSphere();
+  })
+
+  //obj.addString("count","0");
+
+
+}
+
+
+
 export function lines( env ) {
   var geometry = new THREE.BufferGeometry();
   var material = new THREE.LineBasicMaterial( {} );
@@ -51,45 +97,6 @@ export function lines( env ) {
   env.feature("node3d",{object3d: sceneObject});s
 }
 
-
-export function lib3d_visual( env ) {
-
-  /*
-  obj.addArray("positions",[],3,function(v) {
-    obj.positions = v;
-  } );
-  obj.setParamOption("positions","internal",true);
-  
-  obj.addArray("radiuses",[],1,function(v) {
-    obj.radiuses = v;
-  } );
-  obj.setParamOption("radiuses","internal",true);  
-  
-  obj.addArray("colors",[],1,function(v) {
-    obj.colors = v;
-  } );
-  obj.setParamOption("colors","internal",true);
-  */
-  
-  env.addCheckbox("visible",true,(v) => {
-    //obj.visible=v;
-  });
-
-  env.onvalues(["output","visible"],(so,vis) => {
-    so.visible = vis;
-  })
-
-  env.addColor("color",[1,1,1]);
-
-  // отдельная фича - отключаем frustum culling
-  env.onvalue("output",(so) => {
-    so.frustumCulled = false;
-  })
-
-  //obj.addString("count","0");
-
-
-}
 
 ////////////////////////////////////
 export function points( env ) {
@@ -174,7 +181,7 @@ export function mesh( env ) {
   let recompute_normals = env.delayed( () => { 
     geometry.computeVertexNormals(); 
     env.emit("normals-recomputed", sceneObject );
-  })
+  });
 
   env.onvalue("positions",(v) => {
     geometry.setAttribute( 'position', new THREE.BufferAttribute( new Float32Array(v), 3 ) );
@@ -241,7 +248,7 @@ export function mesh( env ) {
 // считаем это универсальной структурой (попыткой ее создать)
 export function points_df_input( env ) {
   env.onvalue("input",(df) => {
-    console.log("gonna paint df=",df);
+    //console.log("gonna paint df=",df);
     var dat = df;
     if (dat.XYZ || dat.positions)
       env.setParam("positions", dat.XYZ || dat.positions );  

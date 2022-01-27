@@ -38,16 +38,27 @@ export function pos3d( env ) {
    
    let unsub = () => {};
    let unsub1 = () => {};
-   unsub1 = env.host.onvalue("output",(threejsobj) => {
-     unsub();
-     unsub = env.onvalues_any( ["x","y","z"],(x,y,z) => {
+   let unsub2 = () => {};
+   unsub = env.host.onvalue("output",(threejsobj) => {
+     unsub1();
+     unsub1 = env.onvalues_any( ["x","y","z"],(x,y,z) => {
        if (isFinite(x)) threejsobj.position.x=x;
        if (isFinite(y)) threejsobj.position.y=y;
        if (isFinite(z)) threejsobj.position.z=z;
      });
+
+     // ну вот еще слой управления через такое
+     unsub2();
+     unsub2 = env.onvalue( "pos",(v) => {
+       if (v) {
+         if (isFinite(v[0])) threejsobj.position.x=v[0];
+         if (isFinite(v[1])) threejsobj.position.y=v[1];
+         if (isFinite(v[2])) threejsobj.position.z=v[2];
+       }
+     });
    });
 
-   env.on("remove",() => { unsub1(); unsub(); } );
+   env.on("remove",() => { unsub1(); unsub2(); unsub(); } );
    
    env.addFloat("x",0);
    env.addFloat("y",0);
