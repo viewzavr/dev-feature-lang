@@ -30,7 +30,7 @@ rend: render3d bgcolor=[0.1,0.2,0.3] target=@view
 
         text3d_one text=@pts->modelData {{
           box: compute_bbox input=@ptsa->output;
-          pos3d pos=@box->min;
+          pos3d pos=@box->max;
           //pos3d pos=(compute_output in=@box->center code=`return [env.params.in[0], env.params.in[1] + 5, env.params.in[2]]`);
 
           //pos3d y=(compute_output in=@pts->modelIndex code=`return env.params.in*5 + 90`) x=60 z=-130;
