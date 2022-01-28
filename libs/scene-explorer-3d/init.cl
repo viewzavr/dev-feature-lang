@@ -8,8 +8,12 @@ visual-features.cl
 vf1: visual-features
 { // выдает - набор окружений с параметрами {title:..., features1:....., features2: ..... } 
   visual-feature title="Flat mode"   body={feat_struc_z_all_0};
-  visual-feature title="Head on top" body={feat_struc_golova_naverhu};
+  visual-feature title="Head on top" body={feat_struc_golova_naverhu} init_on=true;
   visual-feature title="Filter" body={feat_filter};
+  visual-feature title="Hide debugger" body={feat_hide_dbg} init_on=true;
+  visual-feature title="Hide loaders" body={feat_hide_load} init_on=true;
+  visual-feature title="Show all params" body={feat_show_all_params};
+  
   // кстати тут реально можно было бы и карту построить просто... чистово гуи с группами...
   // не знаю зачем я заморачиваюсь...
 };
@@ -79,7 +83,11 @@ scr: screen {
         repeater model=@vf1->output
         {
           cb: column {
-            cbb: checkbox text=(@cb->modelData | get_param name="title") value=false;
+            cbb: checkbox 
+                    text=(@cb->modelData | get_param name="title")
+                    value2=false
+                    value=(@cb->modelData | get_param name="init_on");
+                    //value=(@cb->modelData | get param="init_on");
             if condition=@cbb->value {
               column {
                 render-params object=@fobj;
@@ -94,7 +102,6 @@ scr: screen {
       };
 
     };
-    
     
     //scene_explorer_graph | explr: scene_explorer_3d target=@d1;
     sgraph: scene_explorer_graph
@@ -330,13 +337,12 @@ register_feature name="struc_z_golova_naverhu" code=`
 
 //////////////////// добавка про фильтрацию по имени
 
-
 register_feature name="feat_filter" {
   st:
     {{
       pattern: param_string value="** lib3d-visual";
     }}
-  generator-features={ graph_filter pattern=@st->pattern; add_all_params; }
+  generator-features={ graph_filter pattern=@st->pattern; }
   ;
 };
 
@@ -346,4 +352,24 @@ register_feature name="graph_filter" {
   root: set_params input=@selected->output {
     selected: find-objects pattern=@root->pattern | console_log text="FILTERED OBJECTS";
   };
+};
+
+
+//////////////////// скрыть отладчик
+
+register_feature name="feat_hide_dbg" {
+  generator-features={ hide_debugger; };
+};
+
+//////////////////// скрыть load узлы
+
+register_feature name="feat_hide_load" {
+  generator-features={ hide_loaders; };
+};
+
+
+//////////////////// показать все параметры
+
+register_feature name="feat_show_all_params" {
+  generator-features={ add_all_params; };
 };

@@ -1,4 +1,4 @@
-
+/// элементы плагинной системы для scene explorer-а
 /// организует массив записей о фичах
 
 register_feature name="visual-feature" {};

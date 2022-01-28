@@ -54,3 +54,8 @@ circle x=somelang( и тут что угодно... );
 Хорошо бы это сочесть еще с созданием тел функций. В том плане что мы не только выражение compute поставляем,
 но и обработчики событий...
 типа downmotion start=(event)=>{ js-код } finish=(event)=>{js код}
+
+----------
+// еще идеи:
+// console_log text=_js_"FILTERED OBJECTS of pattern " + @root->pattern }}};
+// console_log text=_in_"FILTERED OBJECTS of pattern @root->pattern";

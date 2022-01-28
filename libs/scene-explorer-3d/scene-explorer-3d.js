@@ -54,7 +54,7 @@ export function sibling_connection( env ) {
 
 // добавить все параметры в граф
 export function add_all_params( env ) {
-  env.host.on("genobj",(obj,rec, id) => {
+  let unsub = env.host.on("genobj",(obj,rec, id) => {
     // параметры все
     var params = obj.getParamsNames();
     //if (!obj.params.hasOwnProperty("children")) params = params.concat( ["children"] );
@@ -68,11 +68,12 @@ export function add_all_params( env ) {
       addlink( rec, { source: id, target: id + "->" + pn, isparam: true, isstruct:(pn=="children") } );
     })
   })
+  env.on("remove",unsub)
 }
 
 // добавить все фичи в граф
 export function add_all_features( env ) {
-  env.on("genobj",(obj,rec, id) => {
+  env.host.on("genobj",(obj,rec, id) => {
     // фичи
     var fa = Object.keys( obj.$features_applied );
     fa.forEach( (pn,index) => {
@@ -110,7 +111,7 @@ export function add_all_features( env ) {
 // нарисоваем все paramRefs
 // (заметим ссылки рисуются отдельно)
 export function add_all_param_refs( env ) {
-  env.on("genobj",(obj,rec, id) => {
+  env.host.on("genobj",(obj,rec, id) => {
 
   for (var refrecord of obj.getParamRefsRecords()) {
       var refname = refrecord.name;
@@ -162,6 +163,29 @@ export function add_all_param_refs( env ) {
   });
 }
 
+// скрывает поддерево отладчика в графе
+// но конечно это дорого.. хотелось бы как-то по-другому попробвать тоже
+// можно на уровне таки вешать этот обработчик debugger_screen_r
+// и там как-то рулить.. но пока так проще.. @todo
+export function hide_debugger( env ) {
+  let unsub = env.host.on("pre_genobj",(nodedata,obj) => {
+    if (obj.is_feature_applied("debugger_screen_r"))
+    {
+        nodedata.skip = true;
+    }
+  });
+  env.on("remove",unsub)
+};
+
+export function hide_loaders( env ) {
+  let unsub = env.host.on("pre_genobj",(nodedata,obj) => {
+    if (obj.is_feature_applied("load"))
+    {
+        nodedata.skip = true;
+    }
+  });
+  env.on("remove",unsub)
+};
 
 // здесь env это env генератора
 function gen( obj,rec, env ) {
@@ -183,7 +207,16 @@ function gen( obj,rec, env ) {
                   color: 'red' };
   //if (obj.$dbg_info) nodedata = {...nodedata, ...obj.$dbg_info};
   // хотя можно было бы и событие у узла вызвать так-то...
+
+  // точка передачи управления доп-алгоритмам перед добавлением узла
   obj.emit("dbg-add",nodedata); // кстати это гибче..
+  if (nodedata.skip) return; // возможность отменить генерацию узла в контексте узла
+
+  // точка передачи управления доп-алгоритмам перед добавлением узла
+  /* вроде как не надо, см выше skip - а нет надо, там в контексте объекта событие */
+  
+  env.emit("pre_genobj",nodedata,obj);
+  if (nodedata.skip) return;
 
   addnode( rec, nodedata );
 
@@ -408,9 +441,11 @@ export function scene_explorer_graph( env ) {
   function perform_generate( root_obj ) {
     if (!env.params.active) return; // чет решил сюды воткнуть
 
-    console.log("REGENERATING GRAPH")
+    //console.log("REGENERATING GRAPH")
     var res = gen( root_obj, null, env );
     fixup( root_obj, res);
+
+    env.setParamOption("output","internal",true); // но вообще наверное это все странно...
     env.setParam("output",res )    
   }
 
