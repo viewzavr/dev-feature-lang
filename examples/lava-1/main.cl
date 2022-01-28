@@ -17,7 +17,7 @@ rend: render3d bgcolor=[0.1,0.2,0.3] target=@view
 
     // вычисляет колонку magnitude по формуле sqrt( vecolity0^2+vecolity1^2+vecolity2^2 )
     register_feature name="compute_magnitude_col" code=`
-      env.onvalue("input",(df) => { 
+      env.onvalue("input",(df) => {
         
         if (!df || !df.isDataFrame) {
           env.setParam("output",[]);

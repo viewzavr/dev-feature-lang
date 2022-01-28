@@ -135,7 +135,8 @@ export function dom( obj, options={} )
 
     obj.addString("innerHTML","",(v) => {
       //console.log("dom:innerHTML assign",obj.getPath(),v)
-      obj.dom.innerHTML = v.toString ? v.toString() : v;
+
+      obj.dom.innerHTML = v?.toString ? v.toString() : (v || "");
     })
     obj.addString("innerText","",(v) => {
       //console.log("dom:innerText assign",obj.getPath(),v)

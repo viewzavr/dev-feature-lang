@@ -21,7 +21,7 @@ register_feature name="render_gui_title" code=`
 
 
 register_feature name="render-guis" {
-  rep: repeater model=@.->input opened=true {
+  rep: repeater opened=true {
     column {
           button text=@btntitle->output cmd="@pcol->trigger_visible" 
            {{ deploy input=@rep->button_features }};
@@ -44,8 +44,8 @@ register_feature name="render-guis" {
 */
 
 register_feature name="render-params" {
-  rp: column gap="0.1em" {
-    link to=".->object" from=@..->object_path tied_to_parent=true; // тут надо maybe что там объект и тогда норм будет..
+  rp: column gap="0.1em" {{dbg v=100000}} {
+    link to=".->object" from=@..->object_path tied_to_parent=true soft_mode=true {{dbg v=100000}}; // тут надо maybe что там объект и тогда норм будет..
     repeater model=@getparamnames->output {
       column {
         //text text=@..->modelData;
@@ -139,7 +139,9 @@ register_feature name="render-param-float" {
 
     dom tag="input" {
       link from=@../..->param_path to=".->dom_obj_value" tied_to_parent=true;
-      link to=@../..->param_path from=".->value" tied_to_parent=true;
+      link to=@../..->param_path from=".->value" tied_to_parent=true manual_mode=true
+         soft_mode=true; // пустышки не передаем
+
       dom_event name="change" code=`
         env.params.object.setParam("value",env.params.object.dom.value,true);
       `;
@@ -150,7 +152,7 @@ register_feature name="render-param-float" {
 register_feature name="render-param-checkbox" {
   checkbox text=@.->name {
     link from=@..->param_path to=".->value" tied_to_parent=true;
-    link to=@..->param_path from=".->value" tied_to_parent=true manual_mode=true;
+    link to=@..->param_path from=".->value" tied_to_parent=true manual_mode=true soft_mode=true;
   }
 };
 
@@ -160,7 +162,7 @@ register_feature name="render-param-color" {
     //text text=" : ";
     select_color {
       link from=@../..->param_path to=".->value" tied_to_parent=true;
-      link to=@../..->param_path from=".->value" tied_to_parent=true manual_mode=true;
+      link to=@../..->param_path from=".->value" tied_to_parent=true manual_mode=true soft_mode=true;
 /*
       connection event_name="param_value_changed" object=@.. code=`
         debugger;
@@ -173,7 +175,7 @@ register_feature name="render-param-color" {
 register_feature name="render-param-file" {
   file {
     link from=@..->param_path to=".->value" tied_to_parent=true;
-    link to=@..->param_path from=".->value" tied_to_parent=true;
+    link to=@..->param_path from=".->value" tied_to_parent=true soft_mode=true;
   };
 };
 
@@ -193,7 +195,7 @@ register_feature name="render-param-slider" {
     row {
       slider {
         link from=@../../..->param_path to=".->value" tied_to_parent=true;
-        link to=@../../..->param_path from=".->value" tied_to_parent=true;
+        link to=@../../..->param_path from=".->value" tied_to_parent=true soft_mode=true;
         //link from=@..->param_path->min to="..->min";
         compute obj=@../../..->object name=@../../..->name gui=@../../..->gui code=`
           var sl = env.ns.parent;
@@ -226,7 +228,7 @@ register_feature name="render-param-combovalue"
 
     combobox {
       link from=@../..->param_path to=".->value" tied_to_parent=true;
-      link to=@../..->param_path from=".->value" tied_to_parent=true;
+      link to=@../..->param_path from=".->value" tied_to_parent=true soft_mode=true;
       //link from=@..->param_path" to="..->min";
 
       compute obj=@../..->obj name=@../..->name code=`

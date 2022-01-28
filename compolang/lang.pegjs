@@ -92,11 +92,16 @@ attr_assignment
   }
   
 link_assignment
-  = name:attr_name ws "=" ws linkvalue:link {
+  = name:attr_name ws "=" ws linkvalue:link soft_flag:("?")? {
     //var linkrecordname = `link_${Object.keys(current_env.links).length}`;
     //while (current_env.links[ linkrecordname ]) linkrecordname = linkrecordname + "x";
     //current_env.links[linkrecordname] = { to: `.->${name}`, from: linkvalue.value };
-    return { link: true, to: `~->${name}`, from: linkvalue.value }
+    return { 
+      link: true, 
+      to: `~->${name}`, 
+      from: linkvalue.value, 
+      soft_mode: soft_flag ? true : false 
+      }
     //console.log("LINK",linkvalue);
   }
   
@@ -158,7 +163,7 @@ one_env
         env.params[ m.name ] = m.value;
       else
       if (m.link)
-        env.links[ `link_${linkcounter++}` ] = { from: m.from, to: m.to }
+        env.links[ `link_${linkcounter++}` ] = { from: m.from, to: m.to, soft_mode: m.soft_mode }
     }
 
     append_children_envs( env, child_envs[0] || [] );
