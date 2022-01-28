@@ -77,6 +77,8 @@ var compolang_modules = {};
 // а то уже взрыв мозга, что загружать, package или combolang.
 export function load(env,opts) 
 {
+  env.feature("dbg_skip");
+
   env.feature("simple-lang");
   //env.parsed_alive = false;
   //env.finalize_parse = () => { current_parent = parents_stack.pop() };

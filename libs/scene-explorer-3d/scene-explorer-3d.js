@@ -187,6 +187,33 @@ export function hide_loaders( env ) {
   env.on("remove",unsub)
 };
 
+export function show_debugger( env ) {
+  let unsub = env.host.on("pre_genobj",(nodedata,obj) => {
+    if (obj.is_feature_applied("debugger_screen_r"))
+    {
+        nodedata.skip = false;
+    }
+  });
+  env.on("remove",unsub)
+};
+
+export function show_loaders( env ) {
+  let unsub = env.host.on("pre_genobj",(nodedata,obj) => {
+    if (obj.is_feature_applied("load"))
+    {
+        nodedata.skip = false;
+    }
+  });
+  env.on("remove",unsub)
+};
+
+export function dbg_skip( env ) {
+  let unsub = env.host.on("dbg-add",(nodedata) => {
+    nodedata.skip = true;
+  });
+  env.on("remove",unsub)
+};
+
 // здесь env это env генератора
 function gen( obj,rec, env ) {
   rec ||= create_rec();
@@ -210,7 +237,8 @@ function gen( obj,rec, env ) {
 
   // точка передачи управления доп-алгоритмам перед добавлением узла
   obj.emit("dbg-add",nodedata); // кстати это гибче..
-  if (nodedata.skip) return; // возможность отменить генерацию узла в контексте узла
+  //if (nodedata.skip) return; // возможность отменить генерацию узла в контексте узла
+  // а оставим ка возможность отменить это решение по skip
 
   // точка передачи управления доп-алгоритмам перед добавлением узла
   /* вроде как не надо, см выше skip - а нет надо, там в контексте объекта событие */
@@ -233,17 +261,18 @@ function gen( obj,rec, env ) {
         
       }
       else {
-        gen( c,rec, env );
+        if (gen( c,rec, env )) {
 
-        var tid = env.params.children_node ? id + "->children" : id;
+          var tid = env.params.children_node ? id + "->children" : id;
 
-        addlink( rec, {target: tid,
-                       source: cid, 
-                       ischild: true, 
-                       isstruct: true,
-                       target_obj_path: id,
-                       source_obj_path: cid
-                      })
+          addlink( rec, {target: tid,
+                         source: cid, 
+                         ischild: true, 
+                         isstruct: true,
+                         target_obj_path: id,
+                         source_obj_path: cid
+                        })
+         };
       }
   });
 

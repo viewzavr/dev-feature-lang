@@ -10,8 +10,10 @@ vf1: visual-features
   visual-feature title="Flat mode"   body={feat_struc_z_all_0};
   visual-feature title="Head on top" body={feat_struc_golova_naverhu} init_on=true;
   visual-feature title="Filter" body={feat_filter};
-  visual-feature title="Hide debugger" body={feat_hide_dbg} init_on=true;
-  visual-feature title="Hide loaders" body={feat_hide_load} init_on=true;
+    //visual-feature title="Hide debugger" body={feat_hide_dbg} init_on=true;
+    //visual-feature title="Hide loaders" body={feat_hide_load} init_on=true;
+  visual-feature title="Show debugger" body={feat_show_dbg};
+  visual-feature title="Show loaders" body={feat_show_load};
   visual-feature title="Show all params" body={feat_show_all_params};
   
   // кстати тут реально можно было бы и карту построить просто... чистово гуи с группами...
@@ -46,7 +48,7 @@ register_feature name="install_explorer_feature" {
 /////////////////////////////
 
 register_feature name="debugger_screen_r" {
-  scene-explorer-screen hotkey='s' {{
+  scene-explorer-screen hotkey='s' dbg_skip {{
     apply_by_hotkey hotkey=@.->hotkey {
       rotate_screens;
     };
@@ -354,7 +356,6 @@ register_feature name="graph_filter" {
   };
 };
 
-
 //////////////////// скрыть отладчик
 
 register_feature name="feat_hide_dbg" {
@@ -372,4 +373,17 @@ register_feature name="feat_hide_load" {
 
 register_feature name="feat_show_all_params" {
   generator-features={ add_all_params; };
+};
+
+
+//////////////////// показать отладчик
+
+register_feature name="feat_show_dbg" {
+  generator-features={ show_debugger; };
+};
+
+//////////////////// показать load узлы
+
+register_feature name="feat_show_load" {
+  generator-features={ show_loaders; };
 };
