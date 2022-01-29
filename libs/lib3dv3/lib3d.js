@@ -7,7 +7,8 @@ export function setup(vz, m) {
 
 export function view3d( env ) {
   env.setParam("tag","canvas");
-  env.feature("dom");  
+  env.feature("dom"); 
+  //env.setParam("dom_style_zIndex",-1) 
 }
 
 export function render3d( env ) {

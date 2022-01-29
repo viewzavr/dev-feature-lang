@@ -140,7 +140,7 @@ export function dom( obj, options={} )
     })
     obj.addString("innerText","",(v) => {
       //console.log("dom:innerText assign",obj.getPath(),v)
-      obj.dom.innerText = v.toString ? v.toString() : v;
+      obj.dom.innerText = v?.toString ? v.toString() : (v || "");
     });
 
     // ну это вестимо да, всем надо..

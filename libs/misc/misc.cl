@@ -14,7 +14,11 @@ register_feature name="get_query_param" code=`
 `;
 
 register_feature name="fill_parent" {
-  style="position: absolute; width:100%; height: 100%; left: 0px; top: 0px;"
+  style="position: absolute; width:100%; height: 100%; left: 0px; top: 0px;";
+};
+
+register_feature name="below_others" {
+  dom_style_zIndex=-1;
 };
 
 
