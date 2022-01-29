@@ -3,15 +3,15 @@ load files="lib3dv3 csv params io alfa.js gui render-params df
             ";
 //load files="gui";
 
-mainparams: dbg {
-  cb1: param_combo values=["TSNE","MDS"];
-  f1:  param_file value=@filepath->output {
+mainparams: dbg {{console_log_params}} {
+  cb1: param_combo values=["TSNE","MDS"]  {{console_log_params}};
+  f1:  param_file value=@filepath->output {{console_log_params}} {
              filepath: 
-                    get
-                    input=["http://viewlang.ru/assets/majid/2021-11/TSNE_output.csv",
-                            "http://viewlang.ru/assets/majid/2021-11/MDS_output.csv"]
-                    value=@mainparams->cb1 | console_log;
-  }
+                    get {{console_log_params}}
+                    input={"TSNE":"http://viewlang.ru/assets/majid/2021-11/TSNE_output.csv",
+                           "MDS":"http://viewlang.ru/assets/majid/2021-11/MDS_output.csv"}
+                    name=@mainparams->cb1;
+  };
 };
 
 // робит dat: load-file file=@f1->value | parse_csv | rescale_rgb;

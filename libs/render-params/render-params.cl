@@ -55,13 +55,20 @@ register_feature name="render-params" {
 
 //    objfind: path2obj input=@..->input;
     getparamnames: compute_output input=@..->object code=`
-      
       // console.log("GPN: object=",env.params.input, "GN=",env.params.input ? env.params.input.getGuiNames() : "null")
-      if (env.params.input)
-          return env.params.input.getGuiNames(); /// так-то было бы удобно если бы эти gui-names были тоже просто параметром
+      if (env.params.input) {
+          // return env.params.input.getGuiNames();
+          // но нет, надо взять те что не internal..
+          let gn = env.params.input.getGuiNames();
+          let acc = [];
+          for (let nn of gn)
+            if (!env.params.input.getParamOption(nn,"internal"))
+              acc.push( nn );
+          return acc ; /// так-то было бы удобно если бы эти gui-names были тоже просто параметром
+     }          
     ` {
       js code=`
-            env.ns.parent.on("remove",() => {
+        env.ns.parent.on("remove",() => {
         //console.log("getparamnames removes..");
         //debugger;
         });
@@ -119,7 +126,7 @@ register_feature name="render-one-param" code='
 register_feature name="render-param-string" {
   column {
     text text=@..->name;
-    dom tag="input" {{param_changed_log}} {
+    dom tag="input" {
       link from=@../..->param_path to=".->dom_value" tied_to_parent=true;
       link to=@../..->param_path from=".->value" tied_to_parent=true 
         soft_mode=true manual_mode=true;

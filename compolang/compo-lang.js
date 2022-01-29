@@ -669,6 +669,9 @@ export function compute( env ) {
 
   var imsetting_params_maybe;
   function evl() {
+    if (env.removed)
+        return;
+
     if (env.params.code) {
      var params = env.params;
      imsetting_params_maybe = true;
@@ -799,10 +802,10 @@ export function mapping( env, options )
   env.addString("input");
 }
 
-export function param_changed_log( env, options )
+export function console_log_params( env, options )
 {
   env.host.on("param_changed",(n,v) => {
-    console.log( "param_changed_log:",env.params.text || "", env.host.getPath(), "name=",n,"value=",v )
+    console.log( "console_log_params:",env.params.text || "", env.host.getPath(), "->",n,":",v )
   });
 }
 

@@ -174,6 +174,7 @@ export function node3d( env, opts={} ) {
   }
 
   env.addCmd("rescan_children_for_3d",rescan);
+  env.setParamOption("rescan_children_for_3d","internal",true)
 
   rescan();
 

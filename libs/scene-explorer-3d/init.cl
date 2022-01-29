@@ -344,7 +344,6 @@ register_feature name="feat_filter" {
     {{
       pattern: param_string value="** lib3d-visual";
     }}
-    {{param_changed_log}}
   generator-features={ graph_filter pattern=@st->pattern; }
   ;
 };
@@ -352,8 +351,8 @@ register_feature name="feat_filter" {
 load files="set-params";
 
 register_feature name="graph_filter" {
-  root: set_params input=@selected->output {{param_changed_log}} {{dbg v=10000}} {
-    selected: find-objects pattern=@root->pattern {{param_changed_log}} | console_log text="FILTERED GRAPH OBJECTS";
+  root: set_params input=@selected->output {
+    selected: find-objects pattern=@root->pattern | console_log text="FILTERED GRAPH OBJECTS";
   };
 };
 

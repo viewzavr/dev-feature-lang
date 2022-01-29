@@ -12,7 +12,7 @@ register_feature name="param_combo" code=`
   
   env.onvalue( "values", setup );
   env.onvalue( "value", (v) => {
-    console.log("combo param value changed",v)
+    //console.log("combo param value changed",v)
     env.tgt().setParam( env.paramname(),v );
     update_index(v);
   });
@@ -20,14 +20,20 @@ register_feature name="param_combo" code=`
   function setup() {
     var nv = env.params.value || env.params.values[0];
     let tgt = env.tgt()
-    tgt.addComboValue( env.paramname(),nv,env.params.values );
+    //tgt.addComboValue( env.paramname(),nv,env.params.values );
+
+    // todo получается у нас в addComboValue тупняк - если мы даем значение
+    // то сигнала никто не получит... или это логично?
+    tgt.addComboValue( env.paramname(),undefined,env.params.values );
     if (t) t();
     t = tgt.trackParam( env.paramname(),(v) => {
-      console.log("combo param value changed m2",v);
+      //console.log("combo param value changed m2",v);
       env.setParam("value",v);
       update_index(v);
     });
-    if (!env.params.value) env.setParam("value",nv);
+    if (!env.params.value) {
+      env.setParam("value",nv);
+    }
   }
   env.on("remove",() => {
     if (t) t(); t = null;
