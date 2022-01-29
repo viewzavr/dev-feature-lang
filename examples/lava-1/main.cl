@@ -1,6 +1,18 @@
 load files="lib3dv3 csv params io gui render-params df misc scene-explorer-3d";
 // todo: уметь загружать по спецификатору lib3dv3/gltf-format
 
+    lavaparams: showparams {
+      ptradius: param_slider min=0.0001 max=1 value=0.05 step=0.0001;
+      slice_delta: param_float value=5;
+      vtkfile: param_file value="http://127.0.0.1:8080/vis-data/lava/src/1_3_v0/ParticleData_Fluid_3370.vtk"
+        ;
+        // value="http://127.0.0.1:8080/vis-data/lava/src/05_1_v100/ParticleData_Fluid_5000.vtk";
+        // "https://viewlang.ru/assets/lava2/ParticleData_Fluid_1192.vtk" 
+      objfile: param_file value="http://127.0.0.1:8080/vis-data/lava/src/obj/rb_data_0_1.obj"
+        ;
+        // "http://viewlang.ru/assets/models/lava/rb_data_0_1.obj"
+    };
+
 /// рендеринг 3D сцены
 
 rend: render3d bgcolor=[0.1,0.2,0.3] target=@view
@@ -12,7 +24,7 @@ rend: render3d bgcolor=[0.1,0.2,0.3] target=@view
 
     ////////////////////////////////////// подготовка данных лавы
     
-    dat: load_file_binary file="https://viewlang.ru/assets/lava2/ParticleData_Fluid_1192.vtk" 
+    dat: load_file_binary file=@lavaparams->vtkfile
          | parse_vtk_points | compute_magnitude_col;
 
     // вычисляет колонку magnitude по формуле sqrt( vecolity0^2+vecolity1^2+vecolity2^2 )
@@ -44,11 +56,6 @@ rend: render3d bgcolor=[0.1,0.2,0.3] target=@view
 
     ////////////////////////////////////// лава
 
-    lavaparams: showparams {
-      ptradius: param_slider min=0.0001 max=1 value=0.05 step=0.0001;
-      slice_delta: param_float value=5;
-    };
-
     rep: repeater model=@selected_columns->output {
       pts: node3d {
 
@@ -77,7 +84,7 @@ rend: render3d bgcolor=[0.1,0.2,0.3] target=@view
 
     ////////////////////////////////////// вулкан
 
-    obj: load_file file="http://viewlang.ru/assets/models/lava/rb_data_0_1.obj" | parse_obj;
+    obj: load_file file=@lavaparams->objfile | parse_obj;
 
     @obj | mesh showparams {{ auto_scale size=100 input=@rend->output; }}
        {{ 
@@ -92,7 +99,9 @@ rend: render3d bgcolor=[0.1,0.2,0.3] target=@view
 
 screen auto-activate {
 
-  column padding="1em" style="z-index: 3; position:absolute; background: rgba(255,255,255,0.5);" {
+  column padding="1em" style="z-index: 3; position:absolute;
+    background: rgba(255,255,255,0.5);
+    overflow-y: scroll;max-height: 100%;" {
 
     column {
     dom style="display: grid;  grid-template-columns: 1fr 1fr; max-width: 250px" {

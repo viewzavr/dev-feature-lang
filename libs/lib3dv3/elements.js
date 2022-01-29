@@ -41,7 +41,8 @@ export function lib3d_visual( env ) {
 
   // такая всем добавка
   env.onvalues(["positions","output"],(p,o) => {
-    o.geometry.computeBoundingSphere();
+    if (o.geometry)
+      o.geometry.computeBoundingSphere();
   })
 
   //obj.addString("count","0");
@@ -94,7 +95,7 @@ export function lines( env ) {
 
   env.setParam("material",material);  
 
-  env.feature("node3d",{object3d: sceneObject});s
+  env.feature("node3d",{object3d: sceneObject});
 }
 
 
