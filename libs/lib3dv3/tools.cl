@@ -1,4 +1,4 @@
-register_feature name="material_gui" {
+register_feature name="material_generator_gui" {
     dg: dom_group text="Material options"
     {{
       link to=".->output_material" from=@matptr->output;

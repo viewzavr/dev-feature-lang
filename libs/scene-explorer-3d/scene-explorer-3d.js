@@ -440,7 +440,7 @@ export function scene_explorer_graph( env ) {
 
   var stop_process = ()=>{};
 
-  env.addFloat( "update_interval", 500 );
+  env.addFloat( "update_interval", 2500 );
 
   //if (!env.params.update_interval) env.params.update_interval = 500;
 

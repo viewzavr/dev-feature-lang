@@ -159,6 +159,15 @@ one_env
         // но быть может стоит просто наружу это вытащить в форме env.param_expressions и там уже разбираться..
       }
       else
+      if (m.param && m.value.param_value_env_list) {
+         //env.env_list_params ||= {};
+         //debugger;
+         //env.env_list_params[ m.name ] = m.value.param_value_env_list;
+         let v = m.value.param_value_env_list;
+         v.needLexicalParent=true;
+         env.params[ m.name ] = v;
+      }
+      else
       if (m.param)
         env.params[ m.name ] = m.value;
       else
@@ -251,7 +260,9 @@ value
   / array
   / number
   / string
-  / "{" ws @env_list ws "}"
+  / "{" ws env_list:env_list ws "}" {
+    return { param_value_env_list: env_list }
+  }
   / "(" ws env_list:env_list ws ")" {
     // attr expression
     return { env_expression: env_list }

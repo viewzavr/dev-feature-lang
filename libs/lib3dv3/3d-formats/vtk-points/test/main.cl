@@ -40,7 +40,7 @@ screen auto-activate {
     cbcol: combobox values=(compute_output in=@dat->output code=`return env.params?.in?.colnames`);
     // вот тут идея сделать checkbox-group.... и выбирать галками слои...
 
-    me1: material_gui;
+    me1: material_generator_gui;
   };
 
   view: view3d style="position: absolute; width:100%; height: 100%; z-index:-2";

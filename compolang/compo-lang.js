@@ -791,11 +791,19 @@ export function connection( env, options )
 
 export function mapping( env, options )
 {
-  env.onvalues(["values","input"],(values,input) => {
+  env.onvalues(["index","input"],(values,input) => {
     var v = values[input];
+    //var v = input[index];
     env.setParam("output",v);
   });
   env.addString("input");
+}
+
+export function param_changed_log( env, options )
+{
+  env.host.on("param_changed",(n,v) => {
+    console.log( "param_changed_log:",env.params.text || "", env.host.getPath(), "name=",n,"value=",v )
+  });
 }
 
 export function console_log( env, options )

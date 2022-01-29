@@ -3,13 +3,14 @@ load files="lib3dv3 csv params io alfa.js gui render-params df
             ";
 //load files="gui";
 
-mainparams: {
+mainparams: dbg {
   cb1: param_combo values=["TSNE","MDS"];
-  f1:  param_file value=@map->output {
-             map: mapping 
-                    values=["http://viewlang.ru/assets/majid/2021-11/TSNE_output.csv",
+  f1:  param_file value=@filepath->output {
+             filepath: 
+                    get
+                    input=["http://viewlang.ru/assets/majid/2021-11/TSNE_output.csv",
                             "http://viewlang.ru/assets/majid/2021-11/MDS_output.csv"]
-                    input=@cb1->index;
+                    value=@mainparams->cb1 | console_log;
   }
 };
 
@@ -28,12 +29,12 @@ mainscreen: screen auto-activate padding="1em" {
     column gap="0.5em" padding="0em" {
       //objects-guis objects="** @showparams";
       //objects-guis objects="** @showparams";
-      render-params input="@mainparams";
+      render-params object_path="@mainparams";
     };
 
-    text text="test float";
-    i1: input_float value=1555;
-    console_log text="input value" input=@i1->value;
+    //text text="test float";
+    //i1: input_float value=1555;
+    //console_log text="input value" input=@i1->value;
 
     column gap="0.5em" padding="0em" {
       dom tag="h4" innerText="Визуальные объекты";

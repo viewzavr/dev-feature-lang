@@ -150,7 +150,7 @@ screen auto-activate {
 */
 
     //text text="Select material for surface";
-    me1: material_gui text="Surface look";
+    me1: material_generator_gui text="Surface look";
   };
 
   view: view3d style="position: absolute; width:100%; height: 100%; z-index:-2";
