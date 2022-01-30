@@ -63,6 +63,7 @@ register_feature name="compute_data_radius" code=`
    выход
      output - значение  
 */
+
 register_feature name="compute_auto_scale" {
   size=100 
   compute_output
