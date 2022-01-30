@@ -750,6 +750,7 @@ export function find_objects( env  ) {
     //console.log(v);
     //debugger;
   })
+  
   env.addString("found_objects_count");
 }
 

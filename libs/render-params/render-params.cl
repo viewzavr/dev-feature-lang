@@ -29,7 +29,7 @@ register_feature name="render-guis" {
           pcol: column visible=false { /* @../../..->opened */
             render-params object=@../..->modelData;
             btntitle: compute_output object=@../..->modelData code=`
-              return env.params.object?.ns.name;
+              return env.params.object?.params.gui_title || env.params.object?.ns.name;
             `;
           }
           

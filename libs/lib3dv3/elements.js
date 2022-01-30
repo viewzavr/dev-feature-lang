@@ -41,8 +41,10 @@ export function lib3d_visual( env ) {
 
   // такая всем добавка
   env.onvalues(["positions","output"],(p,o) => {
-    if (o.geometry)
+    if (o.geometry) {
       o.geometry.computeBoundingSphere();
+      o.geometry.computeBoundingBox();
+    }
   })
 
   //obj.addString("count","0");

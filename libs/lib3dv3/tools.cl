@@ -86,8 +86,10 @@ register_feature name="compute_bbox" code=`
    env.setInterval( process,1000 ); // пока так
    function process() {
       var box = new THREE.Box3();
+
       box.setFromObject( env.params.input );
       //env.setParam("output",box);
+      //console.log("bbox computed:",box);
 
       let tores = (v) => [v.x, v.y, v.z];
 
