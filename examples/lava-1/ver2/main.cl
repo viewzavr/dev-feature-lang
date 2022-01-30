@@ -6,7 +6,7 @@ load files="lib3dv3 csv params io gui render-params df misc scene-explorer-3d";
 lavaparams: showparams {
       ptradius: param_slider min=0.0001 max=1 value=0.05 step=0.0001;
       slice_delta: param_float value=5;
-      
+
       vtkfile: param_file value="http://127.0.0.1:8080/vis-data/lava/src/1_3_v0/ParticleData_Fluid_3370.vtk"
         ;
         // value="http://127.0.0.1:8080/vis-data/lava/src/05_1_v100/ParticleData_Fluid_5000.vtk";
@@ -22,6 +22,27 @@ obj: load_file file=@lavaparams->objfile | parse_obj;
 
 /// рендеринг 3D сцены
 
+register_feature name="stack_items" {
+  df: deploy_features step=10
+    features={pos3d y=(compute_output in1=@.->objectIndex step=@df->step code=`
+     return env.params.in1*env.params.step;
+   `;)}
+};
+/*
+  step=10 
+  fcode={ pos3d }
+  code=`
+  env.host.onvalues( ["input","step"])
+
+  env.host.on("childrenChanged",(v) => {
+     let r = env.params.step || 10;
+     for (let c of env.host.ns.children) {
+
+     }
+  })
+`;
+*/
+
 rend: render3d bgcolor=[0.1,0.2,0.3] target=@view
 {
     orbit_control;
@@ -30,9 +51,13 @@ rend: render3d bgcolor=[0.1,0.2,0.3] target=@view
     text3d_one text="loading..." showparams;
 
     ////////////////////////////////////// лава
-    lavacontainer: node3d {{ stack_children }} 
+    lavacontainer: node3d {{ 
+      find-objects pattern_root=@lavacontainer pattern="** vtk_points_layer" 
+        | stack_items step=@lavaparams->slice_delta;
+      }}
     {
       @dat | vtk_points_layer gui_title="Visual layer" showparams2;
+      @dat | vtk_points_layer gui_title="Visual layer 2" showparams2;
     };
 
     ////////////////////////////////////// вулкан
@@ -50,24 +75,6 @@ rend: render3d bgcolor=[0.1,0.2,0.3] target=@view
 
 /// интерфейс пользователя gui
 
-
-register_feature name="render-guis-nested" {
-  rep: repeater opened=true {
-    col: column {
-          button 
-            text=(compute_output object=@col->input code=`return env.params.object?.params.gui_title || env.params.object?.ns.name`) 
-            cmd="@pcol->trigger_visible";
-
-          pcol: column visible=true style="padding-left: 1em;" {
-            render-params object=@col->input;
-
-            find-objects pattern_root=@col->input pattern="** include_gui" 
-               | render-guis;
-           };
-         
-        };
-    };
-};
 
 screen auto-activate {
 

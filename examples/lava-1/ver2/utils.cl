@@ -37,7 +37,7 @@ register_feature name="vtk_points_layer" {
     columns=(@.->input | get name="colnames")
     selected_data = (get input=@.->input name=@.->selected_column)
     output=@visual->output
-    
+
     {{
       selected_column: param_combo values=@.->columns index=0;
     }}
@@ -56,6 +56,7 @@ register_feature name="vtk_points_layer" {
 
         @root->input | ptsa: points include_gui gui_title="Points" //radius=@lavaparams->ptradius 
         {{
+           deploy_features features=@root->main_visual_features;
            // pos3d y=(compute_output in=@pts->modelIndex d=@lavaparams->slice_delta code=`return env.params.in*env.params.d`);
         }}
         {{
@@ -70,5 +71,24 @@ register_feature name="vtk_points_layer" {
           //pos3d y=(compute_output in=@pts->modelIndex code=`return env.params.in*5 + 90`) x=60 z=-130;
          }};
       };
-  }
-}    
+  };
+};
+
+
+register_feature name="render-guis-nested" {
+  rep: repeater opened=true {
+    col: column {
+          button 
+            text=(compute_output object=@col->input code=`return env.params.object?.params.gui_title || env.params.object?.ns.name`) 
+            cmd="@pcol->trigger_visible";
+
+          pcol: column visible=true style="padding-left: 1em;" {
+            render-params object=@col->input;
+
+            find-objects pattern_root=@col->input pattern="** include_gui" 
+               | render-guis;
+           };
+         
+        };
+    };
+};

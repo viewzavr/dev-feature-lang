@@ -750,7 +750,7 @@ export function find_objects( env  ) {
     //console.log(v);
     //debugger;
   })
-  
+
   env.addString("found_objects_count");
 }
 
@@ -1080,10 +1080,12 @@ export function deploy_features( env )
 
      let to_deploy_to = objects_arr;
 
+     let ii=0;
      for (let tenv of to_deploy_to) {
       for (let rec of features_list) {
         console.log("deploy_features is deploying",rec,"to",tenv.getPath())
         let new_feature_env = env.vz.importAsParametrizedFeature( rec, tenv );
+        new_feature_env.setParam( "objectIndex",ii);
         created_envs.push( new_feature_env );
 
         // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
@@ -1092,6 +1094,7 @@ export function deploy_features( env )
         new_feature_env.$env_extra_names ||= {};
         new_feature_env.$env_extra_names[ new_feature_env.$feature_name ] = true;
       };
+      ii++;
      };
   }
 
