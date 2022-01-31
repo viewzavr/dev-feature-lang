@@ -23,6 +23,15 @@ load files="lib3dv3 csv params io gui render-params df misc scene-explorer-3d";
 
 /// рендеринг 3D сцены
 
+/*
+  function rend( ) {
+    render3d( bgcolor=[0.1,0.2,0.3],target=view, () => {
+  
+      text3d_one( text="loading...", class="showparams" );
+    });
+  }
+*/
+
 rend: render3d bgcolor=[0.1,0.2,0.3] target=@view
 {
     orbit_control;
