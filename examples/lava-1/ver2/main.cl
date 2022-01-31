@@ -7,13 +7,11 @@ lavaparams: showparams {
       ptradius: param_slider min=0.0001 max=1 value=0.05 step=0.0001;
       slice_delta: param_float value=5;
 
-      vtkfile: param_file value="http://127.0.0.1:8080/vis-data/lava/src/1_3_v0/ParticleData_Fluid_3370.vtk"
+      vtkfile: param_file value="http://viewlang.ru/assets/lava2/src/1_3_v0/ParticleData_Fluid_3370.vtk"
         ;
-        // value="http://127.0.0.1:8080/vis-data/lava/src/05_1_v100/ParticleData_Fluid_5000.vtk";
-        // "https://viewlang.ru/assets/lava2/ParticleData_Fluid_1192.vtk" 
-      objfile: param_file value="http://127.0.0.1:8080/vis-data/lava/src/obj/rb_data_0_1.obj"
+      
+      objfile: param_file value="http://viewlang.ru/assets/lava2/src/obj/rb_data_0_1.obj"
         ;
-        // "http://viewlang.ru/assets/models/lava/rb_data_0_1.obj"
 };
 
 ////////////////////////// данные

@@ -1258,7 +1258,7 @@ VTKLoader.prototype = Object.assign( Object.create( Loader.prototype ), {
 
 		}
 		
-		if (!data || data.length == 0) {
+		if (!data || data.length == 0 || data.byteLength == 0) {
 		  return DF.create();
 		}
 

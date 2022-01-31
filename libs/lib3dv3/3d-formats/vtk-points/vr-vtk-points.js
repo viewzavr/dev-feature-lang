@@ -16,6 +16,7 @@ export function parse_vtk_points( env ) {
 }
 
 // попытки сделать рисование структуры типа vtk
+// признано плохой идеей
 export function render_vtk_points( env, opts ) {
    env.feature("points");
 
@@ -25,6 +26,8 @@ export function render_vtk_points( env, opts ) {
    });
 }
 
+// признано бм норм идеей но не нужно по факту пока -
+// точки по умолчанию читат XYZ как раз
 export function points_vtk_input ( env, opts ) {
 
    env.host.onvalue("input",(data) => {
@@ -33,9 +36,13 @@ export function points_vtk_input ( env, opts ) {
    });  
 }
 
+// преобразует структуру vtkpoints - колонку XYZ заменяет на три колонки X Y Z
 import * as DF from    "../../../df/df.js";
 export function vtk_points_to_normalized_df( env ) {
   env.host.onvalue("input",(data) => {
+      if (!(data || data.XYZ))
+        return env.host.setParam( "output",[]);
+
       var df = DF.create_from_df( data );
       let count = Math.floor( data.XYZ.length / 3 );
       let ax=new Float32Array( count );

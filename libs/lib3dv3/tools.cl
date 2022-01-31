@@ -102,3 +102,69 @@ register_feature name="compute_bbox" code=`
       env.setParam("center",tores(center) )
    }
 `;
+
+register_feature name="get_coords_bbox" code=`
+   env.feature("timers");
+   env.setInterval( process,1000 ); // пока так
+   function process() {
+      
+      let threejs_obj = env.params.input;
+      let geom = threejs_obj?.geometry;
+
+      if (!geom) {
+        env.setParam("min",[0,0,0]);
+        env.setParam("max",[0,0,0]);
+        env.setParam("center",[0,0,0]);
+        console.log("AFVSDFVDSFV 000");
+        return;
+      }
+
+      if (!geom.boundingBox)
+         geom.computeBoundingBox();
+
+      let box = geom.boundingBox;
+
+      let tores = (v) => [v.x, v.y, v.z];
+
+      console.log("AFVSDFVDSFV 111",box);
+
+      env.setParam("min",tores(box.min) )
+      env.setParam("max",tores(box.max) )
+
+      var center = new THREE.Vector3();
+      box.getCenter( center );
+      env.setParam("center",tores(center) )
+   }
+`;
+
+/* вроде пока не нужна
+register_feature name="compute_bsphere" code=`
+   env.feature("timers");
+   env.setInterval( process,1000 ); // пока так
+   function process() {
+      let threejs_obj = env.params.input;
+      if (!threejs_obj) {
+        env.setParam("min",[0,0,0]);
+        env.setParam("max",[0,0,0]);
+        env.setParam("center",[0,0,0]);
+        env.setParam("radius",0);
+        return;
+      }
+
+      var box = new THREE.Box3();
+
+      box.setFromObject( env.params.input );
+      //env.setParam("output",box);
+      //console.log("bbox computed:",box);
+
+      let tores = (v) => [v.x, v.y, v.z];
+
+      env.setParam("min",tores(box.min) )
+      env.setParam("max",tores(box.max) )
+
+      var center = new THREE.Vector3();
+      box.getCenter( center );
+      env.setParam("center",tores(center) )
+   }
+`;
+*/

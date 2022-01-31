@@ -48,7 +48,11 @@ register_feature name="vtk_points_layer" {
       };
     }
   {
-      visual: node3d  {
+      visual: node3d 
+      {{
+           auto_scale size=100 input=@rend->output; 
+      }}
+       {
 
         //data_filter: include_gui gui_title="Input data"
 
@@ -59,13 +63,11 @@ register_feature name="vtk_points_layer" {
            deploy_features features=@root->main_visual_features;
            // pos3d y=(compute_output in=@pts->modelIndex d=@lavaparams->slice_delta code=`return env.params.in*env.params.d`);
         }}
-        {{
-           auto_scale size=100 input=@rend->output; 
-        }}
+
         colors=( @root->selected_data | arr_to_colors include_gui gui_title="Coloring" );
 
         text3d_one text=@root->selected_column include_gui gui_title="Text" {{
-          box: compute_bbox input=@ptsa->output;
+          box: get_coords_bbox input=@ptsa->output;
           pos3d pos=@box->max;
           //pos3d pos=(compute_output in=@box->center code=`return [env.params.in[0], env.params.in[1] + 5, env.params.in[2]]`);
           //pos3d y=(compute_output in=@pts->modelIndex code=`return env.params.in*5 + 90`) x=60 z=-130;
