@@ -15,6 +15,9 @@ vf1: visual-features
   visual-feature title="Show debugger" body={feat_show_dbg};
   visual-feature title="Show loaders" body={feat_show_load};
   visual-feature title="Show all params" body={feat_show_all_params};
+
+  visual-feature title="Background color" body={feat_bgcolor};
+  
   
   // кстати тут реально можно было бы и карту построить просто... чистово гуи с группами...
   // не знаю зачем я заморачиваюсь...
@@ -74,7 +77,8 @@ scr: screen {
       };
 
       column gap="0.5em" padding="0.5em" margin="1em" 
-             style="background: rgba( 255 255 255 / 25% ); color: white;" {
+             //style="background: rgba( 255 255 255 / 25% ); color: white;" {
+              style="background: rgba( 128 128 128 / 50% ); color: white;" {
         dom tag="h3" innerText="Graph params" style="margin:0;";
 
         //ueb: checkbox text="update_every_beat" value=false;
@@ -192,7 +196,7 @@ register_feature name="struc_z" code=`
 
 // добавить названия объектов
 register_feature name="obj_titles" code=`
-  env.onvalue("graph",(g) => {
+  env.host.onvalue("graph",(g) => {
       g
       .nodeThreeObjectExtend(true)
       .nodeThreeObject(node => {
@@ -201,13 +205,42 @@ register_feature name="obj_titles" code=`
 
             const sprite = new SpriteText(node.name);
             sprite.material.depthWrite = false; // make sprite background transparent
-            sprite.color = 'white'; //node.color;
-            sprite.textHeight = 12;
+            sprite.color = tri2hex(env.params.obj_title_color || [1,1,1]); //node.color; //  || 'white'
+            //sprite.color = 'white';
+            sprite.textHeight = env.params.obj_title_size || 12;
             sprite.position.z=10;
             return sprite;
             }
       });
   })
+
+  env.addSlider("obj_title_size",12,1,50,1,(v) => {
+    env.host.signalParam("graph");
+  })
+  env.addColor("obj_title_color",[1,1,1],(v) => {
+    env.host.signalParam("graph");
+  })
+
+    /// работа с цветом    
+    // c число от 0 до 255
+    function componentToHex(c) {
+        if (typeof(c) === "undefined") {
+          debugger;
+        }
+        var hex = c.toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+    }
+
+    // r g b от 0 до 255
+    function rgbToHex(r, g, b) {
+        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    }  
+
+    // triarr массив из трех чисел 0..1
+    function tri2hex( triarr ) {
+       return rgbToHex( Math.floor(triarr[0]*255),Math.floor(triarr[1]*255),Math.floor(triarr[2]*255) )
+    }
+
 `;
 
 // добавить значения параметров при наведении мышки
@@ -387,3 +420,51 @@ register_feature name="feat_show_dbg" {
 register_feature name="feat_show_load" {
   generator-features={ show_loaders; };
 };
+
+
+//////////////////// цвет фона
+
+register_feature name="feat_bgcolor" {
+  st:
+    {{
+      color: param_color value=[1,1,1];
+    }}
+  explorer-features={ gr_bg_color color=@st->color graph=@.->graph; }
+  ;
+};
+
+register_feature name="gr_bg_color" code=`
+  
+    /// работа с цветом    
+    // c число от 0 до 255
+    function componentToHex(c) {
+        if (typeof(c) === "undefined") {
+          debugger;
+        }
+        var hex = c.toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+    }
+
+    // r g b от 0 до 255
+    function rgbToHex(r, g, b) {
+        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    }  
+
+    // triarr массив из трех чисел 0..1
+    function tri2hex( triarr ) {
+       return rgbToHex( Math.floor(triarr[0]*255),Math.floor(triarr[1]*255),Math.floor(triarr[2]*255) )
+    }
+
+  env.onvalues(["graph","color"],(g,c) => {
+      //console.log("gggg1",c)
+      c = tri2hex(c);
+      //console.log("gggg",c)
+      g.backgroundColor( c );
+      //g.node_title_color = "black";
+
+      // тыркнем остальных чтобы они отразили node_title_color
+      //env.host.signalParam("graph");
+  });
+
+  //env.onvalue("font_w")
+`;

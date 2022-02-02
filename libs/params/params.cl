@@ -175,6 +175,28 @@ register_feature name="param_string" code=`
   });
 `;
 
+register_feature name="param_color" code=`
+  env.feature("param_base"); 
+  var t;
+  env.onvalue( "value", (v) => {
+    env.tgt().setParam( env.paramname(),v) 
+  });
+  function setup() {
+    let tgt = env.tgt();
+    tgt.addColor( env.paramname(),env.params.value );
+    if (t) t();
+    t = tgt.trackParam( env.paramname(),(v) => {
+      env.setParam("value",v);
+    });
+  }
+  //setup();
+  setTimeout( setup, 0 );  // треш конечно
+  env.on("remove",() => {
+    if (t) t(); t = null;
+  });
+`;
+
+
 
 register_feature name="param_cmd" code=`
   env.feature("param_base"); 
