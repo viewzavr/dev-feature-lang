@@ -29,3 +29,10 @@ export function apply_by_hotkey(env) {
  });
 
 };
+
+export function text_to_arr( env ) {
+  env.onvalue("input",(text) => {
+    let arr = text.split("\n");
+    env.setParam("output",arr );
+  })
+}
