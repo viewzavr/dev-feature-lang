@@ -635,13 +635,17 @@ export function scene_explorer_3d( env ) {
         )
         //.nodeLabel('id')
         .nodeLabel( node => node.label || node.id)
-        .onNodeClick(node => {
+        .onNodeClick( (node,event) => {
+
+          env.emit("nodeClick",node,event,graph); // своя ТПУ
 
           // фича "фиксировать узел при клике на нево"
           // а то к нему начинают цепляться стрелочки от других
           node.fx = node.x;
           node.fy = node.y;
           node.fz = node.z;
+
+          // фича клик значит это текущий
 
           console.log("clicked node",node );
           env.setParam("current_object_path", node.object_path );
@@ -653,6 +657,10 @@ export function scene_explorer_3d( env ) {
           // особая штука чтобы обновить раскраску
           //graph.nodeColor(graph.nodeColor())
           //graph.nodeVal(graph.nodeVal());
+
+          // надо еще узел запомнить чтобы могла работать команда zoom-to-selected
+          // env.setParam("current_object_node", node );
+          
         })
         .onLinkClick(node => {
 
@@ -704,89 +712,36 @@ export function scene_explorer_3d( env ) {
 
 }
 
+export function node_click_zoom(env) {
+  let unsub = env.host.on("nodeClick",(node,event,g) => {
+    if (env.host.params.current_object_path != node.object_path) return;
 
+    // Aim at node from outside it
+    const distance = 200;
+    const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
 
-
-// https://github.com/vasturiano/3d-force-graph#input-json-syntax
-// пляся от корня заданного obj, генерить согласно описанию
-function gen0( obj,rec ) {
-  rec ||= create_rec();
-
-  var id = obj.getPath();
-  
-  if (id == "/state") return "";
-
-  //rec.nodes.push( { id: id, name: id } );
-  addnode( rec, { id: id, name: id, object_path: id, isobject: true } )
-
-  // параметры все
-  var params = obj.getParamsNames();
-  if (!obj.params.hasOwnProperty("children")) params = params.concat( ["children"] );
-
-  //params=["children"];
-  //params=[];
-  params.forEach( (pn,index) => {
-    //rec.nodes.push( { id: id + "->" + pn, name: pn } );
-    addnode( rec, { id: id + "->" + pn, name: pn, object_path: id } )
-    // IFROMTO
-    addlink( rec, { source: id, target: id + "->" + pn, isparam: true, isstruct:(pn=="children") } );
-  })
-  
-  var ch = obj.ns.getChildNames();
-  ch.forEach( function(cname,index) {
-      var c = obj.ns.getChildByName( cname );
-      var cid = c.getPath();
-      
-      if (c.historicalType == "link") { // ссылки параметры
-        genlink( c,rec );
-        
-      }
-      else {
-        gen( c,rec );
-
-        addlink( rec, {target:id+"->children",
-                       source: cid, 
-                       ischild: true, 
-                       isstruct: true,
-                       target_obj_path: id
-                      })
-      }
+          g.cameraPosition(
+            { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+            node, // lookAt ({ x, y, z })
+            3000  // ms transition duration
+          );
   });
-  
+  env.on("remove",unsub);
+}
 
-  // ссылки объектов
-  /*
-  for (var refname of Object.keys( obj.references || {})) {
-      var path = obj.getParam( refname );
-      var ref = path && path.getPath ? path.getPath() : path; // R-SETREF-OBJ
-      if (ref) {
-         if (obj.getParamOption( refname,"backref" ))
-         t += `(${id}) <== (${ref}) : "obj ref TPU"\n`;
-         else
-         t += `(${id}) ==> (${ref}) : "obj ref TPU"\n`;
-      }
-  }
-  */
-  
-  /*
-  // неведомое
-  if (obj.extraTpus) {
-    var extras = obj.extraTpus();
-    for (var e of Object.keys(extras)) {
-      var ecomment = extras[e];
-      if (typeof(ecomment) !== "string") ecomment = "";
-      t += `(${id}) ==> (${e}) : "${ecomment}"\n`;
-    }
-  }
-  if (obj.extraTpusBack) {
-    var extras = obj.extraTpusBack();
-    for (var e of Object.keys(extras)) {
-      var ecomment = extras[e];
-      if (typeof(ecomment) !== "string") ecomment = "";
-      t += `(${id}) <== (${e}) : "${ecomment}"\n`;
-    }
-  }
-  */  
-  
-  return rec;
+// проект фичи
+export function cmd_zoom_to_selected(env) {
+  env.host.addCmd("zoom_to_selected",() => {
+    let node = 0;
+
+    // Aim at node from outside it
+    const distance = 200;
+    const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
+
+          g.cameraPosition(
+            { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+            node, // lookAt ({ x, y, z })
+            3000  // ms transition duration
+          );
+  });
 }

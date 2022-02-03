@@ -129,6 +129,7 @@ scr: screen {
               features_big
               //update_every_beat=@ueb->value
               obj_titles
+              node_click_zoom
               params_preview_values
               active=@scr->visible
               ;
