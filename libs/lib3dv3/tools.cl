@@ -27,6 +27,7 @@ register_feature name="material_generator_gui" {
 /* вычисляет "радиус" данных
    входы:
      input - входной threejs объект (дерево) для анализа
+     except - исключить объект из расчетов
    выход
      output - значение
    радиус это радиус сферы с центром в 0, в которую эти данные впишутся
@@ -35,10 +36,12 @@ register_feature name="compute_data_radius" code=`
    env.feature("timers");
    env.setInterval( process,1000 );
    function process() {
-      let r = 10;
+      let r = 10.111;
 
       function rec(obj) {
         if (!obj) return;
+        if (obj == env.params.except) return;
+
         if (obj.geometry && obj.geometry.boundingSphere) {
           var s = obj.geometry.boundingSphere;
           var q = s.radius + Math.max( Math.abs(s.center.x),Math.abs(s.center.y),Math.abs(s.center.z) );
@@ -51,6 +54,7 @@ register_feature name="compute_data_radius" code=`
 
       
       rec( env.params.input );
+      console.log("rrrrr=",r)
 
       env.setParam("output",r);
    }

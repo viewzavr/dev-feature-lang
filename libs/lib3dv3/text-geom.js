@@ -15,6 +15,7 @@ export function text3d_one( env ) {
   env.addSlider("size",2,0,10,0.1 );
 
   env.onvalues(["text","loaded_font","size"],(t,font,size) => {
+        t = t.toString(); // а то числы подают
 
         var geometry = new TextGeometry( t, {
           font: font,
@@ -64,7 +65,10 @@ export function text3d_one( env ) {
 }
 
 
-
+// вход: lines - массив строк [str,str,str...]
+//       positions - массив положений [x,y,z,x,y,z,...]
+//       colors - массив цветов [r,g,b,r,g,b,...]
+//       size - размер текста
 export function text3d( env ) {
   var material = new THREE.MeshPhongMaterial( { color: 0xffffff } ); // front , flatShading: true
   var group = new THREE.Group();
