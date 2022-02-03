@@ -50,7 +50,7 @@ register_feature name="vtk_points_layer" {
   {
       visual: node3d 
       {{
-           auto_scale size=100 input=@rend->output; 
+           layer_auto_scale: auto_scale size=100 input=@rend->output;
       }}
        {
 
@@ -69,6 +69,9 @@ register_feature name="vtk_points_layer" {
         text3d_one text=@root->selected_column include_gui gui_title="Text" {{
           box: get_coords_bbox input=@ptsa->output;
           pos3d pos=@box->max;
+          scale3d coef=@layer_auto_scale->coef;
+          // надо обратно увеличить текст, т.к. он задается в более-менее экранных размерах
+          
           //pos3d pos=(compute_output in=@box->center code=`return [env.params.in[0], env.params.in[1] + 5, env.params.in[2]]`);
           //pos3d y=(compute_output in=@pts->modelIndex code=`return env.params.in*5 + 90`) x=60 z=-130;
          }};
