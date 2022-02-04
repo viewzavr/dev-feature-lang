@@ -452,6 +452,8 @@ export function feature_func( env )
 
    env.addCmd( "apply",(...args) => {
       if (env.params.code) {
+        // кстати идея - а что если там сигнатуру подают то ее использовать?
+        // т.е. если cmd="(obj,coef) => { ..... }"
         var func = new Function( "env","args", env.params.code );
         func.call( null, env, args );
         //eval( obj.params.code );
@@ -464,6 +466,71 @@ export function feature_func( env )
       }
    } )
 }
+
+// вызывает команду name у объекта target
+export function call_cmd( env )
+{
+  env.addObjectRef("target");
+
+   env.addCmd( "apply",(...args) => {
+      debugger;
+
+      if (!env.params.target) {
+        console.error("call_cmd: target not specified", env.getPath());
+        return;
+      }
+      if (!env.params.name) {
+        console.error("call_cmd: name not specified", env.getPath());
+        return;
+      }
+
+      env.params.target.callCmd( env.params.name, ...args );
+
+   } )
+}
+
+// вызывает функцию или команду name у объекта target
+export function call( env )
+{
+  env.addObjectRef("target");
+
+   env.addCmd( "apply",(...args) => {
+
+      if (!env.params.target) {
+        console.error("call: target not specified", env.getPath());
+        return;
+      }
+      if (!env.params.name) {
+        console.error("call: name not specified", env.getPath());
+        return;
+      }
+
+      let to = env.params.target;
+      let nam = env.params.name;
+
+      if (to.hasCmd( nam ))
+        to.callCmd( nam, ...args );
+      else if (typeof( to[nam] ) == "function")
+        to[nam].call( undefined, ...args );
+      else
+        console.error("call: target has no input thing named",nam,target.getPath());
+      // вообще идея что можно было бы еще вызвать событие
+
+      // и еще что прием такой вещи можно было бы завернуть в сам объект
+      // и тогда у него уже обработчик сам решает, что же это и что с ним делать
+      // т.е. может быть это ввернуть на стороную вьюзавра
+      // и вообще единой функцией с аргументом-именем. и тогда объект сам будет решать
+      // как он готов реагировать. хотя может быть и ценно будет все-таки знать
+      // что там ничего такого не принимают..
+
+      // ну и еще можно свести.. call target=... command=... func=... event=....;
+      // в общем тут нужен некий дизайн, понять что это и почему и зачем
+      // кстати в qml - там есть а) явная регистрация событий, б) и эта регистрация формирует
+      // "команду", которую можно даже вызывать.
+
+   } )
+}
+
 
 // автоматический вызов команды apply при изменении любых параметров
 // (кстати странно - даже выходных получается)
@@ -497,6 +564,7 @@ export function js( env )
 
 // добавляет команду в целевое окружение
 // сама прикидывается func и поэтому можно прицепить code и все такое
+// и еще у нас есть param_cmd.. @todo выбрать одно
 export function add_cmd( env ) {
   
   env.feature("func");
@@ -840,14 +908,15 @@ export function onremove( env )
   })
 }
 
+// очень похоже на connection
 export function onevent( env  )
 {
   env.feature("func");
   var u1 = () => {};
   env.onvalue( "name", (name) => {
     u1();
-    u1 = env.host.on( env.params.name ,() => {
-      env.callCmd("apply");
+    u1 = env.host.on( env.params.name ,(...args) => {
+      env.callCmd("apply",...args);
     })
   })
   env.on("remove",u1);
@@ -985,7 +1054,8 @@ export function deploy( env )
 
 }
 
-// действует как deploy_many но по команде
+// действует как deploy_many но по команде apply
+// вход - input, массив описаний
 export function creator( env )
 {
 
@@ -999,14 +1069,19 @@ export function creator( env )
      if (!target) {
        console.error("creator: got command but target is blank;");
        return;
-     }     
+     }
      deploy_normal_env_all(input, target);
   })
 
   function deploy_normal_env_all(input,target) {
       for (let edump of input) {
         edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
+        //edump.manual = env.params.manual;
+        //посчитал неправильным здесь это обрабатывать
+
         var p = env.vz.createSyncFromDump( edump,null,target );
+
+        p.then( (obj) => env.emit("created",obj) );
      }
  }
 
@@ -1016,6 +1091,7 @@ export function creator( env )
 // подключая их к родителю
 // тут кстати напрашивается сделать case - фильтрацию массива... ну и if через это попробовать сделать например...
 // вариантов много получается...
+// update - вроде как get достаточно в этом случае?
 export function deploy_many( env, opts )
 {
   
@@ -1137,4 +1213,44 @@ export function get( env ) {
   });
   // идея - уметь брать сразу несколько чего-то.. и выдавать не знаю, массив..
   // ну например брать names или там еще что..
+}
+
+// такая тема - регистрирует параметры через геттеры и сеттеры окружения
+export function copy_params_to_obj( env ) {
+  let x = env.host;
+
+  let orig = x.setParamWithoutEvents;
+
+  x.setParamWithoutEvents = (name,value) => {
+    orig( name,value);
+    regparam_if_needed(name);
+  }
+
+  let registered_params = {};
+  function regparam_if_needed( name) {
+    if (registered_params[name]) return;
+    registered_params[name]=true;
+    regparam(name);
+  }
+
+  function regparam( name ) {
+    Object.defineProperty(x, name, {
+          get: function() { return x.getParam(name); },
+          set: function(newValue) { x.setPAram(name,newValue); },
+          enumerable: false,
+    });
+  }
+
+  // todo addGui по идее тоже
+}
+
+var uniq_ids = {};
+export function uniq_id_generator(env) {
+
+  let key;
+  while (true) {
+    key = "compalang_uniq_id_" + (Math.random() + 1).toString(36).substring(2);
+    if (!uniq_ids[key]) break;
+  };
+  env.setParam("output",key);
 }

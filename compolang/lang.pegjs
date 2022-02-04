@@ -31,13 +31,17 @@
     return new_env;
   }
 
+  function is_env_real( e ) {
+   return Object.keys(e.features).length > 0
+        || Object.keys(e.params).length > 0
+        || Object.keys(e.children).length > 0
+        || Object.keys(e.links).length > 0;
+  }
+
   function append_children_envs( env, envs ) {
     var counter=0;
     for (let e of envs) {
-      if ( Object.keys(e.features).length > 0
-        || Object.keys(e.params).length > 0
-        || Object.keys(e.children).length > 0
-        || Object.keys(e.links).length > 0)
+      if ( is_env_real(e))
         {
            var cname = e.$name;
            while (env.children[ cname ])
@@ -229,7 +233,15 @@ env_pipe
   
 env_list
   = head:env tail:(__ ";" @env)* { 
-    return [head,...tail]; 
+    // выяснилось что у нас в tail могут быть пустые окружения
+    // и надо их все отфильтровать...
+    let res = [head];
+    for (let it of tail) {
+      if (is_env_real(it)) res.push( it );
+    }
+    return res;
+
+    //return [head,...tail]; 
     }
 
 link

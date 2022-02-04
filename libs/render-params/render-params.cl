@@ -53,7 +53,6 @@ register_feature name="render-params" {
       }
     };
 
-//    objfind: path2obj input=@..->input;
     getparamnames: compute_output input=@..->object code=`
       // console.log("GPN: object=",env.params.input, "GN=",env.params.input ? env.params.input.getGuiNames() : "null")
       if (env.params.input) {
@@ -65,7 +64,7 @@ register_feature name="render-params" {
             if (!env.params.input.getParamOption(nn,"internal"))
               acc.push( nn );
           return acc ; /// так-то было бы удобно если бы эти gui-names были тоже просто параметром
-     }          
+     }
     ` {
       js code=`
         env.ns.parent.on("remove",() => {
@@ -260,5 +259,23 @@ register_feature name="render-param-combovalue"
       `;
     };
 
+  };
+};
+
+register_feature name="render-param-editablecombo"
+{
+  root: column {
+    text text=@..->name;
+
+    editablecombo {{dbg}} 
+      values=(@root->gui | compute_output code=`
+          if (!env.params.input) return [];
+          return env.params.input.getValues()
+      `;)
+      {
+      link from=@../..->param_path to=".->value" tied_to_parent=true;
+      link to=@../..->param_path from=".->value" tied_to_parent=true 
+        soft_mode=true manual_mode=true;
+    };
   };
 };

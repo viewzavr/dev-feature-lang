@@ -258,6 +258,39 @@ register_feature name="combobox" {
 	};
 };
 
+///////////////////////////////////////////////////// editablecombo
+/*
+   входы 
+     values - список значений
+     value - выбранное значение
+   выходы
+    value - выбранное или набранное значение
+    output - выбранное значение (дублирует value)
+
+   // туту на будущее - смотреть варианты сигналов.. 
+
+   пример
+    editablecombo values=["alfa","beta","teta"];
+*/
+
+register_feature name="editablecombo" {
+	ecroot: dom tag="input" 
+	  dom_type="text"
+	  datalist_id=(uniq_id_generator)
+	  dom_attr_list=@.->datalist_id
+	  dom_obj_value=@.->value
+	  {
+			dom tag="datalist" 
+			   dom_attr_id=@ecroot->datalist_id 
+			   innerHTML=(compute_output values=@ecroot->values code="
+				  return env.params.values ? env.params.values.map( (str) => `<option value='${str}'>${str}</option>`).join('') : '';
+				");
+			dom_event name="change" code=`
+			  env.params.object.setParam( args[0].value );
+			`;
+    };
+};
+
 ////////////////////////////////////////////// tabview
 /*
  tabview - показывает содержимое в стиле табов
