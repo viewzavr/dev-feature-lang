@@ -1,5 +1,5 @@
 load files="lib3dv3 csv params io gui render-params df
-            scene-explorer-3d misc
+            scene-explorer-3d misc utils.cl
             ";
 
 register_feature name="smotrelka" {
@@ -8,15 +8,19 @@ smotrelka: env {
 
   datahub: a=5;
 
-  scene3d: node3d;
+  scene3d: node3d {
+      axes_box size=10;
+  };
 
   render: render3d 
       bgcolor=[0.1,0.2,0.3]
       target=@view1
-      input=@scene3d
+      input=@scene3d->output
   {
     camera3d pos=[0,0,100] center=[0,0,0];
     orbit_control;
+
+
   };
 
   screen auto-activate padding="1em" {
@@ -71,7 +75,8 @@ register_feature name="data_layer" {
 
     // читалка и парсер
     dat: load_file file=@root->file | parse_csv;
-  }
+    dfenv: df_to_env input=@dat->output;
+  };
 
 };
 
@@ -83,14 +88,51 @@ register_feature name="visual_layer" {
 };
 
 register_feature name="mesh_visualizer" {
-   root: mesh {
+   root: mesh input=@collected_df {
 
-     collected_df: params_to_df include_gui {
-       param_ref name="X";
-       param_ref name="Y";
-       param_ref name="Z";
+     collected_df: copy_params_to_obj {{dbg}} {
+        link to=".->X" from=@input_data->X tied_to_parent=true;
+        link to=".->Y" from=@input_data->Y tied_to_parent=true;
+        link to=".->Z" from=@input_data->Z tied_to_parent=true;
+     };
+
+     connection object=@collected_df event_name="param_changed" root=@root code=`
+       console.log("SEEEEEEE");
+       if (env.params.root) {
+         console.log("sending");
+        env.params.root.signalTracked( "input" );
+       }
+     `;
+
+     /*
+     {
+       call target=@root name="signalTracked"
+       @root->signalTracked "input";
+     }
+     */
+
+     input_data: include_gui {
+       param_ref df_column_ref name="X";
+
+       param_ref df_column_ref name="Y";
+       param_ref df_column_ref name="Z";
      };
    };
+};
+
+register_feature name="params_to_df" {
+  js code=`
+    function refresh() {
+       env.host.colnames = env.host.getParamsNames();
+    }
+    env.host.on('gui-added',refresh);
+    refresh()
+  `;
+};
+
+register_feature name="df_column_ref" {
+  //param_ref crit_fn="(obj) => obj.colnames || []";
+  crit_fn="(obj) => obj.colnames || []";
 };
 
 register_feature name="render-guis-nested" {

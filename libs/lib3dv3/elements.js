@@ -254,7 +254,11 @@ export function points_df_input( env ) {
     //console.log("gonna paint df=",df);
     var dat = df;
     if (dat.XYZ || dat.positions)
-      env.setParam("positions", dat.XYZ || dat.positions );  
+      env.setParam("positions", dat.XYZ || dat.positions );
+    else if (dat.X && dat.Y && dat.Z && dat.X2 && dat.Y2 && dat.Z2 && dat.X3 && dat.Y3 && dat.Z3)
+      env.setParam("positions", utils.combine( [ dat.X, dat.Y, dat.Z,
+                                                 dat.X2, dat.Y2, dat.Z2,
+                                                 dat.X3, dat.Y3, dat.Z3 ] ) );      
     else
       env.setParam("positions", utils.combine( [ dat.X, dat.Y, dat.Z ] ) );
 

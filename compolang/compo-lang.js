@@ -1241,7 +1241,36 @@ export function copy_params_to_obj( env ) {
     });
   }
 
+  // теперь закачаем те что есть
+  for (let q of x.getParamsNames())
+    regparam_if_needed(q);
+
   // todo addGui по идее тоже
+}
+
+// представляет df как объект с параметрами
+export function df_to_env( env ) {
+
+  env.onvalue("input",(df) => {
+    cleanup();
+    if (!df.isDataFrame) {
+       return;
+    }
+    
+    env.colnames = df.colnames;
+
+    for (let c of df.colnames)
+    {
+      env.setParam(c, df[c] );
+    }
+  })
+
+  function cleanup() {
+    env.colnames=null;
+    for (let c of env.getParamsNames())
+      env.removeParam(c);
+  }
+
 }
 
 var uniq_ids = {};

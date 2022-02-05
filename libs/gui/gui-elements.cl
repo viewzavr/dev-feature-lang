@@ -286,7 +286,9 @@ register_feature name="editablecombo" {
 				  return env.params.values ? env.params.values.map( (str) => `<option value='${str}'>${str}</option>`).join('') : '';
 				");
 			dom_event name="change" code=`
-			  env.params.object.setParam( args[0].value );
+				let val = env.params.object.dom.value;
+				// args[0].value
+			  env.params.object.setParam( "value",val );
 			`;
     };
 };

@@ -267,7 +267,7 @@ register_feature name="render-param-editablecombo"
   root: column {
     text text=@..->name;
 
-    editablecombo {{dbg}} 
+    editablecombo
       values=(@root->gui | compute_output code=`
           if (!env.params.input) return [];
           return env.params.input.getValues()

@@ -16,6 +16,7 @@ register_feature name="param_combo" code=`
     env.tgt().setParam( env.paramname(),v );
     update_index(v);
   });
+
   var t;
   function setup() {
     var nv = env.params.value || env.params.values[0];
@@ -204,7 +205,74 @@ register_feature name="param_ref" code=`
   });
   function setup() {
     let tgt = env.tgt();
-    tgt.addParamRef( env.paramname(),env.params.value );
+    // todo поработать с рутом потом
+    //tgt.addParamRef( env.paramname(),env.params.value,null,null, tgt.findRoot() );
+    tgt.addParamRef( env.paramname(),env.params.value,null,null, null );
+    if (t) t();
+    t = tgt.trackParam( env.paramname(),(v) => {
+      env.setParam("value",v);
+    });
+
+    // криминал это все, на name зависим
+    env.onvalue("crit_fn",(str) => {
+     var f = eval( str );
+     let tgt = env.tgt();
+     tgt.setParamOption( env.paramname(), "crit_fn", f );
+     tgt.callCmd("rescan-"+env.paramname());
+    })
+  }
+  //setup();
+  setTimeout( setup, 0 );  // треш конечно
+  env.on("remove",() => {
+    if (t) t(); t = null;
+  });
+
+`;
+
+// todo
+register_feature name="param_objref" code=`
+  env.feature("param_base"); 
+  var t;
+  env.onvalue( "value", (v) => {
+    env.tgt().setParam( env.paramname(),v) 
+  });
+  function setup() {
+    let tgt = env.tgt();
+    // todo поработать с рутом потом
+    tgt.addObjRef( env.paramname(),env.params.value,null,null, tgt.findRoot() );
+    if (t) t();
+    t = tgt.trackParam( env.paramname(),(v) => {
+      env.setParam("value",v);
+    });
+
+    // криминал это все, на name зависим
+    env.onvalue("crit_fn",(str) => {
+     var f = eval( str );
+     let tgt = env.tgt();
+     tgt.setParamOption( env.paramname(), "crit_fn", f );
+     tgt.callCmd("rescan-"+env.paramname());
+    })
+  }
+  //setup();
+  setTimeout( setup, 0 );  // треш конечно
+  env.on("remove",() => {
+    if (t) t(); t = null;
+  });
+
+`;
+
+register_feature name="param_editablecombo" code=`
+  env.feature("param_base"); 
+  var t;
+  env.onvalue( "value", (v) => {
+    env.tgt().setParam( env.paramname(),v) 
+  });
+  env.onvalue( "values", (v) => {
+    env.tgt().setParamOption( env.paramname(),"values",v) 
+  });
+  function setup() {
+    let tgt = env.tgt();
+    tgt.addEditableCombo( env.paramname(),env.params.value );
     if (t) t();
     t = tgt.trackParam( env.paramname(),(v) => {
       env.setParam("value",v);
