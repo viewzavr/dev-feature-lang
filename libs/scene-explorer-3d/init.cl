@@ -19,6 +19,8 @@ vf1: visual-features
   visual-feature title="Background color" body={feat_bgcolor};
 
   visual-feature title="Hilite recent links" body={feat_link_particle} init_on=true;
+
+  visual-feature title="Hilite recent nodes" body={feat_nodechange_hilite} init_on=true;
   
   
   // кстати тут реально можно было бы и карту построить просто... чистово гуи с группами...
@@ -541,9 +543,75 @@ register_feature name="link_particle" code=`
       })
       .linkDirectionalParticleWidth( 5 );
       //g.linkDirectionalParticleColor( '#f0f0f0' );
-
   }
 
   //env.vz.register_feature_append("link","link_ts");
+
+`;
+
+
+//////////////////// показ изменившихся узлов (в основном параметров)
+
+register_feature name="feat_nodechange_hilite" {
+  st:
+    {{
+      color: param_color value=[1,1,1];
+    }}
+  explorer-features={ nodechange_hilite color=@st->color graph=@.->graph recent_seconds=10; }
+  ;
+};
+
+register_feature name="nodechange_hilite" code=`
+
+    /// работа с цветом    
+    // c число от 0 до 255
+    function componentToHex(c) {
+        if (typeof(c) === "undefined") {
+          debugger;
+        }
+        var hex = c.toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+    }
+
+    // r g b от 0 до 255
+    function rgbToHex(r, g, b) {
+        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    }  
+
+    // triarr массив из трех чисел 0..1
+    function tri2hex( triarr ) {
+       return rgbToHex( Math.floor(triarr[0]*255),Math.floor(triarr[1]*255),Math.floor(triarr[2]*255) )
+    }
+
+  env.feature("timers");
+  let unsub_t = ()=>{}; 
+  env.onvalues(["graph","color","recent_seconds"],(g,c,s) => {
+    unsub_t();
+    c = tri2hex(c);
+    process( g,c,s );
+    
+    unsub_t = env.setInterval( () => {
+       process( g,c,s ); // все-таки надо пере-вызывать
+      }, 500 );
+  });
+
+  function process(g,c,s) {
+      
+      g.nodeColor( node => {
+
+          if (!node.changed_timestamp) 
+            return node.color;
+
+          let t0 = performance.now(); // todo optimize - на gdata надо реагировать//
+          let seconds_ago = (t0 - node.changed_timestamp) / 1000;
+          
+          if (seconds_ago < s) {
+            return c;
+          }
+
+          return node.color;
+
+      })
+  }
 
 `;

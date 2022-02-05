@@ -63,7 +63,8 @@ export function add_all_params( env ) {
 
     params.forEach( (pn,index) => {
       //rec.nodes.push( { id: id + "->" + pn, name: pn } );
-      addnode( rec, { id: id + "->" + pn, name: pn, object_path: id, color: 'yellow', isparam: true } )
+      addnode( rec, { id: id + "->" + pn, name: pn, object_path: id, color: 'yellow', 
+                      isparam: true, changed_timestamp: obj.getParamOption(pn,"changed_timestamp") } )
       // IFROMTO
       addlink( rec, { source: id, target: id + "->" + pn, isparam: true, isstruct:(pn=="children") } );
     })
@@ -408,8 +409,11 @@ function merge( prevrec, newrec ) {
   // создадим новое из старого, но только то что не удалено
   var rec = create_rec();
   prevrec.nodes.forEach( node => {
-    if (newrec.nodes_table[ node.table_key ]) 
+    let newrec_node = newrec.nodes_table[ node.table_key ];
+    if (newrec_node) {
+        node.changed_timestamp = newrec_node.changed_timestamp;
         addnode( rec, node );
+    }
       else rec.has_changed = true;
   })
   prevrec.links.forEach( node => {
