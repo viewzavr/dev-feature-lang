@@ -1197,6 +1197,10 @@ export function get( env ) {
     let v = input ? input[ param ] : undefined;
     env.setParam("output",v );
   });
+  env.onvalues(["input","child"],(input,param) => {
+    let v = input ? input.ns.childrenTable[ param ] : undefined;
+    env.setParam("output",v );
+  });
   env.onvalues(["input","index"],(input,param) => {
     let v = input ? input[ param ] : undefined;
     env.setParam("output",v );
@@ -1282,4 +1286,16 @@ export function uniq_id_generator(env) {
     if (!uniq_ids[key]) break;
   };
   env.setParam("output",key);
+}
+
+export function get_children_arr(env) {
+  let unsub=()=>{};
+  env.onvalue("input",(senv) => {
+    unsub();
+    unsub = senv.on("childrenChanged",() => {
+      env.setParam("output", senv.ns.children );
+    });
+    env.setParam("output", senv.ns.children );
+  })
+  env.on("remove",() => unsub());
 }

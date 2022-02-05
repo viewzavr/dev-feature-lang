@@ -374,7 +374,10 @@ function peg$parse(input, options) {
 
       //console.log("final, env.$name=",env.$name)
       if (env.$name == "item" && Object.keys( env.features ).length > 0) {
-          env.$name = Object.keys( env.features ).join("_");
+          //env.$name = Object.keys( env.features ).join("_");
+          env.$name = Object.keys( env.features )[0]; // лучше называть по первой фиче..
+          // а то потом в гуи видим длинные названия - а по факту все-равно первая главная
+          // а остальные так
       }
 
       return env;

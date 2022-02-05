@@ -9,7 +9,7 @@ smotrelka: env {
   datahub: a=5;
 
   scene3d: node3d {
-      axes_box size=10;
+      //axes_box size=10;
   };
 
   render: render3d 
@@ -19,7 +19,6 @@ smotrelka: env {
   {
     camera3d pos=[0,0,100] center=[0,0,0];
     orbit_control;
-
 
   };
 
@@ -69,6 +68,8 @@ smotrelka: env {
   
 };
 
+///////////////////////////////////////////////////
+
 register_feature name="data_layer" {
   root: {
     param_file name="file";
@@ -80,10 +81,24 @@ register_feature name="data_layer" {
 
 };
 
+///////////////////////////////////////////////////
+
+t1: output=@. list=(@. | get_children_arr | arr_filter code=`(c) => c.params.title`) {
+  mesh: title="Mesh show" feature={ show: mesh_visualizer include_gui; };
+  axes: title="Axes" feature={ show: axes_box size=10 include_gui; };
+};
+
+
 register_feature name="visual_layer" {
   node3d {
+
+    selected_show: param_combo 
+       values=(@t1->list | arr_map code=`(c) => c.ns.name`)
+       titles=(@t1->list | arr_map code=`(c) => c.params.title`);
+
+    deploy_many input=( @t1 | get child=@selected_show->value | get param="feature" );
     
-    visualizer: mesh_visualizer include_gui;
+    //visualizer: mesh_visualizer include_gui;
   };
 };
 

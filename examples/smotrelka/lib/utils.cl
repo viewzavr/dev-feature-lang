@@ -3,11 +3,15 @@
 // пример: axes_box size=10;
 
 register_feature name="axes_box" {
-  root: node3d input=@..->output; {
-    axes_lines color=@root->color? size=@root->size;
+  root: node3d 
+  {
+
+  	size: param_slider min=0 max=100 step=1;
+
+    axes_lines color=@root->color? size=@root->size include_gui;
 
     //text3d_one color=[ 0.2, 0.2, 0.2 ] text=@ds->output;
-    axes_titles color=@root->color? s=@root->size size=1;
+    axes_titles color=@root->color? s=@root->size size=1 include_gui;
 
     // хорошее место чтобы воткнуть модификатор аргумент, todo
     // в т.ч. названия осей (через модификатор!)
