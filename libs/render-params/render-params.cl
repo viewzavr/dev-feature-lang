@@ -209,16 +209,18 @@ register_feature name="render-param-color" {
 };
 
 register_feature name="render-param-file" {
-  file {
-    link from=@..->param_path to=".->value" tied_to_parent=true;
-    link to=@..->param_path from=".->value" tied_to_parent=true soft_mode=true;
+  pf: param_field {
+    link from=@pf->param_path to="@ff->value" tied_to_parent=true;
+    link to=@pf->param_path from="@ff->value" tied_to_parent=true soft_mode=true;
+    ff: file;
   };
 };
 
 register_feature name="render-param-files" {
-  files {
-    link from=@..->param_path to=".->value" tied_to_parent=true;
-    link to=@..->param_path from=".->value" tied_to_parent=true soft_mode=true;
+  pf: param_field {
+    link from=@pf->param_path to="@ff->value" tied_to_parent=true;
+    link to=@pf->param_path from="@ff->value" tied_to_parent=true soft_mode=true;
+    ff: files;
   };
 };
 

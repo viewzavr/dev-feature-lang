@@ -17,6 +17,8 @@ vf1: visual-features
   visual-feature title="Show all params" body={feat_show_all_params};
 
   visual-feature title="Background color" body={feat_bgcolor};
+
+  visual-feature title="Hilite recent links" body={feat_link_particle} init_on=true;
   
   
   // кстати тут реально можно было бы и карту построить просто... чистово гуи с группами...
@@ -468,4 +470,80 @@ register_feature name="gr_bg_color" code=`
   });
 
   //env.onvalue("font_w")
+`;
+
+
+//////////////////// показ ссылок
+
+register_feature name="feat_link_particle" {
+  st:
+    {{
+      color: param_color value=[1,1,1];
+    }}
+  explorer-features={ link_particle color=@st->color graph=@.->graph recent_seconds=10; }
+  ;
+};
+
+register_feature name="link_particle" code=`
+
+    /// работа с цветом    
+    // c число от 0 до 255
+    function componentToHex(c) {
+        if (typeof(c) === "undefined") {
+          debugger;
+        }
+        var hex = c.toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+    }
+
+    // r g b от 0 до 255
+    function rgbToHex(r, g, b) {
+        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    }  
+
+    // triarr массив из трех чисел 0..1
+    function tri2hex( triarr ) {
+       return rgbToHex( Math.floor(triarr[0]*255),Math.floor(triarr[1]*255),Math.floor(triarr[2]*255) )
+    }
+
+  env.feature("timers");
+  let unsub_t = ()=>{}; 
+  env.onvalues(["graph","color","recent_seconds"],(g,c,s) => {
+    unsub_t();
+    process( g,c,s );
+    
+    unsub_t = env.setInterval( () => {
+       //console.log("calling refresh");
+       //g.refresh()
+       process( g,c,s ); // все-таки надо пере-вызывать
+       //console.log("done");
+      }, 500 );
+   
+    //unsub_t = env.setInterval( () => process(g,c,s), 5000 );
+  });
+  //env.on("remove",sub);
+
+  function process(g,c,s) {
+      
+      g.linkDirectionalParticles( link => {
+          if (!link.islink) return 0;
+          if (!link.passed_value_timestamp) return 0;
+
+          let t0 = performance.now(); // todo optimize - на gdata надо реагировать//
+          let seconds_ago = (t0 - link.passed_value_timestamp) / 1000;
+          if (seconds_ago < s) {
+            //console.log("checked link",link,"seconds_ago=",seconds_ago)
+            return 5;
+          }
+          // идея - кол-вом выдавать например давность
+          // хотя можно и шириной
+          return 0;
+      })
+      .linkDirectionalParticleWidth( 5 );
+      //g.linkDirectionalParticleColor( '#f0f0f0' );
+
+  }
+
+  //env.vz.register_feature_append("link","link_ts");
+
 `;

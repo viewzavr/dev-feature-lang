@@ -46919,8 +46919,10 @@ function InsertStackElement(node, body) {
       var obj = d[objBindAttr];
       delete d[objBindAttr]; // unbind obj
 
-      exitObj(obj);
-      removeObj(obj);
+      //if (obj) {
+        exitObj(obj);
+        removeObj(obj);
+        //}
     });
     var newObjs = createObjs(enter);
     var pointsData = [].concat(_toConsumableArray$2(enter), _toConsumableArray$2(update));

@@ -351,6 +351,7 @@ function genlink( obj,rec ) {
                        target_obj_path: objname2,
                        target_param: paramname2,
                        islink: true,
+                       passed_value_timestamp: obj.passed_value_timestamp,
                        object_path: id })
 }
 
@@ -412,8 +413,16 @@ function merge( prevrec, newrec ) {
       else rec.has_changed = true;
   })
   prevrec.links.forEach( node => {
-    if (newrec.links_table[ node.table_key ]) 
-        addlink( rec, node );
+    let newrec_node = newrec.links_table[ node.table_key ];
+    if (newrec_node) {
+        //addlink( rec, newrec.links_table[ node.table_key ] ); // добавляем новый вариант
+        // но можно и node но тогда скопировать данные по доступу
+       //addlink( rec, newrec_node );
+       // хитрая возможность передать данные в реальную структуру
+       // без ее обновления целиком (has_changed остается false)
+       node.passed_value_timestamp = newrec_node.passed_value_timestamp;
+       addlink( rec, node );
+    }
       else rec.has_changed = true;
   })
 
@@ -439,7 +448,7 @@ export function scene_explorer_graph( env ) {
 
   var stop_process = ()=>{};
 
-  env.addFloat( "update_interval", 2500 );
+  env.addFloat( "update_interval", 1200 );
 
   //if (!env.params.update_interval) env.params.update_interval = 500;
 
