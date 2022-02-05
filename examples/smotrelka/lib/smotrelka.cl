@@ -1,5 +1,5 @@
 load files="lib3dv3 csv params io gui render-params df
-            scene-explorer-3d misc utils.cl
+            scene-explorer-3d misc utils.cl visual-layers.cl
             ";
 
 register_feature name="smotrelka" {
@@ -70,24 +70,73 @@ smotrelka: env {
 
 ///////////////////////////////////////////////////
 
+t0: output=@. list=(@. | get_children_arr | arr_filter code=`(c) => c.params.title`) {
+  file: title="File input" feature={ show: file_data include_gui; };
+  file_many: title="Multi-file input" feature={ show: multi_file_data include_gui; };
+  text_csv: title="CSV text" feature={ show: text_csv_data include_gui; };
+  
+};
+
 register_feature name="data_layer" {
   root: {
+
+    selected_show: param_combo 
+       values=(@t0->list | arr_map code=`(c) => c.ns.name`)
+       titles=(@t0->list | arr_map code=`(c) => c.params.title`);
+
+    deploy_many input=( @t0 | get child=@selected_show->value | get param="feature" );
+/*
     param_file name="file";
 
     // читалка и парсер
     dat: load_file file=@root->file | parse_csv;
     dfenv: df_to_env input=@dat->output;
+*/    
   };
 
+};
+
+register_feature name="multi_file_data" {
+  root: 
+    file=(@root->files | get name=@root->current_index)
+    {{dbg}}
+  {
+    files: param_files;
+    current_index: param_slider min=0 max=@files->max value=0 step=1;
+
+    // читалка и парсер
+    dat: load_file file=@root->file | parse_csv;
+    //dfenv: df_to_env input=@dat->output;    
+  };
+};
+
+register_feature name="file_data" {
+  root: {
+    param_file name="file";
+
+    // читалка и парсер
+    dat: load_file file=@root->file | parse_csv;
+    //dfenv: df_to_env input=@dat->output;    
+  };
+};
+
+register_feature name="text_csv_data" {
+  troot: {
+    param_text name="content";
+
+    // читалка и парсер
+    dat: @troot->content | parse_csv;
+    //dfenv: df_to_env input=@dat->output;    
+  };
 };
 
 ///////////////////////////////////////////////////
 
 t1: output=@. list=(@. | get_children_arr | arr_filter code=`(c) => c.params.title`) {
   mesh: title="Mesh show" feature={ show: mesh_visualizer include_gui; };
+  points: title="Points show" feature={ show: points_visualizer include_gui; };
   axes: title="Axes" feature={ show: axes_box size=10 include_gui; };
 };
-
 
 register_feature name="visual_layer" {
   node3d {
@@ -97,77 +146,5 @@ register_feature name="visual_layer" {
        titles=(@t1->list | arr_map code=`(c) => c.params.title`);
 
     deploy_many input=( @t1 | get child=@selected_show->value | get param="feature" );
-    
-    //visualizer: mesh_visualizer include_gui;
   };
-};
-
-register_feature name="mesh_visualizer" {
-   root: mesh input=@collected_df {
-
-     collected_df: copy_params_to_obj {{dbg}} {
-        link to=".->X" from=@input_data->X tied_to_parent=true;
-        link to=".->Y" from=@input_data->Y tied_to_parent=true;
-        link to=".->Z" from=@input_data->Z tied_to_parent=true;
-     };
-
-     connection object=@collected_df event_name="param_changed" root=@root code=`
-       console.log("SEEEEEEE");
-       if (env.params.root) {
-         console.log("sending");
-        env.params.root.signalTracked( "input" );
-       }
-     `;
-
-     /*
-     {
-       call target=@root name="signalTracked"
-       @root->signalTracked "input";
-     }
-     */
-
-     input_data: include_gui {
-       param_ref df_column_ref name="X";
-
-       param_ref df_column_ref name="Y";
-       param_ref df_column_ref name="Z";
-     };
-   };
-};
-
-register_feature name="params_to_df" {
-  js code=`
-    function refresh() {
-       env.host.colnames = env.host.getParamsNames();
-    }
-    env.host.on('gui-added',refresh);
-    refresh()
-  `;
-};
-
-register_feature name="df_column_ref" {
-  //param_ref crit_fn="(obj) => obj.colnames || []";
-  crit_fn="(obj) => obj.colnames || []";
-};
-
-register_feature name="render-guis-nested" {
-  rep: repeater opened=true {
-    col: column {
-          button 
-            text=(compute_output object=@col->input code=`return env.params.object?.params.gui_title || env.params.object?.ns.name`) 
-            cmd="@pcol->trigger_visible";
-
-          pcol: column visible=true style="padding-left: 1em;" {
-            render-params object=@col->input;
-
-            find-objects pattern_root=@col->input pattern="** include_gui" 
-               | render-guis;
-
-            button text="Удалить" obj=@col->input {
-              call target=@col->input name="remove";
-            };
-           };
-         
-        };
-    };
 };

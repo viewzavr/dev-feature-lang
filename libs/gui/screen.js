@@ -61,7 +61,6 @@ function addStyle( styles ) {
   document.head.appendChild(styleSheet)
 }
 
-
 export function screen( obj, opts )
 {
   /*

@@ -136,6 +136,32 @@ register_feature name="render-param-string" {
   };
 };
 
+register_feature name="render-param-text" {
+  pf: param_field {
+
+      link from=@pf->param_path to="@ta->dom_value" tied_to_parent=true;
+      link to=@pf->param_path from=".->value" tied_to_parent=true 
+        soft_mode=true manual_mode=true;
+
+    button text="Редактировать" {
+      dlg: dialog {
+        column {
+          text text="Content";
+          ta: dom tag="textarea" style="width: 70vh; height: 30vh";
+          button text="Enter" cmd="@commit->apply";
+
+          commit: func pf=@pf ta=@ta dlg=@dlg code=`
+              let v = env.params.ta?.dom?.value;
+              debugger;
+              env.params.pf.setParam("value", v )
+              env.params.dlg.close();
+          `;
+        }
+      }
+    }
+  }
+};
+
 register_feature name="render-param-cmd" {
   button text=@.->name cmd=@.->param_path;
 };
@@ -189,6 +215,13 @@ register_feature name="render-param-file" {
   };
 };
 
+register_feature name="render-param-files" {
+  files {
+    link from=@..->param_path to=".->value" tied_to_parent=true;
+    link to=@..->param_path from=".->value" tied_to_parent=true soft_mode=true;
+  };
+};
+
 register_feature name="render-param-label" {
   row {
     text text=@..->name;
@@ -232,16 +265,20 @@ register_feature name="render-param-slider" {
   };
 };
 
+register_feature name="param_field" {
+  dom tag="fieldset" style="border-radius: 5px; padding: 4px;" {
+    dom tag="legend" innerText=@..->name;
+  };
+};
+
 register_feature name="render-param-combovalue"
 {
-  column {
-    text text=@..->name;
+  param_field {
 
     combobox {
       link from=@../..->param_path to=".->value" tied_to_parent=true;
       link to=@../..->param_path from=".->value" tied_to_parent=true 
         soft_mode=true manual_mode=true;
-      //link from=@..->param_path" to="..->min";
 
       compute obj=@../..->obj name=@../..->name code=`
         
@@ -261,6 +298,37 @@ register_feature name="render-param-combovalue"
 
   };
 };
+
+/*
+register_feature name="render-param-combovalue"
+{
+  column {
+    text text=@..->name;
+
+    combobox {
+      link from=@../..->param_path to=".->value" tied_to_parent=true;
+      link to=@../..->param_path from=".->value" tied_to_parent=true 
+        soft_mode=true manual_mode=true;
+
+      compute obj=@../..->obj name=@../..->name code=`
+        
+        if (env.params.obj && env.params.name) {
+          var values = env.params.obj.getParamOption( env.params.name,"values" ) || [];
+
+          if (!env.ns.parent)
+            debugger; // чтото странное
+
+          env.ns.parent.setParam("values",values);
+          // todo ловить когда эти values меняются.
+          // по сути все-таки "параметр" с его ключами
+          // должен вести себя как объект, тогда можно к нему залинковаться..
+        }
+      `;
+    };
+
+  };
+};
+*/
 
 register_feature name="render-param-editablecombo"
 {

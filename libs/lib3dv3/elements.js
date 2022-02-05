@@ -255,10 +255,6 @@ export function points_df_input( env ) {
     var dat = df;
     if (dat.XYZ || dat.positions)
       env.setParam("positions", dat.XYZ || dat.positions );
-    else if (dat.X && dat.Y && dat.Z && dat.X2 && dat.Y2 && dat.Z2 && dat.X3 && dat.Y3 && dat.Z3)
-      env.setParam("positions", utils.combine( [ dat.X, dat.Y, dat.Z,
-                                                 dat.X2, dat.Y2, dat.Z2,
-                                                 dat.X3, dat.Y3, dat.Z3 ] ) );      
     else
       env.setParam("positions", utils.combine( [ dat.X, dat.Y, dat.Z ] ) );
 
@@ -309,6 +305,10 @@ export function mesh_df_input( env ) {
     var dat = df;
     if (dat.XYZ || dat.positions)
       env.setParam("positions", dat.XYZ || dat.positions );  
+    else if (dat.X && dat.Y && dat.Z && dat.X2 && dat.Y2 && dat.Z2 && dat.X3 && dat.Y3 && dat.Z3)
+      env.setParam("positions", utils.combine( [ dat.X, dat.Y, dat.Z,
+                                                 dat.X2, dat.Y2, dat.Z2,
+                                                 dat.X3, dat.Y3, dat.Z3 ] ) );
     else
       env.setParam("positions", utils.combine( [ dat.X, dat.Y, dat.Z ] ) );
 
@@ -366,6 +366,8 @@ export function render_normals( env ) {
 }
 */
 
+// создает объект, рисующий нормали другого меш-объекта
+// вход input ссылка на output того объекта
 export function render_normals( env ) {
   env.feature("lib3d_visual");
 

@@ -6,6 +6,7 @@ style.js
 dom-event.js
 gui-elements.cl
 gui-events.cl
+dialog/dialog.js
 `;
 
 register_feature name="two_side_columns" {

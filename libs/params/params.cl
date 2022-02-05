@@ -113,6 +113,32 @@ register_feature name="param_file" code=`
   });
 `;
 
+register_feature name="param_files" code=`
+  env.feature("param_base"); 
+  var t;
+  env.onvalue( "value", (v) => {
+    //debugger;
+    //console.log("file_param value changed",v)
+    env.tgt().setParam( env.paramname(),v) 
+
+    env.setParam("count", v.length );
+    env.setParam("max", v.length-1 );
+  });
+  function setup() {
+    let tgt = env.tgt();
+    tgt.addFiles( env.paramname(),env.params.value );
+    if (t) t();
+    t = tgt.trackParam( env.paramname(),(v) => {
+      env.setParam("value",v);
+    });
+  }
+  //setup();
+  setTimeout( setup, 0 );  // треш конечно
+  env.on("remove",() => {
+    if (t) t(); t = null;
+  });
+`;
+
 register_feature name="param_label" code=`
   env.feature("param_base"); 
   var t;
@@ -164,6 +190,27 @@ register_feature name="param_string" code=`
   function setup() {
     let tgt = env.tgt();
     tgt.addString( env.paramname(),env.params.value );
+    if (t) t();
+    t = tgt.trackParam( env.paramname(),(v) => {
+      env.setParam("value",v);
+    });
+  }
+  //setup();
+  setTimeout( setup, 0 );  // треш конечно
+  env.on("remove",() => {
+    if (t) t(); t = null;
+  });
+`;
+
+register_feature name="param_text" code=`
+  env.feature("param_base"); 
+  var t;
+  env.onvalue( "value", (v) => {
+    env.tgt().setParam( env.paramname(),v) 
+  });
+  function setup() {
+    let tgt = env.tgt();
+    tgt.addText( env.paramname(),env.params.value );
     if (t) t();
     t = tgt.trackParam( env.paramname(),(v) => {
       env.setParam("value",v);

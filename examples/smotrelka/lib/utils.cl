@@ -1,55 +1,44 @@
-// axes box рисует оси и подписи заданного размера
-// size - размер
-// пример: axes_box size=10;
 
-register_feature name="axes_box" {
-  root: node3d 
-  {
 
-  	size: param_slider min=0 max=100 step=1;
-
-    axes_lines color=@root->color? size=@root->size include_gui;
-
-    //text3d_one color=[ 0.2, 0.2, 0.2 ] text=@ds->output;
-    axes_titles color=@root->color? s=@root->size size=1 include_gui;
-
-    // хорошее место чтобы воткнуть модификатор аргумент, todo
-    // в т.ч. названия осей (через модификатор!)
-    // тогда мы сможем рулить этим вопросом не приходя в сознание
-    // напрямую, не создавая прокси-свойств в axes_box
-    // это мб непривычно, но это прямое управление - играет на произведение функций!
-    // кстати!!!!
-
-    // ds: compute_data_radius input=@root->input except=@root->output;
-    // надо отдельно
-  }
+register_feature name="params_to_df" {
+  js code=`
+    function refresh() {
+       env.host.colnames = env.host.getParamsNames();
+    }
+    env.host.on('gui-added',refresh);
+    refresh()
+  `;
 };
 
-// рисует три линии осей координат
-// вход size
-register_feature name="axes_lines" {
-  lines
-    positions=(compute_output s=@.->size code=`
-    let s = env.params.s;
-    if (!isFinite(s)) return [];
-    return [0,0,0, 0,0,s,
-            0,0,0, 0,s,0,
-            0,0,0, s,0,0
-     ]
-  `;)
+register_feature name="df_column_ref" {
+  //param_ref crit_fn="(obj) => obj.colnames || []";
+  crit_fn="(obj) => obj.colnames || []";
 };
 
-// рисует подписи осям
-// вход: s - сдвиг
-register_feature name="axes_titles" {
-  text3d
-    lines=["X","Y","Z"]
-    positions=(compute_output s=@.->s code=`
-    let s = env.params.s;
-    if (!isFinite(s)) return [];
-    return [ 0,0,s,
-             0,s,0,
-             s,0,0
-     ]
-  `;)
+register_feature name="df_ref" {
+  crit_fn="(obj) => {
+  	return obj.getParamsNames().filter( (v) => obj.getParam(v)?.isDataFrame );
+  }";
+};
+
+register_feature name="render-guis-nested" {
+  rep: repeater opened=true {
+    col: column {
+          button 
+            text=(compute_output object=@col->input code=`return env.params.object?.params.gui_title || env.params.object?.ns.name`) 
+            cmd="@pcol->trigger_visible";
+
+          pcol: column visible=true style="padding-left: 1em;" {
+            render-params object=@col->input;
+
+            find-objects pattern_root=@col->input pattern="** include_gui" 
+               | render-guis;
+
+            button text="Удалить" obj=@col->input {
+              call target=@col->input name="remove";
+            };
+           };
+         
+        };
+    };
 };

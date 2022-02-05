@@ -256,9 +256,8 @@ function gen( obj,rec, env ) {
       var c = obj.ns.getChildByName( cname );
       var cid = c.getPath();
       
-      if (c.historicalType == "link") { // ссылки параметры
+      if (c.historicalType == "link") { // || c.is_feature_applied("link")) { // ссылки параметры
         genlink( c,rec );
-        
       }
       else {
         if (gen( c,rec, env )) {
@@ -721,7 +720,8 @@ export function node_click_zoom(env) {
     const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
 
           g.cameraPosition(
-            { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+            //{ x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+            { x: node.x , y: node.y -50, z: node.z +150 }, // new position
             node, // lookAt ({ x, y, z })
             3000  // ms transition duration
           );
@@ -739,7 +739,8 @@ export function cmd_zoom_to_selected(env) {
     const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
 
           g.cameraPosition(
-            { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+            //{ x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }, // new position
+            { x: node.x * distRatio, y: node.y * distRatio, z: node.z + 50 }, // new position
             node, // lookAt ({ x, y, z })
             3000  // ms transition duration
           );

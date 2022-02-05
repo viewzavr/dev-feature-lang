@@ -15,6 +15,16 @@ register_feature name="file" {
 	dom tag="input" dom_type="file" {
 		dom_event object=@.. name="change" code=`
 		  env.params.object.setParam("value",env.params.object.dom.files[0],true)
+		  env.params.object.setParam("output",env.params.object.dom.files[0],true)
+		`;
+	};
+};
+
+register_feature name="files" {
+	dom tag="input" dom_type="file" dom_attr_multiple=true {
+		dom_event object=@.. name="change" code=`
+		  env.params.object.setParam("value",env.params.object.dom.files,true);
+		  env.params.object.setParam("output",env.params.object.dom.files,true);
 		`;
 	};
 };
@@ -397,4 +407,3 @@ register_feature name="tabview" {
 register_feature name="tab" {
 	 dom;
 };
-

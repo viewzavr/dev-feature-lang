@@ -236,8 +236,11 @@ export function pipe(env)
       else
           created_links.push( env.linkParam("output",``) );
       // input первого ставим на инпут пайпы
+
       if (cfirst) {
-          if (!cfirst.hasLinksToParam("input") && !cfirst.hasParam("input"))
+          //if (!cfirst.hasLinksToParam("input") && !cfirst.hasParam("input"))
+          // заменяем наличие параметра на наличие непустого значения параметра
+          if (!cfirst.hasLinksToParam("input") && !cfirst.getParam("input"))
             created_links.push( cfirst.linkParam("input",`..->input`) );
       }
 
