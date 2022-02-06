@@ -1,4 +1,5 @@
 // Version 1.70.5 3d-force-graph - https://github.com/vasturiano/3d-force-graph
+// from https://unpkg.com/3d-force-graph@1.70.7/dist/3d-force-graph.js
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
@@ -46919,7 +46920,7 @@ function InsertStackElement(node, body) {
       var obj = d[objBindAttr];
       delete d[objBindAttr]; // unbind obj
 
-      //if (obj) {
+      //if (obj) { //pv
         exitObj(obj);
         removeObj(obj);
         //}
