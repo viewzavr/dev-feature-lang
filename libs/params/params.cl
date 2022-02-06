@@ -5,6 +5,20 @@ register_feature name="param_base" code=`
   env.paramname = () => {
     return env.params.name || env.ns.name;
   }
+
+  env.onvalue( "value", (v) => {
+    //console.log("combo param value changed",v)
+    // короче история такая. этот value меняется в т.ч. от польз ввода, получается
+    // когда нам его значение присылают (см ниже trackParam)
+    // и если мы вызываем просто setParam то сбиваем manual-флаг исходному
+    // поэтому решено что правильно если будет такая проверка тут
+    let oldv = env.tgt().getParam( env.paramname() );
+    if (oldv != v) {
+        env.tgt().setParam( env.paramname(),v); 
+    }
+    // env.tgt().setParam( env.paramname(),v );
+  });
+
 `;
 
 register_feature name="param_combo" code=`
@@ -12,8 +26,6 @@ register_feature name="param_combo" code=`
   
   env.onvalue( "values", setup );
   env.onvalue( "value", (v) => {
-    //console.log("combo param value changed",v)
-    env.tgt().setParam( env.paramname(),v );
     update_index(v);
   });
 
@@ -53,9 +65,7 @@ register_feature name="param_slider" code=`
   env.onvalue( "min", setup );
   env.onvalue( "max", setup );
   env.onvalue( "step", setup );
-  env.onvalue( "value", (v) => {
-    env.tgt().setParam( env.paramname(),v)
-  });
+  
   var t;
   function setup() {
     let tgt = env.tgt();
@@ -72,9 +82,7 @@ register_feature name="param_slider" code=`
 
 register_feature name="param_checkbox" code=`
   env.feature("param_base"); 
-  env.onvalue( "value", (v) => {
-    env.tgt().setParam( env.paramname(),v );
-  });
+
   var t;
   function setup() {
     let tgt = env.tgt();
@@ -93,11 +101,7 @@ register_feature name="param_checkbox" code=`
 register_feature name="param_file" code=`
   env.feature("param_base"); 
   var t;
-  env.onvalue( "value", (v) => {
-    //debugger;
-    //console.log("file_param value changed",v)
-    env.tgt().setParam( env.paramname(),v) 
-  });
+
   function setup() {
     let tgt = env.tgt();
     tgt.addFile( env.paramname(),env.params.value );
@@ -117,10 +121,6 @@ register_feature name="param_files" code=`
   env.feature("param_base"); 
   var t;
   env.onvalue( "value", (v) => {
-    //debugger;
-    //console.log("file_param value changed",v)
-    env.tgt().setParam( env.paramname(),v) 
-
     env.setParam("count", v.length );
     env.setParam("max", v.length-1 );
   });
@@ -163,9 +163,7 @@ register_feature name="param_label" code=`
 register_feature name="param_float" code=`
   env.feature("param_base"); 
   var t;
-  env.onvalue( "value", (v) => {
-    env.tgt().setParam( env.ns.name,v) 
-  });
+
   function setup() {
     let tgt = env.tgt();
     tgt.addFloat( env.paramname(),env.params.value );
@@ -184,9 +182,7 @@ register_feature name="param_float" code=`
 register_feature name="param_string" code=`
   env.feature("param_base"); 
   var t;
-  env.onvalue( "value", (v) => {
-    env.tgt().setParam( env.paramname(),v) 
-  });
+
   function setup() {
     let tgt = env.tgt();
     tgt.addString( env.paramname(),env.params.value );
@@ -205,9 +201,7 @@ register_feature name="param_string" code=`
 register_feature name="param_text" code=`
   env.feature("param_base"); 
   var t;
-  env.onvalue( "value", (v) => {
-    env.tgt().setParam( env.paramname(),v) 
-  });
+
   function setup() {
     let tgt = env.tgt();
     tgt.addText( env.paramname(),env.params.value );
@@ -226,9 +220,7 @@ register_feature name="param_text" code=`
 register_feature name="param_color" code=`
   env.feature("param_base"); 
   var t;
-  env.onvalue( "value", (v) => {
-    env.tgt().setParam( env.paramname(),v) 
-  });
+
   function setup() {
     let tgt = env.tgt();
     tgt.addColor( env.paramname(),env.params.value );
@@ -247,9 +239,7 @@ register_feature name="param_color" code=`
 register_feature name="param_ref" code=`
   env.feature("param_base"); 
   var t;
-  env.onvalue( "value", (v) => {
-    env.tgt().setParam( env.paramname(),v) 
-  });
+
   function setup() {
     let tgt = env.tgt();
     // todo поработать с рутом потом
@@ -280,9 +270,7 @@ register_feature name="param_ref" code=`
 register_feature name="param_objref" code=`
   env.feature("param_base"); 
   var t;
-  env.onvalue( "value", (v) => {
-    env.tgt().setParam( env.paramname(),v) 
-  });
+
   function setup() {
     let tgt = env.tgt();
     // todo поработать с рутом потом
@@ -311,9 +299,7 @@ register_feature name="param_objref" code=`
 register_feature name="param_editablecombo" code=`
   env.feature("param_base"); 
   var t;
-  env.onvalue( "value", (v) => {
-    env.tgt().setParam( env.paramname(),v) 
-  });
+
   env.onvalue( "values", (v) => {
     env.tgt().setParamOption( env.paramname(),"values",v) 
   });
@@ -322,7 +308,7 @@ register_feature name="param_editablecombo" code=`
     tgt.addEditableCombo( env.paramname(),env.params.value );
     if (t) t();
     t = tgt.trackParam( env.paramname(),(v) => {
-      env.setParam("value",v);
+      env.setParam("value",v );
     });
   }
   //setup();

@@ -139,12 +139,45 @@ t1: output=@. list=(@. | get_children_arr | arr_filter code=`(c) => c.params.tit
 };
 
 register_feature name="visual_layer" {
-  node3d {
+  vlayer: node3d {
 
     selected_show: param_combo 
        values=(@t1->list | arr_map code=`(c) => c.ns.name`)
        titles=(@t1->list | arr_map code=`(c) => c.params.title`);
 
-    deploy_many input=( @t1 | get child=@selected_show->value | get param="feature" );
+    deploy_many input=( @t1 | get child=@selected_show->value | get param="feature" ) 
+    {{
+        onevent name="before_deploy" vlayer=@vlayer code=`
+          //console.log("EEEE0",args);
+          let envs = args[0] || [];
+          let existed_env = envs[0];
+          
+          if (!existed_env) return;
+          
+          let dump = existed_env.dump();
+          //console.log("EEEE generated dump",dump);
+
+          //if (!env.params.vlayer) return;
+          env.params.vlayer.setParam("item_state", dump);
+        `;
+
+        onevent name="after_deploy" vlayer=@vlayer code=`
+          //console.log("UUUU0",args);
+          let envs = args[0] || [];
+          let tenv = envs[0];
+          
+          if (!tenv) return;
+
+          let dump = env.params.vlayer.getParam("item_state");
+          //console.log("UUUU0-dump",dump);
+
+          if (!dump) return;
+          
+          //dump.keepExistingChildren = true;
+          //dump.keepExistingParams = true;
+          dump.manual = true;
+          tenv.restoreFromDump( dump, true );
+        `;        
+      }}
   };
 };

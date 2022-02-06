@@ -912,6 +912,8 @@ export function onremove( env )
 }
 
 // очень похоже на connection
+// name - имя события которое мониторить
+// далее работает как функция
 export function onevent( env  )
 {
   env.feature("func");
@@ -1095,6 +1097,7 @@ export function creator( env )
 // тут кстати напрашивается сделать case - фильтрацию массива... ну и if через это попробовать сделать например...
 // вариантов много получается...
 // update - вроде как get достаточно в этом случае?
+// выдает сигналы before_deploy( old_envs ) и after_deploy( new_envs )
 export function deploy_many( env, opts )
 {
   
@@ -1112,14 +1115,18 @@ export function deploy_many( env, opts )
  }
      
  function deploy_normal_env_all(input) {
+     env.emit("before_deploy", created_envs);
      close_envs();
+     let parr=[];
      for (let edump of input) {
         edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
         var p = env.vz.createSyncFromDump( edump,null,env.ns.parent );
         p.then( (child_env) => {
            created_envs.push( child_env );
         });
+        parr.push(p);
      }
+     Promise.all(parr).then( (values) => env.emit("after_deploy",values) );
  }
  env.on("remove",close_envs)
 }
