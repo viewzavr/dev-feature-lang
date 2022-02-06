@@ -152,7 +152,7 @@ register_feature name="visual_layer" {
 
 register_feature name="keep_state" {
   ksroot: {
-    connection object=(get name="host" input=@ksroot) event_name="before_deploy" vlayer=@ksroot code=`
+    connection object=@ksroot->host event_name="before_deploy" vlayer=@ksroot code=`
           console.log("EEEE0 args=",args,"object=",env.params.object);
           let envs = args[0] || [];
           let existed_env = envs[0];
@@ -169,7 +169,7 @@ register_feature name="keep_state" {
         //onevent name="after_deploy" vlayer=@vlayer code=`
         // выглядит что проще добавить в onevent тоже обработку object, и уметь делать ссылки на хост.. @env->host
         // ну или уже сделать параметр такой..
-    connection object=(get name="host" input=@ksroot) event_name="after_deploy" vlayer=@ksroot code=`
+    connection object=@ksroot->host event_name="after_deploy" vlayer=@ksroot code=`
           //console.log("UUUU0",args);
           let envs = args[0] || [];
           let tenv = envs[0];
