@@ -146,9 +146,14 @@ register_feature name="visual_layer" {
        titles=(@t1->list | arr_map code=`(c) => c.params.title`);
 
     deploy_many input=( @t1 | get child=@selected_show->value | get param="feature" ) 
-    {{
-        onevent name="before_deploy" vlayer=@vlayer code=`
-          //console.log("EEEE0",args);
+      {{ keep_state }};
+  };
+};
+
+register_feature name="keep_state" {
+  ksroot: {
+    connection object=(get name="host" input=@ksroot) event_name="before_deploy" vlayer=@ksroot code=`
+          console.log("EEEE0 args=",args,"object=",env.params.object);
           let envs = args[0] || [];
           let existed_env = envs[0];
           
@@ -161,7 +166,10 @@ register_feature name="visual_layer" {
           env.params.vlayer.setParam("item_state", dump);
         `;
 
-        onevent name="after_deploy" vlayer=@vlayer code=`
+        //onevent name="after_deploy" vlayer=@vlayer code=`
+        // выглядит что проще добавить в onevent тоже обработку object, и уметь делать ссылки на хост.. @env->host
+        // ну или уже сделать параметр такой..
+    connection object=(get name="host" input=@ksroot) event_name="after_deploy" vlayer=@ksroot code=`
           //console.log("UUUU0",args);
           let envs = args[0] || [];
           let tenv = envs[0];
@@ -177,7 +185,6 @@ register_feature name="visual_layer" {
           //dump.keepExistingParams = true;
           dump.manual = true;
           tenv.restoreFromDump( dump, true );
-        `;        
-      }}
+        `;     
   };
 };

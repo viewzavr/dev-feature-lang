@@ -838,7 +838,7 @@ export function connection( env, options )
 
    env.addObjRef("object");
 
-   var tracking = () => {};;
+   var tracking = () => {};
    env.onvalues(["event_name","object"],(en,obj) => {
       tracking();
       //console.log("GPN tracking name=",en,obj)
