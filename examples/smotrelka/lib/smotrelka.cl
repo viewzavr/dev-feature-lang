@@ -74,7 +74,11 @@ t0: output=@. list=(@. | get_children_arr | arr_filter code=`(c) => c.params.tit
   file: title="File input" feature={ show: file_data include_gui; };
   file_many: title="Multi-file input" feature={ show: multi_file_data include_gui; };
   text_csv: title="CSV text" feature={ show: text_csv_data include_gui; };
-  
+};
+
+t0_parser: output=@. list=(@. | get_children_arr | arr_filter code=`(c) => c.params.title`) {
+  csv: title="CSV" feature={ show: parse_csv include_gui; };
+  vtk: title="Vtk binary" feature={ show: parse_vtk_points include_gui; };
 };
 
 register_feature name="data_layer" {
@@ -85,13 +89,6 @@ register_feature name="data_layer" {
        titles=(@t0->list | arr_map code=`(c) => c.params.title`);
 
     deploy_many input=( @t0 | get child=@selected_show->value | get param="feature" );
-/*
-    param_file name="file";
-
-    // читалка и парсер
-    dat: load_file file=@root->file | parse_csv;
-    dfenv: df_to_env input=@dat->output;
-*/    
   };
 
 };
