@@ -68,3 +68,15 @@ export function df_slice( env, opts ) {
 }
 
 // фильтр надо сделать по колонке..
+
+import * as utils from "../lib3dv3/utils.js";
+// конвертирует dataframe в array по указанным колонкам построчно
+export function df_combine( env ) {
+  env.onvalues(["input","columns"],(df,cols) => {
+    if (!df.isDataFrame) return;
+    let arrs = cols.map( name => df[name] );
+    
+    let res = utils.combine( arrs );
+    env.setParam("output",res);
+  });
+}

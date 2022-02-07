@@ -1131,7 +1131,7 @@ export function deploy_many( env, opts )
 
      for (let edump of input) {
         edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
-        var p = env.vz.createSyncFromDump( edump,null,env.ns.parent );
+        var p = env.vz.createSyncFromDump( edump,null,env.ns.parent, edump.$name );
         p.then( (child_env) => {
            created_envs.push( child_env );
         });

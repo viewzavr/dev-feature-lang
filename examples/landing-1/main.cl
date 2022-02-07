@@ -6,6 +6,8 @@ mainparams: {
   y_scale_coef: param_slider min=1 max=100 value=10;
 
   time: param_combo values=(@_dat | df_get column="T");
+
+  step_N: param_slider value=10 min=1 max=1000;
 };
 
 dat0: load-file file=@mainparams->f1 
@@ -15,6 +17,10 @@ _dat: @dat0 | df_set X="->x[м]" Y="->y[м]" Z="->z[м]" T="->t[c]"
               RX="->theta[град]" RY="->psi[град]" RZ="->gamma[град]";
 
 dat: @_dat | df_div column="Y" coef=@mainparams->y_scale_coef;
+
+dat_prorej: @dat | df_skip_every count=@mainparams->step_N;
+
+dat_cur_time: @dat | df_slice start=@time->index count=1;
  
 //traj_projej: @dat | skip
 
@@ -102,18 +108,12 @@ register_feature name="visual_layer" {
   };
 };
 
-t1: output=@. list=(@. | get_children_arr | arr_filter code=`(c) => c.params.title`) 
-{
-  linestr: title="Траектория линией" render3d-items={
-      main: linestrips include_gui_inline input=@dat->output;
-  };
-  ptstr: title="Траектория точками" render3d-items={
-      main: points include_gui_inline input=@dat->output;
-  };
-  axes: title="Оси координат" render3d-items={ 
-     axes_box include_gui_inline size=100 include_gui_here; 
-  };
-};
+load files="visual-layers.cl";
+t1: visual_layers output=@. list=(@. | get_children_arr | arr_filter code=`(c) => c.params.title`);
+
+// идеи:
+// t1: load_item from="visual-layers.cl";
+// t1: {{ load_children from="visual-layers.cl" }};
 
 /*
 register_feature name="linestr" {

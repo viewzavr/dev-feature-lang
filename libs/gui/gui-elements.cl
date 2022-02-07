@@ -245,7 +245,7 @@ register_feature name="combobox" {
     ///////////////////////////////////////////////
     // мостик из dom в cl
 		dom_event name="change" code=`
-      console.log("dom onchange")
+      //console.log("dom onchange")
       let object = env.params.object;
 		  if (object.params.values) {
 		  	//object.setParam("output",object.params.values[ object.dom.selectedIndex ]);
