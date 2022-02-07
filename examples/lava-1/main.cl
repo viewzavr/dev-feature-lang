@@ -28,6 +28,7 @@ load files="lib3dv3 csv params io gui render-params df misc scene-explorer-3d";
     render3d( bgcolor=[0.1,0.2,0.3],target=view, () => {
   
       text3d_one( text="loading...", class="showparams" );
+
     });
   }
 */
@@ -35,9 +36,11 @@ load files="lib3dv3 csv params io gui render-params df misc scene-explorer-3d";
 rend: render3d bgcolor=[0.1,0.2,0.3] target=@view
 {
     orbit_control;
+
     camera3d pos=[0,40,40] center=[0,0,0];
 
-    text3d_one text="loading..." showparams;
+    for (let i of @rend->arr)
+      text3d_one text="loading..."+i showparams;
 
     ////////////////////////////////////// подготовка данных лавы
     

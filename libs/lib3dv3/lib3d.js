@@ -20,7 +20,7 @@ export function render3d( env ) {
 
   // todo ориентироваться на dom-размеры..
   if (!env.params.camera) {
-    var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000000 );
     env.setParam("camera",camera);    
   }
 
@@ -242,7 +242,7 @@ export function renderer_bg_color( env ) {
 }
 
 export function camera3d( env ) {
-  var cam = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+  var cam = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000000 );
   // гуи
   env.addArray( "pos", [], 3 );
   env.addArray( "center", [], 3 );  

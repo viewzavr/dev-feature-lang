@@ -10,6 +10,7 @@ tools.cl
 3d-formats/vrml/vr-vrml.js
 3d-formats/obj/vr-obj.js
 3d-formats/vtk-points/vr-vtk-points.js
+axesv1/axes.cl
 `;
 
 

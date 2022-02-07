@@ -121,7 +121,8 @@ feature_addition
   
 // ------ A3. attr_name
 Word
-  = [a-zA-Zа-яА-Я0-9_-]+ { return text(); }
+  = [a-zA-Zа-яА-Я0-9_\-\.]+ { return text(); } // разрешили точку в имени.. хм... ну пока так..
+  //= [a-zA-Zа-яА-Я0-9_-]+ { return text(); }
 
 attr_name
   = Word

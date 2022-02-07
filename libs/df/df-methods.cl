@@ -1,4 +1,4 @@
-// df_get
+// df_get - вытаскивает 1 колонку
 // вход: input, column
 //   input - датафрейм
 //   column - колонку, которую вытащить
@@ -26,7 +26,9 @@ register_feature name="df_get"
 `;
 
 // df_div - делит колонку column датайферма input на коэффициент coef
-
+// возвращает df как input но с обновленной колонкой
+// @idea df_normalize ?
+// @idea применять методы arr_* в контексте df как-то?
 register_feature name="df_div" code=`
   env.onvalue("input",process);
   env.onvalue("coef",process);
@@ -44,6 +46,7 @@ register_feature name="df_div" code=`
   }
 `;
 
+// df_filter - фильтрует, выбирая только строки удовлетворяющие условию
 // вход: input, code
 //   input - датафрейм
 //   code - код функции, которая применяется построчно и если выдает результат то строка берется

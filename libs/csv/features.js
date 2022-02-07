@@ -9,8 +9,10 @@ export function parse_csv( env ) {
   env.feature("load_file_func");
   //var empty_df = df.create();
   env.addText("input");
-  env.onvalue("input",(text) => {
-    var df = CSV( text );
+  env.addString("separator",",");
+
+  env.onvalues(["input","separator"],(text,sep) => {
+    var df = CSV( text,sep );
     env.setParam("output",df );
   })
 }

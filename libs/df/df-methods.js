@@ -1,3 +1,5 @@
+import * as df from "./df.js";
+
 export function setup(vz, m) {
   vz.register_feature_set( m );
 
@@ -8,13 +10,13 @@ export function setup(vz, m) {
 */
 }
 
-// устанавливает колонки
+// создает новую df из выбранных колонок входной df
 // пример: df_set X=<значение> Y="->Z"
 // тогда в колонке X будет константа указанного значения, а в Y - скопируется колонка Z
 // тут set считается что в своем окружении и опирается на параметры этого окружения
 export function df_set( env, opts ) {
  //Object.keys( args ) 
- env.trackParam("input",(value) => {
+ env.onvalue("input",(value) => {
    if (!df.is_df(value)) return;
 
    var output = df.create_from_df_no_slice( value );
@@ -38,35 +40,31 @@ export function df_set( env, opts ) {
    }
    env.setParam("output",output);
  })
- if (env.params.input) env.signalParam("input");
 }
 
 // параметр: count
 // выбирает подстроки с шагом count
 export function df_skip_every( env, opts ) {
  //Object.keys( args ) 
- env.trackParam("input",(value) => {
+ env.onvalues(["input","count"],(value,count) => {
    if (!df.is_df(value)) return;
-   if (!(env.params.count > 0)) return;
-   var output = df.skip_every( value,env.params.count)
+   if (!(count > 0)) return;
+   var output = df.skip_every( value,count)
    env.setParam("output",output);
  })
- if (env.params.input) env.signalParam("input");
 }
 
 // выбирает подмножество строк
 // start, count
 export function df_slice( env, opts ) {
- //Object.keys( args )
- env.trackParam("input",(value) => {
+ env.onvalues_any(["input","start","count"],(value,start,count) => {
    if (!df.is_df(value)) return;
    //if (!(env.params.step > 0)) return;
-   var start = env.params.start || 0;
-   var finish = (env.params.count > 0) ? start + env.params.count : value.length;
+   var start = start || 0;
+   var finish = (count > 0) ? start + count : value.length;
    var output = df.slice( value,start,finish)
    env.setParam("output",output);
  })
- if (env.params.input) env.signalParam("input");
 }
 
 // фильтр надо сделать по колонке..
