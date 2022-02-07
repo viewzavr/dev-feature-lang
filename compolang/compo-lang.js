@@ -1038,6 +1038,8 @@ export function deploy( env )
  function deploy_normal_env(input) {
      //console.log("DEPLOY INPUT=",input);
      let edump = input[0];
+     if (!edump) return;
+
      edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
 
      // попробуем сохранять состояние и пере-создавать его
@@ -1093,7 +1095,7 @@ export function creator( env )
 }
 
 // создает все объекты из поданного массива описаний
-// подключая их к родителю
+// подключая их к родителю узла deploy_many
 // тут кстати напрашивается сделать case - фильтрацию массива... ну и if через это попробовать сделать например...
 // вариантов много получается...
 // update - вроде как get достаточно в этом случае?
@@ -1103,7 +1105,7 @@ export function deploy_many( env, opts )
   
   env.onvalue("input",(input) => {
      deploy_normal_env_all(input);
-  })
+  });
 
  // режим "repeater-mode" - развернуть всех в родителя (хотя может и можно не в родителя)
  var created_envs = [];
@@ -1118,6 +1120,12 @@ export function deploy_many( env, opts )
      env.emit("before_deploy", created_envs);
      close_envs();
      let parr=[];
+     if (input && !Array.isArray(input)) input=[input]; // так
+     if (!input) {
+       env.setParam("output",[]);
+       return;
+     }
+
      for (let edump of input) {
         edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
         var p = env.vz.createSyncFromDump( edump,null,env.ns.parent );
@@ -1126,7 +1134,57 @@ export function deploy_many( env, opts )
         });
         parr.push(p);
      }
-     Promise.all(parr).then( (values) => env.emit("after_deploy",values) );
+     Promise.all(parr).then( (values) => {
+       env.emit("after_deploy",values);
+       // и еще такая шутка а там видно будет
+       env.setParam("output",values);
+     });
+ }
+ env.on("remove",close_envs)
+}
+
+// создает все объекты из поданного массива описаний
+// подключая их к указанному узлу
+
+export function deploy_many_to( env, opts )
+{
+  
+  env.onvalues(["input","target"],(input,target) => {
+     deploy_normal_env_all(input,target);
+  });
+
+ // режим "repeater-mode" - развернуть всех в родителя (хотя может и можно не в родителя)
+ var created_envs = [];
+ function close_envs() {
+     for (let old_env of created_envs) {
+       old_env.remove();
+     }
+     created_envs = [];
+ }
+     
+ function deploy_normal_env_all(input,target) {
+     env.emit("before_deploy", created_envs);
+     close_envs();
+     let parr=[];
+     if (input && !Array.isArray(input)) input=[input]; // так
+     if (!input) {
+       env.setParam("output",[]);
+       return;
+     }
+
+     for (let edump of input) {
+        edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
+        var p = env.vz.createSyncFromDump( edump,null,target );
+        p.then( (child_env) => {
+           created_envs.push( child_env );
+        });
+        parr.push(p);
+     }
+     Promise.all(parr).then( (values) => {
+       env.emit("after_deploy",values);
+       // и еще такая шутка а там видно будет
+       env.setParam("output",values);
+     });
  }
  env.on("remove",close_envs)
 }

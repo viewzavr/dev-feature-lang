@@ -3,6 +3,10 @@
 
 register_feature name="visual-feature" {};
 
+// visual-features - на вдох берет детей типа visual-feature
+// каждая такая visual-feature должна либо быть записью о фиче, либо сформировать output
+// на выходе visual-features отдает массив из данных, полученных из всех детей или их output-ов.
+
 register_feature name="visual-features" code=`
   env.feature('delayed');
   // мечта: var d = vz.get('delayed'); или что-то типа..
