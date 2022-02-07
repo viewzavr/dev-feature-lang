@@ -215,6 +215,9 @@ register_feature name="combobox" {
 	   main.onvalue("values",() => {
 	     setup_values();
 	   });
+	   main.onvalue("titles",() => {
+	     setup_values();
+	   });	   
 	   main.onvalue("dom",() => {
 	     setup_index();
 	     setup_values();
@@ -228,8 +231,11 @@ register_feature name="combobox" {
 	   	  if (!main.params.values?.map) return;
 	   	  var t = "";
 
+	   	  let titles = main.params.titles || [];
+
 	   	  main.params.values.map( (v,index) => {
-	         var s = `<option value="${v}">${v}</option>\n`;
+	   	  	 var title = titles[index] || v;
+	         var s = `<option value="${v}">${title}</option>\n`;
 	         t = t+s;
 	   	  })
 	   	  main.params.dom.innerHTML = t;

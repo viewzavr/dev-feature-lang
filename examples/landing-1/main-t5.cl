@@ -35,7 +35,7 @@ r1: render3d
   };
 
 mainscreen: screen auto-activate {
-  column style="z-index: 3; position:absolute; background-color:rgba(200,200,200,0.2); color: white;" 
+  column style="z-index: 3; position:absolute; background-color:rgba(200,200,200,0.2);" 
     padding="0.3em" margin="0.7em"
     {
     dom tag="h3" innerText="Параметры" style="margin-bottom: 0.3em;"
@@ -55,23 +55,20 @@ mainscreen: screen auto-activate {
       };
 
       column gap="0.1em" {
-        cb: combobox values=(@fo->output | arr_map code=`(r,index) => (1+index).toString()`);
-        //cb: combobox values=(@fo->output | monitor_params params=["gui_title"] | arr_map code=`(r,index) => (1+index).toString() + " - " + (r.params.gui_title || r.ns.name)`);
-        /*
-        row {
-          cb: combobox values=(@fo->output | arr_map code=`(r,index) => { return (1+index).toString() + (r.params.gui_title || r.ns.name) }`);
-          button text="удалить"
-          {
-            call target=@cobj->value name="remove";
-          };  
-        };
-        */
-
+        cb: combobox values=(@fo->output | arr_map code=`(r) => r.params.gui_title || r.ns.name`);
         fo: find-objects pattern="** visual_layer";
 
         cobj: value=(@fo->output | get name=@cb->index);
 
+        visual_layer_gui input=@cobj->value;
+
+/*
         render-guis-nested2 input=@cobj->value; 
+
+        button text="Удалить" obj=@cobj->value {
+          call target=@cobj->value name="remove";
+        };
+*/        
 
       };
 
@@ -88,10 +85,9 @@ visualhub: a=5; //  todo fix visualhub:;
 debugger_screen_r;
 
 register_feature name="visual_layer" {
-  vlayer: node3d gui_title=( @t1 | get child=@selected_show->value | get param="title")
-  {
+  vlayer: node3d {
 
-    //gui_title: param_string;
+    gui_title: param_string;
 
     selected_show: param_combo 
        values=(@t1->list | arr_map code=`(c) => c.ns.name`)
@@ -102,17 +98,27 @@ register_feature name="visual_layer" {
   };
 };
 
+register_feature name="visual_layer_gui" {
+  vgui: column {
+
+    cbs: render-one-param obj=@vgui->input name="selected_show";
+
+    cbs: render-one-param obj=@vgui->input name="gui_title";
+
+    render-guis-nested3 input=@vgui->input; 
+
+  };
+};
+
 t1: output=@. list=(@. | get_children_arr | arr_filter code=`(c) => c.params.title`) 
 {
-  linestr: title="Траектория линией" render3d-items={
-      main: linestrips include_gui_inline input=@dat->output;
+  linestr: title="Показать линией" render3d-items={
+      main: linestrips include_gui_inline gui_title="Линия" input=@dat->output;
   };
-  ptstr: title="Траектория точками" render3d-items={
-      main: points include_gui_inline input=@dat->output;
+  ptstr: title="Показать точками" render3d-items={
+      main: points include_gui_inline gui_title="Точки" input=@dat->output;
   };
-  axes: title="Оси координат" render3d-items={ 
-     axes_box include_gui_inline size=100 include_gui_here; 
-  };
+  axes: title="Оси координат" render3d-items={ axes_box include_gui_inline size=100 include_gui_here; };
 };
 
 /*
@@ -168,11 +174,9 @@ register_feature name="render-guis-nested" {
     };
 };
 
-// вход - input, объект чьу гуи нарисовать
+// вход - input, объект чьи гуи нарисовать
 register_feature name="render-guis-nested2" {
   col: column visible=true style="padding-left: 1em;" {
-
-      column {
 
         render-params object=@col->input;
 
@@ -184,32 +188,26 @@ register_feature name="render-guis-nested2" {
 
         find-objects pattern_root=@col->input pattern="** include_gui"
            | render-guis;
-       };
-       column {
-        render-guis input=@extra;
-       };
-
-       extra: gui_title = "Настройки" {
-          param_string name="title" value=(@col->input | get param="gui_title")
-          {{
-             onevent name="param_value_changed" tgt=@col->input in=@extra->title code=`
-               if (env.params.tgt)
-                   env.params.tgt.setParam("gui_title", env.params.in );
-             `;
-          }};
-          param_cmd name="удалить слой" {
-            call target=@col->input name="remove";
-          };
-        };
-
-/*
-       button text="[x]" style="position: absolute; right: 0px; bottom: 0px;" {
-            call target=@col->input name="remove";
-       };
-*/       
          
    };
 };
+
+// вход - input, объект чьу гуи нарисовать
+register_feature name="render-guis-nested3" {
+  col: column visible=true {
+
+        find-objects pattern_root=@col->input pattern="** include_gui_inline"
+             | 
+             repeater {
+               render-params object=@.->input;
+             };
+
+        find-objects pattern_root=@col->input pattern="** include_gui"
+           | render-guis;
+         
+   };
+};
+
 
 
 register_feature name="keep_state" {

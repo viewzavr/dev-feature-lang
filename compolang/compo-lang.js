@@ -683,6 +683,9 @@ export function repeater( env, fopts, envopts ) {
        model = Array.from(Array(num).keys());
      }
 
+     if (model && !model.forEach)
+      model = [model];
+
      if (!(model && model.forEach)) {
        //console.error("repeater: passed model is not iterable.",model,env.getPath())
        return;

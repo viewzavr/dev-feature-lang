@@ -25,14 +25,18 @@ register_feature name="param_combo" code=`
   env.feature("param_base");
   
   env.onvalue( "values", setup );
+  env.onvalue( "titles", setup );
+  
   env.onvalue( "value", (v) => {
     update_index(v);
   });
 
   var t;
   function setup() {
-    var nv = env.params.value || env.params.values[0];
+    
     let tgt = env.tgt()
+
+    var nv = tgt.getParam( env.paramname() ) || env.params.value || env.params.values[0];
     //tgt.addComboValue( env.paramname(),nv,env.params.values );
 
     // todo получается у нас в addComboValue тупняк - если мы даем значение
@@ -47,6 +51,11 @@ register_feature name="param_combo" code=`
     if (!env.params.value) {
       env.setParam("value",nv);
     }
+    
+    if (env.params.titles) 
+      tgt.setParamOption( env.paramname(),"titles",env.params.titles);
+    else
+      tgt.setParamOption( env.paramname(),"titles",null);
   }
   env.on("remove",() => {
     if (t) t(); t = null;

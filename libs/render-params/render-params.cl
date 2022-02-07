@@ -294,6 +294,9 @@ register_feature name="render-param-combovalue"
           // todo ловить когда эти values меняются.
           // по сути все-таки "параметр" с его ключами
           // должен вести себя как объект, тогда можно к нему залинковаться..
+
+          var titles = env.params.obj.getParamOption( env.params.name,"titles" );
+          env.ns.parent.setParam("titles",titles);
         }
       `;
     };

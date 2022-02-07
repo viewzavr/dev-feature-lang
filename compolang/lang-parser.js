@@ -3173,10 +3173,14 @@ function peg$parse(input, options) {
     }
 
     function is_env_real( e ) {
-     return Object.keys(e.features).length > 0
+     let res = Object.keys(e.features).length > 0
+          || (e.features_list || []).length > 0
           || Object.keys(e.params).length > 0
           || Object.keys(e.children).length > 0
           || Object.keys(e.links).length > 0;
+     
+     //if (!res) console.log("ENV NOT REAL",e.$name)
+     return res;
     }
 
     function append_children_envs( env, envs ) {
