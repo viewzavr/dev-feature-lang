@@ -648,7 +648,15 @@ export function repeater( env, fopts, envopts ) {
     return Promise.resolve("success");
   }
 
+
   var created_envs = [];
+  function close_envs() {
+     for (let old_env of created_envs) {
+       old_env.remove();
+     }
+     created_envs = [];
+  }
+  env.on("remove",close_envs)
 
   var pending_perform;
   env.onvalue("model",recreate );
@@ -656,11 +664,11 @@ export function repeater( env, fopts, envopts ) {
 
   env.addCmd("refresh",() => recreate());
 
+
   function recreate() {
      let model = env.params.model || env.params.input;
-     for (let old_env of created_envs) {
-       old_env.remove();
-     }
+     
+     close_envs();
 
      if (env.removed) return; // бывает...
 
@@ -683,8 +691,8 @@ export function repeater( env, fopts, envopts ) {
        model = Array.from(Array(num).keys());
      }
 
-     if (model && !model.forEach)
-      model = [model];
+     if (model && !model.forEach) // рарешим подавать любой объект на вход - это как массив 1 штука элементов
+         model = [model];
 
      if (!(model && model.forEach)) {
        //console.error("repeater: passed model is not iterable.",model,env.getPath())
@@ -731,7 +739,7 @@ export function repeater( env, fopts, envopts ) {
           child_env.setParam("modelIndex",eindex);
 
           created_envs.push( child_env );
-       */   
+       */
      });
   } // recreate
 }
@@ -1260,10 +1268,23 @@ export function deploy_features( env )
 //////////////// get
 
 export function get( env ) {
-  env.onvalues(["input","param"],(input,param) => {
+  let param_tracking = () => {};
+
+  function source_param_changed (input,param) {
     let v = input?.getParam ? input.getParam( param ) : undefined;
     env.setParam("output",v );
-  });
+
+    param_tracking();
+    param_tracking = input.trackParam( param,() => {
+      source_param_changed( input, param );
+    } );
+  }
+  env.on("remove",param_tracking);
+
+  env.onvalues(["input","param"],source_param_changed);
+
+  ///////////////////
+
   env.onvalues(["input","name"],(input,param) => {
     let v = input ? input[ param ] : undefined;
     env.setParam("output",v );

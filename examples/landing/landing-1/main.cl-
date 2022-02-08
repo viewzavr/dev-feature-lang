@@ -6,8 +6,6 @@ mainparams: {
   y_scale_coef: param_slider min=1 max=100 value=10;
 
   time: param_combo values=(@_dat | df_get column="T");
-
-  step_N: param_slider value=10 min=1 max=1000;
 };
 
 dat0: load-file file=@mainparams->f1 
@@ -17,10 +15,6 @@ _dat: @dat0 | df_set X="->x[м]" Y="->y[м]" Z="->z[м]" T="->t[c]"
               RX="->theta[град]" RY="->psi[град]" RZ="->gamma[град]";
 
 dat: @_dat | df_div column="Y" coef=@mainparams->y_scale_coef;
-
-dat_prorej: @dat | df_skip_every count=@mainparams->step_N;
-
-dat_cur_time: @dat | df_slice start=@time->index count=1;
  
 //traj_projej: @dat | skip
 
@@ -61,18 +55,7 @@ mainscreen: screen auto-activate {
       };
 
       column gap="0.1em" {
-        cb: combobox values=(@fo->output | arr_map code=`(r,index) => (1+index).toString()`);
-        //cb: combobox values=(@fo->output | monitor_params params=["gui_title"] | arr_map code=`(r,index) => (1+index).toString() + " - " + (r.params.gui_title || r.ns.name)`);
-        /*
-        row {
-          cb: combobox values=(@fo->output | arr_map code=`(r,index) => { return (1+index).toString() + (r.params.gui_title || r.ns.name) }`);
-          button text="удалить"
-          {
-            call target=@cobj->value name="remove";
-          };  
-        };
-        */
-
+        cb: combobox values=(@fo->output | arr_map code=`(r) => r.params.gui_title || r.ns.name`);
         fo: find-objects pattern="** visual_layer";
 
         cobj: value=(@fo->output | get name=@cb->index);
@@ -94,10 +77,7 @@ visualhub: a=5; //  todo fix visualhub:;
 debugger_screen_r;
 
 register_feature name="visual_layer" {
-  vlayer: node3d gui_title=( @t1 | get child=@selected_show->value | get param="title")
-  {
-
-    //gui_title: param_string;
+  vlayer: node3d {
 
     selected_show: param_combo 
        values=(@t1->list | arr_map code=`(c) => c.ns.name`)
@@ -108,12 +88,16 @@ register_feature name="visual_layer" {
   };
 };
 
-load files="visual-layers.cl";
-t1: visual_layers output=@. list=(@. | get_children_arr | arr_filter code=`(c) => c.params.title`);
-
-// идеи:
-// t1: load_item from="visual-layers.cl";
-// t1: {{ load_children from="visual-layers.cl" }};
+t1: output=@. list=(@. | get_children_arr | arr_filter code=`(c) => c.params.title`) 
+{
+  linestr: title="Показать линией" render3d-items={
+      main: linestrips include_gui_inline gui_title="Линия" input=@dat->output;
+  };
+  ptstr: title="Показать точками" render3d-items={
+      main: points include_gui_inline gui_title="Точки" input=@dat->output;
+  };
+  axes: title="Оси координат" render3d-items={ axes_box include_gui_inline size=100 include_gui_here; };
+};
 
 /*
 register_feature name="linestr" {
@@ -168,12 +152,11 @@ register_feature name="render-guis-nested" {
     };
 };
 
-// вход - input, объект чьу гуи нарисовать
+// вход - input, список объектов чьи гуи нарисовать
 register_feature name="render-guis-nested2" {
   col: column visible=true style="padding-left: 1em;" {
 
       column {
-
         render-params object=@col->input;
 
         find-objects pattern_root=@col->input pattern="** include_gui_inline"
@@ -184,29 +167,19 @@ register_feature name="render-guis-nested2" {
 
         find-objects pattern_root=@col->input pattern="** include_gui"
            | render-guis;
-       };
-       column {
+
         render-guis input=@extra;
        };
+       column {
 
-       extra: gui_title = "Настройки" {
-          param_string name="title" value=(@col->input | get param="gui_title")
-          {{
-             onevent name="param_value_changed" tgt=@col->input in=@extra->title code=`
-               if (env.params.tgt)
-                   env.params.tgt.setParam("gui_title", env.params.in );
-             `;
-          }};
-          param_cmd name="удалить слой" {
+        extra: gui_title = "Обслуживание" {
+          param_string name="gui_name";
+          param_cmd name="do_remove" {
             call target=@col->input name="remove";
-          };
+          };   
         };
 
-/*
-       button text="[x]" style="position: absolute; right: 0px; bottom: 0px;" {
-            call target=@col->input name="remove";
        };
-*/       
          
    };
 };

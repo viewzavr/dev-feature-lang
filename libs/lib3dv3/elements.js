@@ -97,6 +97,12 @@ export function lines( env ) {
 
   env.setParam("material",material);  
 
+  env.addSlider( "radius", env.params.radius || 1, 0,10,0.1 );
+  env.onvalue("radius",(v) => {
+      material.linewidth = v;
+      material.needsUpdate = true;
+  });
+
   env.feature("node3d",{object3d: sceneObject});
 }
 

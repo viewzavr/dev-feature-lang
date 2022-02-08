@@ -1,0 +1,252 @@
+load files="lib3dv3 csv params io gui render-params df scene-explorer-3d";
+
+mainparams: {
+  f1:  param_file value="http://viewlang.ru/assets/other/landing/2021-10-phase.txt";
+
+  y_scale_coef: param_slider min=1 max=100 value=10;
+
+  time: param_combo values=(@_dat | df_get column="T");
+};
+
+dat0: load-file file=@mainparams->f1 
+       | parse_csv separator="\s+";
+
+_dat: @dat0 | df_set X="->x[м]" Y="->y[м]" Z="->z[м]" T="->t[c]"
+              RX="->theta[град]" RY="->psi[град]" RZ="->gamma[град]";
+
+dat: @_dat | df_div column="Y" coef=@mainparams->y_scale_coef;
+ 
+//traj_projej: @dat | skip
+
+r1: render3d 
+      bgcolor=[0.1,0.2,0.3]
+      target=@v1
+  {
+    camera3d pos=[0,0,100] center=[0,0,0];
+    orbit_control;
+
+    //axes_box size=100;
+    //@dat | points;
+
+    //@dat | df_filter code=`(line) => line.TEXT?.length > 0` | text3d myvisual size=0.1 visible=@cb1->value; // color=[0,1,0];
+
+    visual_layer selected_show="axes" gui_title="Оси";
+    visual_layer selected_show="ptstr" gui_title="Траектория";
+  };
+
+mainscreen: screen auto-activate {
+  column style="z-index: 3; position:absolute; background-color:rgba(200,200,200,0.2); color: white;" 
+    padding="0.3em" margin="0.7em"
+    {
+    dom tag="h3" innerText="Параметры" style="margin-bottom: 0.3em;"
+    {{ dom_event name="click" cmd="@rp->trigger_visible" ;}};
+
+    rp: column gap="0.5em" padding="0em" {
+      render-params object_path="@mainparams";
+    };
+
+
+    dom tag="h3" innerText="Визуальные слои";
+
+      button text="+ Добавить слой" style="margin-bottom:1em;" {
+        creator target=@r1 input={
+          visual_layer;
+        } {{ onevent name="created" code=`args[0].manuallyInserted=true;` }};
+      };
+
+      column gap="0.1em" {
+        cb: combobox values=(@fo->output | arr_map code=`(r) => r.params.gui_title || r.ns.name`);
+        /*
+        row {
+          cb: combobox values=(@fo->output | arr_map code=`(r) => r.params.gui_title || r.ns.name`);
+          button text="удалить"
+          {
+            call target=@cobj->value name="remove";
+          };  
+        };
+        */
+
+        fo: find-objects pattern="** visual_layer";
+
+        cobj: value=(@fo->output | get name=@cb->index);
+
+        render-guis-nested2 input=@cobj->value; 
+
+      };
+
+  };
+
+  v1: view3d style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2";
+
+  //v2: view3d style="position: absolute; right: 20px; bottom: 20px; width:500px; height: 200px; z-index: 5;";
+  
+};
+
+visualhub: a=5; //  todo fix visualhub:;
+
+debugger_screen_r;
+
+register_feature name="visual_layer" {
+  vlayer: node3d {
+
+    gui_title: param_string;
+
+    selected_show: param_combo 
+       values=(@t1->list | arr_map code=`(c) => c.ns.name`)
+       titles=(@t1->list | arr_map code=`(c) => c.params.title`);
+
+    deploy_many input=( @t1 | get child=@selected_show->value | get param="render3d-items" )
+       {{ keep_state }}; // keep_state сохраняет состояние при переключении типов объектов
+  };
+};
+
+t1: output=@. list=(@. | get_children_arr | arr_filter code=`(c) => c.params.title`) 
+{
+  linestr: title="Показать линией" render3d-items={
+      main: linestrips include_gui_inline gui_title="Линия" input=@dat->output;
+  };
+  ptstr: title="Показать точками" render3d-items={
+      main: points include_gui_inline gui_title="Точки" input=@dat->output;
+  };
+  axes: title="Оси координат" render3d-items={ axes_box include_gui_inline size=100 include_gui_here; };
+};
+
+/*
+register_feature name="linestr" {
+  @dat | linestrips include_gui;
+};
+
+register_feature name="ptstr" {
+  @dat | points include_gui;
+};
+*/
+
+/*
+register_feature name="linestr" {
+  title="Показать линией" render3d-items={
+        @dat | linestrips include_gui;
+  };
+};
+
+register_feature name="ptstr" {
+  title="Показать точками" render3d-items={
+      @dat | points include_gui;
+  };
+};
+*/
+
+// вход - input, список объектов чьи гуи нарисовать
+register_feature name="render-guis-nested" {
+  rep: repeater opened=true {
+    col: column {
+          button 
+            text=(compute_output object=@col->input code=`return env.params.object?.params.gui_title || env.params.object?.ns.name`) 
+            cmd="@pcol->trigger_visible";
+
+          pcol: column visible=true style="padding-left: 1em;" {
+            render-params object=@col->input;
+
+            find-objects pattern_root=@col->input pattern="** include_gui_inline"
+               | 
+               repeater {
+                 render-params object=@.->input;
+               };
+
+            find-objects pattern_root=@col->input pattern="** include_gui"
+               | render-guis;
+
+            button text="Удалить" obj=@col->input {
+              call target=@col->input name="remove";
+            };
+           };
+         
+        };
+    };
+};
+
+// вход - input, объект чьу гуи нарисовать
+register_feature name="render-guis-nested2" {
+  col: column visible=true style="padding-left: 1em;" {
+
+      row {
+        combobox values=@col->types;
+        text text="имя слоя";
+        dom tag="input";
+
+        //render-one-param obj=@col->input name="selected_show";
+        //button text="..." cmd="@extra->trigger_visible";
+      };
+
+        find-objects pattern_root=@col->input pattern="** include_gui_inline"
+             | 
+             repeater {
+               render-params object=@.->input;
+             };
+
+        find-objects pattern_root=@col->input pattern="** include_gui"
+           | render-guis;
+       
+       
+       extra: column visible=false {
+         render-one-param obj=@col->input name="gui_title";
+         button text="Удалить слой" {
+            call target=@col->input name="remove";
+         };
+       };
+
+        extra: gui_title = "Обслуживание" {
+          param_string name="gui_name";
+          param_cmd name="do_remove" {
+            call target=@col->input name="remove";
+          };
+        };
+       
+
+/*
+       button text="[x]" style="position: absolute; right: 0px; bottom: 0px;" {
+            call target=@col->input name="remove";
+       };
+*/       
+         
+   };
+};
+
+
+register_feature name="keep_state" {
+  ksroot: {
+    connection object=@ksroot->.host event_name="before_deploy" vlayer=@ksroot code=`
+          console.log("EEEE0 args=",args,"object=",env.params.object);
+          let envs = args[0] || [];
+          let existed_env = envs[0];
+          
+          if (!existed_env) return;
+          
+          let dump = existed_env.dump();
+          console.log("EEEE generated dump",dump);
+
+          //if (!env.params.vlayer) return;
+          env.params.vlayer.setParam("item_state", dump);
+        `;
+
+        //onevent name="after_deploy" vlayer=@vlayer code=`
+        // выглядит что проще добавить в onevent тоже обработку object, и уметь делать ссылки на хост.. @env->host
+        // ну или уже сделать параметр такой..
+    connection object=@ksroot->.host event_name="after_deploy" vlayer=@ksroot code=`
+          //console.log("UUUU0",args);
+          let envs = args[0] || [];
+          let tenv = envs[0];
+          
+          if (!tenv) return;
+
+          let dump = env.params.vlayer.getParam("item_state");
+          console.log("UUUU0 using dump",dump);
+
+          if (!dump) return;
+          
+          //dump.keepExistingChildren = true;
+          //dump.keepExistingParams = true;
+          dump.manual = true;
+          tenv.restoreFromDump( dump, true );
+        `;     
+  };
+};

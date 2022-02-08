@@ -1,3 +1,5 @@
+// здесь первая версия системы плагинов
+
 load files="lib3dv3 csv params io gui render-params df scene-explorer-3d";
 
 mainparams: {
@@ -31,6 +33,20 @@ r1: render3d
 
     //@dat | df_filter code=`(line) => line.TEXT?.length > 0` | text3d myvisual size=0.1 visible=@cb1->value; // color=[0,1,0];
   };
+
+/*
+  render3d bgcolor=[1,0,0] 
+    camera=@r1->camera
+    target=@v2
+    // input=@r1->scene // scene= почему-то не робит
+  {
+    //camera3d pos=[0,100,0] center=[0,0,0];
+    orbit_control;
+
+    @dat | points radius=0.15 myvisual;
+  };
+*/  
+
 
 mainscreen: screen auto-activate {
   column style="z-index: 3; position:absolute; background-color:rgba(200,200,200,0.2);" 
@@ -102,18 +118,14 @@ register_feature name="visual_layer" {
 
 // fprg = feature-program. здесь мы создаем экземпляр выбранной штуки
 register_feature name="create_fprg_instance" {
-  fpinstance: 
-  {
-    r3d_f: deploy_many_to target=@r1         input=(@fpinstance->input | get_param name="render3d-items") 
-              include_gui_from_output;
-    ms_f:  deploy_many_to target=@mainscreen input=(@fpinstance->input | get_param name="mainscreen-items")
-              include_gui_from_output;
-    // так то это обычный Loader...
+  fpinstance: {
+    r3d_f: deploy_many_to target=@r1         input=(@fpinstance->input | get_param name="render3d-items");
+    ms_f:  deploy_many_to target=@mainscreen input=(@fpinstance->input | get_param name="mainscreen-items");
 
     // это фичи.. а у нас пока про детей речь
     //deploy_features input=@explr  features=(@rt->input | get_param name="explorer-features");
     //deploy_features input=@sgraph features=(@rt->input | get_param name="generator-features");
-  };
+    };
 };
 
 t1: output=@. list=(@. | get_children_arr | arr_filter code=`(c) => c.params.title`) 
@@ -153,20 +165,8 @@ register_feature name="render-guis-nested" {
           pcol: column visible=true style="padding-left: 1em;" {
             render-params object=@col->input;
 
-            find-objects pattern_root=@col->input pattern="** include_gui"
+            find-objects pattern_root=@col->input pattern="** include_gui" 
                | render-guis;
-
-            find-objects pattern_root=@col->input pattern="** include_gui_from_output" dbg 
-               | repeater {
-                   subr: column {
-                    compute in=@subr->input code=`env.params.in.onvalue('output',(o) => env.setParam('output',o))` 
-                      |
-                      repeater {
-                        find-objects pattern_root=@.->input pattern="** include_gui" {{ console_log_params }}
-                          | render-guis;
-                      };
-                   };  
-               };
 
             button text="Удалить" obj=@col->input {
               call target=@col->input name="remove";

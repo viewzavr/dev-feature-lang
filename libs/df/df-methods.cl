@@ -46,6 +46,24 @@ register_feature name="df_div" code=`
   }
 `;
 
+register_feature name="df_mul" code=`
+  env.onvalue("input",process);
+  env.onvalue("coef",process);
+  env.onvalue("column",process);
+
+  function process() {
+    var df = env.params.input;
+    if (!df || !df.isDataFrame || !df[ env.params.column ] || !env.params.coef) {
+      env.setParam("output",[]);
+      return;
+    }
+    df = df.clone();
+    df[env.params.column] = df[env.params.column].map( v => v * env.params.coef );
+    env.setParam("output",df);
+  }
+`;
+
+
 // df_filter - фильтрует, выбирая только строки удовлетворяющие условию
 // вход: input, code
 //   input - датафрейм
