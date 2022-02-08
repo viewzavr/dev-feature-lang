@@ -93,14 +93,20 @@ register_feature name="param_checkbox" code=`
   env.feature("param_base"); 
 
   var t;
+  var installed_gui;
   function setup() {
-    let tgt = env.tgt();
+    let tgt = env.tgt(); 
+    if (installed_gui) tgt.removeGui( installed_gui );
+    installed_gui = env.paramname();
+    
     tgt.addCheckbox( env.paramname(), env.params.value );
     if (t) t();
     t = tgt.trackParam( env.ns.name,(v) => {
       env.setParam("value",v);
     });
   }
+  env.onvalue("name",setup);
+
   setTimeout( setup, 0 );  // треш конечно
   env.on("remove",() => {
     if (t) t(); t = null;

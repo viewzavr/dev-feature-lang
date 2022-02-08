@@ -1388,6 +1388,12 @@ export function get_children_arr(env) {
   let unsub=()=>{};
   env.onvalue("input",(senv) => {
     unsub();
+
+    if (!(senv?.on)) {
+      console.error("get_children_arr: strange input",senv, env.getPath());
+      return;
+    }
+
     unsub = senv.on("childrenChanged",() => {
       env.setParam("output", senv.ns.children );
     });
