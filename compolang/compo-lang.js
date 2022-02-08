@@ -705,11 +705,15 @@ export function repeater( env, fopts, envopts ) {
      if (target_parent.is_feature_applied("pipe"))
         target_parent = target_parent.ns.parent;
 
+     //let parr = []; // todo
      model.forEach( (element,eindex) => {
        var edump = children[firstc];
        edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
 
        var p = env.vz.createSyncFromDump( edump,null,target_parent );
+       //parr.push( p );
+
+       //Promise.all(para).then( )
 
        p.then( (child_env) => {
           // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
