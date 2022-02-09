@@ -22,7 +22,6 @@ vf1: visual-features
 
   visual-feature title="Hilite recent nodes" body={feat_nodechange_hilite} init_on=true;
   
-  
   // кстати тут реально можно было бы и карту построить просто... чистово гуи с группами...
   // не знаю зачем я заморачиваюсь...
 };

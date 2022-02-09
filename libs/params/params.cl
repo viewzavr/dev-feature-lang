@@ -31,6 +31,12 @@ register_feature name="param_combo" code=`
     update_index(v);
   });
 
+  env.onvalue("index",(i) => {
+    let v = (env.params.values || [])[i];
+    if (typeof(v) != 'undefined')
+        env.setParam("value",v);
+  })
+
   var t;
   function setup() {
     
@@ -46,7 +52,7 @@ register_feature name="param_combo" code=`
     t = tgt.trackParam( env.paramname(),(v) => {
       //console.log("combo param value changed m2",v);
       env.setParam("value",v);
-      update_index(v);
+      //update_index(v);
     });
     if (!env.params.value) {
       env.setParam("value",nv);

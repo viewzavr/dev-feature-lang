@@ -689,6 +689,7 @@ export function scene_explorer_3d( env ) {
       //.distance(link => link.islink ? 10 : 0.1 );
       //.distance(link => link.islink ? 1 : 10 );
       .distance(link => link.islink ? 10 : (link.isstruct ? 0.5 : 0.01) );
+      
       //.distance(link => link.islink ? 10 : (link.isstruct ? 0.5 : 0.1) );
 
 
