@@ -724,7 +724,7 @@ export function repeater( env, fopts, envopts ) {
 
           // todo epochs
           child_env.setParam("input",element);
-          child_env.setParam("inputIndex",element);
+          child_env.setParam("inputIndex",eindex);
 
           child_env.setParam("modelData",element);
           child_env.setParam("modelIndex",eindex);
@@ -781,7 +781,13 @@ export function compute( env ) {
   env.feature("delayed");
   var eval_delayed = env.delayed( evl )
 
-  env.on('param_changed', () => {
+  env.on('param_changed', (name) => {
+    if (name == "output") return;
+    // тут засада великая... если compute внутри себя откладывает вычисления по таймеру
+    // и пишет куда ни попадя - мы вызываем пересчет получается этим
+    // все-таки нужны получается флаги типа output... а то все смешно - compute по отложенному таймеру
+    // записал результаты и - пошел считаться заново..
+
     if (!imsetting_params_maybe)
        eval_delayed()
   } );

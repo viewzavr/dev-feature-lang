@@ -96,6 +96,10 @@ register_feature name="param_checkbox" code=`
   var installed_gui;
   function setup() {
     let tgt = env.tgt(); 
+
+    // это не помогает - мы то в имя колонки выставляем,то в item_NNN...
+    if (installed_gui == env.paramname()) return; // это потому что мы на имя реагируем
+
     if (installed_gui) tgt.removeGui( installed_gui );
     installed_gui = env.paramname();
     
@@ -107,7 +111,10 @@ register_feature name="param_checkbox" code=`
   }
   env.onvalue("name",setup);
 
-  setTimeout( setup, 0 );  // треш конечно
+  // хак треша
+  if (!env.paramname().startsWith("item"))
+      setTimeout( setup, 0 );  // треш конечно
+
   env.on("remove",() => {
     if (t) t(); t = null;
   });

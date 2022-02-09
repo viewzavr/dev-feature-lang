@@ -352,6 +352,9 @@ register_feature name="tabview" {
 			  var tabview = shadow.ns.parent;
 			  var tabshere = shadow.ns.childrenTable.tabshere;
 
+			  env.feature("delayed");
+			  let update_visible_tab = env.delayed( update_visible_tab2 );
+
 			  function get_tabs() {
 			    return tabview.ns.children.filter( (elem) => elem.is_feature_applied("tab") );
 			  }
@@ -364,8 +367,10 @@ register_feature name="tabview" {
 
 			  tabview.onvalue("index",update_visible_tab )
 
-			  function update_visible_tab() {
+			  function update_visible_tab2() {
+
 			  	var index = tabview.params.index;
+
    	      get_tabs().forEach( (elem,eindex) => {
 	        	 elem.setParam("visible", eindex == index);
 	        })
@@ -392,14 +397,28 @@ register_feature name="tabview" {
 			    return tabview.ns.children.filter( (elem) => elem.is_feature_applied("tab") );
 			  }			  
 
-				function scan_titles() 
+			  let tracking = [];
+			  function untrack_all() {
+			  	tracking.forEach( f => f() );
+			  	tracking = [];
+			  }
+
+			  env.feature("delayed");
+			  let scan_titles = env.delayed(scan_titles2);
+				function scan_titles2() 
 			  {
 			  	var titles = [];
+			  	untrack_all();
 	        get_tabs().forEach( (elem,eindex) => {
 	        	 titles.push( elem.params.text );
+
+	        	 let t = elem.trackParam("text", scan_titles);
+	        	 tracking.push( t );
 	        });
 	        env.setParam("output",titles);
 	        env.setParamOption("output","internal",true);
+
+	        console.log("titles:",titles);
 			  }
 
 			  tabview.on("childrenChanged",scan_titles ); // dom hack
