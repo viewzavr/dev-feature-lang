@@ -453,6 +453,7 @@ export function feature_func( env )
 {
    env.feature("call_cmd_by_path");
 
+   //console.log( "feature_func: installing apply cmd",env.getPath());
    env.addCmd( "apply",(...args) => {
       if (env.params.code) {
         // кстати идея - а что если там сигнатуру подают то ее использовать?
@@ -468,6 +469,26 @@ export function feature_func( env )
         c.callCmd("apply",...args);
       }
    } )
+}
+
+
+// вариант: вызывает содержимое после задержки
+// сейчас: модификатор для функций, задерживает их выполнение (и собирает несколько запросов в 1 пачку)
+export function delay_execution( env ) {
+  env.feature("delayed");
+
+  function setup() {
+    //console.log("delay_execution: setting up on",env.host.apply)
+    if (env.host?.apply?.delay_execution_installed)
+      return;
+    env.host.apply = env.delayed( env.host.apply );
+    env.host.apply.delay_execution_installed=true;
+  }
+  if (env.host.apply)
+      setup();
+  env.host.on("gui-changed-apply",setup );
+  //console.log("delay_execution: hooked into ",env.host.getPath())
+  //env.host.onvalue("apply",setup);
 }
 
 // вызывает команду name у объекта target
@@ -546,7 +567,8 @@ export function auto_apply( obj ) {
 
   obj.on('param_changed', (name) => {
     if (name == "output") return;
-    if (obj.getParamOption(name,"iotype") == "output") return;
+    if (obj.getParamOption(name,"isoutput")) return;
+
     eval_delayed();
   });
 }
@@ -590,7 +612,7 @@ export function call_cmd_by_path(env) {
       }
       var arr = target_path.split("->");
       if (arr.length != 2) {
-        //console.error("btn: cmd arr length not 2!",arr );
+        console.error("callCmdByPath: cmd arr length is not 2! target_path=",target_path );
         // на самом деле можно ходить по стрелкам
         return;
       }
@@ -617,7 +639,7 @@ export function call_cmd_by_path(env) {
 }
 
 //////////////////////////////////
-export function repeater( env, fopts, envopts ) {
+export function repeater0( env, fopts, envopts ) {
   var children;
   /* оказалось что env.restoreFromDump уже вызывают, 
      если repeater первый в register-feature стоит.. - то он не успел получается это переопределить
@@ -748,6 +770,178 @@ export function repeater( env, fopts, envopts ) {
   } // recreate
 }
 
+//////////////////////////////////
+export function repeater( env, fopts, envopts ) {
+  var children;
+  /* оказалось что env.restoreFromDump уже вызывают, 
+     если repeater первый в register-feature стоит.. - то он не успел получается это переопределить
+     поэтому я перешел на переопределение restoreChildrenFromDump...
+
+  env.restoreFromDump = (dump,manualParamsMode) => {
+    children = dump.children;
+    env.vz.restoreParams( dump, env,manualParamsMode );
+    env.vz.restoreLinks( dump, env,manualParamsMode );
+    env.vz.restoreFeatures( dump, env,manualParamsMode );
+    
+    return Promise.resolve("success");
+  }*/
+
+  env.restoreChildrenFromDump = (dump, ismanual) => {
+    // короче выяснилось, что если у нас создана фича которая основана на repeater,
+    // то у этого repeater свое тело поступает в restoreChildrenFromDump
+    // а затем внешнее тело, которое сообразно затирает собственное тело репитера.
+    if (!children) {
+      children = dump.children;
+      if (pending_perform) {
+        if (env.params.input)
+          env.signalParam("input");
+        else
+          env.signalParam("model");
+      }
+    }
+    return Promise.resolve("success");
+  }
+
+
+  var pending_perform;
+  env.onvalue("model",recreate );
+  env.onvalue("input",recreate );
+
+  env.addCmd("refresh",() => recreate());
+
+
+  let current_state = [];
+  let model;
+
+  function recreate() {
+     model = env.params.model || env.params.input;
+
+     if (env.removed) return; // бывает...
+
+     if (!children) {
+        pending_perform=true;
+        return;
+     }
+     pending_perform=false;
+
+     var firstc = Object.keys( children )[0];
+
+     if (!firstc) {
+       // children чето не приехали.. странно все это..
+       console.error("repeater: children is blank during model change...");
+       return;
+     }
+
+     if (typeof model == 'number') { // число
+       let num = parseInt( model ); // приведем к инту
+       model = Array.from(Array(num).keys());
+     }
+
+     if (model && !model.forEach) // рарешим подавать любой объект на вход - это как массив 1 штука элементов
+         model = [model];
+
+     if (!(model && model.forEach)) {
+       //console.error("repeater: passed model is not iterable.",model,env.getPath())
+       return;
+     }
+
+     let target_parent = env.ns.parent;
+     // особый случай - когда репитер сидит в пайпе
+     if (target_parent.is_feature_applied("pipe"))
+        target_parent = target_parent.ns.parent;
+
+
+     //////////// вот здесь момент создания.
+     // и вопрос - надо добавить или убавить. именно на этот вопрос надо отвечать.
+    
+     // у нас есть уже состояние - что то создано, на что то поданы заявки
+     // и нам надо сообразно актуализироваться в связи с вновь поступившим заказом.
+     // created_envs - список созданных окружений. некоторые могут быть еще не созданы а запущены на создание.
+     if (model.length < current_state.length) {
+       // надо удалять
+       decrease_state_to(model.length);
+       // и освежить тех кто остался
+       actualize_state_to_model();
+     }
+     else {
+       actualize_state_to_model();
+       
+       // надо добавить
+       for (let i=current_state.length; i<model.length; i++) {
+
+           var edump = children[firstc];
+           edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
+
+           var p = env.vz.createSyncFromDump( edump,null,target_parent );
+           current_state.push( {promise: p} );
+
+           p.then( (child_env) => {
+              if (p.need_cancel) {
+                child_env.remove();
+                return;
+              }
+              current_state[i].child_env = child_env;
+
+              // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
+              // todo тут надо scope env делать и детям назначать, или вроде того
+              // но пока обойдемся так
+              child_env.$env_extra_names ||= {};
+              child_env.$env_extra_names[ firstc ] = true;
+
+              // todo epochs
+              // поскольку тут по индексу, а model глобальная - мы получаем свежее значение
+              /// даже если промис сработал после многократного перезапуска
+
+              let element = model[i];
+              child_env.setParam("input",element);
+              child_env.setParam("inputIndex",i);
+
+              child_env.setParam("modelData",element);
+              child_env.setParam("modelIndex",i);
+
+              /*  
+              created_envs.push( child_env );
+              // выдаем в output созданные объекты
+              if (created_envs.length == model.length)
+                 env.setParam( "output", created_envs );
+              */   
+           });        
+       }
+     }
+
+     let envs_promises  = current_state.map( s => s.promise );
+     Promise.all( envs_promises ).then( (envs) => {
+        env.setParam( "output", envs );
+     })
+     
+  } // recreate
+
+  function decrease_state_to(num) {
+      for (let i=current_state.length-1; i>=num; i--) {
+           let rec = current_state.pop();
+           let child_env = rec.child_env;
+           if (child_env) {
+             child_env.remove();
+           }
+           else rec.promise.need_cancel=true;
+       }
+  }
+
+  function actualize_state_to_model() {
+    // актуализируем у уже созданных
+       for (let i=0; i<current_state.length; i++) {
+          let child_env = current_state[i].child_env;
+          if (!child_env) continue;
+
+              let element = model[i];
+              child_env.setParam("input",element);
+              child_env.setParam("modelData",element);
+       }
+  }
+
+  env.on('remove',() => decrease_state_to(0));
+}
+
 ////////////////////////////
 export function compute( env ) {
   env.setParam("output",undefined);
@@ -783,13 +977,17 @@ export function compute( env ) {
 
   env.on('param_changed', (name) => {
     if (name == "output") return;
+    if (env.getParamOption(name,"isoutput")) return;
+
     // тут засада великая... если compute внутри себя откладывает вычисления по таймеру
     // и пишет куда ни попадя - мы вызываем пересчет получается этим
     // все-таки нужны получается флаги типа output... а то все смешно - compute по отложенному таймеру
     // записал результаты и - пошел считаться заново..
 
-    if (!imsetting_params_maybe)
+    if (!imsetting_params_maybe) {
+       //console.log('compute: params ',name,' changed, scheduling re-compute. val=',env.getParam(name),"\npath=",env.getPath() );
        eval_delayed()
+     }
   } );
   eval_delayed();
 
@@ -1128,6 +1326,11 @@ export function deploy_many( env, opts )
      deploy_normal_env_all(input);
   });
 
+  env.addCmd("redeploy",() => {
+    //console.log("redeploy called",env.getPath())
+    deploy_normal_env_all( env.params.input );
+  });
+
  // режим "repeater-mode" - развернуть всех в родителя (хотя может и можно не в родителя)
  var created_envs = [];
  function close_envs() {
@@ -1249,7 +1452,7 @@ export function deploy_features( env )
      let ii=0;
      for (let tenv of to_deploy_to) {
       for (let rec of features_list) {
-        console.log("deploy_features is deploying",rec,"to",tenv.getPath())
+        //console.log("deploy_features is deploying",rec,"to",tenv.getPath())
         let new_feature_env = env.vz.importAsParametrizedFeature( rec, tenv );
         new_feature_env.setParam( "objectIndex",ii);
         created_envs.push( new_feature_env );

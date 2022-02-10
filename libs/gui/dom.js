@@ -184,7 +184,10 @@ export function dom( obj, options={} )
   // ВОЗМОЖНО его надо будет сделать перенастраиваемым
 
   //obj.rescan_children = delayed(rescan_children);
-  var rescan_children_delayed = delayed(rescan_children2);
+  obj.feature("delayed");
+
+  var rescan_children_delayed = obj.delayed(rescan_children2);
+
   obj.addCmd("rescan_children",() => rescan_children_delayed() )
   //obj.addCmd("rescan_children",() => rescan_children2() )
 
@@ -338,22 +341,6 @@ export function addStyle( styles ) {
 
 addStyle(".vz_gui_hide { display: none !important; }")
 */
-
-///////////////////////////////////////////
-
-function delayed( f,delay=0 ) {
-  var t;
-
-  var res = function() {
-    if (t) return;
-    t = setTimeout( () => {
-      t=null;
-      f();
-    },delay);
-  }
-
-  return res;
-}
 
 ///////////////////////////////////////////
 

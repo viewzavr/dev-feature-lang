@@ -7,7 +7,7 @@ register_feature name="param_base" code=`
   }
 
   env.onvalue( "value", (v) => {
-    //console.log("combo param value changed",v)
+    // console.log("combo param value changed",v)
     // короче история такая. этот value меняется в т.ч. от польз ввода, получается
     // когда нам его значение присылают (см ниже trackParam)
     // и если мы вызываем просто setParam то сбиваем manual-флаг исходному
@@ -45,8 +45,17 @@ register_feature name="param_combo" code=`
     var nv = tgt.getParam( env.paramname() ) || env.params.value || env.params.values[0];
     //tgt.addComboValue( env.paramname(),nv,env.params.values );
 
+    if (env.params.titles) 
+      tgt.setParamOption( env.paramname(),"titles",env.params.titles);
+    else
+      tgt.setParamOption( env.paramname(),"titles",null);
+    // делаем это перед addComboValue потому что там будет событие gui changed      
+
     // todo получается у нас в addComboValue тупняк - если мы даем значение
     // то сигнала никто не получит... или это логично?
+
+    //console.log("param_combo: calling add-combo-value, vals=",env.params.values)
+
     tgt.addComboValue( env.paramname(),undefined,env.params.values );
     if (t) t();
     t = tgt.trackParam( env.paramname(),(v) => {
@@ -58,10 +67,7 @@ register_feature name="param_combo" code=`
       env.setParam("value",nv);
     }
     
-    if (env.params.titles) 
-      tgt.setParamOption( env.paramname(),"titles",env.params.titles);
-    else
-      tgt.setParamOption( env.paramname(),"titles",null);
+
   }
   env.on("remove",() => {
     if (t) t(); t = null;
@@ -225,6 +231,27 @@ register_feature name="param_string" code=`
     if (t) t(); t = null;
   });
 `;
+
+/* вроде как пока лейбелом обходимся
+register_feature name="param_status" code=`
+  env.feature("param_base"); 
+  var t;
+
+  function setup() {
+    let tgt = env.tgt();
+    tgt.addStatus( env.paramname(),env.params.value );
+    if (t) t();
+    t = tgt.trackParam( env.paramname(),(v) => {
+      env.setParam("value",v);
+    });
+  }
+
+  setTimeout( setup, 0 );  // треш конечно
+  env.on("remove",() => {
+    if (t) t(); t = null;
+  });
+`;
+*/
 
 register_feature name="param_text" code=`
   env.feature("param_base"); 

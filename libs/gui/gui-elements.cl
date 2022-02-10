@@ -113,11 +113,16 @@ register_feature name="slider" {
 		 
 		 dom_event name="input" code=`
 		  let object = env.params.object;
-		 	if (object.params.sliding)
-		 		  object.setParam("value", parseFloat( object.params.dom.value ), true );
+		  //console.log("slider input",object.params.dom.value)
+		 	if (object.params.sliding) {
+		 		  let v = parseFloat( object.params.dom.value );
+		 		  //console.log("slider sets manual param 'value'",v)
+		 		  object.setParam("value", v, true );
+		  }		  
 		 `;
 		 dom_event name="change" code=`
 		   let object = env.params.object;
+		   //console.log("slider change",object.params.dom.value) 
 		 		  object.setParam("value", parseFloat( object.params.dom.value ), true );
 		 `;
 
@@ -264,13 +269,21 @@ register_feature name="combobox" {
         else
           env.setParam("output",0);
 		`;
+		/* в общем выяснилось что если у нас 2 входных парараметра синхронизированных
+		   то это отстой - ставим value оно уходит на круг К на счет index и обратно в value
+		   .. и если посередине этого поставится новый value то оно заткнется затем value из того круга К
+		   .. ну либо втыкать обработку событий надо. в общем пока - установка только по value.
+
 		index2val: compute index=@..->index values=@..->values code=`
-		   //console.log("index2val")
+		   
 		   var val = (params.values || [])[ params.index ];
+		   console.log("index2val: compute called, params.index=",params.index,"setting to ",val)
 		   env.setParam("output",val);
 		`;
+		link to="..->value" from="@index2val->output";
+		*/
 		link to="..->index" from="@val2index->output";
-	  link to="..->value" from="@index2val->output";
+	  
 	};
 };
 

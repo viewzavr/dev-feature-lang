@@ -129,16 +129,16 @@ register_feature name="render-guis-nested2" {
 
       column {
 
-        render-params object=@col->input;
+        render_params_of_input: render-params object=@col->input;
 
         find-objects pattern_root=@col->input pattern="** include_gui_inline"
              | 
              repeater {
-               render-params object=@.->input;
+               render_params_inline: render-params object=@.->input;
              };
 
         find-objects pattern_root=@col->input pattern="** include_gui"
-           | render-guis;
+           | render_guis_includ: render-guis;
 
         // соберем из объектов созданных в каналах (render3d-items и т.п.)  
         find-objects pattern_root=@col->input pattern="** include_gui_from_output"
@@ -149,13 +149,13 @@ register_feature name="render-guis-nested2" {
                         find-objects pattern_root=@.->input pattern="** include_gui_inline"
                           | 
                            repeater {
-                             render-params object=@.->input;
+                             g_from_output_rp_inline: render-params object=@.->input;
                            };
                    };
 
                   @subr->input | get param="output" | repeater {
                         find-objects pattern_root=@.->input pattern="** include_gui"
-                          | render-guis;
+                          | g_from_output_rp_includ: render-guis;
                       };
                    };
                };

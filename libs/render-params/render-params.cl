@@ -46,7 +46,7 @@ register_feature name="render-guis" {
 register_feature name="render-params" {
   rp: column gap="0.1em" {
     link to=".->object" from=@..->object_path tied_to_parent=true soft_mode=true; // тут надо maybe что там объект и тогда норм будет..
-    repeater model=@getparamnames->output {
+    @getparamnames | repeater {
       column {
         //text text=@..->modelData;
         render-one-param obj=@rp->object name=@..->modelData;
@@ -81,7 +81,7 @@ register_feature name="render-params" {
         //debugger;
       });
       `;
-    };
+    } ;
 
     // а кстати классно было бы cmd="(** file_uploads)->recompute"
     connection object=@..->object event_name="gui-added" cmd="@getparamnames->recompute";
@@ -93,7 +93,24 @@ register_feature name="render-params" {
 
 // вход: obj объект, name имя параметра
 
-register_feature name="render-one-param" code='
+register_feature name="render-one-param" {
+  dg: dom_group {{
+      onevent name="param_obj_changed" cmd="@x->apply";
+      onevent name="param_name_changed" cmd="@x->apply";
+      x: func {{delay_execution;}} cmd="@dm->redeploy";
+
+      connection 
+        object=@dg->obj
+        event_name=(compute_output name=@dg->name code="return 'gui-changed-'+env.params.name;")
+        cmd="@dm->redeploy";
+
+    }}
+    {
+      dm: deploy_many input={render-one-param-p obj=@..->obj name=@..->name;};
+    };
+};
+
+register_feature name="render-one-param-p" code='
   var tr;
   env.onvalue("obj",(obj) => {
     //debugger;
@@ -135,6 +152,7 @@ register_feature name="render-param-string" {
     };
   };
 };
+
 
 register_feature name="render-param-text" {
   pf: param_field {
@@ -224,6 +242,7 @@ register_feature name="render-param-files" {
   };
 };
 
+/*
 register_feature name="render-param-label" {
   row {
     text text=@..->name;
@@ -231,6 +250,15 @@ register_feature name="render-param-label" {
     text {
       link to=".->text" from=@../..->param_path tied_to_parent=true;
     };
+  };
+};*/
+
+register_feature name="render-param-label" {
+  str: param_field {
+    //text text=@..->name;
+    //text text="=";
+    link from=@str->param_path to="@tx->text" tied_to_parent=true;
+    tx: text;
   };
 };
 
@@ -242,6 +270,7 @@ register_feature name="render-param-slider" {
         link from=@../../..->param_path to=".->value" tied_to_parent=true;
         link to=@../../..->param_path from=".->value" tied_to_parent=true 
           soft_mode=true manual_mode=true;
+          
         //link from=@..->param_path->min to="..->min";
         compute obj=@../../..->object name=@../../..->name gui=@../../..->gui code=`
           var sl = env.ns.parent;

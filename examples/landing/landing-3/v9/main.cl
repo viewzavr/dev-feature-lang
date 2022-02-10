@@ -19,6 +19,8 @@ mainparams: {
      value=@time->index;
 
   step_N: param_slider value=10 min=1 max=1000;
+
+  lines_loaded: param_label value=(@dat0 | get name="length");
 };
 
 ///////////////////////////////////////
