@@ -455,6 +455,8 @@ export function feature_func( env )
 
    //console.log( "feature_func: installing apply cmd",env.getPath());
    env.addCmd( "apply",(...args) => {
+      if (env.removed) return;
+
       if (env.params.code) {
         // кстати идея - а что если там сигнатуру подают то ее использовать?
         // т.е. если cmd="(obj,coef) => { ..... }"
