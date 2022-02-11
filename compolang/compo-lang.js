@@ -283,8 +283,17 @@ export function register_feature( env, envopts ) {
     var js_part = () => {};
     if (env.params.code) {
       var code = "(env,args) => { " + env.params.code + "}";
+      /* ерунда это все - мы код прямо сейчас eval-им.
+      var code = `(env,args) => { 
+        try {
+          ${env.params.code}
+        } catch(err) {
+          console.error("REGISTER-FEATURE: error while evaluating js!",err,"feature_name=${env.params.name}");
+        }
+      }`;
+      */
       try {
-        console.log(code)
+        //console.log(code)
         js_part = eval( code );
       } catch(err) {
         console.error("REGISTER-FEATURE: error while compiling js!",err,"\n********* code=",code);

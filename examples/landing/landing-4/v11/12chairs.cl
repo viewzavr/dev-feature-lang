@@ -38,12 +38,12 @@ register_feature name="addon_layer" {
         deploy_many_to target=@recroot->target
            input=( @vlayer->list | get child=@selected_show->value | get param=@recroot->channel )
            include_gui_from_output
-           extra_features={set_params input=@vlayer->input; console_log_params text='eeeeeee'; }
+           extra_features={set_params input=@vlayer->input; }
            {{ keep_state }}; // keep_state сохраняет состояние при переключении типов объектов
       };
     };
 
-    param_cmd name="dbg" text="test" in1=@vlayer->input code=`console.log( env.params.in1 )`;
+    //param_cmd name="dbg" text="test" in1=@vlayer->input code=`console.log( env.params.in1 )`;
 
     // todo теперь сюда как-то суб-фичи прикрутить
     // мб. по селектору subfeature_target фильтровать
@@ -219,4 +219,16 @@ register_feature name="layers_gui" {
       myobjects: find-objects pattern=@lgui->pattern;
   };
 
-}
+};
+
+register_feature name="include_gui_from_output" {
+  ok=true;
+};
+
+register_feature name="include_gui" {
+  ok=true;
+};
+
+register_feature name="include_gui_inline" {
+  ok=true;
+};

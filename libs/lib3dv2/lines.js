@@ -27,7 +27,7 @@ export function lines( env ) {
     }
     else
     {
-      geometry.removeAttribute( 'color' );
+      geometry.deleteAttribute( 'color' );
       material.vertexColors = false; 
     }
     geometry.needsUpdate = true;

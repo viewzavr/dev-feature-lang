@@ -431,7 +431,7 @@ register_feature name="tabview" {
 	        env.setParam("output",titles);
 	        env.setParamOption("output","internal",true);
 
-	        console.log("titles:",titles);
+	        //console.log("titles:",titles);
 			  }
 
 			  tabview.on("childrenChanged",scan_titles ); // dom hack

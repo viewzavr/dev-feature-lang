@@ -22,6 +22,7 @@ register_feature name="param_base" code=`
 `;
 
 register_feature name="param_combo" code=`
+
   env.feature("param_base");
   
   env.onvalue( "values", setup );
@@ -42,7 +43,7 @@ register_feature name="param_combo" code=`
     
     let tgt = env.tgt()
 
-    var nv = tgt.getParam( env.paramname() ) || env.params.value || env.params.values[0];
+    var nv = tgt.getParam( env.paramname() ) || env.params.value || ((env.params.values || []) [0]);
     //tgt.addComboValue( env.paramname(),nv,env.params.values );
 
     if (env.params.titles) 
@@ -56,7 +57,7 @@ register_feature name="param_combo" code=`
 
     //console.log("param_combo: calling add-combo-value, vals=",env.params.values)
 
-    tgt.addComboValue( env.paramname(),undefined,env.params.values );
+    tgt.addComboValue( env.paramname(),undefined,env.params.values || [] );
     if (t) t();
     t = tgt.trackParam( env.paramname(),(v) => {
       //console.log("combo param value changed m2",v);

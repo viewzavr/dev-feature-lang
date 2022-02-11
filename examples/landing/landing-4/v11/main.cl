@@ -18,7 +18,7 @@ mainparams: {
   time_slider: param_slider min=0 max=(@time->values | arr_length | compute_output code=`return env.params.input-1`) step=1 
      value=@time->index;
 
-  step_N: param_slider value=10 min=1 max=1000;
+  step_N: param_slider value=10 min=1 max=100;
 
   lines_loaded: param_label value=(@dat0 | get name="length");
 };
@@ -115,6 +115,7 @@ register_feature name="data_visual_layer" {
           titles=["Траектория","Прореженная траектория","Текущее положение"]
           values=["@dat->output","@dat_prorej->output","@dat_cur_time->output"]
      ;
+
     //param_ref df_ref name="input";
     link to="@al->input" from=@pc->value;
     
