@@ -5,7 +5,9 @@ export function setup(vz, m) {
 
 // устанавливает параметры целевому объекту
 // пока для упрощения только хост
-
+// особенность - set_params можно удалить и тогда вернутся старые значения параметров
+// что ценно для разнообразных аспектов.
+// пример: set_params input=... y=... z=...;
 export function set_params( env )
 {
    env.host.feature("param_subchannels");

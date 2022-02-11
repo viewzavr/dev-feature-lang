@@ -284,6 +284,7 @@ export function register_feature( env, envopts ) {
     if (env.params.code) {
       var code = "(env,args) => { " + env.params.code + "}";
       try {
+        console.log(code)
         js_part = eval( code );
       } catch(err) {
         console.error("REGISTER-FEATURE: error while compiling js!",err,"\n********* code=",code);
@@ -374,6 +375,7 @@ export function base_url_tracing( env, opts )
 //////////////////////////////////////////
 // устанавливает параметр при вызове команды apply
 // * value - значение которое устанавливать
+// кому выставлять:
 // * target - полная ссылка на цель (объект->параметр)
 //   либо
 //   * пара object="some-path" и param="..."
@@ -1043,7 +1045,7 @@ export function find_objects( env  ) {
     //debugger;
   })
 
-  env.addString("found_objects_count");
+  env.addLabel("found_objects_count");
 }
 
 // ловит события, направляет куда скажут
@@ -1391,6 +1393,7 @@ export function deploy_many_to( env, opts )
  function deploy_normal_env_all(input,target) {
      env.emit("before_deploy", created_envs);
      close_envs();
+
      let parr=[];
      if (input && !Array.isArray(input)) input=[input]; // так
      if (!input) {
@@ -1400,8 +1403,14 @@ export function deploy_many_to( env, opts )
 
      for (let edump of input) {
         edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
+
         var p = env.vz.createSyncFromDump( edump,null,target );
         p.then( (child_env) => {
+
+           if (env.params.extra_features) { // экспериментs
+             for (let ef of env.params.extra_features)
+              env.vz.importAsParametrizedFeature( ef, child_env );
+           }
 
            created_envs.push( child_env );
         });
