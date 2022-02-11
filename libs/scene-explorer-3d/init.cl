@@ -35,6 +35,7 @@ register_feature name="dbg" code=`
   })
 `;
 
+/*
 register_feature name="get_param" code=`
   //debugger;
   env.onvalues( ["input","name"],(input,name) => {
@@ -43,6 +44,7 @@ register_feature name="get_param" code=`
       env.setParam( "output", input.getParam( name ) );
   })
 `;
+*/
 
 register_feature name="install_explorer_feature" {
   rt: {
@@ -389,7 +391,8 @@ load files="set-params";
 
 register_feature name="graph_filter" {
   root: set_params input=@selected->output {
-    selected: find-objects pattern=@root->pattern | console_log text="FILTERED GRAPH OBJECTS";
+    selected: find-objects pattern=@root->pattern 
+    | console_log text="FILTERED GRAPH OBJECTS";
   };
 };
 

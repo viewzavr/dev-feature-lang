@@ -12,8 +12,10 @@ export function find_objects_bf( env  ) {
   env.addObjectRef("root");
 
   env.feature("delayed");
+  // env.setParam("output",[]); // не будем смущать население
+  // ну или посмущаем
 
-  let delayed_begin = env.delayed( begin, 50 );
+  let delayed_begin = env.delayed( begin, 10 );
   env.onvalues(["root","features"],(r,f) => {
     if (r.getPath() == "/") // отсечем случай когда данные нам еще не выставили просто
       delayed_begin( r,f );
@@ -47,6 +49,7 @@ export function find_objects_bf( env  ) {
     if (unsub_list.length > 0)
         console.warn("find_objects_bf: reepated begin! unsub_list.length = ",unsub_list.length)
     env.emit("reset");
+    publish_result(); // либо пустой массив будет либо заполнится чем-нибудь уже на этом такте
 
     if (!Array.isArray(features)) features = features.trim().split(/\s+/);
 
@@ -88,7 +91,10 @@ export function find_objects_bf( env  ) {
     if (result_object_ids[id]) return; // такое уже у нас есть
     result_object_ids[id] = id;
     
-    let u = obj.on("remove", () => { delete result_object_ids[id]; })
+    let u = obj.on("remove", () => { 
+       delete result_object_ids[id]; 
+       uniq_object_disappeared( obj );
+    })
     unsub_list.push( u )
 
     next_unique_object_found( obj );
@@ -105,7 +111,22 @@ export function find_objects_bf( env  ) {
     // и сигнала не получается..
     //env.setParamWithoutEvents("output", result_object_list );
     //env.signalParam( "output" );
-    env.setParam( "output", [...result_object_list] );
+    //env.setParam( "output", [...result_object_list] );
+    publish_result();
+  }
+
+  function uniq_object_disappeared( obj ) {
+     result_object_list = result_object_list.filter( i => i != obj );
+     publish_result();
+     //env.setParam( "output", [...result_object_list] );
+     //let i = result_object_list.indexOf( obj );
+  }
+
+  // сделано т.к. у нас по нескольку новых объектов за так может появляться
+  env.feature("delayed");
+  env.do_publish = env.delayed( () => env.setParam( "output", [...result_object_list] ) );
+  function publish_result() {
+    env.do_publish();
   }
 
   // unsub_item.f это возможность нам изнутри менять функцию отписки

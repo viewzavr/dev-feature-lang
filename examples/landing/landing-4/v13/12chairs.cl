@@ -166,7 +166,7 @@ register_feature name="render-guis-nested2" {
        };
 
        column {
-         render-guis input=@extra;
+         render-guis input=@extra render-guis-extra;
        };
 
        extra: gui_title = "Настройки" {

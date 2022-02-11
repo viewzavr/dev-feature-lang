@@ -22,12 +22,12 @@ register_feature name="render_gui_title" code=`
 
 register_feature name="render-guis" {
   rep: repeater opened=true {
-    column {
+    das1: column {
           button text=@btntitle->output cmd="@pcol->trigger_visible" 
            {{ deploy input=@rep->button_features }};
-          
+
           pcol: column visible=false { /* @../../..->opened */
-            render-params object=@../..->modelData;
+            render-params object=@das1->modelData;
             btntitle: compute_output object=@../..->modelData code=`
               return env.params.object?.params.gui_title || env.params.object?.ns.name;
             `;
@@ -45,8 +45,13 @@ register_feature name="render-guis" {
 
 register_feature name="render-params" {
   rp: column gap="0.1em" {
+
     link to=".->object" from=@..->object_path tied_to_parent=true soft_mode=true; // тут надо maybe что там объект и тогда норм будет..
-    @getparamnames | repeater {
+
+    // а кстати классно было бы cmd="(** file_uploads)->recompute"
+    // connection object=@..->object event_name="gui-added" cmd="@getparamnames->recompute";
+
+    @getparamnames |  repeater {
       column {
         //text text=@..->modelData;
         render-one-param obj=@rp->object name=@..->modelData;
@@ -54,7 +59,14 @@ register_feature name="render-params" {
     };
 
     getparamnames: compute_output input=@..->object code=`
-      // console.log("GPN: object=",env.params.input, "GN=",env.params.input ? env.params.input.getGuiNames() : "null")
+      //console.log("GPN: object=",env.params.input ? env.params.input.getPath() : "null", "GN=",env.params.input ? env.params.input.getGuiNames() : "null")
+      
+      env.unsub1 ||= () => {};
+      env.unsub1();
+      env.unsub1 = () => {};
+
+      env.unsub2 ||= env.on("remove",() => {env.unsub1()})
+
       if (env.params.input) {
           // return env.params.input.getGuiNames();
           // но нет, надо взять те что не internal..
@@ -63,8 +75,12 @@ register_feature name="render-params" {
           for (let nn of gn)
             if (!env.params.input.getParamOption(nn,"internal"))
               acc.push( nn );
+          
+          env.unsub1 = env.params.input.on("gui-added",() => env.recompute() );
+          //env.params.input.on("gui-changed",() => env.recompute() );
+
           return acc ; /// так-то было бы удобно если бы эти gui-names были тоже просто параметром
-     }
+      }
     ` {
       js code=`
         env.ns.parent.on("remove",() => {
@@ -83,9 +99,6 @@ register_feature name="render-params" {
       `;
     } ;
 
-    // а кстати классно было бы cmd="(** file_uploads)->recompute"
-    connection object=@..->object event_name="gui-added" cmd="@getparamnames->recompute";
-
     // todo - вставить сюда рекурсию для детей и для фич.. или хотя бы для фич.. можно управляемую @idea
 
   };
@@ -101,7 +114,7 @@ register_feature name="render-one-param" {
 
       connection 
         object=@dg->obj
-        event_name=(compute_output name=@dg->name code="return 'gui-changed-'+env.params.name;")
+        event_name=(compute_output name=@dg->name code="return env.params.name ? 'gui-changed-'+env.params.name : null;")
         cmd="@dm->redeploy";
 
     }}

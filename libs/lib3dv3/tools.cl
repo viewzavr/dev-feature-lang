@@ -54,7 +54,7 @@ register_feature name="compute_data_radius" code=`
 
       
       rec( env.params.input );
-      console.log("rrrrr=",r)
+      //console.log("compute_data_radius rrrrr=",r)
 
       env.setParam("output",r);
    }

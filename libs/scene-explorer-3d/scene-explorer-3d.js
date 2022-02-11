@@ -448,6 +448,7 @@ function merge( prevrec, newrec ) {
 }
 
 // задача сделать граф (сгенерировать структуру данных)
+// то бишь это генератор
 export function scene_explorer_graph( env ) {
 
   var stop_process = ()=>{};
@@ -459,6 +460,8 @@ export function scene_explorer_graph( env ) {
   if (!env.hasParam("active")) env.params.active=true;
 
   env.onvalues(["input","update_interval"],(obj) => {
+    console.log("scene_explorer_graph onvalues, obj=",obj)
+
     stop_process()
     // запускаем процесс генерации
     var interv;

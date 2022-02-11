@@ -1101,9 +1101,11 @@ export function connection( env, options )
    var tracking = () => {};
    env.onvalues(["event_name","object"],(en,obj) => {
       tracking();
-      //console.log("GPN tracking name=",en,obj)
+      if (en == "gui-changed-undefined" )
+        debugger;
+      //console.log("GPN connection tracking name=",en,obj.getPath(), obj.getParamsNames() )
       tracking = obj.on( en, (...args) => {
-         //console.log("GPN tracking DETECTED! name=",en,obj) 
+         //console.log("GPN tracking DETECTED! name=",en,obj.getPath()) 
          env.apply(...args); // вызов метода окружения func
       })
    })
@@ -1527,8 +1529,49 @@ export function deploy_features( env )
 
 }
 
-//////////////// get
+/////////////////////////// новые геттеры с новым дизайном
 
+// получается лучше все-таки явно, get_param, get_child и т.п. чем по аргументам разруливать..
+export function get_param( env )
+{
+  let param_tracking = () => {};
+
+  function source_param_changed (input,param) {
+    let v = input?.getParam ? input.getParam( param ) : undefined;
+    env.setParam("output",v );
+
+    param_tracking();
+    param_tracking = input.trackParam( param,() => {
+      source_param_changed( input, param );
+    } );
+  }
+  env.on("remove",param_tracking);
+
+  env.onvalues(["input","name"],source_param_changed); 
+}
+
+export function get_child( env )
+{
+  let param_tracking = () => {};
+
+  function source_param_changed (input,name) {
+    let v = input ? input.ns.childrenTable[ name ] : undefined;
+
+    env.setParam("output",v );
+
+    param_tracking();
+    param_tracking = input.on("childrenChanged",source_param_changed );
+    // todo тут надо delayed на случай если там много детей будут пачками добавляться
+    // и еще надо ренейм у детей ловить, name_changed
+  }
+  env.on("remove",param_tracking);
+
+  env.onvalues(["input","name"],source_param_changed); 
+}
+
+//////////////// get
+// плохой дизайн - реагировать в зависимости от аргумента...
+// плох тем что у меня где-то есть get_param и я не могу его заменить на get здесь...
 export function get( env ) {
   let param_tracking = () => {};
 
@@ -1551,10 +1594,12 @@ export function get( env ) {
     let v = input ? input[ param ] : undefined;
     env.setParam("output",v );
   });
+
   env.onvalues(["input","child"],(input,param) => {
     let v = input ? input.ns.childrenTable[ param ] : undefined;
     env.setParam("output",v );
   });
+
   env.onvalues(["input","index"],(input,param) => {
     let v = input ? input[ param ] : undefined;
     env.setParam("output",v );
