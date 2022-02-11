@@ -1,7 +1,11 @@
 // фича parseSimpleLang и базовые фичи языка load, loadPackage, pipe, register_feature
 
+import * as F from "./find-objects-by-features.js";
+
 export function setup(vz, m) {
   vz.register_feature_set(m);
+  //vz.register_feature_set(F);
+  F.setup( vz, F);
 }
 
 import * as P from "./lang-parser.js";
@@ -1041,7 +1045,7 @@ export function compute_output( env ) {
 
 // искалка объектов. вход строка pattern выход output набор найденных окружений.
 // см criteria-finder.js
-export function find_objects( env  ) {
+export function find_objects_old( env  ) {
   env.feature("find_by_criteria");
 
   env.addObjects( "pattern","",(objects_list) => {
@@ -1055,6 +1059,30 @@ export function find_objects( env  ) {
   })
 
   env.addLabel("found_objects_count");
+}
+
+export function find_objects( env  ) {
+
+  env.feature("find_objects_bf");
+
+  env.addString("pattern");
+  env.addObjectRef("pattern_root","/");
+
+  env.onvalues( ["pattern","pattern_root"],(p,r) => {
+    let features = "";
+    if (p.startsWith("** ")) {
+      features = p.slice( 3 );
+    }
+    else
+    {
+      console.error("find_objects: unsupported pattern!",p)
+      env.setParam("output",[]);
+      return;
+    }
+    env.setParam( "features",features);
+    env.setParam( "root",r);
+  })
+  
 }
 
 // ловит события, направляет куда скажут
