@@ -2,6 +2,8 @@ export function setup(vz, m) {
   vz.register_feature_set(m);
 }
 
+// todo слушать уведомления при добавлении subfeature-элементов... сейчас они не слушаются.
+
 // root - с какого объекта искать
 // features - список фич которые объект должен содержать, массив или строка
 // пример: find_objects_bf root=@some features="alfa beta";
@@ -39,7 +41,7 @@ export function find_objects_bf( env  ) {
   env.on("reset",unsub_all);
 
   function begin(root,features) {
-    console.log("find_objects_bf begin: root=",root.getPath(),"\nfeatures=",features,"\nobj=",env.getPath())
+    //console.log("find_objects_bf begin: root=",root.getPath(),"\nfeatures=",features,"\nobj=",env.getPath())
     //if (root.getPath() == "/")  debugger;
     //unsub_all();
     if (unsub_list.length > 0)

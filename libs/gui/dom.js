@@ -175,26 +175,45 @@ export function dom( obj, options={} )
 
   obj.setParam("output",() => obj.outputDom() )
 
-  obj.on("appendChild",rescan_children2);
-  obj.on("forgetChild",rescan_children2);
+  //obj.rescan_children = delayed(rescan_children);
+  obj.feature("delayed");
+  var rescan_children_delayed = obj.delayed(rescan_children2);
+
+
+  //obj.on("appendChild",(q) => rescan_children_delayed("by appendChild of "+q.getPath()));
+  //obj.on("forgetChild",(q) => rescan_children_delayed("by forgetChild of "+q.getPath()));
+
+  /* похоже что они не нужны - у нас уведомления от детей приходят когда они дом себе создают
+     и когда они грохаются...
+     по уму надо бы мониторить их output но пока так..
+
+  obj.on("appendChild",(q) => {
+     if (q.is_feature_applied("dom") || q.is_feature_applied("dom_group") || q.is_feature_applied("shadow_dom")) 
+       rescan_children_delayed("by appendChild of "+q.getPath())
+  });
+  obj.on("forgetChild",(q) => {
+    // todo оптимизировать свести к одной фиче
+     if (q.is_feature_applied("dom") || q.is_feature_applied("dom_group") || q.is_feature_applied("shadow_dom")) 
+       rescan_children_delayed("by forgetChild of "+q.getPath())
+  });
+  */
+
+  //obj.on("appendChild",rescan_children2);
+  //obj.on("forgetChild",rescan_children2);
 
   create_this_dom();
 
   // это у нас по сути - алгоритм комбинации из SICP.
   // ВОЗМОЖНО его надо будет сделать перенастраиваемым
 
-  //obj.rescan_children = delayed(rescan_children);
-  obj.feature("delayed");
 
-  var rescan_children_delayed = obj.delayed(rescan_children2);
-
-  obj.addCmd("rescan_children",() => rescan_children_delayed() )
+  obj.addCmd("rescan_children",(reason) => rescan_children_delayed(reason) )
   //obj.addCmd("rescan_children",() => rescan_children2() )
 
   //obj.rescan_children = rescan_children;
   
-  function rescan_children2() {
-   //console.log("rescan_children2 called")
+  function rescan_children2(reason) {
+   //console.log("rescan_children2 called", obj.getPath(), "["+reason+"]")
     clear_viewzavr_dom_children();
 
     let target  = obj.combiningDom();
@@ -290,16 +309,22 @@ export function dom( obj, options={} )
     obj.dom = options.elem_creator_f ? options.elem_creator_f( t ) : document.createElement( t );
     obj.dom.$cl_tag_name = t;
     obj.setParam("dom",obj.dom);
-    rescan_children2();
+    rescan_children2("create_this_dom");
     apply_dom_attrs();
     apply_dom_params();
 
     //trigger_all_params();
     //if (obj.ns.parent?.rescan_children) obj.ns.parent.rescan_children();
     if (obj.ns.parent) {
-        obj.ns.parent.callCmd("rescan_children");
+        obj.ns.parent.callCmd("rescan_children","child created dom"+obj.getPath());
     }
   }
+
+  obj.on("remove",() => {
+    if (obj.ns.parent) {
+        obj.ns.parent.callCmd("rescan_children","child removed"+obj.getPath());
+    }
+  });
   
 
   return obj;
