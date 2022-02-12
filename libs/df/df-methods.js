@@ -14,6 +14,7 @@ export function setup(vz, m) {
 // пример: df_set X=<значение> Y="->Z"
 // тогда в колонке X будет константа указанного значения, а в Y - скопируется колонка Z
 // тут set считается что в своем окружении и опирается на параметры этого окружения
+// при этом старые колонки сохраняются
 export function df_set( env, opts ) {
  //Object.keys( args ) 
  env.onvalue("input",(value) => {
@@ -62,6 +63,8 @@ export function df_slice( env, opts ) {
    //if (!(env.params.step > 0)) return;
    var start = start || 0;
    var finish = (count > 0) ? start + count : value.length;
+   if (finish > value.length) finish=value.length;
+
    var output = df.slice( value,start,finish)
    env.setParam("output",output);
  })
@@ -78,6 +81,26 @@ export function df_combine( env ) {
     let arrs = cols.map( name => df[name] );
     
     let res = utils.combine( arrs );
+    env.setParam("output",res);
+  });
+}
+
+/////////////////// конвертирует df в набор df построчно
+// т.е. на выходе массив dataframe-ов в каждом из которых 1 строка записана
+
+export function df_to_rows( env ) {
+  env.onvalues(["input"],(value) => {
+    if (!df.is_df(value)) {
+      env.setParam("output",[]);
+      return;
+    }
+    
+    let res = [];
+    for (let i=0; i<value.length; i++) {
+      let output = df.slice( value,i,i+1);
+      res.push( output );
+    }
+    
     env.setParam("output",res);
   });
 }

@@ -9,15 +9,27 @@ register_feature name="data_visual_layers"
         main: points include_gui_inline;
     };
     
-    current_pos: title="Модель" render3d-items={
-        gltf: 
-          render_gltf src="https://viewlang.ru/assets/models/Lake_IV_Heavy.glb" include_gui_inline
-          //positions=(@dat_cur_time | df_combine columns=["X","Y","Z"])
-          //rotations=(@dat_cur_time | df_combine columns=["RX","RY","RZ"])
-          {{ scale3d coef=@gltf->uscale; }}
-          {{ param_slider name="uscale" min=1 max=10 value=1 }}
-          ;
-    };
+    // вход input это dataframe
+    models: title="Модель" render3d-items={
+      root: node3d include_gui_inline {
+        param_slider name="scale" min=1 max=10 value=1;
+        param_color  name="hilight_color" value=[0,0,0];
+        param_label  name="count" value=(@rep->input | get name="length");
+
+        @root->input | df_slice count=100 | df_to_rows | rep: repeater {
+          gltf:
+            render_gltf
+            src="https://viewlang.ru/assets/models/Lake_IV_Heavy.glb" 
+            positions=(@gltf->input | df_combine columns=["X","Y","Z"])
+            rotations=(@gltf->input | df_combine columns=["RX","RY","RZ"])
+            
+            {{ scale3d coef=@root->scale; }}
+            color=@root->hilight_color;
+            
+        };
+      };
+    }; // models
+
   };
 };
 
