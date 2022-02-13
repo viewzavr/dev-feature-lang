@@ -17,6 +17,7 @@ register_feature name="addon_layer" {
   vlayer: 
     gui_title=( @.->list | get child=@selected_show->value | get param="title")
     items_in_list=(@.->list | get_children_arr | arr_filter code=`(c) => c.params.title`)
+    active=true
   {
 
     //gui_title: param_string;
@@ -38,7 +39,7 @@ register_feature name="addon_layer" {
         deploy_many_to target=@recroot->target
            input=( @vlayer->list | get child=@selected_show->value | get param=@recroot->channel )
            include_gui_from_output
-           extra_features={set_params input=@vlayer->input; }
+           extra_features={set_params input=@vlayer->input active=@vlayer->active visible=@vlayer->active }
            {{ keep_state }}; // keep_state сохраняет состояние при переключении типов объектов
       };
     };
