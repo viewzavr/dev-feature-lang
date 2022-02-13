@@ -2,13 +2,19 @@
 //////////////////////////////////////// гуи версия 2
 /////////////////////////////////////////////////////
 
-
 register_feature name="collapsible" {
   cola: 
   column
   {
     shadow_dom {
-      btn: button text=@cola->text cmd="@pcol->trigger_visible";
+      row {
+        btn: button text=@cola->text cmd="@pcol->trigger_visible" flex=1;
+        cba: checkbox value=@cola->active cola=@cola {{
+          onevent name="user-changed" {
+            emit_event object=@cola name="user-changed-active";
+          };
+        }};
+      };
 
       pcol: 
       column visible=false {{ use_dom_children from=@cola; }};
@@ -127,6 +133,7 @@ register_feature name="layers_gui" {
 
 };
 
+
 register_feature name="include_gui_from_output" {
   ok=true;
 };
@@ -167,7 +174,16 @@ register_feature name="layers_gui2" {
     find-objects pattern=@lgui->pattern 
      | repeater {
         collapsible text=@.->inputIndex body_features=@lgui->each_body_features
+          active=(@.->input | get_param name="active")
+        {{
+          connection event_name="user-changed-active" code=`
+            //console.log("setting active to",env.host.params.input,"value=",args[0])
+            env.host.params.input.setParam("active",args[0]);
+          `;
+        }}
         {
+
+          //link from=@.->active to=@.->input
           render-guis-nested2 input=@..->input;
         };
      };

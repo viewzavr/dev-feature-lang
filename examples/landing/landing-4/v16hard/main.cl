@@ -121,7 +121,7 @@ register_feature name="df_ref" {
 };
 
 register_feature name="data_visual_layer" {
-  dv: {
+  dv: active=true {
     pc: param_combo name="input_data" 
           titles=["Траектория","Прореженная траектория","Текущее положение"]
           values=["@dat->output","@dat_prorej->output","@dat_cur_time->output"]
@@ -132,6 +132,7 @@ register_feature name="data_visual_layer" {
     
     al: addon_layer 
         list=@t1
+        active=@dv->active
         include_gui_inline
         mapping={
             channel="render3d-items" target=@r1;
