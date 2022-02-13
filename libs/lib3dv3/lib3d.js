@@ -181,6 +181,12 @@ export function node3d( env, opts={} ) {
   //env.object3d = object3d;
   if (!env.params.output)
      env.setParam( "output", object3d );
+
+  env.addCheckbox("visible",true);
+
+  env.onvalues(["output","visible"],(so,vis) => {
+    so.visible = vis;
+  });
 }
 
 /*

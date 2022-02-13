@@ -186,6 +186,7 @@ export function dom( obj, options={} )
   /* похоже что они не нужны - у нас уведомления от детей приходят когда они дом себе создают
      и когда они грохаются...
      по уму надо бы мониторить их output но пока так..
+     т.е. эти дети сами нам вызывают rescan
 
   obj.on("appendChild",(q) => {
      if (q.is_feature_applied("dom") || q.is_feature_applied("dom_group") || q.is_feature_applied("shadow_dom")) 
@@ -378,14 +379,25 @@ addStyle(".vz_gui_hide { display: none !important; }")
 при этом список children родителя остается каким был, им можно пользоваться.
 (но при этом shadow_dom не вносится в список детей)
 
+т.е. здесь родитель получается берет даже не этот shadow-дом узел, а его детей..
+кстати это можно было бы выразить модификатором, см ниже, dom_group / insert_dom_children from=@.
+но есть и отличие - dom_group не удаляет поведение по поиску других детей из родителя
+а эта штука должна удалять, в этом ее и смысл..
 */
 export function shadow_dom( obj, options )
 {
   // 1 модифицировать у парента поведение выбора чего добавлять в дом
+  // а нам надо сделать так чтобы он добавлять стал нас а не детей своих
   obj.inputObjectsList = () => obj.ns.children;
   // вот здесь важно - мы меняем поведение родителя, перехватывая его функцию комбинирования
   // и уводя с его детей на детей этого shadow_dom
+
+  if(!obj.ns.parent.inputObjectsList)
+    console.error("shadow_dom: parent still has no inputObjectsList",obj.ns.parent.getPath())
+
+  console.log("shadowdom fixes 1", obj.getPath(), obj.ns.parent.getPath())
   obj.ns.parent.inputObjectsList = () => {
+    console.log("shadowdom's parent ",obj.ns.parent.getPath(),"asked for inputObjectsList and returns list of shadow_dom", obj.inputObjectsList())
     return obj.inputObjectsList();
   }
   // сделано так чтобы смогла получиться рекурсия.
@@ -394,17 +406,25 @@ export function shadow_dom( obj, options )
   var shadow_parent = obj.ns.parent;
   obj.ns.parent.ns.forgetChild( obj );
   // после этого связть только через inputObjectsList получается, что в принципе норм.
+  // вопрос - а не потеряет ли от этого искалка?
+  // мы убираем себя из списка детей затем, чтобы другие искалки - находили детей родителя но не нас
   
   // 3. будут вызывать rescan_children и еще события слать
+  // если к нам пришла необходимость чего-то сканировать - мы попросим парента (зачем?)
   obj.rescan_children = function() {
+    console.log("shadow_dom 3: rescan called", obj.getPath())
     shadow_parent.rescan_children();
   }
-  obj.on("appendChild",obj.rescan_children);
-  obj.on("forgetChild",obj.rescan_children);
+  //obj.on("appendChild",obj.rescan_children);
+  //obj.on("forgetChild",obj.rescan_children);
+
+  // ну ка тыркнем ка родителя сами тоже
+  shadow_parent.callCmd("rescan_children","shadow dom created");
 }
 
 // dom_group - цель это сделать так, чтобы все дети dom_group попали в dom-комбинацию
-// к родителю
+// к родителю. таким образом можно делать dom_group{ dom1; dom2 } и вот эти оба 
+// dom1 dom2 уедут к родителю dom_group-а
 
 export function dom_group( env ) {
 
@@ -425,7 +445,7 @@ export function dom_group( env ) {
 
     // наш output изменился - надо тыркнуть родителя
     if (env.ns.parent) 
-        env.ns.parent.callCmd("rescan_children");    
+        env.ns.parent.callCmd("rescan_children");
   }
 
   // предоставляем апи для нашего дом - это нас дети так тыркать будут
@@ -433,5 +453,36 @@ export function dom_group( env ) {
 
   rescan();
 }
-
 // todo идея передалать dom на f_monitor_children_output
+
+
+// поведение аналогично dom_group но список узлов берется не из детей этого узла
+// а из детей произвольного узла.
+// о а пусть это будет модификатор..
+
+// а кстати вроде как зачем нам append-ить. когда мы можем именно что перехватывать..
+
+// итого получилось - use_dom_children - модификатор - заставляет узел использовать
+// в качестве дом-детей детей указанного узла. все.
+// пример: use_dom_children from=@some-other-env;
+// todo - если введем ->children то можно будет как-то с этим работать тоже.
+export function use_dom_children( env ) {
+
+  env.onvalue("from",(from) => {
+
+    env.host.inputObjectsList = () => {
+      //return from.inputObjectsList();
+      return from.ns.children;
+      // если мы используем from.inputObjectsList(); то он уже может быть заменен 
+      // на что-то левое. нам именно детей подавай.
+    };
+
+    env.host.callCmd("rescan_children");
+
+    from.rescan_children = function() {
+      env.host.rescan_children();
+    };
+
+  })
+  
+}

@@ -572,6 +572,28 @@ export function call( env )
    } )
 }
 
+// вызывает событие name у объекта target
+export function emit_event( env )
+{
+  env.addObjectRef("object");
+
+   env.addCmd( "apply",(...args) => {
+      
+
+      if (!env.params.object) {
+        console.error("emit_event: target not specified", env.getPath());
+        return;
+      }
+      if (!env.params.name) {
+        console.error("emit_event: name not specified", env.getPath());
+        return;
+      }
+
+      env.params.object.emit( env.params.name, ...args );
+
+   } )
+}
+
 
 // автоматический вызов команды apply при изменении любых параметров
 // (кстати странно - даже выходных получается)

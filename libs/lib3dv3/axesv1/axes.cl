@@ -5,7 +5,7 @@
 // пример: axes_box size=10;
 
 register_feature name="axes_box" {
-  root: node3d 
+  root: node3d {{ console_log_params text="EEEEE" }}
   {
 
   	size: param_slider min=0 max=100 step=1;

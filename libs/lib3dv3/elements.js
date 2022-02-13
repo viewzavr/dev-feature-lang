@@ -24,13 +24,15 @@ export function lib3d_visual( env ) {
   obj.setParamOption("colors","internal",true);
   */
   
+  /* продублировано и в node3d - там кажется уместнее */
   env.addCheckbox("visible",true,(v) => {
     //obj.visible=v;
   });
 
   env.onvalues(["output","visible"],(so,vis) => {
     so.visible = vis;
-  })
+  });
+  
 
   env.addColor("color",[1,1,1]);
 

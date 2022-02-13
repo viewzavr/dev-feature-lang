@@ -12,7 +12,7 @@ register_feature name="text" {
 
 //
 register_feature name="file" {
-	dom tag="input" dom_type="file" {
+	dom tag="input" dom_type="file" style="max-width:180px;" {
 		dom_event object=@.. name="change" code=`
 		  env.params.object.setParam("value",env.params.object.dom.files[0],true)
 		  env.params.object.setParam("output",env.params.object.dom.files[0],true)
@@ -56,7 +56,8 @@ register_feature name="checkbox" {
 		dom tag="input" dom_type="checkbox" dom_obj_checked=@..->value {
 			dom_event name="change" code=`
 				var v = env.params.object.dom.checked;
-				env.params.object.ns.parent.setParam("value",v);;
+				env.params.object.ns.parent.setParam("value",v);
+				env.params.object.ns.parent.emit("user-changed",v);
 			`;
 		};
 		text text=@..->text;
