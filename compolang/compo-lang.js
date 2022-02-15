@@ -934,6 +934,8 @@ export function repeater( env, fopts, envopts ) {
               let element = model[i];
               child_env.setParam("input",element);
               child_env.setParam("inputIndex",i);
+              // короче плохо input - там может быть штука со своим input...
+              // поэтом лучше другое имя, хотя бы inputData
 
               child_env.setParam("modelData",element);
               child_env.setParam("modelIndex",i);
@@ -1378,12 +1380,13 @@ export function creator( env )
 
 }
 
-// создает все объекты из поданного массива описаний
+// создает все объекты из поданного массива описаний input
 // подключая их к родителю узла deploy_many
 // тут кстати напрашивается сделать case - фильтрацию массива... ну и if через это попробовать сделать например...
 // вариантов много получается...
 // update - вроде как get достаточно в этом случае?
 // выдает сигналы before_deploy( old_envs ) и after_deploy( new_envs )
+
 export function deploy_many( env, opts )
 {
   
