@@ -1,4 +1,4 @@
-// вариант 0
+// вариант 0 - без плагинов
 
 load files="lib3dv3 csv params io gui render-params df scene-explorer-3d";
 
