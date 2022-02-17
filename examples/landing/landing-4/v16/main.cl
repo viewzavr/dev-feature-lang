@@ -8,7 +8,7 @@ load files="lib3dv3 csv params io gui render-params df scene-explorer-3d 12chair
 
 mainparams: {
   //f1:  param_file value="phase_yScaled2.csv";
-  f1:  param_file value="http://viewlang.ru/assets/other/landing/2021-10-phase.txt";
+  f1:  param_file value="https://viewlang.ru/assets/other/landing/2021-10-phase.txt";
 
   y_scale_coef: param_slider min=1 max=200 value=1;
 
@@ -161,8 +161,9 @@ register_feature name="screen_layer" {
 };
 
 addons_place: {
-    data_visual_layer selected_show="axes";
-    static_visual_layer selected_show="ptstr";
+    data_visual_layer selected_show="ptstr";
+    static_visual_layer selected_show="axes";
+    static_visual_layer selected_show="pole";
 }; //  todo fix addons_place:; or even addons_place: {};
 
 debugger_screen_r;
