@@ -1,16 +1,13 @@
-register_feature name="data_visual_layers"
-{
-  title="Визуальные слои" {
-    linestr: title="Линия" render3d-items={
+data_visual code="linestr" title="Линия" render3d-items={
         main: linestrips include_gui_inline;
-    };
+};
 
-    ptstr: title="Точки" render3d-items={
+data_visual code="ptstr" title="Точки" render3d-items={
         main: points include_gui_inline;
-    };
+};
     
     // вход input это dataframe
-    models: title="Модель" render3d-items={
+data_visual code="models" title="Модель" render3d-items={
       root: node3d include_gui_inline {
         param_slider name="scale" min=1 max=10 value=1;
         param_color  name="hilight_color" value=[0,0,0];
@@ -28,20 +25,14 @@ register_feature name="data_visual_layers"
             
         };
       };
-    }; // models
-
-  };
 };
 
-register_feature name="static_visual_layers"
-{
-  title="Визуальные слои" {
     
-    axes: title="Оси координат" render3d-items={ 
+static_visual code="axes" title="Оси координат" render3d-items={ 
        axes_box include_gui_inline size=100; 
-    };
+};
 
-    pole: title="Земля 4кв км" render3d-items={
+static_visual code="pole" title="Земля 4кв км" render3d-items={
         main: mesh include_gui_inline 
           positions=[
            -1000,-0.5,-1000,  1000,-0.5,-1000, -1000,-0.5,1000,
@@ -49,9 +40,9 @@ register_feature name="static_visual_layers"
           ]
           color=[0,0.25,0]
         ;
-    };
+};
     
-    kvadrat: title="Квадрат места" render3d-items={
+static_visual code="kvadrat" title="Квадрат места" render3d-items={
         main: mesh include_gui_inline 
           positions=[
            -30,0,-30, 30,0,-30,  -30,0,30,  
@@ -61,7 +52,7 @@ register_feature name="static_visual_layers"
         ; // todo: polygon offset modifier
     };
 
-    stolbik: title="Столбик места" render3d-items={
+static_visual code="stolbik" title="Столбик места" render3d-items={
       main: 
         lines include_gui_inline 
           positions=(compute_output h=@.->h code=`
@@ -73,22 +64,19 @@ register_feature name="static_visual_layers"
           }
         ;
     };
-  };
-};
+
 
 // todo: автоматом include_gui_inline и подавать @dat
 
-register_feature name="screen_layers" 
-{
-  title="Надписи" {
-    curtime: title="Текущее время" screen-items={
+
+screen_visual code="curtime" title="Текущее время" screen-items={
       
         dom tag="h2" style="color: white"
         innerText=(compute_output t=@mainparams->time code="
            return 'T='+(env.params.t || 0).toFixed(3);
         ");
     };
-    allvars: title="Все переменные" screen-items={
+screen_visual code="allvars" title="Все переменные" screen-items={
       
         dom style="color: white; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
                    min-width: 400px; font-size: larger"
@@ -107,7 +95,7 @@ register_feature name="screen_layers"
         ");
     };
 
-    selectedvars: title="Переменные по выбору" screen-items={
+screen_visual code="selectedvars" title="Переменные по выбору" screen-items={
       
         dom 
         style="color: white; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -148,13 +136,9 @@ register_feature name="screen_layers"
     };
 
 
-    curtime_sl: title="Управление временем на экране" screen-items={
+screen_visual code="curtime_sl" title="Управление временем на экране" screen-items={
 
         slider value=@time_slider->value max=@time_slider->max {
           link to="@time_slider->value" from="..->value";
         };
-    };    
-
-
-  };
 };

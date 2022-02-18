@@ -11,20 +11,24 @@
 // это может быть использовано как для подключения функциональности к программе
 // так и для реализации наборной модели визуального программирования.
 
-// вход: list - объект содержащий список типов добавок.
+// вход: list - список объектов с описанием добавок
 //       mapping - окружение с описанием кого куда
-register_feature name="addon_layer" {
+
+// примечание по list. каждая запись это объект содержащий title, code
+register_feature name="create_by_user_type" {
   vlayer: 
-    gui_title=( @.->list | get child=@selected_show->value | get_param name="title")
-    items_in_list=(@.->list | get_children_arr | arr_filter code=`(c) => c.params.title`)
+    gui_title=( @.->list 
+                    | arr_filter type=@selected_show->value code=`(c) => c.params.code == env.params.type` 
+                    | get name=0 
+                    | get_param name="title")
     active=true
   {
 
     //gui_title: param_string;
 
     selected_show: param_combo 
-       values=(@vlayer->items_in_list | arr_map code=`(c) => c.ns.name`)
-       titles=(@vlayer->items_in_list | arr_map code=`(c) => c.params.title`);
+       values=(@vlayer->list | arr_map code=`(c) => c.params.code`)
+       titles=(@vlayer->list | arr_map code=`(c) => c.params.title`);
 
     mapping_obj: {
          deploy_many input=@vlayer->mapping;
@@ -37,7 +41,10 @@ register_feature name="addon_layer" {
       target=(@.->input | get param="target")
       { 
         deploy_many_to target=@recroot->target
-           input=( @vlayer->list | get child=@selected_show->value | get param=@recroot->channel )
+           input=( @vlayer->list 
+                    | arr_filter type=@selected_show->value code=`(c) => c.params.code == env.params.type` 
+                    | get name=0 
+                    | get param=@recroot->channel )
            include_gui_from_output
            extra_features={set_params input=@vlayer->input active=@vlayer->active visible=@vlayer->active }
            {{ keep_state }}; // keep_state сохраняет состояние при переключении типов объектов

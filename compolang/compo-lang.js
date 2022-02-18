@@ -933,6 +933,7 @@ export function repeater( env, fopts, envopts ) {
 
               let element = model[i];
               child_env.setParam("input",element);
+              child_env.setParam("inputData",element);
               child_env.setParam("inputIndex",i);
               // короче плохо input - там может быть штука со своим input...
               // поэтом лучше другое имя, хотя бы inputData
