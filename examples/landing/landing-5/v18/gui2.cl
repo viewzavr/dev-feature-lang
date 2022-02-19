@@ -204,13 +204,13 @@ register_feature name="include_gui_inline" {
 register_feature name="layers_gui2" {
 
   lgui: collapsible 
-          target=@.
+        target=@.
           //body_features={set_params style="padding:0.2em 0.2em 0.2em 0.4em; gap: 0.2em;";}
   {
 
     button text="+ Добавить" {
             creator target=@lgui->target input=@lgui->layer
-              {{ onevent name="created" code=`args[0].manuallyInserted=true;` }};
+              {{ onevent name="created" code=`args[0].manuallyInserted=true; console.log("created",args[0])` }};
     };
     
     find-objects pattern=@lgui->pattern 

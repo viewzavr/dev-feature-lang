@@ -22,19 +22,7 @@ register_feature name="landing-sol" {
 
   root: 
     params_obj=@mainparams
-    layers={
-      layer_v1 title="Визуализация" 
-        find="data_visual_layer" 
-        new={data_visual_layer scene=@root->scene screen=@root->screen};
-
-      layer_v1 title="Статичные образы"
-        find="static_visual_layer" 
-        new={static_visual_layer scene=@root->scene screen=@root->screen};
-
-      layer_v1 title="Надписи" 
-        find="screen_layer" 
-        new={screen_layer scene=@root->scene screen=@root->screen};
-    }
+    layers=(get_children_arr input=@layers)
   {
 
   mainparams:
@@ -56,6 +44,20 @@ register_feature name="landing-sol" {
     step_N: param_slider value=10 min=1 max=100;
 
     lines_loaded: param_label value=(@dat0 | get name="length");
+  };
+
+  layers: {
+      layer_v1 title="Визуализация" 
+        find="** data_visual_layer" 
+        new={data_visual_layer scene=@root->scene screen=@root->screen};
+
+      layer_v1 title="Статичные образы"
+        find="** static_visual_layer" 
+        new={static_visual_layer scene=@root->scene screen=@root->screen};
+
+      layer_v1 title="Надписи" 
+        find="** screen_layer" 
+        new={screen_layer scene=@root->scene screen=@root->screen};
   };
 
   ///////////////////////////////////////
@@ -123,7 +125,7 @@ register_feature name="data_visual_layer" {
 };
 
 register_feature name="static_visual_layer" {
-  dv: create_by_user_type
+  dv: create_by_user_type 
     list=(find-objects pattern="** static_visual")
     mapping={
         channel="render3d-items" target=@dv->scene;

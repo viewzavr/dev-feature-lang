@@ -188,6 +188,9 @@ register_feature name="layers_gui2" {
             creator target=@lgui->target input=@lgui->layer
               {{ onevent name="created" code=`args[0].manuallyInserted=true;` }};
     };
+    button text="[dbg]" lgui=@lgui code=` 
+    let lgui=env.params.lgui;
+    debugger;`;    
     
     find-objects pattern=@lgui->pattern 
      | repeater {

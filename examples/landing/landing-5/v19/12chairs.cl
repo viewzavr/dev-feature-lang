@@ -13,11 +13,12 @@
 
 // вход: list - список объектов с описанием добавок
 //       mapping - окружение с описанием кого куда
+//       input = возможные входные данные
 
 // примечание по list. каждая запись это объект содержащий title, code
 register_feature name="create_by_user_type" {
   vlayer: 
-    gui_title=( @.->list 
+    gui_title=( @.->list  | 
                     | arr_filter type=@selected_show->value code=`(c) => c.params.code == env.params.type` 
                     | get name=0 
                     | get_param name="title")
@@ -34,19 +35,27 @@ register_feature name="create_by_user_type" {
          deploy_many input=@vlayer->mapping;
     };
 
-    get_children_arr input=@mapping_obj | | arr_filter code=`(c) => c.params.target` 
-    | repeater {
+    get_children_arr input=@mapping_obj 
+    | arr_filter code=`(c) => c.params.target` 
+    | repeater
+    {
       recroot: // input это запись о мэппинге. это окружение с параметрами channel и target 
-      channel=(@.->input | get param="channel")
-      target=(@.->input | get param="target")
+        channel=(@.->input | get param="channel")
+        target=(@.->input | get param="target")
       { 
+
         deploy_many_to target=@recroot->target
            input=( @vlayer->list 
                     | arr_filter type=@selected_show->value code=`(c) => c.params.code == env.params.type` 
                     | get name=0 
                     | get param=@recroot->channel )
-           include_gui_from_output
-           extra_features={set_params input=@vlayer->input active=@vlayer->active visible=@vlayer->active }
+           
+           //include_gui_from_output
+           {{ find-objects-follow to=@.->output }}
+           extra_features={
+              set_params input=@vlayer->input 
+                         active=@vlayer->active visible=@vlayer->active ;
+           }
            {{ keep_state }}; // keep_state сохраняет состояние при переключении типов объектов
       };
     };

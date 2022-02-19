@@ -11,7 +11,24 @@
 
 register_feature name="arr_filter"
   code=`
-  env.onvalues(["input","code"],process);
+  // нам надо реагировать и на все остальные входы...
+  //env.onvalues(["input","code"],process);
+
+  function callprocess() {
+    //console.log("qq arr_filter called",env.getPath(), env.params.input, env.params.code)
+    if (env.params.input && env.params.code)
+      process( env.params.input, env.params.code );
+    else
+      env.setParam("output",[]);
+  }
+
+  env.feature('delayed');
+  let pd = env.delayed( callprocess );
+  env.on("param_changed", () => {
+     //console.log("qq arrfilter param-changed", env.getPath())
+     pd();
+  });
+  pd(); // без этого вызова получается у нас arr-filter не сработает, если уже все готово
 
   function process(arr,code) {
     if (!Array.isArray(arr)) {

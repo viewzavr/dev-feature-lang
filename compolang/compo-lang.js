@@ -1100,6 +1100,8 @@ export function find_objects( env  ) {
     }
     else
     {
+      // мб будем считать что тут у нас таки значит сразу метки?
+      // нет уж если метки то используте features.
       console.error("find_objects: unsupported pattern!",p)
       env.setParam("output",[]);
       return;

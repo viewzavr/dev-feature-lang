@@ -167,6 +167,10 @@ register_feature name="layers_gui2" {
               {{ onevent name="created" code=`args[0].manuallyInserted=true;` }};
     };
     
+    button text="[dbg]" lgui=@lgui code=` 
+    let lgui=env.params.lgui;
+    debugger;`;
+    
     find-objects pattern=@lgui->pattern 
      | repeater {
         element_plashka text=@.->inputIndex body_features=@lgui->each_body_features

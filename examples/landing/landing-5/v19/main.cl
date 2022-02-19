@@ -5,7 +5,7 @@ load files="lib3dv3 csv params io gui render-params df scene-explorer-3d 12chair
 ///////////////////////////////////////
 
 sol: landing-sol scene=@r1 screen=@extra_screen_things;
-sol2: landing-sol scene=@r2 screen=@extra_screen_things;
+sol2: landing-sol scene=@r2 screen=@v2;
 
 ///////////////////////////////////////
 /////////////////////////////////////// сцена
@@ -41,12 +41,17 @@ mainscreen: screen auto-activate {
     {
       button text="Добавить";  
       //render-params object_path="@sol";
-      collapsible text="Основные параметры" {
-        render-guis-nested2 input=@sol->params_obj;
-      };
 
-      render-layers input=@sol->layers for=@sol;
+      solution_gui sol=@sol;
+      /*
+      collapsible text="Приземление" {
+        //solution_gui sol=@sol;
+        //text text="aaa";
+      };
+      */
+
     };
+    
 
     extra_screen_things: column {
     };
@@ -55,7 +60,7 @@ mainscreen: screen auto-activate {
 
   v1: view3d style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2";
 
-  v2: view3d style="position: absolute; right: 20px; bottom: 20px; width:500px; height: 200px; z-index: 5;";
+  v2: view3d style="position: absolute; right: 20px; bottom: 20px; width:500px; height: 200px; z-index: 5; border: 1px solid grey;";
   
 };
 
@@ -73,9 +78,32 @@ register_feature name="plashka" {
   };
 };
 
+// for - для кого рисуем. в этом "кто" будут сканироваться объекты для слоев и туда же будут создаваться новые
+// input - список слоев
 register_feature name="render-layers" {
-  repeater {
-    co: collapsible text=(@co->input | get_param name="title");
-    //layers_gui2 layer={screen_layer} pattern="** screen_layer" text="Надписи" plashka;
+  r: repeater {
+    //button text="333";
+    //co: collapsible text=(@co->input | get_param name="title") {
+      co: layers_gui2 
+            text=(@co->input | get_param name="title")
+            layer=(@co->input | get_param name="new") 
+            pattern=(@co->input | get_param name="find") 
+            pattern_root=@r->for
+            target=@r->for
+            plashka;
   };
 };
+
+register_feature name="solution_gui" {
+  rt: dom_group 
+      layers=(@rt->sol | get_param name="layers") 
+      params_obj=(@rt->sol | get_param name="params_obj") 
+  {
+    collapsible text="Основные параметры" {
+       render-guis-nested2 input=@rt->params_obj;
+    };
+    render-layers input=@rt->layers for=@rt->sol;
+  };
+};
+
+debugger_screen_r;

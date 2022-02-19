@@ -48,7 +48,7 @@ export function find_objects_bf( env  ) {
     //unsub_all();
     if (unsub_list.length > 0)
         console.warn("find_objects_bf: reepated begin! unsub_list.length = ",unsub_list.length)
-    env.emit("reset");
+    env.emit("reset"); // вызовет всеобщую отписку
     publish_result(); // либо пустой массив будет либо заполнится чем-нибудь уже на этом такте
 
     if (!Array.isArray(features)) features = features.trim().split(/\s+/);
@@ -60,6 +60,9 @@ export function find_objects_bf( env  ) {
     traverse_if( root,process_one_obj );
 
     function process_one_obj (obj) {
+      //if (env.params.debug)
+        //console.log("find-objects process_one_obj",obj.getPath(),features)
+
       let unsub = { f: () => {} };
       walk_on_obj_features( obj, features,0, () => {
         // наш клиент
@@ -71,9 +74,21 @@ export function find_objects_bf( env  ) {
       // ну это мы с узлом разобрались. теперь надо узнать когда новое происходит
       let apc_unsub = obj.on("appendChild",(cobj) => {
         //console.log("HOOOK appc",cobj.getPath(),features)
-        process_one_obj(cobj)
+        process_one_obj(cobj);
+        // тут бы traverse_if + отслеживание если уже отслеживаем
       });
       unsub_list.push( apc_unsub );
+
+      // доп случай когда надо пересканировать, см. ниже
+      // идея - нельзя ли тут нам как-то красиво подписать объект appendChild на вот это событие перенаправить?...
+      let apc_unsub2 = obj.on("rescan-find-objects",() => {
+        // process_one_obj(obj)
+        traverse_if( obj,process_one_obj );
+        // тут место для утечки - если объект уже был подписан и просканирован, то мы получается
+        // сейчас повторно на-подписываемся.
+        // нам бы тогда сохранять, на кого мы уже подписки все нужные оформили?
+      });
+      unsub_list.push( apc_unsub2 );
 
       return true; // продолжаем обход
       
@@ -160,4 +175,28 @@ function traverse_if( obj, fn ) {
   for (var cobj of cc) {
     traverse_if( cobj,fn );
   }
+
+  // возможность указать дополнительный маршрут
+  // важно - проверки на циклы нет
+  cc = obj.$find_objects_follow_list || [];
+  for (var cobj of cc) {
+    traverse_if( cobj,fn );
+  }
+}
+
+/* F_ANON
+   доп фича - уметь указать в объекте, куда ему еще следует зайти в поисках find-objects
+   используется нами для поиска переселенных объектов (когда подчинненое не является дитем а поселено дитем 
+   в другое место, но нам надо и в него по семантике зайти)
+*/
+export function find_objects_follow(env) {
+  env.onvalues_any(["to"],(v) => {
+    if (v && !Array.isArray(v)) v=[v];
+    let oldlist = env.host.$find_objects_follow_list;
+    env.host.$find_objects_follow_list = v;
+    // ну кстати надо там еще и отписывать старых... так-то....
+
+    console.log("find_objects_follow emitting for", env.host.getPath())
+    env.host.emit( "rescan-find-objects",v,oldlist );
+  })
 }

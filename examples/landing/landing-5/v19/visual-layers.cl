@@ -1,5 +1,9 @@
 data_visual code="linestr" title="Линия" render3d-items={
-        main: linestrips include_gui_inline;
+        main: linestrips include_gui_inline {
+           param_cmd name="dbg" code=`
+             debugger;
+           `;
+        };
 };
 
 data_visual code="ptstr" title="Точки" render3d-items={
@@ -76,6 +80,7 @@ screen_visual code="curtime" title="Текущее время" screen-items={
            return 'T='+(env.params.t || 0).toFixed(3);
         ");
     };
+
 screen_visual code="allvars" title="Все переменные" screen-items={
       
         dom style="color: white; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -95,6 +100,9 @@ screen_visual code="allvars" title="Все переменные" screen-items={
         ");
     };
 
+// это все очень крышесносно. необходимо с этим разобраться! вот с телом этой штуки.
+// может быть вынести selected, или еще что.. мне теперь вовсе непонятно, что же это все такое..
+// потратил ать времени, чтобы дошло.. упаковочка конечно...
 screen_visual code="selectedvars" title="Переменные по выбору" screen-items={
       
         dom 

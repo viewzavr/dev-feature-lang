@@ -103,26 +103,6 @@ register_feature name="render-guis-nested2" {
         find-objects pattern_root=@col->input pattern="** include_gui"
            | render_guis_includ: render-guis2;
 
-        // соберем из объектов созданных в каналах (render3d-items и т.п.)  
-        find-objects pattern_root=@col->input pattern="** include_gui_from_output"
-           | repeater {
-               subr: column { // здесь input это каждый найденный объект в полях output
-
-                  @subr->input | get param="output" | repeater {
-                        find-objects pattern_root=@.->input pattern="** include_gui_inline"
-                          | 
-                           repeater {
-                             g_from_output_rp_inline: render-params object=@.->input;
-                           };
-                   };
-
-                  @subr->input | get param="output" | repeater {
-                        find-objects pattern_root=@.->input pattern="** include_gui"
-                          | g_from_output_rp_includ: render-guis2;
-                      };
-                   };
-               };
-
        };
 
        column {
@@ -212,10 +192,10 @@ register_feature name="layers_gui2" {
 
     button text="+ Добавить" {
             creator target=@lgui->target input=@lgui->layer
-              {{ onevent name="created" code=`args[0].manuallyInserted=true;` }};
+              {{ onevent name="created" code=`args[0].manuallyInserted=true; console.log("created",args[0])` }};
     };
     
-    find-objects pattern=@lgui->pattern 
+    find-objects pattern=@lgui->pattern pattern_root=@lgui->pattern_root debug=true
      | repeater {
         collapsible2 text=(@.->input | get_param name="gui_title") 
           body_features=@lgui->each_body_features

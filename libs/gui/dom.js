@@ -392,12 +392,12 @@ export function shadow_dom( obj, options )
   // вот здесь важно - мы меняем поведение родителя, перехватывая его функцию комбинирования
   // и уводя с его детей на детей этого shadow_dom
 
-  if(!obj.ns.parent.inputObjectsList)
-    console.error("shadow_dom: parent still has no inputObjectsList",obj.ns.parent.getPath())
+  //if(!obj.ns.parent.inputObjectsList)
+    //console.error("shadow_dom: parent still has no inputObjectsList",obj.ns.parent.getPath())
 
-  console.log("shadowdom fixes 1", obj.getPath(), obj.ns.parent.getPath())
+  //console.log("shadowdom fixes 1", obj.getPath(), obj.ns.parent.getPath())
   obj.ns.parent.inputObjectsList = () => {
-    console.log("shadowdom's parent ",obj.ns.parent.getPath(),"asked for inputObjectsList and returns list of shadow_dom", obj.inputObjectsList())
+    //console.log("shadowdom's parent ",obj.ns.parent.getPath(),"asked for inputObjectsList and returns list of shadow_dom", obj.inputObjectsList())
     return obj.inputObjectsList();
   }
   // сделано так чтобы смогла получиться рекурсия.
