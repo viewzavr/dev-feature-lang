@@ -1,11 +1,33 @@
 load files="lib3dv3 csv params io gui render-params df scene-explorer-3d 12chairs.cl gui2.cl landing.cl";
 
+/*
+register_feature name="the_root" {
+  root: 
+    params_obj=@mainparams
+    layers=(get_children_arr input=@layers)
+   {
+     mainparams: alfa=5;
+
+    layers: {
+      layer_v1 title="Задачи" 
+        find="** tasks" 
+        new={task};
+      layer_v1 title="Окна" 
+        find="** windows" 
+        new={data_visual_layer screen=@root->screen};
+    };
+   };
+};
+
+the_root: the_root;
+*/
+
 ///////////////////////////////////////
 /////////////////////////////////////// задача
 ///////////////////////////////////////
 
 sol: landing-sol scene=@r1 screen=@extra_screen_things;
-sol2: landing-sol scene=@r2 screen=@v2;
+sol2: landing-sol scene=@r2 screen=@extra_screen_things2;
 
 ///////////////////////////////////////
 /////////////////////////////////////// сцена
@@ -42,13 +64,15 @@ mainscreen: screen auto-activate {
       button text="Добавить";  
       //render-params object_path="@sol";
 
-      solution_gui sol=@sol;
-      /*
-      collapsible text="Приземление" {
-        //solution_gui sol=@sol;
-        //text text="aaa";
+      //solution_gui sol=@sol;
+      
+      collapsible_alt text="Приземление 1" {
+        solution_gui sol=@sol;
       };
-      */
+
+      collapsible_alt text="Приземление 2" {
+        solution_gui sol=@sol2;
+      };
 
     };
     
@@ -60,7 +84,12 @@ mainscreen: screen auto-activate {
 
   v1: view3d style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2";
 
-  v2: view3d style="position: absolute; right: 20px; bottom: 20px; width:500px; height: 200px; z-index: 5; border: 1px solid grey;";
+  dom style="position: absolute; right: 20px; bottom: 20px; width:500px; height: 200px; z-index: 5; border: 1px solid grey;"
+  {
+    v2: view3d style="z-index: -2; width:100%; height: 100%;";
+    extra_screen_things2: column style="z-index: 2; position:absolute; top: 5px; left: 10px;" {};
+  }
+    
   
 };
 

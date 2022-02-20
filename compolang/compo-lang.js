@@ -1135,7 +1135,7 @@ export function connection( env, options )
          //console.log("GPN tracking DETECTED! name=",en,obj.getPath()) 
          env.apply(...args); // вызов метода окружения func
       })
-   })
+   });
 
    env.on("remove",() => {
     tracking(); tracking = ()=>{};
@@ -1441,6 +1441,8 @@ export function deploy_many( env, opts )
 // создает все объекты из поданного массива описаний
 // подключая их к указанному узлу
 
+// input - описание того что создаем
+// target - куда вставляем
 export function deploy_many_to( env, opts )
 {
   
@@ -1647,6 +1649,7 @@ export function get( env ) {
 }
 
 // такая тема - регистрирует параметры через геттеры и сеттеры окружения
+// т.е. все из obj.params копирует в качестве аксессоров в obj
 export function copy_params_to_obj( env ) {
   let x = env.host;
 
@@ -1731,4 +1734,20 @@ export function get_children_arr(env) {
     env.setParam("output", senv.ns.children );
   })
   env.on("remove",() => unsub());
+}
+
+
+export function has_feature(env) {
+  let unsub=()=>{};
+
+  env.onvalues(["input","name"],(senv,name) => {
+    let res = senv.is_feature_applied(name);
+    env.setParam("output",res);
+
+    unsub = senv.on("feature-applied-"+name,() => {
+      env.setParam("output",true);
+    });
+  });
+
+  env.on("remove",unsub);
 }

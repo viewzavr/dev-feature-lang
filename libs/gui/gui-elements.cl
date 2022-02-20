@@ -230,6 +230,7 @@ register_feature name="combobox" {
 	   });
 	   function setup_index() {
 	   	  if (!main.params.dom) return;
+	   	  // console.log("setup-index",main.params.index)
 	   	  main.params.dom.selectedIndex = main.params.index;
 	   }
 	   function setup_values() {
@@ -245,6 +246,20 @@ register_feature name="combobox" {
 	         t = t+s;
 	   	  })
 	   	  main.params.dom.innerHTML = t;
+
+	   	  // после этого комбобокс дом сбивается, и надо его перенастроить
+	   	  
+	   	  let index = (main.params.values || []).indexOf( main.params.value );
+	   	  if (index >= 0)
+	   	  	main.params.dom.selectedIndex = index;
+	   	  // короче пока так
+	   	   	
+	   	  /*  	
+	   	  	но это крышеснос у нас и так будет val2index
+	   	  	на самом деле надо обнулить наш index и тогда пройдет все само
+	   	  */
+	   	  // чето не сработало	
+	   	  //	  main.setParamWithoutEvents("index",undefined)
 	   }
  ';	
 
@@ -263,17 +278,23 @@ register_feature name="combobox" {
 		// конвертация value<=>index
 		val2index: compute value=@..->value values=@..->values code=`
 		    //console.log("val2index")
+		    // надо поотлаживать, тут сумасшествие... ну или вовсе от этого index отказаться - много раз вызывается
 			  if (typeof(params.value) != "undefined" && params.values) {
 		    	var index = (params.values || []).indexOf( params.value );
+		    	//console.log("setting",index);
         	env.setParam("output",index);
         }
-        else
+        else {
+        	//console.log("setting",0);
           env.setParam("output",0);
+        }
 		`;
 		/* в общем выяснилось что если у нас 2 входных парараметра синхронизированных
 		   то это отстой - ставим value оно уходит на круг К на счет index и обратно в value
 		   .. и если посередине этого поставится новый value то оно заткнется затем value из того круга К
-		   .. ну либо втыкать обработку событий надо. в общем пока - установка только по value.
+		   .. ну либо втыкать обработку событий надо. 
+
+		   в общем пока - установка только по value.
 
 		index2val: compute index=@..->index values=@..->values code=`
 		   
@@ -283,6 +304,7 @@ register_feature name="combobox" {
 		`;
 		link to="..->value" from="@index2val->output";
 		*/
+
 		link to="..->index" from="@val2index->output";
 	  
 	};

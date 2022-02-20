@@ -384,13 +384,55 @@ register_feature name="render-param-editablecombo"
 
     editablecombo
       values=(@root->gui | compute_output code=`
-          if (!env.params.input) return [];
+          if (!env.params.input) return []; // здесь .input это gui получается
           return env.params.input.getValues()
       `;)
       {
       link from=@../..->param_path to=".->value" tied_to_parent=true;
       link to=@../..->param_path from=".->value" tied_to_parent=true 
         soft_mode=true manual_mode=true;
-    };
+      };
+  };
+};
+
+register_feature name="render-param-objref"
+{
+  root: param_field {
+     combobox values=@obj_pathes->output value=@obj_path->output
+     {
+      // мб в будущем 
+      // link from=@root->param_path to=".->value" tied_to_parent=true {{ convert_link_value code=`input.getPath()` }};
+      obj_path: compute_output in=@root->param_path code=`return (env.params.input?.getPath ? env.params.input.getPath() : env.params.input)`;
+
+      link to=@root->param_path from=".->value" tied_to_parent=true 
+           soft_mode=true manual_mode=true;
+     };
+
+     button text="rescan" cmd="@obj_pathes->recompute";
+
+     obj_pathes: compute_output gui=@root->gui obj=@root->obj name=@root->name 
+     code=`
+        let crit_fn = env.params.gui?.crit_fn 
+                      || (env.params.obj ? env.params.obj.getParamOption( env.params.name,"crit_fn" ) : null)
+                      || function(v) { return true; };
+
+        function traverse(startobj, fn) {
+          fn( startobj,name );
+
+          var cc = startobj.ns.getChildren();
+          for (let c of cc) 
+            traverse( c, fn );
+        };
+
+        let root = env.findRoot();
+        let objlist = [];
+        traverse( root, function( obj ) {
+          if (!crit_fn( obj )) return;
+          objlist.push( obj.getPath() );
+        });
+
+        return objlist;
+     `;
+
   };
 };

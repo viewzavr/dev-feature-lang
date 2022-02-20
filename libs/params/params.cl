@@ -292,6 +292,7 @@ register_feature name="param_color" code=`
   });
 `;
 
+// ссылка на параметр
 register_feature name="param_ref" code=`
   env.feature("param_base"); 
   var t;
@@ -322,7 +323,7 @@ register_feature name="param_ref" code=`
 
 `;
 
-// todo
+// ссылка на объект
 register_feature name="param_objref" code=`
   env.feature("param_base"); 
   var t;
@@ -330,7 +331,7 @@ register_feature name="param_objref" code=`
   function setup() {
     let tgt = env.tgt();
     // todo поработать с рутом потом
-    tgt.addObjRef( env.paramname(),env.params.value,null,null, tgt.findRoot() );
+    tgt.addObjRef( env.paramname(),env.params.value );
     if (t) t();
     t = tgt.trackParam( env.paramname(),(v) => {
       env.setParam("value",v);
@@ -338,10 +339,10 @@ register_feature name="param_objref" code=`
 
     // криминал это все, на name зависим
     env.onvalue("crit_fn",(str) => {
-     var f = eval( str );
-     let tgt = env.tgt();
-     tgt.setParamOption( env.paramname(), "crit_fn", f );
-     tgt.callCmd("rescan-"+env.paramname());
+       var f = eval( str );
+       let tgt = env.tgt();
+       tgt.setParamOption( env.paramname(), "crit_fn", f );
+       //tgt.callCmd("rescan-"+env.paramname());
     })
   }
   //setup();

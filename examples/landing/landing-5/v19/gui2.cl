@@ -20,6 +20,24 @@ register_feature name="collapsible" {
   };
 };
 
+
+register_feature name="collapsible_alt" {
+  cola_alt: 
+  column
+  {
+    shadow_dom {
+      btn: button text=@cola_alt->text cmd="@pcol->trigger_visible";
+
+      pcol: 
+      column visible=false {{ use_dom_children from=@cola_alt; }};
+
+      deploy_features input=@btn  features=@cola_alt->button_features;
+      deploy_features input=@pcol features=@cola_alt->body_features;
+    };
+
+  };
+};
+
 // collapsible с active-флажком
 register_feature name="collapsible2" {
   cola:
