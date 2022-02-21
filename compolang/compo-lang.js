@@ -1445,10 +1445,30 @@ export function deploy_many( env, opts )
 // target - куда вставляем
 export function deploy_many_to( env, opts )
 {
+
+  // если поменялся только target - надо перенести созданные окружения в новый target
+  // не пересоздавая их
+
+  env.onvalue("input",(input) => {
+     // дубликата не будет, если сначала зададут target а потом input
+     // потому что в этом случае произойдет отсечение по пустому input
+     // и только уже по приходу существующего input все произойдет
+     deploy_normal_env_all( env.params.input, env.params.target );
+  });
+
+  env.onvalue("target",(target) => {
+     // ничего не создавали еще? создадим
+     if (created_envs.length == 0)
+        return deploy_normal_env_all( env.params.input, env.params.target );
+     // уже все создали? сменим родителя
+     created_envs.forEach( (e) => target.ns.appendChild( e ) );
+  });
   
+  /* первая версия
   env.onvalues(["input","target"],(input,target) => {
      deploy_normal_env_all(input,target);
   });
+  */
 
  // режим "repeater-mode" - развернуть всех в родителя (хотя может и можно не в родителя)
  var created_envs = [];
@@ -1462,6 +1482,11 @@ export function deploy_many_to( env, opts )
  function deploy_normal_env_all(input,target) {
      env.emit("before_deploy", created_envs);
      close_envs();
+
+     if (!target) {
+       env.setParam("output",[]);
+       return;
+     }
 
      let parr=[];
      if (input && !Array.isArray(input)) input=[input]; // так
@@ -1478,7 +1503,7 @@ export function deploy_many_to( env, opts )
 
            if (env.params.extra_features) { // экспериментs
              for (let ef of env.params.extra_features)
-              env.vz.importAsParametrizedFeature( ef, child_env );
+               env.vz.importAsParametrizedFeature( ef, child_env );
            }
 
            created_envs.push( child_env );
