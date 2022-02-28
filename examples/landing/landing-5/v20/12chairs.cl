@@ -22,6 +22,21 @@ register_feature name="create_by_user_type" {
                     | arr_filter type=@selected_show->value code=`(c) => c.params.code == env.params.type` 
                     | get name=0 
                     | get_param name="title")
+    gui={
+      text text="create_by_user_type...";
+      render-params input=@vlayer;
+      find-objects features="created_by_we" root=@vlayer recursive=false | repeater {
+        //text text="created-by-repeater" {{ console_log_params text="12paints"; }};;
+        paint_kskv_gui {{ console_log_params text="12paints"; }};
+      };
+
+      /*
+      repeater input=[1,3,4] {
+        paint_kskv_gui {{ console_log_params text="12paints" }};
+      };*/
+
+      //(find-objects features="user_objects_creators" root=@vlayer foundstop=true | arr_map_c with={get_param name="output"} | arr_join)
+    }
     active=true
   {
 
@@ -35,17 +50,18 @@ register_feature name="create_by_user_type" {
       deploy_many input=@vlayer->mapping;
     };
 
+    //debug: param_cmd code=`debugger;`;
+
     get_children_arr input=@mapping_obj 
-    | arr_filter code=`(c) => c.params.channel` 
+    | arr_filter code=`(c) => c.params.channel` //
     | repeater
     {
       recroot: // input это запись о мэппинге. это окружение с параметрами channel и target 
         channel=(@.->input | get_param name="channel")
         target=(@.->input | get_param name="target")
-        {{ console_log_params text="recroot"}}
       { 
 
-        deploy_many_to target=@recroot->target {{ console_log_params text="DMT"}}
+        deploy_many_to target=@recroot->target user_objects_creators
            input=( @vlayer->list 
                     | arr_filter type=@selected_show->value code=`(c) => c.params.code == env.params.type` 
                     | get name=0 
@@ -55,7 +71,8 @@ register_feature name="create_by_user_type" {
            {{ find-objects-follow to=@.->output }}
            extra_features={
               set_params input=@vlayer->input 
-                         active=@vlayer->active visible=@vlayer->active ;
+                         active=@vlayer->active visible=@vlayer->active;
+              add_feature name="created_by_we";
            }
            {{ keep_state }}; // keep_state сохраняет состояние при переключении типов объектов
       };

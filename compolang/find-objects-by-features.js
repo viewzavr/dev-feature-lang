@@ -11,6 +11,10 @@ export function find_objects_bf( env  ) {
 
   env.addObjectRef("root");
 
+  // субфича - явный флаг recursive для поиска внутри найденных объектов
+  if (!env.hasParam("recursive"))
+    env.setParam("recurvsive",true)
+
   env.feature("delayed");
   // env.setParam("output",[]); // не будем смущать население
   // ну или посмущаем
@@ -63,6 +67,8 @@ export function find_objects_bf( env  ) {
       //if (env.params.debug)
         //console.log("find-objects process_one_obj",obj.getPath(),features)
 
+
+      // 1. ходить по фичам объекта и если все нашли - то фиксируем это
       let unsub = { f: () => {} };
       walk_on_obj_features( obj, features,0, () => {
         // наш клиент
@@ -70,14 +76,6 @@ export function find_objects_bf( env  ) {
         //env.emit("next_object_found", obj );
       }, unsub );
       unsub_list.push( unsub );
-
-      // ну это мы с узлом разобрались. теперь надо узнать когда новое происходит
-      let apc_unsub = obj.on("appendChild",(cobj) => {
-        //console.log("HOOOK appc",cobj.getPath(),features)
-        process_one_obj(cobj);
-        // тут бы traverse_if + отслеживание если уже отслеживаем
-      });
-      unsub_list.push( apc_unsub );
 
       // доп случай когда надо пересканировать, см. ниже
       // идея - нельзя ли тут нам как-то красиво подписать объект appendChild на вот это событие перенаправить?...
@@ -90,6 +88,19 @@ export function find_objects_bf( env  ) {
       });
       unsub_list.push( apc_unsub2 );
 
+      // завершить обход, если объект найден, а рекурсивность не требуется
+      if (is_object_in_found_set( obj ) && !env.params.recursive)
+        return false;
+
+      // 2. если в объект добавили узла-дитя, то проверять его
+      let apc_unsub = obj.on("appendChild",(cobj) => {
+         if (!is_object_in_found_set( obj ) || env.params.recursive)
+              process_one_obj(cobj);
+            // тут бы traverse_if + отслеживание если уже отслеживаем
+      });
+      unsub_list.push( apc_unsub );
+
+  
       return true; // продолжаем обход
       
     }; // process_one_obj
@@ -113,6 +124,10 @@ export function find_objects_bf( env  ) {
     unsub_list.push( u )
 
     next_unique_object_found( obj );
+  }
+
+  function is_object_in_found_set( obj ) {
+    return result_object_ids[ obj.$vz_unique_id ];
   }
 
   let result_object_list = [];
@@ -147,11 +162,11 @@ export function find_objects_bf( env  ) {
   // unsub_item.f это возможность нам изнутри менять функцию отписки
   function walk_on_obj_features( obj, features_list,i, when_all_found, unsub_item ) {
     let next_feature = features_list[i];
-    if (!next_feature) {
+    if (!next_feature) { // все фичи найдены
       when_all_found( obj );
       unsub_item.f = () => {};
-      return;
-    }; // приплыли
+      return true;
+    };
 
     if (obj.is_feature_applied(next_feature))
       return walk_on_obj_features( obj, features_list, i+1, when_all_found, unsub_item);
@@ -196,7 +211,7 @@ export function find_objects_follow(env) {
     env.host.$find_objects_follow_list = v;
     // ну кстати надо там еще и отписывать старых... так-то....
 
-    console.log("find_objects_follow emitting for", env.host.getPath())
+    //console.log("find_objects_follow emitting for", env.host.getPath())
     env.host.emit( "rescan-find-objects",v,oldlist );
   })
 }

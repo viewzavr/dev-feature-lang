@@ -13,7 +13,6 @@ register_feature name="render_gui_title" code=`
   env.onvalue("text", (v) => {
     debugger;
     env.host.render_gui_title = v;
-
   });
 `;
 */
@@ -44,7 +43,7 @@ register_feature name="render-guis" {
 */
 
 register_feature name="render-params" {
-  rp: column gap="0.1em" {
+  rp: column gap="0.1em" object=@.->input {
 
     link to=".->object" from=@..->object_path tied_to_parent=true soft_mode=true; // тут надо maybe что там объект и тогда норм будет..
 

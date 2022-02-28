@@ -13,19 +13,26 @@
     - 3д сцена, куды
 */
 
-visual_task 
+visual_task
   code="landing-sol" 
   title="Задача приземления" 
   body={
-    root: {
-    taskparams: include_gui_inline
-      {
-          target_for_3d: param_objref crit_fn=`(obj) => obj.is_feature_applied('render3d')`; // тут можно и node3d так-то произвольный поставить 
-      };
+    root: 
+      gui={
+        render-params  input=@taskparams;
+        paint_kskv_gui input=@ls;
+        text text="lalala";
+
+      }
+    {
+    taskparams:
+    {
+        target_for_3d: param_objref crit_fn=`(obj) => obj.is_feature_applied('render3d')`; // тут можно и node3d так-то произвольный поставить 
+    };
       //landing-sol scene=@target_for_3d->value ; //{{ console_log_params text="landing-sol" }};
       // это не работает т.к. оно доходит до уровня lexicalParent.. и оттуда уже на поиски видимо не возвращается..
       // но тогда и @taskparams->target_for_3d не сработает..
-      landing-sol scene=@taskparams->target_for_3d {{ console_log_params text="landing-sol" }};
+      ls: landing-sol scene=@taskparams->target_for_3d {{ console_log_params text="landing-sol" }};
     };
   }
 ;
@@ -38,9 +45,11 @@ visual_task
 register_feature name="landing-sol" {
 
   root: 
-    params_obj=@mainparams
-    use_layered_gui
-    layers=(get_children_arr input=@layers)
+    gui={
+      render-params input=@mainparams;
+      render-layers input=@layers;
+      text text="lalala2";
+    }
   {
 
   mainparams:
@@ -120,6 +129,10 @@ register_feature name="landing-sol" {
 register_feature name="data_visual_layer" {
   dv: active=true gui_title=(@pc->titles | get name=@pc->index) 
     //gui_title=@al->gui_title //(@pc->titles | get name=@input_data->index) 
+    gui={
+      render-params input=@dv;
+      render-guis-inline input=@al;
+    }
     {
     pc: param_combo name="input_data" 
           titles=["Траектория","Прореженная траектория","Текущее положение"]

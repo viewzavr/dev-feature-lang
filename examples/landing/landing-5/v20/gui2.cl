@@ -106,6 +106,8 @@ register_feature name="collapsible3" {
 };
 
 
+// рисует параметры со схлопнутым видом
+// idea - может быть стоит рисовать не параметры, а гуи со схлопнутым видом?
 register_feature name="render-guis2" {
   repeater opened=true {
     das1: 
@@ -136,22 +138,31 @@ register_feature name="render-guis-nested2" {
                render_params_inline: render-params object=@.->input;
              };
 
+
         find-objects pattern_root=@col->input pattern="** include_gui"
+           //| render_guis_includ: render-guis-nested2;
            | render_guis_includ: render-guis2;
+           
 
 /*
+        find-objects pattern_root=@col->input pattern="** include_gui"
+           | render_guis_includ: render-guis-nested2;
+           */
+           
+
+
         find-objects pattern_root=@col->input pattern="** use_layered_gui"
            | repeater {
                 solution_gui sol=@.->input;
              };
-*/             
 
           /*
           //link from=@.->active to=@.->input
           if condition=(@..->input | has_feature name="use_layered_gui")
           {
             solution_gui sol=@..->input;
-          };*/
+          };
+          */
 
        };
 

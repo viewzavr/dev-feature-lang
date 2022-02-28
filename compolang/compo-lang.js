@@ -1762,6 +1762,7 @@ export function get_children_arr(env) {
 }
 
 
+// проверяет есть ли фича у input
 export function has_feature(env) {
   let unsub=()=>{};
 
@@ -1775,4 +1776,13 @@ export function has_feature(env) {
   });
 
   env.on("remove",unsub);
+}
+
+// добавляет фичу. пока только в host
+export function add_feature(env) {
+
+  env.onvalues(["name"],(name) => {
+    env.host.feature( name );
+  });
+
 }

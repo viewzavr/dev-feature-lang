@@ -1,13 +1,12 @@
-load files="lib3dv3 csv params io gui render-params df scene-explorer-3d 12chairs.cl gui2.cl landing.cl";
+load files="lib3dv3 csv params io gui render-params df scene-explorer-3d 12chairs.cl landing.cl gui4.cl";
 
 
 register_feature name="visual_tasks_and_windows" {
   root: 
-    params_obj=@mainparams
-    layers=(get_children_arr input=@layers)
+    gui={
+      render-layers input=(get_children_arr input=@layers) for=@root;
+    }
    {
-     mainparams: alfa=5;
-
     layers: {
       layer_v1 title="Задачи" 
         find="** visual_task_thing" 
@@ -16,6 +15,7 @@ register_feature name="visual_tasks_and_windows" {
         find="** windows" 
         new={data_visual_layer screen=@root->screen};
     };
+
    };
 };
 
@@ -71,9 +71,12 @@ mainscreen: screen auto-activate {
     column padding="0.3em" margin="0.7em" gap="0.5em"
     {
       button text="Добавить";  
+
+      paint_kskv_gui input=@visual_tasks_and_windows;
+
       //render-params object_path="@sol";
 
-      solution_gui sol=@visual_tasks_and_windows;
+      //solution_gui sol=@visual_tasks_and_windows;
 
       /*
       collapsible_alt text="Приземление 1" {
