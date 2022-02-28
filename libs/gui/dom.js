@@ -425,7 +425,7 @@ export function shadow_dom( obj, options )
 }
 
 // dom_group - цель это сделать так, чтобы все дети dom_group попали в dom-комбинацию
-// к родителю. таким образом можно делать dom_group{ dom1; dom2 } и вот эти оба 
+// к родителю. таким образом можно делать dom_group { dom1; dom2 } и вот эти оба 
 // dom1 dom2 уедут к родителю dom_group-а
 
 export function dom_group( env ) {
@@ -436,6 +436,19 @@ export function dom_group( env ) {
 
   function rescan() {
     env.setParam("output", () => {
+      let acc = [];
+      env.ns.children.forEach( 
+          (c) => {
+            let od = c.params.output;
+            if (typeof(od) === "function") od = od();
+            if (Array.isArray(od)) od.forEach( (el) => acc.push(el) )
+              else acc.push( od );
+          }
+       );
+      return acc;
+
+      /* вариант с мэп не учитывает что могут вернуть массив и получится мы генерим массив массивов
+         а я решил этого не делать чтобы потом в дом сборщике не писать dom.flat
        return env.ns.children.map( 
           (c) => {
             let od = c.params.output;
@@ -443,6 +456,7 @@ export function dom_group( env ) {
             return od;
           }
        );
+       */
     } );
 
     // наш output изменился - надо тыркнуть родителя

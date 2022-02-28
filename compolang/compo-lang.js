@@ -678,138 +678,6 @@ export function call_cmd_by_path(env) {
 }
 
 //////////////////////////////////
-export function repeater0( env, fopts, envopts ) {
-  var children;
-  /* оказалось что env.restoreFromDump уже вызывают, 
-     если repeater первый в register-feature стоит.. - то он не успел получается это переопределить
-     поэтому я перешел на переопределение restoreChildrenFromDump...
-
-  env.restoreFromDump = (dump,manualParamsMode) => {
-    children = dump.children;
-    env.vz.restoreParams( dump, env,manualParamsMode );
-    env.vz.restoreLinks( dump, env,manualParamsMode );
-    env.vz.restoreFeatures( dump, env,manualParamsMode );
-    
-    return Promise.resolve("success");
-  }*/
-
-  env.restoreChildrenFromDump = (dump, ismanual) => {
-    // короче выяснилось, что если у нас создана фича которая основана на repeater,
-    // то у этого repeater свое тело поступает в restoreChildrenFromDump
-    // а затем внешнее тело, которое сообразно затирает собственное тело репитера.
-    if (!children) {
-      children = dump.children;
-      if (pending_perform) {
-        if (env.params.input)
-          env.signalParam("input");
-        else
-          env.signalParam("model");
-      }
-    }
-    return Promise.resolve("success");
-  }
-
-
-  var created_envs = [];
-  function close_envs() {
-     for (let old_env of created_envs) {
-       old_env.remove();
-     }
-     created_envs = [];
-  }
-  env.on("remove",close_envs)
-
-  var pending_perform;
-  env.onvalue("model",recreate );
-  env.onvalue("input",recreate );
-
-  env.addCmd("refresh",() => recreate());
-
-
-  function recreate() {
-     let model = env.params.model || env.params.input;
-     
-     close_envs();
-
-     if (env.removed) return; // бывает...
-
-     if (!children) {
-        pending_perform=true;
-        return;
-     }
-     pending_perform=false;
-
-     var firstc = Object.keys( children )[0];
-
-     if (!firstc) {
-       // children чето не приехали.. странно все это..
-       console.error("repeater: children is blank during model change...");
-       return;
-     }
-
-     if (typeof model == 'number') { // число
-       let num = parseInt( model ); // приведем к инту
-       model = Array.from(Array(num).keys());
-     }
-
-     if (model && !model.forEach) // рарешим подавать любой объект на вход - это как массив 1 штука элементов
-         model = [model];
-
-     if (!(model && model.forEach)) {
-       //console.error("repeater: passed model is not iterable.",model,env.getPath())
-       return;
-     }
-
-
-     let target_parent = env.ns.parent;
-     // особый случай - когда репитер сидит в пайпе
-     if (target_parent.is_feature_applied("pipe"))
-        target_parent = target_parent.ns.parent;
-
-     //let parr = []; // todo
-     model.forEach( (element,eindex) => {
-       var edump = children[firstc];
-       edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
-
-       var p = env.vz.createSyncFromDump( edump,null,target_parent );
-       //parr.push( p );
-
-       //Promise.all(para).then( )
-
-       p.then( (child_env) => {
-          // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
-          // todo тут надо scope env делать и детям назначать, или вроде того
-          // но пока обойдемся так
-          child_env.$env_extra_names ||= {};
-          child_env.$env_extra_names[ firstc ] = true;
-
-          // todo epochs
-          child_env.setParam("input",element);
-          child_env.setParam("inputIndex",eindex);
-
-          child_env.setParam("modelData",element);
-          child_env.setParam("modelIndex",eindex);
-
-          created_envs.push( child_env );
-
-          // выдаем в output созданные объекты
-          if (created_envs.length == model.length)
-             env.setParam( "output", created_envs );
-       });
-      
-       /*
-       var child_env = env.vz.createSyncFromDump( edump,null,env.ns.parent );
-          // todo epochs
-          child_env.setParam("modelData",element);
-          child_env.setParam("modelIndex",eindex);
-
-          created_envs.push( child_env );
-       */
-     });
-  } // recreate
-}
-
-//////////////////////////////////
 export function repeater( env, fopts, envopts ) {
   var children;
   /* оказалось что env.restoreFromDump уже вызывают, 
@@ -946,7 +814,9 @@ export function repeater( env, fopts, envopts ) {
               // выдаем в output созданные объекты
               if (created_envs.length == model.length)
                  env.setParam( "output", created_envs );
-              */   
+              */
+
+              env.emit("item-created", child_env);
            });        
        }
      }
