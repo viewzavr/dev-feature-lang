@@ -253,7 +253,7 @@ export function dom( obj, options={} )
                //console.log("adding child dom",odd);
                odd.viewzavr_combination_source  = c; // в него прям поселим
              }
-           } 
+           }
        }
     }
 

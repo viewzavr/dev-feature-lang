@@ -1,18 +1,17 @@
 data_visual code="linestr" title="Линия" render3d-items={
-        main: linestrips include_gui_inline {
-           param_cmd name="dbg" code=`
-             debugger;
-           `;
+        main: linestrips 
+          gui={ render-params input=@main; }
+        {
         };
 };
 
 data_visual code="ptstr" title="Точки" render3d-items={
-        main: points include_gui_inline;
+        main: points gui={ render-params input=@main; };
 };
     
     // вход input это dataframe
 data_visual code="models" title="Модель" render3d-items={
-      root: node3d include_gui_inline {
+      root: node3d gui={ render-params input=@root; } {
         param_slider name="scale" min=1 max=10 value=1;
         param_color  name="hilight_color" value=[0,0,0];
         param_label  name="count" value=(@rep->input | get name="length");
@@ -33,11 +32,11 @@ data_visual code="models" title="Модель" render3d-items={
 
     
 static_visual code="axes" title="Оси координат" render3d-items={ 
-       axes_box include_gui_inline size=100; 
+       main: axes_box gui={render-params input=@main; } size=100; 
 };
 
 static_visual code="pole" title="Земля 4кв км" render3d-items={
-        main: mesh include_gui_inline 
+        main: mesh gui={ render-params input=@main; } 
           positions=[
            -1000,-0.5,-1000,  1000,-0.5,-1000, -1000,-0.5,1000,
            -1000,-0.5,1000,   1000,-0.5,-1000,  1000,-0.5,1000
@@ -47,7 +46,7 @@ static_visual code="pole" title="Земля 4кв км" render3d-items={
 };
     
 static_visual code="kvadrat" title="Квадрат места" render3d-items={
-        main: mesh include_gui_inline 
+        main: mesh gui={ render-params input=@main; }  
           positions=[
            -30,0,-30, 30,0,-30,  -30,0,30,  
            -30,0,30,  30,0,-30,  30,0,30
@@ -58,7 +57,7 @@ static_visual code="kvadrat" title="Квадрат места" render3d-items={
 
 static_visual code="stolbik" title="Столбик места" render3d-items={
       main: 
-        lines include_gui_inline 
+        lines gui={ render-params input=@main; }  
           positions=(compute_output h=@.->h code=`
             return [-30,0,-30, -30, env.params.h,-30 ]
           `)
@@ -108,9 +107,11 @@ screen_visual code="selectedvars" title="Переменные по выбору"
         dom 
         style="color: white; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
                    min-width: 300px; font-size: larger"
-        innerHTML=@qq->output {
+        innerHTML=@qq->output 
+        gui={ render-params input=@selected; } 
+        {
 
-          selected: include_gui gui_title="Выбрать" {{ 
+          selected:  gui_title="Выбрать" {{ 
              onevent name="param_changed" cmd="@qq->recompute";
              onevent name="gui-added" cmd="@qq->recompute";
              }}

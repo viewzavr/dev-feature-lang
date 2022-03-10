@@ -15,7 +15,7 @@
 
 visual_task
   code="landing-sol" 
-  title="Ракета"
+  title="Движение ракеты"
   body={
     root: 
       gui={
@@ -25,7 +25,9 @@ visual_task
     {
     taskparams:
     {
-        target_for_3d: param_objref crit_fn=`(obj) => obj.is_feature_applied('render3d')`; // тут можно и node3d так-то произвольный поставить 
+        target_for_3d: param_objref crit_fn=`(obj) => obj.is_feature_applied('render3d')`;
+          //value=
+         //{{ auto_select_first_variant; }} ; // тут можно и node3d так-то произвольный поставить 
     };
       //landing-sol scene=@target_for_3d->value ; //{{ console_log_params text="landing-sol" }};
       // это не работает т.к. оно доходит до уровня lexicalParent.. и оттуда уже на поиски видимо не возвращается..
@@ -45,7 +47,7 @@ register_feature name="landing-sol" {
   root: 
     gui={
       render-params input=@mainparams;
-      render-layers input=@layers;
+      render-layers input=(get_children_arr input=@layers) for=@root;
     }
   {
 
@@ -128,7 +130,7 @@ register_feature name="data_visual_layer" {
     //gui_title=@al->gui_title //(@pc->titles | get name=@input_data->index) 
     gui={
       render-params input=@dv;
-      render-guis-inline input=@al;
+      paint_kskv_gui input=@al;
     }
     {
     pc: param_combo name="input_data" 
@@ -142,7 +144,6 @@ register_feature name="data_visual_layer" {
     al: create_by_user_type 
         list=(find-objects pattern="** data_visual")
         active=@dv->active
-        include_gui_inline
         mapping={
             channel="render3d-items" target=@dv->scene;
             channel="screen-items"   target=@dv->screen;
@@ -170,3 +171,9 @@ register_feature name="screen_layer" {
 };
 
 load files="visual-layers.cl";
+
+/*
+register_feature name="static_visual" {
+  g: gui={render-params input=@g;};
+};
+*/

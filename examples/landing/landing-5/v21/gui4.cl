@@ -9,6 +9,68 @@ register_feature name="paint_kskv_gui" {
   };
 };
 
+//////////////////////////
+// назначение: рисует набор слоев в форме набора плашек
+// for - для кого рисуем. в этом "кто" будут сканироваться объекты для слоев и туда же будут создаваться новые
+// input - список слоев
+//  каждый слой это объект с полями find, new, title
+register_feature name="render-layers" {
+  r: repeater
+  {
+      co: layers_gui2 
+            text=(@co->input | get_param name="title")
+            layer=(@co->input | get_param name="new") 
+            pattern=(@co->input | get_param name="find") 
+            pattern_root=@r->for
+            target=@r->for
+            plashka ;
+  };
+};
+
+//////////////////////////////////////////////////////
+
+// рисует 1 слой - в виде плашки и списка объектов слоя, каждый посаженный в collapsible
+//       text - надпись
+//       layer - описание для вновь-добавляемых слоев
+//       pattern - поиск объектов этого слоя 
+
+// вот кстати здесь мы видим плохость в смешении окружений
+// target это параметр layers_gui2, но он одновременно становится и параметром collapsible...
+// а не факт что это то что нам было нужно. заманчиво конечно не заниматься передачей параметров,
+// но с другой стороны явная передача выглядит для дальнейшего восприятия лучше..
+// todo поанализировать эти случаи, когда и что и как мы используем и что ожидаем.
+
+register_feature name="layers_gui2" {
+
+  lgui: collapsible 
+          target=@.
+          //body_features={set_params style="padding:0.2em 0.2em 0.2em 0.4em; gap: 0.2em;";}
+  {
+
+    button text="+ Добавить" {
+            creator target=@lgui->target input=@lgui->layer
+              {{ onevent name="created" code=`args[0].manuallyInserted=true; console.log("created",args[0])` }};
+    };
+    
+    find-objects pattern=@lgui->pattern pattern_root=@lgui->pattern_root
+     | repeater {
+        coco: collapsible2 text=(@.->input | get_param name="gui_title") 
+          body_features=@lgui->each_body_features
+          active=(@.->input | get_param name="active")
+        {{
+          connection event_name="user-changed-active" code=`
+            env.host.params.input.setParam("active",args[0]);
+          `;
+        }}
+        {
+          paint_kskv_gui input=@coco->input;
+        };
+     };
+ 
+  };
+
+};
+
 
 //////////////////////////
 
@@ -87,54 +149,6 @@ register_feature name="render-guis2" {
 };
 
 
-//////////////////////////////////////////////////////
-
-// рисует 1 слой - в виде плашки и списка объектов слоя, каждый посаженный в collapsible
-//       text - надпись
-//       layer - описание для вновь-добавляемых слоев
-//       pattern - поиск объектов этого слоя 
-
-// вот кстати здесь мы видим плохость в смешении окружений
-// target это параметр layers_gui2, но он одновременно становится и параметром collapsible...
-// а не факт что это то что нам было нужно. заманчиво конечно не заниматься передачей параметров,
-// но с другой стороны явная передача выглядит для дальнейшего восприятия лучше..
-// todo поанализировать эти случаи, когда и что и как мы используем и что ожидаем.
-
-
-register_feature name="layers_gui2" {
-
-  lgui: collapsible 
-          target=@.
-          //body_features={set_params style="padding:0.2em 0.2em 0.2em 0.4em; gap: 0.2em;";}
-  {
-
-    button text="+ Добавить" {
-            creator target=@lgui->target input=@lgui->layer
-              {{ onevent name="created" code=`args[0].manuallyInserted=true; console.log("created",args[0])` }};
-    };
-    
-    find-objects pattern=@lgui->pattern pattern_root=@lgui->pattern_root
-     | repeater {
-        coco: collapsible2 text=(@.->input | get_param name="gui_title") 
-          body_features=@lgui->each_body_features
-          active=(@.->input | get_param name="active")
-        {{
-          connection event_name="user-changed-active" code=`
-            env.host.params.input.setParam("active",args[0]);
-          `;
-        }}
-        {
-        	paint_kskv_gui input=@coco->input;
-        };
-     };
-
-    
- 
-  };
-
-};
-
-
 /// косметика
 register_feature name="plashka" {
   style="background: rgba(99, 116, 137, 0.36);padding: 5px;";
@@ -149,17 +163,3 @@ register_feature name="plashka" {
   };
 };
 
-// назначение: рисует набор слоев в форме набора плашек
-// for - для кого рисуем. в этом "кто" будут сканироваться объекты для слоев и туда же будут создаваться новые
-// input - список слоев
-register_feature name="render-layers" {
-  r: repeater {
-      co: layers_gui2 
-            text=(@co->input | get_param name="title")
-            layer=(@co->input | get_param name="new") 
-            pattern=(@co->input | get_param name="find") 
-            pattern_root=@r->for
-            target=@r->for
-            plashka;
-  };
-};

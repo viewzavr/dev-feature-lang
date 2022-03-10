@@ -24,7 +24,10 @@ register_feature name="create_by_user_type" {
                     | get_param name="title")
     gui={
       render-params input=@vlayer;
-      find-objects features="created_by_we" root=@vlayer recursive=false | repeater 
+
+      find-objects features="created_by_we" root=@vlayer recursive=false 
+        | console_log text="create_by_user_type <<<" 
+        | repeater
       {
         paint_kskv_gui;
       };
