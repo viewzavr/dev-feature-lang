@@ -83,11 +83,11 @@ mainscreen: screen auto-activate {
 
   }; // row
 
-  v1: view3d style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2";
+  v1: view3d style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2" extra=@extra_screen_things;
 
   dom style="position: absolute; right: 20px; bottom: 20px; width:500px; height: 200px; z-index: 5; border: 1px solid grey;"
   {
-    v2: view3d style="z-index: -2; width:100%; height: 100%;";
+    v2: view3d style="z-index: -2; width:100%; height: 100%;" extra=@extra_screen_things2;
     extra_screen_things2: column style="z-index: 2; position:absolute; top: 5px; left: 10px;" {};
   }
     

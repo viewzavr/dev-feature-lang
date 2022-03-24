@@ -30,9 +30,17 @@ export function find_objects_bf( env  ) {
   });
 
   let unsub_list = []; // это массив элементов вида [ {f:func}, {f:func}, func, func, ....] то есть вперемешку
-  function unsub_all() {
 
-    unsub_list.forEach( rec => { 
+  function unsub_all() {
+    unsub_a_list( unsub_list );
+    
+    for (let k of Object.keys( perobject_unsub_list ))
+      unsub_a_list( perobject_unsub_list[k] );
+  }
+
+  function unsub_a_list(list) {
+
+    list.forEach( rec => { 
         if (rec.f) 
            rec.f(); 
          else {
@@ -41,8 +49,19 @@ export function find_objects_bf( env  ) {
           rec(); 
         }
     } );
-    unsub_list = [];
+    list.length = 0;
   }
+
+  // пообъектные отписки
+  let perobject_unsub_list = {};
+  function add_obj_unsub( obj, f ) {
+    perobject_unsub_list[ obj.$vz_unique_id ] ||= [];
+    perobject_unsub_list[ obj.$vz_unique_id ].push( f );
+  }
+  function unsub_for_obj( obj ) {
+    unsub_a_list( perobject_unsub_list[ obj.$vz_unique_id ] || [] );
+  }
+
   env.on("remove",unsub_all);
   env.on("reset",unsub_all);
 
@@ -64,6 +83,8 @@ export function find_objects_bf( env  ) {
     traverse_if( root,process_one_obj );
 
     function process_one_obj (obj) {
+
+      unsub_for_obj( obj );
       //if (env.params.debug)
         //console.log("find-objects process_one_obj",obj.getPath(),features)
 
@@ -75,7 +96,7 @@ export function find_objects_bf( env  ) {
         next_object_found( obj )
         //env.emit("next_object_found", obj );
       }, unsub );
-      unsub_list.push( unsub );
+      add_obj_unsub( obj, unsub );
 
       // доп случай когда надо пересканировать, см. ниже
       // идея - нельзя ли тут нам как-то красиво подписать объект appendChild на вот это событие перенаправить?...
@@ -86,20 +107,19 @@ export function find_objects_bf( env  ) {
         // сейчас повторно на-подписываемся.
         // нам бы тогда сохранять, на кого мы уже подписки все нужные оформили?
       });
-      unsub_list.push( apc_unsub2 );
+      add_obj_unsub( obj, apc_unsub2 );
 
       // завершить обход, если объект найден, а рекурсивность не требуется
       if (is_object_in_found_set( obj ) && !env.params.recursive)
         return false;
 
-      // 2. если в объект добавили узла-дитя, то проверять его
+      // 2. если в объект добавили узла-дитя, то проверять эту дитя
       let apc_unsub = obj.on("appendChild",(cobj) => {
          if (!is_object_in_found_set( obj ) || env.params.recursive)
               process_one_obj(cobj);
             // тут бы traverse_if + отслеживание если уже отслеживаем
       });
-      unsub_list.push( apc_unsub );
-
+      add_obj_unsub( obj, apc_unsub );
   
       return true; // продолжаем обход
       
@@ -121,7 +141,7 @@ export function find_objects_bf( env  ) {
        delete result_object_ids[id]; 
        uniq_object_disappeared( obj );
     })
-    unsub_list.push( u )
+    unsub_list.push( u ); // отдельный список
 
     next_unique_object_found( obj );
   }

@@ -34,7 +34,7 @@ visual_task
       //landing-sol scene=@target_for_3d->value ; //{{ console_log_params text="landing-sol" }};
       // это не работает т.к. оно доходит до уровня lexicalParent.. и оттуда уже на поиски видимо не возвращается..
       // но тогда и @taskparams->target_for_3d не сработает..
-      ls: landing-sol scene=@taskparams->target_for_3d;
+      ls: landing-sol scene=@taskparams->target_for_3d screen=(@.->scene | get_param name="target" | get_param name="extra");
     };
   }
 ;

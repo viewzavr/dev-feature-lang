@@ -223,7 +223,7 @@ register_feature name="combobox" {
 	   });
 	   main.onvalue("titles",() => {
 	     setup_values();
-	   });	   
+	   });
 	   main.onvalue("dom",() => {
 	     setup_index();
 	     setup_values();
