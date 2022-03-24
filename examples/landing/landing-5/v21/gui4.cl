@@ -49,7 +49,11 @@ register_feature name="layers_gui2" {
 
     button text="+ Добавить" {
             creator target=@lgui->target input=@lgui->layer
-              {{ onevent name="created" code=`args[0].manuallyInserted=true; console.log("created",args[0])` }};
+              {{ onevent name="created" code=`
+                 args[0].manuallyInserted=true; 
+                 
+                 console.log("created",args[0])` 
+              }};
     };
     
     find-objects pattern=@lgui->pattern pattern_root=@lgui->pattern_root

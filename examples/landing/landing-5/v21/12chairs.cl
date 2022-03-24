@@ -26,7 +26,6 @@ register_feature name="create_by_user_type" {
       render-params input=@vlayer;
 
       find-objects features="created_by_we" root=@vlayer recursive=false 
-        | console_log text="create_by_user_type <<<" 
         | repeater
       {
         paint_kskv_gui;
@@ -58,17 +57,27 @@ register_feature name="create_by_user_type" {
         target=(@.->input | get_param name="target")
       { 
 
-        deploy_many_to target=@recroot->target user_objects_creators
+        deploy_many_to user_objects_creators
+           vlayer=@vlayer
+           target=@recroot->target 
            input=( @vlayer->list 
                     | arr_filter type=@selected_show->value code=`(c) => c.params.code == env.params.type` 
                     | get name=0 
                     | get param=@recroot->channel )
+           {{ onevent name="after_deploy" code=`
+                for (let obj of args[0]) {
+                  obj.lexicalParent = env.host.params.vlayer;
+                };  
+                // надо сохранить для поиска вещей "выше в окружении"
+                // (хотя это и неправильно, лучше уж напрямую параметры присваивать..)
+             `;}}
            
            //include_gui_from_output
            {{ find-objects-follow to=@.->output }} // это ведь нам запутывает другие поисковики...
            extra_features={
               set_params input=@vlayer->input 
-                         active=@vlayer->active visible=@vlayer->active;
+                         active=@vlayer->active 
+                         visible=@vlayer->active;
               add_feature name="created_by_we";
            }
            {{ keep_state }}; // keep_state сохраняет состояние при переключении типов объектов
