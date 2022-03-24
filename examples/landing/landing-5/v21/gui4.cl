@@ -64,6 +64,7 @@ register_feature name="layers_gui2" {
         }}
         {
           paint_kskv_gui input=@coco->input;
+          button text="Удалить" input=@coco->input code=`env.params.input.remove();`;
         };
      };
  
