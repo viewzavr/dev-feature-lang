@@ -69,7 +69,7 @@ export function dom( obj, options={} )
   // dom_obj_ - поле объекта dom
   // dom_style_ - кусочек стиля
   function maybe_apply_dom_attr( name, value ) {
-    if (obj.dom && (name.startsWith("dom_") && !name.startsWith("dom_attr_") && !name.startsWith("dom_obj_") && !name.startsWith("dom_style_"))) {
+    if (obj.dom && (name.startsWith("dom_") && !name.startsWith("dom_attr_") && !name.startsWith("dom_obj_") && !name.startsWith("dom_style_") && !name.startsWith("style_"))) {
        name = name.substring(4);
        obj.dom.setAttribute(name,value);
        return true;
@@ -80,7 +80,7 @@ export function dom( obj, options={} )
        obj.dom.setAttribute(name,value);
        return true;
     }
-    return maybe_apply_dom_prop( name, value ) || maybe_apply_dom_style( name, value );
+    return maybe_apply_dom_prop( name, value ) || maybe_apply_dom_style( name, value ) || maybe_apply_style_part( name, value );
   }
 
   function maybe_apply_dom_prop( name, value ) {
@@ -98,7 +98,23 @@ export function dom( obj, options={} )
     if (obj.dom && name.startsWith("dom_style_")) {
        name = name.substring(10);
        obj.dom.style[name] = value;
-       //if (name == "width") console.log("DOM STYLE width assigned=",value)
+       
+       //styles_hash[ name ] = name + ":" + value;
+       //obj.signalParam("style");
+        
+       return true;
+    }
+    return false;
+  }
+
+// здесь получается доступ через js-нотацию
+  let styles_hash = {};
+  function maybe_apply_style_part( name, value ) {
+    if (obj.dom && name.startsWith("style_")) {
+       styles_hash[ name ] = value;
+       obj.signalParam("style");
+       //name = name.substring(10);
+       //obj.dom.style[name] = value;
         
        return true;
     }
@@ -118,7 +134,16 @@ export function dom( obj, options={} )
 
       // с методом выше выяснилась засада - он перебивает остальное
       // пробуем так (хотя насколько этого хватит..)
-      obj.dom.style.cssText += ";"+v;
+      // obj.dom.style.cssText += ";"+v;
+      //obj.dom.style.cssText += ";"+v;
+
+      let s = v + ";" + Object.values(styles_hash).join(";");
+      //console.log("style",s)
+
+      obj.dom.style.cssText += s;
+      //obj.dom.setAttribute('style', v);
+
+      // todo: onvalue сделать оно 1 раз срабатывает а это каждый раз
     })
 
     obj.addString("padding","0em",(v) => {

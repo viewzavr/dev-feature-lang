@@ -11,7 +11,6 @@ screen auto-activate layout flow="column" padding="1em" {
 
 cb1:  combobox values=["afla.csv","beta.csv","teta.csv"];
 
-
   row {
      text text="combo value = ";
      lab0: text text=@cb1->value;

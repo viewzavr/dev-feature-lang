@@ -468,3 +468,43 @@ register_feature name="tabview" {
 register_feature name="tab" {
 	 dom;
 };
+
+////////////// новые табы
+
+register_feature name="show_one" {
+	root: column index=0 {
+
+		js code=`
+		  let s = env.ns.parent;
+		  
+			function refresh() {
+				let i = 0;
+				let index = s.params.index;
+				
+				for (let c of s.ns.getChildren()) {
+					  //if (c.$vz_type == "link") continue;
+					  if (c.is_feature_applied("link") || c.is_feature_applied("repeater")) continue;
+					  let v = (i == index);
+						c.setParam("visible", v)
+						i++;
+				}
+			}
+
+			s.on("childrenChanged",refresh)
+			s.monitor_values(["index"],refresh)
+		`;
+	 }; // column
+};
+
+/*
+  switch_selector items=["Рыба","Ела","Мясо"]
+*/
+register_feature name="switch_selector" {
+	root: column index=0 {
+		repeater input=@root->items {
+			 button text=@.->input {
+			 	 setter target="@root->index" value=@..->modelIndex;
+			 };
+		};
+	}; // column
+};

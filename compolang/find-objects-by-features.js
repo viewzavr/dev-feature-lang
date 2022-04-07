@@ -15,12 +15,29 @@ export function find_objects_bf( env  ) {
   if (!env.hasParam("recursive"))
     env.setParam("recurvsive",true)
 
+  if (!env.hasParam("include_root"))
+      env.setParam("include_root",true);
+
+  ////// отладка
+  let log = () => {};
+  env.onvalue("debug",(v) => {
+    if (v) log = console.log;
+    else log = () => {};
+  })
+
   env.feature("delayed");
   // env.setParam("output",[]); // не будем смущать население
   // ну или посмущаем
 
   let delayed_begin = env.delayed( begin, 10 );
-  env.onvalues(["root","features"],(r,f) => {
+  env.monitor_values(["root","features"],(r,f) => {
+
+    if (!r) {
+      env.emit("reset");
+      publish_result();
+      return;
+    }
+
     if (r.getPath() == "/") // отсечем случай когда данные нам еще не выставили просто
       delayed_begin( r,f );
     else {
@@ -55,6 +72,11 @@ export function find_objects_bf( env  ) {
   // пообъектные отписки
   let perobject_unsub_list = {};
   function add_obj_unsub( obj, f ) {
+    if (!obj.$vz_unique_id )
+    {
+      //debugger;
+      obj.feature("vzf_object_uniq_ids");
+    }
     perobject_unsub_list[ obj.$vz_unique_id ] ||= [];
     perobject_unsub_list[ obj.$vz_unique_id ].push( f );
   }
@@ -71,6 +93,7 @@ export function find_objects_bf( env  ) {
     //unsub_all();
     if (unsub_list.length > 0)
         console.warn("find_objects_bf: reepated begin! unsub_list.length = ",unsub_list.length)
+
     env.emit("reset"); // вызовет всеобщую отписку
     publish_result(); // либо пустой массив будет либо заполнится чем-нибудь уже на этом такте
 
@@ -86,14 +109,19 @@ export function find_objects_bf( env  ) {
 
       unsub_for_obj( obj );
       //if (env.params.debug)
-        //console.log("find-objects process_one_obj",obj.getPath(),features)
-
+        console.log("find-objects process_one_obj",obj.getPath(),features)
 
       // 1. ходить по фичам объекта и если все нашли - то фиксируем это
       let unsub = { f: () => {} };
       walk_on_obj_features( obj, features,0, () => {
         // наш клиент
-        next_object_found( obj )
+        // доп условие
+        //log("fobf: next object found",features);
+        //debugger;
+        //next_object_found( obj )
+        if (env.params.include_root || (!env.params.include_root && obj !== root)) {
+            next_object_found( obj )
+        }
         //env.emit("next_object_found", obj );
       }, unsub );
       add_obj_unsub( obj, unsub );
@@ -115,6 +143,8 @@ export function find_objects_bf( env  ) {
 
       // 2. если в объект добавили узла-дитя, то проверять эту дитя
       let apc_unsub = obj.on("appendChild",(cobj) => {
+        //log("fobf: obj-append-child",cobj.getPath());
+         //log("fobf: obj-append-child",features, cobj.$features_applied, cobj);
          if (!is_object_in_found_set( obj ) || env.params.recursive)
               process_one_obj(cobj);
             // тут бы traverse_if + отслеживание если уже отслеживаем

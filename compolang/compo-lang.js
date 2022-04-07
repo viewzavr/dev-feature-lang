@@ -963,16 +963,17 @@ export function find_objects( env  ) {
   env.addString("pattern");
   env.addObjectRef("pattern_root","/");
 
-  env.onvalues( ["pattern","pattern_root"],(p,r) => {
+  env.monitor_values( ["pattern","pattern_root"],(p,r) => {
     let features = "";
-    if (p.startsWith("** ")) {
+    if (p && p.startsWith("** ")) {
       features = p.slice( 3 );
     }
     else
     {
       // мб будем считать что тут у нас таки значит сразу метки?
       // нет уж если метки то используте features.
-      console.error("find_objects: unsupported pattern!",p)
+      if (p)
+        console.error("find_objects: unsupported pattern!",p)
       env.setParam("output",[]);
       return;
     }
@@ -1096,9 +1097,8 @@ export function feature_if( env, options )
 {
   var created_envs = [];
 
-  // засада в том что undefined нам не присылают первоначально
   var activated=false;
-  env.onvalue("condition",(cond) => {
+  env.monitor_values(["condition"],(cond) => {
     var res = cond ? true : false;
     env.setParam("condition_result",res);
     perform( res ? 0 : 1 );
@@ -1118,6 +1118,63 @@ export function feature_if( env, options )
 
   var pending_perform;
   function perform( num ) {
+     //console.log("IF PERFORM",num, env.getPath(),children)
+     
+     for (let old_env of created_envs) {
+       old_env.remove();
+     }
+     created_envs=[];
+
+     if (!children) {
+       pending_perform=num;
+       return;
+     }
+     pending_perform=undefined;
+
+     var selected_c = Object.keys( children )[ num ];
+     if (!selected_c) {
+      //pending_perform
+      return;
+     }
+
+     var edump = children[selected_c];
+     edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
+     var p = env.vz.createSyncFromDump( edump,null,env.ns.parent );
+     p.then( (child_env) => {
+          created_envs.push( child_env );
+      });
+   };
+
+}
+
+/// one-of
+/// вход: index - номер
+///       children - дети
+/// one-of создает одного из детей согласно index
+export function one_of( env, options )
+{
+  var created_envs = [];
+
+  var activated=false;
+  env.onvalues_any(["index"],(index) => {
+    perform( index );
+    activated=true;
+  });
+  //if (!activated) perform( 0 );
+
+  //env.addString("condition_result");
+
+  // далее натырено с репитера
+  var children;
+  env.restoreChildrenFromDump = (dump, ismanual) => {
+    children = dump.children;
+    if (typeof(pending_perform) !== "undefined") perform( pending_perform );
+    return Promise.resolve("success");
+  }
+
+  var pending_perform;
+  function perform( num ) {
+     
      for (let old_env of created_envs) {
        old_env.remove();
      }
@@ -1472,8 +1529,7 @@ export function get_param( env )
   }
   env.on("remove",param_tracking);
 
-  env.onvalues(["input","name"],source_param_changed); 
-}
+  env.onvalues(["input","name"],source_param_changed); }
 
 export function get_child( env )
 {

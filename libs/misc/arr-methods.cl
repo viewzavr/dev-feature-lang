@@ -82,6 +82,32 @@ register_feature name="arr_map"
   }
 `;
 
+//////// arr_reverse
+// вход:
+// input - массив
+
+// выход:
+// output - массив перевернутый
+
+register_feature name="arr_reverse"
+  code=`
+  env.onvalues(["input"],process);
+
+  function process(arr) {
+    if (!Array.isArray(arr)) {
+      env.setParam("output",[]);
+      return;
+    }
+
+    let res = arr.reverse();
+    
+    env.setParam("output",res);
+  }
+`;
+
+// вроде так покороче?
+// compute_output code=`env.params.input.reverse()`
+
 ///////////////////////////////////
 
 
