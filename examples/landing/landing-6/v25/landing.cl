@@ -56,6 +56,12 @@ register_feature name="landing-sol" {
 
   mainparams:
   {
+    time_slider: param_slider 
+       min=0 
+       max=(@time->values | arr_length | compute_output code=`return env.params.input-1`) 
+       step=1 
+       value=@time->index;
+
     //f1:  param_file value="phase_yScaled2.csv";
     f1:  param_file value="https://viewlang.ru/assets/other/landing/2021-10-phase.txt";
 
@@ -64,11 +70,7 @@ register_feature name="landing-sol" {
     time: param_combo values=(@_dat | df_get column="T") 
        index=@time_slider->value;
     // todo исследовать time: param_combo values=(@dat | df_get column="T");
-    time_slider: param_slider 
-       min=0 
-       max=(@time->values | arr_length | compute_output code=`return env.params.input-1`) 
-       step=1 
-       value=@time->index;
+    
 
     step_N: param_slider value=10 min=1 max=100;
 
@@ -76,7 +78,7 @@ register_feature name="landing-sol" {
   };
 
   layers: {
-      l1: layer_v1 title="Визуализация" 
+      l1: layer_v1 title="Объекты данных" 
         find="** data_visual_layer" 
         for=@root
         new={data_visual_layer scene=@root->scene screen=@root->screen};

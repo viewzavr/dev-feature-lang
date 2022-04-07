@@ -109,7 +109,7 @@ export function find_objects_bf( env  ) {
 
       unsub_for_obj( obj );
       //if (env.params.debug)
-        console.log("find-objects process_one_obj",obj.getPath(),features)
+        //console.log("find-objects process_one_obj",obj.getPath(),features)
 
       // 1. ходить по фичам объекта и если все нашли - то фиксируем это
       let unsub = { f: () => {} };

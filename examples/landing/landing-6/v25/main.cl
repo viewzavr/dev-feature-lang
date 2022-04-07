@@ -38,20 +38,11 @@ mainscreen: screen auto-activate {
       class="vz-mouse-transparent-layout" align-items="flex-start" // эти 2 строчки решают проблему мышки
   { 
 
-    column padding="0.3em" margin="0.7em" gap="0.5em" style="max-height:90vh"
+    //column padding="0.3em" margin="0.7em" gap="0.5em" style="max-height:90vh"
+    collapsible text="Основные параметры" style="min-width:250px;" padding="10px"
     {
-      //button text="Добавить";
 
-      s: switch_selector items=["Основные","Визуализация","Статичные","Текст"] style="width:200px;";
-      show_one index=@s->index {
-        column { paint_kskv_gui input=@sol };
-        render_layers root=@sol->l1;
-        render_layers root=@sol->l2;
-        render_layers root=@sol->l3;
-        //text text="222";
-        //text text="333";
-      }
-
+      paint_kskv_gui input=@sol;
       //combobox values=(find-objects-bf root=@/ features="layer_v1" recursive=true | console_log text="eEEEEE" | arr_map code="(val,index) => val.params.title" )
     };
 
@@ -60,7 +51,26 @@ mainscreen: screen auto-activate {
 
   }; // row
 
-  render_layers root=@sol style="position:absolute; right: 10px; top: 10px;";
+  //render_layers root=@sol style="position:absolute; right: 10px; top: 10px;";
+
+  column style="position:absolute; right: 10px; top: 10px;" {
+    collapsible text="Визуальные объекты" style="min-width:250px" 
+    style_h = "max-height:50vh;"
+    body_features={ set_params style_h="max-height: inherit;"}
+    {
+     s: switch_selector items=["Объекты данных","Статичные","Текст"] style="width:200px;";
+        show_one index=@s->index 
+        style_h="max-height: inherit;"
+        {
+          
+          render_layers root=@sol->l1;
+          render_layers root=@sol->l2;
+          render_layers root=@sol->l3;
+          //text text="222";
+          //text text="333";
+        };
+    };  
+  };
 
   v1: view3d style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2" extra=@extra_screen_things;
 
@@ -99,19 +109,11 @@ register_feature name="render_layers" {
 
           // содержимое этого слоя - то бишь объекты в нем
 
+/*
           if condition=(@main->root | get_param name="title") {
             text tag="h2" text=(@main->root | get_param name="title");
           };
-
-          if condition=(@main->root | get_param name="find") {
-          co: layers_gui3 input=@main->root
-            text=(@co->input | get_param name="title")
-            layer=(@co->input | get_param name="new")
-            pattern=(@co->input | get_param name="find")
-            pattern_root=(@co->input | get_param name="for")
-            target=(@co->input | get_param name="for")
-            plashka style_q="max-height:inherit; overflow-y: scroll;";
-          };
+*/        
 
           if condition=(@main->root | get_param name="new") {
 
@@ -124,6 +126,18 @@ register_feature name="render_layers" {
               }};
            };
           };
+
+          if condition=(@main->root | get_param name="find") {
+          co: layers_gui3 input=@main->root
+            text=(@co->input | get_param name="title")
+            layer=(@co->input | get_param name="new")
+            pattern=(@co->input | get_param name="find")
+            pattern_root=(@co->input | get_param name="for")
+            target=(@co->input | get_param name="for")
+            plashka style_q="max-height: 70vh; overflow-y: scroll;";
+          };
+
+          
             
 
           // колонка с перечнем слоев
