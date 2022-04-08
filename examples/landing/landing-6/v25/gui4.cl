@@ -154,9 +154,9 @@ register_feature name="render-guis2" {
 };
 
 
-/// косметика
+/// косметика - для collapsible подходит
 register_feature name="plashka" {
-  style="background: rgba(99, 116, 137, 0.36);padding: 5px;"
+  style_p="background: rgba(99, 116, 137, 0.36); padding: 5px;"
   body_features={ set_params style="overflow-y: auto; max-height: 90vh; padding:0.2em 0.2em 0.2em 0.4em; gap: 0.2em;" }
   //body_features={ set_params dom_style_overflowY="auto" dom_style_maxHeight="90vh"; }
   each_body_features={
@@ -168,3 +168,10 @@ register_feature name="plashka" {
   };
 };
 
+register_feature name="fon" {
+  style_fon="background: rgba(99, 116, 137, 0.56); padding: 5px;"
+};
+
+register_feature name="rounded" {
+  style_rounded="border-radius: 9px;";
+};

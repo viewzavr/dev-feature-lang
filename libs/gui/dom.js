@@ -68,6 +68,7 @@ export function dom( obj, options={} )
   // dom_, dom_attr_ = аттрибут dom
   // dom_obj_ - поле объекта dom
   // dom_style_ - кусочек стиля
+  // style_id - добавка к стилям в виде строки
   function maybe_apply_dom_attr( name, value ) {
     if (obj.dom && (name.startsWith("dom_") && !name.startsWith("dom_attr_") && !name.startsWith("dom_obj_") && !name.startsWith("dom_style_") && !name.startsWith("style_"))) {
        name = name.substring(4);
@@ -112,6 +113,9 @@ export function dom( obj, options={} )
   function maybe_apply_style_part( name, value ) {
     if (obj.dom && name.startsWith("style_")) {
        styles_hash[ name ] = value;
+
+       console.log("style part",name,value)
+
        obj.signalParam("style");
        //name = name.substring(10);
        //obj.dom.style[name] = value;
@@ -338,6 +342,8 @@ export function dom( obj, options={} )
     rescan_children2("create_this_dom");
     apply_dom_attrs();
     apply_dom_params();
+
+    obj.signalParam("style"); // хак
 
     //trigger_all_params();
     //if (obj.ns.parent?.rescan_children) obj.ns.parent.rescan_children();

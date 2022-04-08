@@ -54,8 +54,9 @@ mainscreen: screen auto-activate {
   //render_layers root=@sol style="position:absolute; right: 10px; top: 10px;";
 
   column style="position:absolute; right: 10px; top: 10px;" {
-    collapsible text="Визуальные объекты" style="min-width:250px" 
-    style_h = "max-height:50vh;"
+    collapsible text="Визуальные объекты" 
+    style="min-width:250px" 
+    style_h = "max-height:90vh;"
     body_features={ set_params style_h="max-height: inherit;"}
     {
      s: switch_selector items=["Объекты данных","Статичные","Текст"] style="width:200px;";
@@ -66,8 +67,7 @@ mainscreen: screen auto-activate {
           render_layers root=@sol->l1;
           render_layers root=@sol->l2;
           render_layers root=@sol->l3;
-          //text text="222";
-          //text text="333";
+
         };
     };  
   };
@@ -128,23 +128,21 @@ register_feature name="render_layers" {
           };
 
           if condition=(@main->root | get_param name="find") {
-          co: layers_gui3 input=@main->root
-            text=(@co->input | get_param name="title")
-            layer=(@co->input | get_param name="new")
-            pattern=(@co->input | get_param name="find")
-            pattern_root=(@co->input | get_param name="for")
-            target=(@co->input | get_param name="for")
-            plashka style_q="max-height: 70vh; overflow-y: scroll;";
+            co: layers_gui3 input=@main->root
+              text=(@co->input | get_param name="title")
+              layer=(@co->input | get_param name="new")
+              pattern=(@co->input | get_param name="find")
+              pattern_root=(@co->input | get_param name="for")
+              target=(@co->input | get_param name="for")
+              style_qq="max-height: 100vh; overflow-y: auto;";
           };
-
-          
             
 
           // колонка с перечнем слоев
           column gap="5px" {
 
             find-objects-bf features="layer_v1" root=@main->root include_root=false debug=true recurvsive=false
-            | console_log text="SEEEE LAYERS"
+            
             | repeater {
                 rt: column style="background: rgba(99, 116, 137, 0.36);padding: 5px; border-radius: 5px;" {
                   button text=(@rt->input | get_param name="title") {
@@ -196,15 +194,18 @@ register_feature name="panel3" {
 
 register_feature name="layers_gui3" {
 
-  lgui: column
+  lgui: column gap="0.4em" 
   {
     
     find-objects pattern=@lgui->pattern pattern_root=@lgui->pattern_root
 //     | arr_reverse
      | repeater {
-        coco: column text=(@.->input | get_param name="gui_title") 
+        coco: column 
+          text=(@.->input | get_param name="gui_title") 
           body_features=@lgui->each_body_features
           active=(@.->input | get_param name="active")
+          fon
+          rounded
         {{
           connection event_name="user-changed-active" code=`
             env.host.params.input.setParam("active",args[0]);
@@ -215,8 +216,6 @@ register_feature name="layers_gui3" {
           button text="Удалить" input=@coco->input code=`env.params.input.remove();`;
         };
      };
-
-
  
   };
 

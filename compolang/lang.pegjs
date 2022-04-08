@@ -92,11 +92,17 @@ env_modifier
   = attr_assignment
   / link_assignment
   / feature_addition
+  / positional_attr
  
 // ----- A2. attr_assignment
 attr_assignment
   = name:attr_name ws "=" ws value:value {
     return { param: true, name: name, value: value }
+  }
+
+positional_assignment
+  = value:value {
+    return { positional_param: true, value: value }
   }
   
 link_assignment
@@ -179,6 +185,9 @@ one_env
       else
       if (m.param)
         env.params[ m.name ] = m.value;
+      if (m.positional_param) {
+      
+      }
       else
       if (m.link)
         env.links[ `link_${linkcounter++}` ] = { from: m.from, to: m.to, soft_mode: m.soft_mode }
