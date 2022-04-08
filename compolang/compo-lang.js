@@ -909,7 +909,7 @@ export function compute( env ) {
 
 // отличается от compute тем что то что код return-ит и записывается в output
 export function compute_output( env ) {
-  env.setParam("output",{});
+  env.setParam("output",undefined);
   env.setParamOption("output","internal",true);
 
   function evl() {
@@ -1098,8 +1098,8 @@ export function feature_if( env, options )
   var created_envs = [];
 
   var activated=false;
-  env.monitor_values(["condition"],(cond) => {
-    var res = cond ? true : false;
+  env.monitor_values(["condition",0],(cond,cond0) => {
+    var res = (cond || cond0) ? true : false;
     env.setParam("condition_result",res);
     perform( res ? 0 : 1 );
     activated=true;

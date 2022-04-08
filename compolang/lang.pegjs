@@ -91,8 +91,9 @@ ws "whitespace" = [ \t\n\r]*
 env_modifier
   = attr_assignment
   / link_assignment
-  / feature_addition
   / positional_attr
+  / feature_addition
+  
  
 // ----- A2. attr_assignment
 attr_assignment
@@ -100,8 +101,10 @@ attr_assignment
     return { param: true, name: name, value: value }
   }
 
-positional_assignment
-  = value:value {
+positional_attr
+  = value:positional_value {
+    // todo посмотреть че сюда попадает
+    // console.log("PP",value)
     return { positional_param: true, value: value }
   }
   
@@ -113,7 +116,7 @@ link_assignment
     return { 
       link: true, 
       to: `~->${name}`, 
-      from: linkvalue.value, 
+      from: linkvalue.value,
       soft_mode: soft_flag ? true : false 
       }
     //console.log("LINK",linkvalue);
@@ -153,16 +156,47 @@ one_env
     var env = new_env( envid );
     var linkcounter = 0;
     for (let m of env_modifiers) {
-      if (m.feature)
+      if (m.positional_param) {
+        env.positional_params_count ||= 0;
+        env.positional_params_count++;
+        env.params[ "args_count" ] = env.positional_params_count;
+
+        //console.log("PPF",m)
+
+        if (m.value.link === true) {
+          m.link = true;
+          m.from = m.value.value;
+          m.to = "~->" + (env.positional_params_count-1).toString();
+          // todo зарефакторить это а то дублирование с link_assignment
+        }
+        else
+        {
+          m.param = true;
+          m.name = (env.positional_params_count-1).toString();
+
+          // особый случай пустые объекты {} - надо отбросить их
+          // потому что иначе запись вида dom {}; превращается в вызов с одним аргументом
+          // а это вроде как не то что нам надо
+          if (m.value && Object.keys( m.value ).length === 0 
+              && Object.getPrototypeOf(m.value) === Object.prototype)
+             continue;
+        }
+        
+      }
+
+      if (m.feature)                                  // фича
         env.features[ m.name ] = m.params;
       if (m.feature_list) { // F-FEAT-PARAMS
         env.features_list = (env.features_list || []).concat( m.feature_list );
       }
       else
-      if (m.param && m.value.env_expression) {
+      if (m.param && m.value.env_expression) {        // выражение вида a=(b)
         // преобразуем здесь параметр-выражение в суб-фичи
         // нам проще работать пока с одним окружением а не с массивом
         let expr_env = m.value.env_expression[0];
+
+        // todo needLexicalParent ????????????
+
         expr_env.$name = `expr_env_${expr_env_counter++}`; // скорее всего не прокатит
 
         env.features_list = (env.features_list || []).concat( expr_env );
@@ -174,7 +208,7 @@ one_env
         // но быть может стоит просто наружу это вытащить в форме env.param_expressions и там уже разбираться..
       }
       else
-      if (m.param && m.value.param_value_env_list) {
+      if (m.param && m.value.param_value_env_list) { // выражение вида a={b}
          //env.env_list_params ||= {};
          //debugger;
          //env.env_list_params[ m.name ] = m.value.param_value_env_list;
@@ -185,13 +219,18 @@ one_env
       else
       if (m.param)
         env.params[ m.name ] = m.value;
+      /*  решил сводить их просто к params
       if (m.positional_param) {
-      
+        env.positional_params ||= [];
+        env.positional_params.push( m.value );
       }
+      */
       else
       if (m.link)
         env.links[ `link_${linkcounter++}` ] = { from: m.from, to: m.to, soft_mode: m.soft_mode }
     }
+
+    //console.log(env);
 
     append_children_envs( env, child_envs[0] || [] );
 
@@ -280,6 +319,21 @@ link
   }
 
 // ----- 3. Values -----
+
+// приходится ввести positional_value чтобы не брать значений вида {....} потому что это у нас чилдрен
+positional_value
+  = false
+  / null
+  / true
+  / object
+  / array
+  / number
+  / string
+  / link
+  / "(" ws env_list:env_list ws ")" {
+    // attr expression
+    return { env_expression: env_list }
+  }
 
 value
   = false

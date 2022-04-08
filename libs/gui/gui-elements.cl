@@ -1,13 +1,14 @@
 register_feature name="button" {
-	dom tag="button" innerHTML=@.->text func {{
+	dom tag="button" innerHTML=@.->text text=@.->0
+	func 
+	{{
 		dom_event name="click" cmd=".->apply";
 	}};
 };
 
 
 register_feature name="text" {
-	dom tag="span" innerHTML=@.->text {
-	};
+	dom tag="span" innerHTML=@.->text text=@.->0 {};
 };
 
 //
@@ -380,7 +381,7 @@ register_feature name="tabview" {
 					};
 				};
 			};
-			tabshere: row {	};
+			tabshere: row;
 
 			// управление переменной index
 			js code=`
