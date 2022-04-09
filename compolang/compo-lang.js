@@ -909,7 +909,7 @@ export function compute( env ) {
 
 // отличается от compute тем что то что код return-ит и записывается в output
 export function compute_output( env ) {
-  env.setParam("output",undefined);
+  env.setParam("output",{});
   env.setParamOption("output","internal",true);
 
   function evl() {
@@ -932,6 +932,50 @@ export function compute_output( env ) {
      if (name != "output")
         eval_delayed();
    });
+
+  env.addCmd("recompute",eval_delayed);
+
+  eval_delayed();
+}
+
+// отличается от compute тем что то что код return-ит и записывается в output
+// отличается от compute_output
+export function feature_eval( env ) {
+  env.setParam("output",undefined);
+  env.setParamOption("output","internal",true);
+
+  function evl() {
+    if (!func) {
+      console.error("compolang eval: code not specified",env.getPath())
+      return;
+    }
+
+    let args = [];
+    for (let i=0; i<env.params.args_count;i++) 
+      args.push( env.params[i] );
+
+    let res = func.apply( env, args );
+
+    env.setParam("output",res);
+  }
+
+  env.feature("delayed");
+  var eval_delayed = env.delayed( evl )
+
+  env.on('param_changed', (name) => {
+     if (name != "output")
+        eval_delayed();
+  });
+
+  let func;
+
+  env.onvalues_any(["code"],(code,code0) => {
+     
+     code ||= code0;
+     func = eval( code );
+     eval_delayed();
+     // итоого у нас уже вызов некий произойдет
+  })
 
   env.addCmd("recompute",eval_delayed);
 

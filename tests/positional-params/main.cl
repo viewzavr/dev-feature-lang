@@ -27,7 +27,7 @@ screen auto-activate
   // следующее задание - покороче вот это делать
   
   if (less @beta->value 15) {
-    text "и нарядное";
+    text " и нарядное";
   }
 };
 
@@ -76,3 +76,11 @@ register_feature name="sum" code=`
   compute();
 `;
 // но вообще + и join это какие-то совместные вещи.. я к тому что вроде как + может выполнять join функцию.. но тогда без with..
+
+register_feature name="less" {
+  eval code="(a,b) => a<b";
+}
+
+register_feature name="more" {
+  eval code="(a,b) => a>b";
+}
