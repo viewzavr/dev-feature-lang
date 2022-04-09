@@ -22,13 +22,14 @@ screen auto-activate
 
   };
   
-  text (join "рубероид" (sum 30 3) @alfa->foo @beta->value with=" - " (join "краси" "вое" ));
+  text (join "рубероид" (30 + 3) @alfa->foo @beta->value with=" - " (join "краси" "вое" ));
+  
   //{{ onevent name="param_0_changed" code=`env.host; debugger;`; }};
   // следующее задание - покороче вот это делать
   
-  if (less @beta->value 15) {
+  if (@beta->value < 15) {
     text " и нарядное";
-  }
+  };
 };
 
 debugger_screen_r;
@@ -57,7 +58,7 @@ register_feature name="join" code=`
 
 // да и операцию + можно было бы выразить через это.. типа попарный reduce..
 
-register_feature name="sum" code=`
+register_feature name="+" code=`
 
   env.on("param_changed",(name) => {
     if (name == "output") return;
@@ -77,10 +78,10 @@ register_feature name="sum" code=`
 `;
 // но вообще + и join это какие-то совместные вещи.. я к тому что вроде как + может выполнять join функцию.. но тогда без with..
 
-register_feature name="less" {
+register_feature name="<" {
   eval code="(a,b) => a<b";
-}
+};
 
-register_feature name="more" {
+register_feature name=">" {
   eval code="(a,b) => a>b";
-}
+};

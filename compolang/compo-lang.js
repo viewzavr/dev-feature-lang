@@ -939,7 +939,8 @@ export function compute_output( env ) {
 }
 
 // отличается от compute тем что то что код return-ит и записывается в output
-// отличается от compute_output
+// отличается от compute_output тем что работает с позиционными аргументами
+// F_POSITIONAL_PARAMS
 export function feature_eval( env ) {
   env.setParam("output",undefined);
   env.setParamOption("output","internal",true);

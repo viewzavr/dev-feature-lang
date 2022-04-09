@@ -101,6 +101,7 @@ attr_assignment
     return { param: true, name: name, value: value }
   }
 
+// F_POSITIONAL_PARAMS
 positional_attr
   = value:positional_value {
     // todo посмотреть че сюда попадает
@@ -123,7 +124,7 @@ link_assignment
   }
   
 feature_addition
-  = name:attr_name {
+  = name:feature_name {
     return { feature: true, name: name, params: {} }
     //current_env.features[name] = true;
   }
@@ -140,11 +141,14 @@ Word
 attr_name
   = Word
 
+feature_name  
+  = [a-zA-Zа-яА-Я0-9_\-\.\+\-\<\>\[\]]+ { return text(); } // разрешим еще больше в имени
+
 obj_id
   = [a-zA-Zа-яА-Я0-9_]+ { return text(); }
 
 obj_path
-  = [\.\/~]+ { return text(); }  
+  = [\.\/~]+ { return text(); } 
 
 // ------- A. envs
 one_env
@@ -156,7 +160,7 @@ one_env
     var env = new_env( envid );
     var linkcounter = 0;
     for (let m of env_modifiers) {
-      if (m.positional_param) {
+      if (m.positional_param) { // F_POSITIONAL_PARAMS
         env.positional_params_count ||= 0;
         env.positional_params_count++;
         env.params[ "args_count" ] = env.positional_params_count;
@@ -321,6 +325,7 @@ link
 // ----- 3. Values -----
 
 // приходится ввести positional_value чтобы не брать значений вида {....} потому что это у нас чилдрен
+// F_POSITIONAL_PARAMS
 positional_value
   = false
   / null
