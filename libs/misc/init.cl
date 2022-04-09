@@ -3,4 +3,5 @@ load files=`
  misc.js
  arr-to-colors.cl
  arr-methods.cl
+ positional-methods.cl
 `;

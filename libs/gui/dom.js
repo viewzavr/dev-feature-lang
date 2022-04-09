@@ -72,6 +72,7 @@ export function dom( obj, options={} )
   function maybe_apply_dom_attr( name, value ) {
     if (obj.dom && (name.startsWith("dom_") && !name.startsWith("dom_attr_") && !name.startsWith("dom_obj_") && !name.startsWith("dom_style_") && !name.startsWith("style_"))) {
        name = name.substring(4);
+       
        obj.dom.setAttribute(name,value);
        return true;
     }

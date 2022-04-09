@@ -10,6 +10,7 @@ screen auto-activate
   text text="ела";
 
   button "курица" {
+    setter target="@beta->value" value=5;
   };
 
   text @alfa->foo;
@@ -27,12 +28,17 @@ screen auto-activate
   //{{ onevent name="param_0_changed" code=`env.host; debugger;`; }};
   // следующее задание - покороче вот это делать
   
+  /* // этот вариант перехватывает фокус у слайдера
   if (@beta->value < 15) {
     text " и нарядное";
   };
+  */
+  text " и нарядное" visible=(@beta->value > 15);
 };
 
 debugger_screen_r;
+
+/* следующее уже перенесено в misc
 
 register_feature name="join" code=`
   env.on("param_changed",(name) => {
@@ -85,3 +91,4 @@ register_feature name="<" {
 register_feature name=">" {
   eval code="(a,b) => a>b";
 };
+*/

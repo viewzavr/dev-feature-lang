@@ -111,7 +111,7 @@ register_feature name="slider" {
 		 setter value=@..->min target="..->dom_min" auto_apply;
 		 setter value=@..->max target="..->dom_max" auto_apply;
 		 setter value=@..->step target="..->dom_step" auto_apply;
-		 setter value=@..->value target="..->dom_value" auto_apply;
+		 setter value=@..->value target="..->dom_obj_value" auto_apply;
 		 
 		 dom_event name="input" code=`
 		  let object = env.params.object;
