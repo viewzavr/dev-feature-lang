@@ -110,9 +110,10 @@ export function find_objects_bf( env  ) {
     // поэтому приведем все к "стандартному" виду.
     features = features.map( str => str.replaceAll("_","-"));
 
-    traverse_if( root,process_one_obj );
+    traverse_if( root,(obj) => process_one_obj( obj, features ) );
+  }
 
-    function process_one_obj (obj) {
+  function process_one_obj (obj, features ) {
 
       unsub_for_obj( obj );
       //if (env.params.debug)
@@ -127,7 +128,7 @@ export function find_objects_bf( env  ) {
         //debugger;
         //next_object_found( obj )
         if (env.params.include_root || (!env.params.include_root && obj !== root)) {
-            next_object_found( obj )
+            next_object_found( obj,features )
         }
         //env.emit("next_object_found", obj );
       }, unsub );
@@ -153,15 +154,14 @@ export function find_objects_bf( env  ) {
         //log("fobf: obj-append-child",cobj.getPath());
          //log("fobf: obj-append-child",features, cobj.$features_applied, cobj);
          if (!is_object_in_found_set( obj ) || env.params.recursive)
-              process_one_obj(cobj);
+              process_one_obj(cobj,features);
             // тут бы traverse_if + отслеживание если уже отслеживаем
       });
       add_obj_unsub( obj, apc_unsub );
   
       return true; // продолжаем обход
       
-    }; // process_one_obj
-  }
+  }; // process_one_obj  
 
   
   let result_object_ids = {};
@@ -169,7 +169,7 @@ export function find_objects_bf( env  ) {
 
   //env.on("next_object_found",(obj))
   // здесь могут быть дубликаты
-  function next_object_found(obj) {
+  function next_object_found(obj,features) {
     let id = obj.$vz_unique_id;
     if (result_object_ids[id]) return; // такое уже у нас есть
     result_object_ids[id] = id;
@@ -178,7 +178,21 @@ export function find_objects_bf( env  ) {
        delete result_object_ids[id]; 
        uniq_object_disappeared( obj );
     })
-    unsub_list.push( u ); // отдельный список
+    // unsub_list.push( u ); // отдельный список
+    // вот не знаю то ли сюда то ли в add_obj_unsub( obj, u2 );
+    add_obj_unsub( obj, u );
+
+    // теперь надо поймать все фичи если вдруг уйдет какая
+    for (let f of features) {
+
+      let u2 = obj.on("feature-unapplied-"+f, () => { 
+        delete result_object_ids[id]; 
+        uniq_object_disappeared( obj );
+        // убрались из резульатов и опять себя мониторим
+        process_one_obj( obj,features );
+      })
+      add_obj_unsub( obj, u2 );
+    }
 
     next_unique_object_found( obj );
   }

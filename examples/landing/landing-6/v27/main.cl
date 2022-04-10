@@ -12,25 +12,31 @@ views: list @screen1 @screen2;
 register_feature name="common_part" {
    roro: row style="width:100%;" {
      text "Визуализация ракеты";
-     ssr: switch_selector_row items=["Общий вид","Ракета"] qqq;
+     ssr: switch_selector_row items=["Общий вид","Ракета"];
+
+     button "нажми" {
+       call @ssr "toggle_feature" "qqq";
+     }
   };
 
 };
 
 feature "red" {
-  console_log "РРРРРРРРРРРРРРРРРРРРРРРР";
+  console_log "RED FEATURE";
   set_params style="background-color: red;"
 };
 
 feature "qqq" {
-  console_log "РРРРРРРРРРРРРРРРРРРРРРРРqqq"; 
+  //console_log "РРРРРРРРРРРРРРРРРРРРРРРРqqq"; 
 };
 
 /* рабочее */
 find-objects-bf "qqq" | console_log "найдено" | insert_features {
-      //set_params style="background-color: red;"
       red;
-      
+
+      //set_params style="background-color: red;"
+      //red;
+
       on "param_index_changed" {
         lambda code="(items,index) => {
            

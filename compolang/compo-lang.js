@@ -523,6 +523,11 @@ export function feature_func( env )
 
 // аналог func но допускает "каррирование"
 // и не умеет вызывать cmd и "детей"
+// кстати так-то детей могла бы... ну как могла бы.. - их надо было бы создавать..
+// тут непонятный момент... что к чему... РРРРРРРРРР )))))
+// в том плане что хотелось бы button "text" { lambda { toggle_feature @tgt "alfa" }}
+
+// пример: lambda code=.....
 export function feature_lambda( env )
 {
    env.feature("call_cmd_by_path");
@@ -598,6 +603,8 @@ export function call_cmd( env )
 
 // вызывает функцию или команду name у объекта target
 // кстати а почему бы не сделать совместно - и вызов команды, и emit одновременно...
+
+// доп идея - давайте прокаррируем нафиг вызов
 export function call( env )
 {
   env.addObjectRef("target");
@@ -605,7 +612,7 @@ export function call( env )
   env.createLinkTo( {param:"target",from:"~->0",soft:true });
   env.createLinkTo( {param:"name",from:"~->1",soft:true });
 
-   env.addCmd( "apply",(...args) => {
+   env.addCmd( "apply",(...extra_args) => {
 
       if (!env.params.target) {
         console.error("call: target not specified", env.getPath());
@@ -619,7 +626,17 @@ export function call( env )
       let to = env.params.target;
       let nam = env.params.name;
 
-      console.log("calling ",nam)
+      /// qqq
+
+      let args = [];
+      // ну пока так вот коряво сделаем - от 2го аргумента
+      for (let i=2; i<env.params.args_count;i++) 
+        args.push( env.params[i] );
+
+      for (let i=0; i<extra_args.length;i++) 
+        args.push( extra_args[i] );
+
+      //console.log("calling ",nam,"args",args)
 
       if (to.hasCmd( nam ))
         to.callCmd( nam, ...args );
@@ -1164,7 +1181,8 @@ export function console_log( env, options )
   env.createLinkTo( {param:"text",from:"~->0",soft:true });
 
   function print() {
-    console.log( env.params.text || "", env.params.input );
+
+    console.log( env.params.text || "", env.params.input || "" );
   }
   env.onvalue("text",print);
   env.onvalue("input",(input) => {
@@ -2095,10 +2113,18 @@ export function has_feature(env) {
 }
 
 // добавляет фичу. пока только в host
+// но зато можно много фич: {{ add_feature "alfa beta "}}
 export function add_feature(env) {
 
+  env.createLinkTo( {param:"name",from:"~->0",soft:true });
+
   env.onvalues(["name"],(name) => {
+    debugger;
     env.host.feature( name );
   });
+
+  env.on("remove",() => {
+    env.host.unfeature( name );
+  })
 
 }
