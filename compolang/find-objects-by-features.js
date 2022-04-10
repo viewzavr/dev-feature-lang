@@ -9,7 +9,11 @@ export function setup(vz, m) {
 // пример: find_objects_bf root=@some features="alfa beta";
 export function find_objects_bf( env  ) {
 
-  env.addObjectRef("root");
+  //if (!env.hasParam("root")) env.setParam("root","/");  
+
+  env.addObjectRef("root","/");
+
+  env.createLinkTo( {param:"features",from:"~->0",soft:true });
 
   // субфича - явный флаг recursive для поиска внутри найденных объектов
   if (!env.hasParam("recursive"))
@@ -38,12 +42,16 @@ export function find_objects_bf( env  ) {
       return;
     }
 
+    //delayed_begin.stop();
+    // begin( r,f );
+
     if (r.getPath() == "/") // отсечем случай когда данные нам еще не выставили просто
       delayed_begin( r,f );
     else {
       delayed_begin.stop();
       begin( r,f );
     }
+
   });
 
   let unsub_list = []; // это массив элементов вида [ {f:func}, {f:func}, func, func, ....] то есть вперемешку
@@ -91,8 +99,7 @@ export function find_objects_bf( env  ) {
     //console.log("find_objects_bf begin: root=",root.getPath(),"\nfeatures=",features,"\nobj=",env.getPath())
     //if (root.getPath() == "/")  debugger;
     //unsub_all();
-    if (unsub_list.length > 0)
-        console.warn("find_objects_bf: reepated begin! unsub_list.length = ",unsub_list.length)
+    //if (unsub_list.length > 0) console.warn("find_objects_bf: repeated begin! unsub_list.length = ",unsub_list.length)
 
     env.emit("reset"); // вызовет всеобщую отписку
     publish_result(); // либо пустой массив будет либо заполнится чем-нибудь уже на этом такте

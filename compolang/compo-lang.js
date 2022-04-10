@@ -89,13 +89,11 @@ export function load(env,opts)
 
   env.addString("files");
 
-  env.trackParam("files",(files) => {
-    //console.log("load: gonna load files",files)
+  env.onvalues_any( ["files",0], (files, files0) => {
+    files ||= files0;
     if (!files) return;
     files.split(/\s+/).map( loadfile )
   });
-
-  env.signalParam("files");
 
   function loadfile(file) {
      if (!file) return;
@@ -252,9 +250,38 @@ export function pipe(env)
    }
 }
 
+// добавляет фичу в цепочку активации фич
+// пример: append_feature "rect" "rounded red"
+// и значит когда создается объект rect к нему цепляются фичи rounded и red
+export function append_feature( env, envopts ) {
+  env.onvalues( [0,1],(a,b) => {
+    console.log("append_feature",a,b)
+    if (a && b) {
+      env.vz.register_feature_append( a,b );
+    }
+  });
+}
+
+// штучка как register_feature но покороче
+// пример: feature "rect" { .... }
+export function feature( env, envopts ) {
+  return register_feature( env, envopts );
+}
+
+// а на будущее мб и так сделать: rect: feature { .... }
+// и тогда с ними всяко работать может быть можно будет.. кстати.. 
+// по именам найти @rect - хоп а это объект фичи.. 
+// т.е. мы его т.о. вытаскиваем из пр-ва имен фич в пр-во имен объектов. интересно........
+// в т.ч. для импорта интересно. ну и для модификаций всяких если что.
+// @idea
+
 // регистрирует фичу name, code где code это код тела функции на яваскрипте
 // фишка - если у reg feat в детях дано несколько тел, применяются все.
 export function register_feature( env, envopts ) {
+  // ну вроде как не надо
+  //env.createLinkTo( {param:"name",from:"~->0",soft:true });
+  //env.createLinkTo( {param:"code",from:"~->1",soft:true });
+
   var children = {};
   env.restoreFromDump = (dump,manualParamsMode) => {
     env.vz.restoreParams( dump, env,manualParamsMode );
@@ -279,6 +306,10 @@ export function register_feature( env, envopts ) {
 */  
 
   function compile() {
+    // маленький хак
+    env.params.name ||= env.params[0];
+    env.params.code ||= env.params[1];
+
     if (!env.params.name) {
       console.error("RESIGTER-FEATURE: feature have no name.")
       return;
@@ -286,6 +317,8 @@ export function register_feature( env, envopts ) {
 
     var js_part = () => {};
     if (env.params.code) {
+      // я бы предложил делать код явно.. т.е. требовать что там функция должна быть
+
       var code = "(env,args) => { " + env.params.code + "}";
       /* ерунда это все - мы код прямо сейчас eval-им.
       var code = `(env,args) => { 
@@ -488,6 +521,39 @@ export function feature_func( env )
    } )
 }
 
+// аналог func но допускает "каррирование"
+// и не умеет вызывать cmd и "детей"
+export function feature_lambda( env )
+{
+   env.feature("call_cmd_by_path");
+
+  let func;
+  env.onvalues_any(["code"],(code,code0) => {
+     code ||= code0;
+     func = eval( code );
+  })
+
+   //console.log( "feature_func: installing apply cmd",env.getPath());
+   env.addCmd( "apply",(...extra_args) => {
+      if (env.removed) return;
+
+      if (!func) {
+        console.error("lambda: code is not defined but apply is called");
+        return;
+      }
+
+      let args = [];
+      for (let i=0; i<env.params.args_count;i++) 
+        args.push( env.params[i] );
+
+      for (let i=0; i<extra_args.length;i++) 
+        args.push( extra_args[i] );
+
+      //args = args.concat( extra_args );
+
+      func.apply( env,args )
+   } )
+}
 
 // вариант: вызывает содержимое после задержки
 // сейчас: модификатор для функций, задерживает их выполнение (и собирает несколько запросов в 1 пачку)
@@ -531,9 +597,13 @@ export function call_cmd( env )
 }
 
 // вызывает функцию или команду name у объекта target
+// кстати а почему бы не сделать совместно - и вызов команды, и emit одновременно...
 export function call( env )
 {
   env.addObjectRef("target");
+
+  env.createLinkTo( {param:"target",from:"~->0",soft:true });
+  env.createLinkTo( {param:"name",from:"~->1",soft:true });
 
    env.addCmd( "apply",(...args) => {
 
@@ -549,12 +619,16 @@ export function call( env )
       let to = env.params.target;
       let nam = env.params.name;
 
+      console.log("calling ",nam)
+
       if (to.hasCmd( nam ))
         to.callCmd( nam, ...args );
       else if (typeof( to[nam] ) == "function")
         to[nam].call( undefined, ...args );
       else
-        console.error("call: target has no input thing named",nam,target.getPath());
+        to.emit( env.params.name, ...args );
+        //console.error("call: target has no input thing named",nam,target.getPath());
+
       // вообще идея что можно было бы еще вызвать событие
 
       // и еще что прием такой вещи можно было бы завернуть в сам объект
@@ -578,7 +652,6 @@ export function emit_event( env )
   env.addObjectRef("object");
 
    env.addCmd( "apply",(...args) => {
-      
 
       if (!env.params.object) {
         console.error("emit_event: target not specified", env.getPath());
@@ -1082,14 +1155,16 @@ export function mapping( env, options )
 export function console_log_params( env, options )
 {
   env.host.on("param_changed",(n,v) => {
-    console.log( "console_log_params:",env.params.text || "", env.host.getPath(), "->",n,":",v )
+    console.log( "console_log_params:",env.params.text || env.params[0] || "", env.host.getPath(), "->",n,":",v )
   });
 }
 
 export function console_log( env, options )
 {
+  env.createLinkTo( {param:"text",from:"~->0",soft:true });
+
   function print() {
-    console.log( env.params.text, env.params.input );
+    console.log( env.params.text || "", env.params.input );
   }
   env.onvalue("text",print);
   env.onvalue("input",(input) => {
@@ -1126,6 +1201,28 @@ export function onevent( env  )
   env.onvalue( "name", (name) => {
     u1();
     u1 = env.host.on( env.params.name ,(...args) => {
+      env.callCmd("apply",...args);
+    })
+  })
+  env.on("remove",u1);
+  
+}
+
+// очень похоже на connection и на onevent но еще короче и работает пока с хостом
+// name - имя события которое мониторить
+// далее работает как функция
+export function on( env  )
+{
+  
+
+  env.feature("func");
+  var u1 = () => {};
+  env.createLinkTo( {param:"name",from:"~->0",soft:true });
+
+  env.onvalues( "name", (name) => {
+    u1();
+    u1 = env.host.on( env.params.name ,(...args) => {
+
       env.callCmd("apply",...args);
     })
   })
@@ -1556,25 +1653,271 @@ export function deploy_features( env )
 
 }
 
+//////////////// insert_features 
+// новое видение deploy_features
+// отличается тем что список фич это могут быть дети
+
+// вход: input,0 - массив объектов для модификации
+//       list,children - массив объекто фич, которые следует прицепить
+
+// output: массив созданных фич
+export function insert_features( env )
+{
+  var children;
+
+  env.createLinkTo( {param:"input",from:"~->0",soft:true });
+
+  env.restoreChildrenFromDump = (dump, ismanual) => {
+    children = dump.children;
+    if (typeof(pending_perform) !== "undefined") perform( pending_perform );
+    return Promise.resolve("success");
+  }
+  
+  env.onvalues_any(["input","list"],perform);
+
+  function perform() {
+    let input = env.params.input || [];
+    if (!Array.isArray(input)) input=[input]; // допускаем что не список а 1 штука
+    let features = env.params.features || Object.values(children);
+    dodeploy( input, features );
+    env.setParam("output",created_envs);
+  }
+
+  function dodeploy( objects_arr, features_list ) {
+     // ну тут поомтимизировать наверное можно, но пока тупо все давайте очищать
+     close_envs();
+     //debugger;
+
+     if (!features_list) return;
+
+     if (!Array.isArray(features_list)) {
+      console.error("insert_features: features_list is not array!",features_list);
+
+      return;
+     }
+
+     let to_deploy_to = objects_arr;
+
+     let ii=0;
+     for (let tenv of to_deploy_to) {
+      for (let rec of features_list) {
+        //console.log("insert_features is deploying",rec,"to",tenv.getPath())
+
+        let new_feature_env = env.vz.importAsParametrizedFeature( rec, tenv );
+        new_feature_env.setParam( "objectIndex",ii);
+        created_envs.push( new_feature_env );
+
+        // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
+        // todo тут надо scope env делать и детям назначать, или вроде того
+        // но пока обойдемся так
+        new_feature_env.$env_extra_names ||= {};
+        new_feature_env.$env_extra_names[ new_feature_env.$feature_name ] = true;
+      };
+      ii++;
+     };
+  }
+
+ var created_envs = [];
+ function close_envs() {
+   for (let old_env of created_envs) {
+     old_env.remove();
+   }
+   created_envs = [];
+ }
+
+ env.on("remove",close_envs)
+
+}
+
+//////////////// insert_features 
+// новое видение deploy_many_to
+// отличается тем что список фич это могут быть дети
+
+// вход: input,0 - массив объектов для модификации
+//       list,children - массив описаний объектов, которые следует прицепить
+// output: массив созданных объектов
+export function insert_children( env )
+{
+  var children;
+
+  env.createLinkTo( {param:"input",from:"~->0",soft:true });
+
+  env.restoreChildrenFromDump = (dump, ismanual) => {
+    children = dump.children;
+    if (typeof(pending_perform) !== "undefined") perform( pending_perform );
+    return Promise.resolve("success");
+  }
+  
+  env.onvalues_any(["input","list"],perform);
+
+  function perform() {
+    let input = env.params.input || [];
+    if (!Array.isArray(input)) input=[input]; // допускаем что не список а 1 штука
+    let features = env.params.features || Object.values(children);
+    dodeploy( input, features );
+  }
+
+  function dodeploy( objects_arr, features_list ) {
+     // ну тут поомтимизировать наверное можно, но пока тупо все давайте очищать
+     close_envs();
+     //debugger;
+
+     if (!features_list) return;
+
+     if (!Array.isArray(features_list)) {
+      console.error("deploy_features: features_list is not array!",features_list);
+
+      return;
+     }
+
+     let to_deploy_to = objects_arr;
+
+     let parr = []
+
+     let ii=0;
+     for (let tenv of to_deploy_to) {
+      for (let edump of features_list) {
+
+          edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
+
+          var p = env.vz.createSyncFromDump( edump,null,tenv );
+          p.then( (child_env) => {
+             created_envs.push( child_env );
+          });
+          parr.push(p);
+       }
+      ii++;
+     };
+  
+
+     Promise.all(parr).then( (values) => {
+       env.emit("after_deploy",values);
+       // выдаем все что создали
+       env.setParam("output",values);
+     });
+
+  }; // perform   
+
+
+ var created_envs = [];
+ function close_envs() {
+   for (let old_env of created_envs) {
+     old_env.remove();
+   }
+   created_envs = [];
+ }
+
+ env.on("remove",close_envs)
+
+}
+
 /////////////////////////// новые геттеры с новым дизайном
 
 // получается лучше все-таки явно, get_param, get_child и т.п. чем по аргументам разруливать..
+// идея сделать такой вариант get_param который бы работал как map но изменял результат при смене параметров
+// делаем и эту идею. пока впишем сюда же
 export function get_param( env )
 {
   let param_tracking = () => {};
 
-  function source_param_changed (input,param) {
-    let v = input?.getParam ? input.getParam( param ) : undefined;
-    env.setParam("output",v );
+  env.feature("delayed");
+  /* все-таки надо так:
+     let delayed = env.load("delayed");
+     потому что это про особый функционал, а не про особенность..
+     можно даже наверное сказать - ну пусть оно методы биндит если хочет внутрь возвращаемого значения
+     я уверен скоро разберусь с этим.. это явно не фичи и не надо им методы вмешивать в..
+     в других случаях наверное надо. но не в подобном этом
+  */
+  let source_param_changed_d = env.delayed(source_param_changed);
 
-    param_tracking();
-    param_tracking = input.trackParam( param,() => {
-      source_param_changed( input, param );
-    } );
+  function source_param_changed (input,param) {
+    /*
+    if (Array.isArray(input))
+    {
+      let acc = [];
+      let accf = [];
+      param_tracking();
+
+      for (let i=0; i<input.length; i++) {
+        let v = input[i]?.getParam ? input[i].getParam( param ) : undefined;
+        acc.push( v );
+        let f = input.trackParam( param,() => {
+          source_param_changed_d( input, param );
+        } );
+        accf.push( f );
+        param_tracking = () => {
+          accf.forEach( (u) => u() );
+        }
+      }
+
+      env.setParam("output",v );
+    }
+    else
+    {
+      */
+      let v = input?.getParam ? input.getParam( param ) : undefined;
+      env.setParam("output",v );
+
+      param_tracking();
+      param_tracking = input.trackParam( param,() => {
+        source_param_changed( input, param );
+      } );
+    //}
   }
   env.on("remove",param_tracking);
 
-  env.onvalues(["input","name"],source_param_changed); }
+  env.onvalues(["input","name"],source_param_changed);
+}
+
+// решил раздельно
+export function map_param( env )
+{
+  let param_tracking = () => {};
+
+  env.feature("delayed");
+  /* все-таки надо так:
+     let delayed = env.load("delayed");
+     потому что это про особый функционал, а не про особенность..
+     можно даже наверное сказать - ну пусть оно методы биндит если хочет внутрь возвращаемого значения
+     я уверен скоро разберусь с этим.. это явно не фичи и не надо им методы вмешивать в..
+     в других случаях наверное надо. но не в подобном этом
+  */
+  let source_param_changed_d = env.delayed(source_param_changed);
+
+  function source_param_changed (input,param) {
+    if (Array.isArray(input))
+    {
+      let acc = [];
+      let accf = [];
+      param_tracking();
+
+      
+      for (let i=0; i<input.length; i++) {
+        let v = input[i]?.getParam ? input[i].getParam( param ) : undefined;
+        acc.push( v );
+
+        let f = input[i].trackParam( param,() => {
+          source_param_changed_d( input, param );
+        } );
+        accf.push( f );
+        param_tracking = () => {
+          accf.forEach( (u) => u() );
+        }
+      }
+
+      env.setParam("output",acc );
+    }
+    else
+    {
+      env.setParam("output",[] ); 
+    }
+  }
+  env.on("remove",param_tracking);
+
+  env.onvalues_any(["input","name",0],(input,name,name0) => source_param_changed( input, name||name0 ));
+}
+
+
 
 export function get_child( env )
 {
@@ -1600,6 +1943,8 @@ export function get_child( env )
 // плох тем что у меня где-то есть get_param и я не могу его заменить на get здесь...
 export function get( env ) {
   let param_tracking = () => {};
+
+  env.createLinkTo( {param:"name",from:"~->0",soft:true });
 
   function source_param_changed (input,param) {
     let v = input?.getParam ? input.getParam( param ) : undefined;

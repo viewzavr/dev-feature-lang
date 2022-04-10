@@ -270,6 +270,7 @@ export function orbit_control( env ) {
   env.linkParam("camera","..->camera");
 
   env.onvalue("camera",update);
+  env.ns.parent.onvalue("target_dom",update);
 
   var cc;
   function update() {
@@ -279,7 +280,10 @@ export function orbit_control( env ) {
     var dom = env.ns.parent.params.target_dom;
     //if (typeof(dom) == "function") dom = dom(); // фишка такая
     // т.е. родителем должен быть некто
-    if (!dom) return;
+    if (!dom) {
+      console.log("lib3d:orbit-control: parent.target_dom is blank!")
+      return;
+    };
     if (!c) return;
 
     if (cc) cc.dispose();

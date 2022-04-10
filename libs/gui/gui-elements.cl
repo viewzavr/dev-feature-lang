@@ -473,7 +473,7 @@ register_feature name="tab" {
 ////////////// новые табы
 
 register_feature name="show_one" {
-	root: column index=0 {
+	root: column index=0 {{ console_log_params }} {
 
 		js code=`
 		  let s = env.ns.parent;
@@ -481,10 +481,12 @@ register_feature name="show_one" {
 			function refresh() {
 				let i = 0;
 				let index = s.params.index;
-				
+
 				for (let c of s.ns.getChildren()) {
 					  //if (c.$vz_type == "link") continue;
-					  if (c.is_feature_applied("link") || c.is_feature_applied("repeater")) continue;
+					  // неправильно это усе.. надо генераторы делать но еще надо и js этот убирать отсель
+					  // то ли в субфичи его загонять то ли в eval превращать а его делать тоже особым/в альт дерево загоняемым
+					  if (c.is_feature_applied("link") || c.is_feature_applied("repeater") || c.is_feature_applied("js")) continue;
 					  let v = (i == index);
 						c.setParam("visible", v)
 						i++;
@@ -500,7 +502,7 @@ register_feature name="show_one" {
 /*
   switch_selector items=["Рыба","Ела","Мясо"]
 */
-register_feature name="switch_selector" {
+register_feature name="switch_selector_column" {
 	root: column index=0 {
 		repeater input=@root->items {
 			 button text=@.->input {
@@ -509,3 +511,26 @@ register_feature name="switch_selector" {
 		};
 	}; // column
 };
+// это хорошая цель для генератора. она бы тогда просто кнопки выдавала а куда уж вставим..
+// впрочем она и сейчас может так работать, репитер примерно так себя ведет
+
+register_feature name="switch_selector" {
+	root: repeater input=@root->items index=0 {
+			 button text=@.->input {
+			 	 setter target="@root->index" value=@..->modelIndex;
+			 };
+		};
+};
+
+// но с другой стороны тут еще стили особые появятся, поэтому ладно уж
+register_feature name="switch_selector_row" {
+	root: row index=0 gap="0.2em" {
+		repeater input=@root->items {
+			 button text=@.->input {
+			 	 setter target="@root->index" value=@..->modelIndex;
+			 };
+		};
+	}; // column
+};
+
+// но с третьей стороны стили можно оставить на отдельный случай, а тут оставить чисто кнопки

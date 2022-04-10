@@ -84,11 +84,11 @@ export function screen( obj, opts )
   obj.setParam("class","vz-screen");
 
   obj.onvalue("dom",(dom) => {
-    console.log("screen: dom changed", dom)
+    //console.log("screen: dom changed", dom)
     //console.trace();
     
     obj.addCmd("activate",() => {
-      console.log("ACTIVATE CALLED");
+      //console.log("ACTIVATE CALLED");
       //qmlEngine.rootObject.setActiveScreen( obj );
       vzPlayer.feature("screens-api");
       vzPlayer.activateScreen( obj );

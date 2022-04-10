@@ -75,6 +75,9 @@ export function df_slice( env, opts ) {
 import * as utils from "../lib3dv3/utils.js";
 
 // конвертирует dataframe в array по указанным колонкам построчно
+// вход: input - df
+//       columns - имена колонок
+// выход: взяты колонки и их значения соединены одно за другим и итого 1 массив
 export function df_combine( env ) {
   env.onvalues(["input","columns"],(df,cols) => {
     if (!df.isDataFrame) return;
