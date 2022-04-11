@@ -104,6 +104,8 @@ export function find_objects_bf( env  ) {
     env.emit("reset"); // вызовет всеобщую отписку
     publish_result(); // либо пустой массив будет либо заполнится чем-нибудь уже на этом такте
 
+    if (!features) return;
+
     if (!Array.isArray(features)) features = features.trim().split(/\s+/);
 
     // фичи записываются все через - и это используется в т.ч. в именах событий фич

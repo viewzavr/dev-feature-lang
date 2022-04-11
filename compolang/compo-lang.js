@@ -9,6 +9,7 @@ export function setup(vz, m) {
 }
 
 import * as P from "./lang-parser.js";
+
 export function simple_lang(env) 
 {
   env.parseSimpleLang = function( code, opts={} ) {
@@ -31,6 +32,40 @@ export function simple_lang(env)
     }
   }
   env.compalang = env.parseSimpleLang;
+}
+
+// объект для парсинга в дамп
+export function compalang(env) 
+{
+  env.onvalue("input",(code) => {
+
+    let opts = { base_url: env.$base_url }; // пока так
+    
+    try {
+      var parsed = P.parse( code, { vz: env.vz, parent: (opts.parent || env), base_url:opts.base_url } );
+      
+      var dump = parsed2dump( env.vz, parsed, opts.base_url || "" );
+      //dump.keepExistingChildren = true; 
+      dump = Object.values(dump.children);
+      // мне пока-что надо пропарсенное как массив объектов получить,
+      // а текущий парсер всегда выдает item 1 штука наверху, поэтому так
+
+      env.setParam( "output", dump );
+
+    }
+    catch (e) 
+    {
+
+      console.error(e);
+      
+      if (typeof e.format === "function")
+          console.log( e.format( [{text:code}] ));
+
+      if (opts.diag_file) console.log("parse error in file ",opts.diag_file)  
+
+    }
+
+  })
 }
 
 // преобразовать результат парсинга во вьюзавр-дамп
@@ -277,8 +312,9 @@ export function feature( env, envopts ) {
 
 // регистрирует фичу name, code где code это код тела функции на яваскрипте
 // фишка - если у reg feat в детях дано несколько тел, применяются все.
+// но в каком смысле все - похоже нахрапом разом в один объект....
 export function register_feature( env, envopts ) {
-  // ну вроде как не надо
+  // ну вроде как не надо - внизу юзаем params[0]
   //env.createLinkTo( {param:"name",from:"~->0",soft:true });
   //env.createLinkTo( {param:"code",from:"~->1",soft:true });
 
@@ -295,8 +331,14 @@ export function register_feature( env, envopts ) {
   
   var apply_feature = () => {};
 
-  env.addLabel("name");
+/*
+  let nam = env.getParam("name") || env.getParam(0) || env.ns.name;
+  console.log(nam)
+  debugger;
+ */ 
 
+  env.addLabel("name");
+  
 /*
   env.onvalue("name",() => {
     env.vz.register_feature( env.params.name, (e,...args) => {
@@ -307,7 +349,7 @@ export function register_feature( env, envopts ) {
 
   function compile() {
     // маленький хак
-    env.params.name ||= env.params[0];
+    env.params.name ||= env.params[0] || env.ns.name;
     env.params.code ||= env.params[1];
 
     if (!env.params.name) {
@@ -340,13 +382,14 @@ export function register_feature( env, envopts ) {
     if (Object.keys( children ).length > 0) {
       
       compalang_part = (tenv) => {
+        //console.log("children=",children)
 
         for (let cname of Object.keys( children )) {
           var edump = children[cname];
           edump.keepExistingChildren = true; // смехопанорама
           // но иначе применение фичи может затереть созданное другими фичами или внешним клиентом
           edump.keepExistingParams = true;
-          tenv.restoreFromDump( edump );  
+          tenv.restoreFromDump( edump );
 
           // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
           // todo тут надо scope env делать и детям назначать, или вроде того
@@ -1309,14 +1352,14 @@ export function feature_if( env, options )
 
 /// one-of
 /// вход: index - номер
-///       children - дети
+///       list,children - дети
 /// one-of создает одного из детей согласно index
 export function one_of( env, options )
 {
   var created_envs = [];
 
   var activated=false;
-  env.onvalues_any(["index"],(index) => {
+  env.onvalues_any(["index","list"],(index) => {
     perform( index );
     activated=true;
   });
@@ -1340,19 +1383,37 @@ export function one_of( env, options )
      }
      created_envs=[];
 
-     if (!children) {
+     let list = env.params.list || Object.values( children );
+
+     if (!list) {
        pending_perform=num;
        return;
      }
      pending_perform=undefined;
 
-     var selected_c = Object.keys( children )[ num ];
-     if (!selected_c) {
-      //pending_perform
-      return;
+     
+
+     let edump;
+
+     if (env.params.list)
+     {
+       edump = env.params.list[ num ];
+     }
+     else if (children)
+     {
+       var selected_c = Object.keys( children )[ num ];
+       if (!selected_c) {
+        return;
+       }
+
+       edump = children[selected_c];     
      }
 
-     var edump = children[selected_c];
+     if (!edump) {
+      pending_perform = num;
+      return;
+    }
+     
      edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
      var p = env.vz.createSyncFromDump( edump,null,env.ns.parent );
      p.then( (child_env) => {
@@ -1913,6 +1974,8 @@ export function map_param( env )
       for (let i=0; i<input.length; i++) {
         let v = input[i]?.getParam ? input[i].getParam( param ) : undefined;
         acc.push( v );
+
+        if (!input[i]) continue;
 
         let f = input[i].trackParam( param,() => {
           source_param_changed_d( input, param );

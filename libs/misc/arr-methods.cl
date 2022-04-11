@@ -105,6 +105,22 @@ register_feature name="arr_reverse"
   }
 `;
 
+register_feature name="arr_join"
+  code=`
+  env.onvalues(["input","with"],process);
+
+  function process(arr,sep="") {
+    if (!Array.isArray(arr)) {
+      env.setParam("output",[]);
+      return;
+    }
+
+    let res = arr.join(sep);
+    
+    env.setParam("output",res);
+  }
+`;
+
 // вроде так покороче?
 // compute_output code=`env.params.input.reverse()`
 
