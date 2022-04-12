@@ -628,7 +628,6 @@ export function call_cmd( env )
   env.addObjectRef("target");
 
    env.addCmd( "apply",(...args) => {
-      debugger;
 
       if (!env.params.target) {
         console.error("call_cmd: target not specified", env.getPath());
@@ -1418,6 +1417,8 @@ export function one_of( env, options )
      var p = env.vz.createSyncFromDump( edump,null,env.ns.parent );
      p.then( (child_env) => {
           created_envs.push( child_env );
+
+          env.setParam("output",child_env); // выдадим наружу созданное
       });
    };
 
@@ -1514,6 +1515,9 @@ export function creator( env )
        console.error("creator: got command but target is blank;");
        return;
      }
+
+     if (!Array.isArray(input)) input=[input];
+     
      deploy_normal_env_all(input, target);
   })
 

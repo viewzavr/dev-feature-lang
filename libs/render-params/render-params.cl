@@ -42,24 +42,8 @@ register_feature name="render-guis" {
 
 */
 
-register_feature name="render-params" {
-  rp: column gap="0.1em" object=@.->input {
-
-    link to=".->object" from=@..->object_path tied_to_parent=true soft_mode=true; // тут надо maybe что там объект и тогда норм будет..
-
-    // а кстати классно было бы cmd="(** file_uploads)->recompute"
-    // connection object=@..->object event_name="gui-added" cmd="@getparamnames->recompute";
-
-    @getparamnames |  repeater {
-      column {
-        //text text=@..->modelData;
-        render-one-param obj=@rp->object name=@..->modelData;
-      }
-    };
-
-    getparamnames: compute_output input=@..->object code=`
-      //console.log("GPN: object=",env.params.input ? env.params.input.getPath() : "null", "GN=",env.params.input ? env.params.input.getGuiNames() : "null")
-      
+register_feature name="get-params-names" {
+  eval code=`() => {
       env.unsub1 ||= () => {};
       env.unsub1();
       env.unsub1 = () => {};
@@ -80,23 +64,34 @@ register_feature name="render-params" {
 
           return acc ; /// так-то было бы удобно если бы эти gui-names были тоже просто параметром
       }
-    ` {
-      js code=`
-        env.ns.parent.on("remove",() => {
-        //console.log("getparamnames removes..");
-        //debugger;
-        });
+    }`;
+};
 
-      env.ns.parent.on("parentChanged",() => {
-        //console.log("getparamnames parent changed..");
-        //debugger;
-      });
-      env.ns.parent.on("parent_change",() => {
-        //console.log("getparamnames parent changed..");
-        //debugger;
-      });
-      `;
-    } ;
+register_feature name="render-params-list" {
+  rp: column gap="0.1em" {
+    @rp->list | repeater {
+      column {
+        //text text=@..->modelData;
+        render-one-param obj=@rp->object name=@..->input;
+      }
+    };
+  };
+};
+
+register_feature name="render-params" {
+  rp: column gap="0.1em" object=@.->input {
+
+    link to=".->object" from=@..->object_path tied_to_parent=true soft_mode=true; // тут надо maybe что там объект и тогда норм будет..
+
+    // а кстати классно было бы cmd="(** file_uploads)->recompute"
+    // connection object=@..->object event_name="gui-added" cmd="@getparamnames->recompute";
+
+    @rp->object | get-params-names | repeater {
+      column {
+        //text text=@..->modelData;
+        render-one-param obj=@rp->object name=@..->modelData;
+      }
+    };
 
     // todo - вставить сюда рекурсию для детей и для фич.. или хотя бы для фич.. можно управляемую @idea
 
