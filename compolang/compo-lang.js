@@ -668,7 +668,7 @@ export function call( env )
       let to = env.params.target;
       let nam = env.params.name;
 
-      /// qqq
+      
 
       let args = [];
       // ну пока так вот коряво сделаем - от 2го аргумента
@@ -1904,6 +1904,9 @@ export function get_param( env )
   let param_tracking = () => {};
 
   env.feature("delayed");
+
+  env.createLinkTo( {param:"name",from:"~->0",soft:true });
+
   /* все-таки надо так:
      let delayed = env.load("delayed");
      потому что это про особый функционал, а не про особенность..
@@ -1914,6 +1917,8 @@ export function get_param( env )
   let source_param_changed_d = env.delayed(source_param_changed);
 
   function source_param_changed (input,param) {
+    
+    
     /*
     if (Array.isArray(input))
     {

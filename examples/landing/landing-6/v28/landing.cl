@@ -21,7 +21,7 @@ view1: feature text="Общий вид" { root: dom_group {
 
         y_scale_coef: param_slider min=1 max=200 value=50;
 
-        time: param_combo values=(@_dat | df_get column="T")
+        time: param_combo values=(@_dat | df_get column="T") 
            index=@time_slider->value;
         // todo исследовать time: param_combo values=(@dat | df_get column="T");
         
@@ -69,20 +69,20 @@ view1: feature text="Общий вид" { root: dom_group {
             camera3d pos=[0,0,100] center=[0,0,0];
             orbit_control;
 
-            show_vis;
+            //show_vis;
 
-            show_static_vis vis_type="pole";
-            show_static_vis vis_type="axes";
+            //show_static_vis vis_type="pole";
+            //show_static_vis vis_type="axes";
 
-            //@dat | ptstr;
-            //@dat | linestr;
+            ptstr;
+            linestr;
 
-/*
+
             axes;
             pole;
             kvadrat;
             stolbik;
-*/            
+            
 
         };
 
@@ -118,7 +118,7 @@ view1: feature text="Общий вид" { root: dom_group {
 
              button "Добавить" margin="1em" {
                 //creator target=@r1 input={show_vis}
-                creator target=@r1 input=(output={show_vis;show_static_vis;show_text} | console_log "UUU" | get @s->index)
+                creator target=@r1 input=(output={linestr; axes;} | get @s->index)
                   {{ onevent name="created" code=`
                      args[0].manuallyInserted=true; 
                      
@@ -131,7 +131,35 @@ view1: feature text="Общий вид" { root: dom_group {
              | repeater {
                      co: column plashka style_r="position:relative;" {
                        //text (@co->input);
+                       row {
+                         text "Образ: ";
+                         combobox  values=(@co->input | get_param "sibling_types" )
+                                   titles=(@co->input | get_param "sibling_titles")
+                                   style="width: 120px;"
+                           {{ on "param_value_changed" {
+                              lambda @co->input code=`(obj,v) => {
+                                console.log("existing obj",obj,"creating new obj type",v);
+
+                                let dump = obj.dump();
+
+                                let newobj = obj.vz.createObj({parent: obj.ns.parent});
+                                newobj.feature( v );
+
+                                if (dump) {
+                                  dump.manual = true;
+                                  newobj.restoreFromDump( dump, true );
+                                }
+
+                                obj.remove();
+
+                                }`;
+
+
+                           }
+                           }};
+                       };
                        column {
+                         
                          deploy_many input=(@co->input | get_param name="gui");
                        };
                        //render-params input=@co->input;
@@ -250,49 +278,19 @@ feature "stolbik" {
 
 /////////////////////////// визуальные 3д образы
 
-show_vis: feature {
-  root: guiblock datavis node3d gui={
-     render-params input=@root;
-     //render-params input=@nf->output list-filter;
-     render-params-list object=@nf->output list=(@nf->output | get-params-names | arr_filter code="(val,index) => val != 'visible'");
-  } {
-      input_data: param_combo values=["@dat->output","@dat_prorej->output","@dat_cur_time->output"]
+
+datavis: feature {
+  rt: sibling_types=["linestr","ptstr","models"] sibling_titles=["Линии","Точки","Модели"] {
+    input_data: 
+      param_combo values=["@dat->output","@dat_prorej->output","@dat_cur_time->output"]
          titles=["Траектория","Прореженная","Текущее время"]
          ;
-      vis_type: param_combo values=["ptstr","linestr","models"] titles=["Точки","Линия","Модель"];
+      link to="@rt->input" from=@input_data->value tied_to_parent=true;  
 
-      //data: output=(read @root->input_data) ну я пока read такой не сделал )))
-
-      //data: output=(link from=@input_data->value to="@.->output");
-      data: q=1;
-      link to="@data->output" from=@input_data->value tied_to_parent=true;
-
-      nf: one-of index=@vis_type->index {
-        points input=@data->output;
-        linestrips input=@data->output;
-        models input=@data->output;
-      }; 
+    //vis_type: param_combo values=["ptstr","linestr","models"] titles=["Точки","Линия","Модель"];  
   };
 };
 
-/////////////////////////// визуальные статические образы
-
-show_static_vis: feature {
-  root: guiblock staticvis node3d gui={
-     render-params input=@root;
-     //render-params input=@nf->output list-filter;
-     render-params-list object=@nf->output list=(@nf->output | get-params-names | arr_filter code="(val,index) => val != 'visible'");
-  } {
-
-      vis_type: param_combo values=["axes","pole","kvadrat","stolbik"] titles=["Оси","Земля","Квадрат","Масштабный столбик"];
-
-      nf: one-of index=@vis_type->index {
-            axes;
-            pole;
-            kvadrat;
-            stolbik;
-      };
-  };
+staticvis: feature {
+  rt: sibling_types=["axes","pole","kvadrat","stolbik"] sibling_titles=["Оси","Земля","Квадрат","Масштабный столбик"];
 };
-
-////

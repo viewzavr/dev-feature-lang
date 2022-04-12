@@ -201,6 +201,7 @@ register_feature name="select_color" {
      values - список значений
      value - выбранное значение
      index - номер выбранного значения
+     titles - надписи
    выходы
     value - выбранное значение
     output - выбранное значение (дублирует value)
@@ -236,6 +237,7 @@ register_feature name="combobox" {
 	   }
 	   function setup_values() {
 	   	  if (!main.params.dom) return;
+	   	  // todo idea может номера тогда?
 	   	  if (!main.params.values?.map) return;
 	   	  var t = "";
 

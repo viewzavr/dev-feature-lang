@@ -21,7 +21,7 @@ view1: feature text="Общий вид" { root: dom_group {
 
         y_scale_coef: param_slider min=1 max=200 value=50;
 
-        time: param_combo values=(@_dat | df_get column="T")
+        time: param_combo values=(@_dat | df_get column="T") 
            index=@time_slider->value;
         // todo исследовать time: param_combo values=(@dat | df_get column="T");
         
@@ -69,20 +69,13 @@ view1: feature text="Общий вид" { root: dom_group {
             camera3d pos=[0,0,100] center=[0,0,0];
             orbit_control;
 
-            show_vis;
+            @dat | ptstr;
+            @dat | linestr;
 
-            show_static_vis vis_type="pole";
-            show_static_vis vis_type="axes";
-
-            //@dat | ptstr;
-            //@dat | linestr;
-
-/*
             axes;
             pole;
             kvadrat;
             stolbik;
-*/            
 
         };
 
@@ -116,38 +109,12 @@ view1: feature text="Общий вид" { root: dom_group {
             {
              s: switch_selector_column items=["Объекты данных","Статичные","Текст"] style="width:200px;";
 
-             button "Добавить" margin="1em" {
-                //creator target=@r1 input={show_vis}
-                creator target=@r1 input=(output={show_vis;show_static_vis;show_text} | console_log "UUU" | get @s->index)
-                  {{ onevent name="created" code=`
-                     args[0].manuallyInserted=true; 
-                     
-                     console.log("created",args[0])` 
-                  }};
-             };
-
              find-objects-bf (list "guiblock datavis" "guiblock staticvis" "guiblock screenvis" | get @s->index) 
-                             recursive=false
              | repeater {
-                     co: column plashka style_r="position:relative;" {
+                     co: column plashka {
                        //text (@co->input);
-                       column {
-                         deploy_many input=(@co->input | get_param name="gui");
-                       };
-                       //render-params input=@co->input;
-
-/*
-                       repeater input=(@co->input | get_param "extra-params") {{ console_log_params "EEEE"}}
-                       {
-                            render-params;
-                       };
-*/
-
-                       button "x" style="position:absolute; top:0px; right:0px;" 
-                       {
-                         lambda @co->input code=`(obj) => obj.remove();`;
-                       };  
-                     };
+                       render-params input=@co->input;
+                     } 
                   };
 
                 show_one 
@@ -247,52 +214,3 @@ feature "stolbik" {
             param_slider name="h" min=5 max=100 value=5;
           };
     };
-
-/////////////////////////// визуальные 3д образы
-
-show_vis: feature {
-  root: guiblock datavis node3d gui={
-     render-params input=@root;
-     //render-params input=@nf->output list-filter;
-     render-params-list object=@nf->output list=(@nf->output | get-params-names | arr_filter code="(val,index) => val != 'visible'");
-  } {
-      input_data: param_combo values=["@dat->output","@dat_prorej->output","@dat_cur_time->output"]
-         titles=["Траектория","Прореженная","Текущее время"]
-         ;
-      vis_type: param_combo values=["ptstr","linestr","models"] titles=["Точки","Линия","Модель"];
-
-      //data: output=(read @root->input_data) ну я пока read такой не сделал )))
-
-      //data: output=(link from=@input_data->value to="@.->output");
-      data: q=1;
-      link to="@data->output" from=@input_data->value tied_to_parent=true;
-
-      nf: one-of index=@vis_type->index {
-        points input=@data->output;
-        linestrips input=@data->output;
-        models input=@data->output;
-      }; 
-  };
-};
-
-/////////////////////////// визуальные статические образы
-
-show_static_vis: feature {
-  root: guiblock staticvis node3d gui={
-     render-params input=@root;
-     //render-params input=@nf->output list-filter;
-     render-params-list object=@nf->output list=(@nf->output | get-params-names | arr_filter code="(val,index) => val != 'visible'");
-  } {
-
-      vis_type: param_combo values=["axes","pole","kvadrat","stolbik"] titles=["Оси","Земля","Квадрат","Масштабный столбик"];
-
-      nf: one-of index=@vis_type->index {
-            axes;
-            pole;
-            kvadrat;
-            stolbik;
-      };
-  };
-};
-
-////
