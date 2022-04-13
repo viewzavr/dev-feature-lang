@@ -16,10 +16,10 @@ register_feature name="collapsible" {
 };
 
 register_feature name="plashka" {
-  style_p="background: rgba(99, 116, 137, 0.36); padding: 5px;"
+  style_p="background: rgba(99, 116, 137, 0.86); padding: 5px;"
   style_b="border-left: 8px solid #00000042;
                       border-bottom: 1px solid #00000042;
-                      border-radius: 0px;
+                      border-radius: 5px;
                       margin-bottom: 5px;
                      ";
 }  

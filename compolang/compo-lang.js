@@ -599,7 +599,7 @@ export function feature_lambda( env )
 
       //args = args.concat( extra_args );
 
-      func.apply( env,args )
+      return func.apply( env,args )
    } )
 }
 
@@ -667,8 +667,6 @@ export function call( env )
 
       let to = env.params.target;
       let nam = env.params.name;
-
-      
 
       let args = [];
       // ну пока так вот коряво сделаем - от 2го аргумента
@@ -1084,6 +1082,10 @@ export function feature_eval( env ) {
     }
 
     let args = [];
+
+    // попытка
+    if (env.hasParam("input")) args.push( env.params.input );
+
     for (let i=0; i<env.params.args_count;i++) 
       args.push( env.params[i] );
 

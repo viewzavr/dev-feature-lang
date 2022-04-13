@@ -108,11 +108,10 @@ view1: feature text="Общий вид" { root: dom_group {
 
           column style="position:absolute; right: 20px; top: 10px;" {
 
-
             collapsible text="Визуальные объекты" 
             style="min-width:250px" 
-            style_h = "max-height:90vh;"
-            body_features={ set_params style_h="max-height: inherit;"}
+            style_h = "max-height:90vh; "
+            body_features={ set_params style_h="max-height: inherit; overflow-y: auto;"}
             {
              s: switch_selector_column items=["Объекты данных","Статичные","Текст"] style="width:200px;";
 
@@ -126,8 +125,21 @@ view1: feature text="Общий вид" { root: dom_group {
                   }};
              };
 
-             find-objects-bf (list "guiblock datavis" "guiblock staticvis" "guiblock screenvis" | get @s->index) 
+             find-objects-bf (list "guiblock datavis" "guiblock staticvis" "guiblock screenvis" | get @s->index)
                              recursive=false
+             | console_log "before sort"                               
+             | eval code="(arr) => {
+                 if (!arr) return [];
+               return arr.sort( (a,b) => {
+                function getpri(q) { 
+                    if (!q.params.block_priority)
+                       q.setParam( 'block_priority', q.$vz_unique_id,true )
+                    return q.params.block_priority;   
+                  }
+                return getpri(a) - getpri(b); 
+               })
+               }"
+             | console_log "after sort"  
              | repeater {
                      co: column plashka style_r="position:relative;" {
                        //text (@co->input);
@@ -135,12 +147,17 @@ view1: feature text="Общий вид" { root: dom_group {
                          text "Образ: ";
                          combobox  values=(@co->input | get_param "sibling_types" )
                                    titles=(@co->input | get_param "sibling_titles")
+                                   value=(detect_type @co->input @.->values)
                                    style="width: 120px;"
-                           {{ on "param_value_changed" {
+                           {{ on "user_changed_value" { // "param_value_changed"
                               lambda @co->input code=`(obj,v) => {
+                                // вот мы спотыкаемся - что это, начальное значение или управление пользователем
+
                                 console.log("existing obj",obj,"creating new obj type",v);
 
                                 let dump = obj.dump();
+
+                                console.log("dump is",dump)
 
                                 let newobj = obj.vz.createObj({parent: obj.ns.parent});
                                 newobj.feature( v );
@@ -280,17 +297,33 @@ feature "stolbik" {
 
 
 datavis: feature {
-  rt: sibling_types=["linestr","ptstr","models"] sibling_titles=["Линии","Точки","Модели"] {
+  rt: sibling_types=["linestr","ptstr","models"] 
+      sibling_titles=["Линии","Точки","Модели"] {
     input_data: 
-      param_combo values=["@dat->output","@dat_prorej->output","@dat_cur_time->output"]
-         titles=["Траектория","Прореженная","Текущее время"]
+      param_combo values=["","@dat->output","@dat_prorej->output","@dat_cur_time->output"]
+         titles=["","Траектория","Прореженная","Текущее время"]
          ;
-      link to="@rt->input" from=@input_data->value tied_to_parent=true;  
+      link to="@rt->input" from=@input_data->value tied_to_parent=true soft_mode=true;
 
     //vis_type: param_combo values=["ptstr","linestr","models"] titles=["Точки","Линия","Модель"];  
   };
 };
 
 staticvis: feature {
-  rt: sibling_types=["axes","pole","kvadrat","stolbik"] sibling_titles=["Оси","Земля","Квадрат","Масштабный столбик"];
+  rt: sibling_types=["axes","pole","kvadrat","stolbik"] 
+      sibling_titles=["Оси","Земля","Квадрат","Масштабный столбик"];
 };
+
+
+// по объекту выдает его первичный тип (находя его в массиве types)
+// эта странная вещь т.к. я отказался от типа объекта и теперь его не знаю. хм.
+detect_type: feature {
+  eval code="(obj,types) => {
+    if (obj && types) {
+      for (let f of types)
+        if (obj.$features_applied[f]) {
+          return f;
+        }
+    }
+  }"
+}

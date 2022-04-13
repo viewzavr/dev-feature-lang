@@ -121,6 +121,23 @@ register_feature name="arr_join"
   }
 `;
 
+register_feature name="arr_sort"
+  code=`
+
+  env.onvalues_any(["input","func"],process);
+
+  function process(arr,func) {
+    if (!Array.isArray(arr)) {
+      env.setParam("output",[]);
+      return;
+    }
+
+    let res = arr.sort(func);
+    
+    env.setParam("output",res);
+  }
+`;
+
 // вроде так покороче?
 // compute_output code=`env.params.input.reverse()`
 

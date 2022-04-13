@@ -115,7 +115,7 @@ export function dom( obj, options={} )
     if (obj.dom && name.startsWith("style_")) {
        styles_hash[ name ] = value;
 
-       console.log("style part",name,value)
+       //console.log("style part",name,value)
 
        obj.signalParam("style");
        //name = name.substring(10);

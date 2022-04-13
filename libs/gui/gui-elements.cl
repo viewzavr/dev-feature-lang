@@ -211,7 +211,7 @@ register_feature name="select_color" {
     combobox values=["alfa","beta","teta"];
 */
 register_feature name="combobox" {
-	dom tag="select" {
+	root: dom tag="select" {
 
     ///////////////////////////////////////////////
     // мостик из CL в dom
@@ -274,8 +274,12 @@ register_feature name="combobox" {
 		  if (object.params.values) {
 		  	//object.setParam("output",object.params.values[ object.dom.selectedIndex ]);
 			  object.setParam("value",object.params.values[ object.dom.selectedIndex ], true);
+
+			  object.emit("user_changed_value", object.params.value );
 		  }
-		`;
+		` {
+			//emit @root "user_change_value" 
+		};
 
     ///////////////////////////////////////////////
 		// конвертация value<=>index
