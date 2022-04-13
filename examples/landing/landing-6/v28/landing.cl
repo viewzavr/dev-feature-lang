@@ -127,7 +127,6 @@ view1: feature text="Общий вид" { root: dom_group {
 
              find-objects-bf (list "guiblock datavis" "guiblock staticvis" "guiblock screenvis" | get @s->index)
                              recursive=false
-             | console_log "before sort"                               
              | eval code="(arr) => {
                  if (!arr) return [];
                return arr.sort( (a,b) => {
@@ -139,7 +138,6 @@ view1: feature text="Общий вид" { root: dom_group {
                 return getpri(a) - getpri(b); 
                })
                }"
-             | console_log "after sort"  
              | repeater {
                      co: column plashka style_r="position:relative;" {
                        //text (@co->input);
@@ -153,11 +151,11 @@ view1: feature text="Общий вид" { root: dom_group {
                               lambda @co->input code=`(obj,v) => {
                                 // вот мы спотыкаемся - что это, начальное значение или управление пользователем
 
-                                console.log("existing obj",obj,"creating new obj type",v);
+                                //console.log("existing obj",obj,"creating new obj type",v);
 
                                 let dump = obj.dump();
 
-                                console.log("dump is",dump)
+                                //console.log("dump is",dump)
 
                                 let newobj = obj.vz.createObj({parent: obj.ns.parent});
                                 newobj.feature( v );
@@ -171,12 +169,10 @@ view1: feature text="Общий вид" { root: dom_group {
 
                                 }`;
 
-
                            }
                            }};
                        };
                        column {
-                         
                          deploy_many input=(@co->input | get_param name="gui");
                        };
                        //render-params input=@co->input;
@@ -195,17 +191,6 @@ view1: feature text="Общий вид" { root: dom_group {
                      };
                   };
 
-                show_one 
-                  index=@s->index 
-                  style_h="max-height: inherit;"
-                {
-                  
-                  render_layers root=@sol->l1;
-                  render_layers root=@sol->l2;
-                  render_layers root=@sol->l3;
-
-
-                };
             };  
           };
 

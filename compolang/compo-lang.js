@@ -1077,7 +1077,7 @@ export function feature_eval( env ) {
 
   function evl() {
     if (!func) {
-      console.error("compolang eval: code not specified",env.getPath())
+      //console.error("compolang eval: code not specified",env.getPath())
       return;
     }
 
@@ -1377,9 +1377,11 @@ export function one_of( env, options )
   }
 
   var pending_perform;
+  let created_num;
   function perform( num ) {
      
      for (let old_env of created_envs) {
+       env.emit("destroy_obj", old_env, created_num )
        old_env.remove();
      }
      created_envs=[];
@@ -1391,8 +1393,6 @@ export function one_of( env, options )
        return;
      }
      pending_perform=undefined;
-
-     
 
      let edump;
 
@@ -1417,9 +1417,11 @@ export function one_of( env, options )
      
      edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
      var p = env.vz.createSyncFromDump( edump,null,env.ns.parent );
+
      p.then( (child_env) => {
           created_envs.push( child_env );
-
+          env.emit("create_obj", child_env, num )
+          created_num = num;
           env.setParam("output",child_env); // выдадим наружу созданное
       });
    };

@@ -249,16 +249,31 @@ export function renderer_bg_color( env ) {
 
 export function camera3d( env ) {
   var cam = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000000 );
+  cam.vrungel_camera_env = env;
   // гуи
   env.addArray( "pos", [], 3 );
   env.addArray( "center", [], 3 );  
 
   env.onvalue( "pos", (v) => {
+    console.log("onval pos",v)
     cam.position.set( v[0],v[1],v[2] );
   })
   env.onvalue( "center", (v) => {
+    
     cam.lookAt(new THREE.Vector3(( v[0],v[1],v[2] )));
   })
+
+  // todo переделать это просто под установку, я думаю
+  // Бог уж с ней с камерой.
+  env.addCmd("load_from_threejs",(ismanual,target) => {
+
+    env.setParamWithoutEvents( "pos", [cam.position.x,cam.position.y,cam.position.z] );
+    env.setParamManualFlag("pos",ismanual);
+    if (target) { // плохонько но пока сойдет
+      env.setParamWithoutEvents( "center", [target.x,target.y,target.z] );
+      env.setParamManualFlag("center",ismanual);
+    }
+  });
 
   env.setParam("output",cam );
 }
@@ -290,7 +305,13 @@ export function orbit_control( env ) {
     
     cc = new OrbitControls( c, dom );
 
-    //sceneControl.addEventListener( 'change', function() {
+    cc.addEventListener( 'change', function() {
+        if (c.vrungel_camera_env)
+          c.vrungel_camera_env.load_from_threejs( true, cc.target );
+          // так-то можно и аргумент - камеру )))
+        //console.log( "oc changbed",c);
+        //c.setParam
+    });
   }
 
 }
