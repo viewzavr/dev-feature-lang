@@ -250,30 +250,45 @@ export function renderer_bg_color( env ) {
 export function camera3d( env ) {
   var cam = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000000 );
   cam.vrungel_camera_env = env;
+  let a1, a2;
+  
   // гуи
   env.addArray( "pos", [], 3 );
   env.addArray( "center", [], 3 );  
 
   env.onvalue( "pos", (v) => {
-    console.log("onval pos",v)
-    cam.position.set( v[0],v[1],v[2] );
+    //console.log("onval pos",v)
+    if (v !== a1)
+      cam.position.set( v[0],v[1],v[2] );
   })
   env.onvalue( "center", (v) => {
-    
-    cam.lookAt(new THREE.Vector3(( v[0],v[1],v[2] )));
+    if (v !== a2)
+       cam.lookAt( new THREE.Vector3( v[0],v[1],v[2] ) );
   })
 
   // todo переделать это просто под установку, я думаю
   // Бог уж с ней с камерой.
+  
+  env.addCmd("external_set",(position,target) => {
+
+    env.setParam( "pos", [position.x,position.y,position.z],true );
+    //env.setParamManualFlag("pos",ismanual);
+    //if (target) { // плохонько но пока сойдет
+      env.setParam( "center", [target.x,target.y,target.z],true );
+      //env.setParamManualFlag("center",ismanual);
+    //}
+  });
+  /*
   env.addCmd("load_from_threejs",(ismanual,target) => {
 
-    env.setParamWithoutEvents( "pos", [cam.position.x,cam.position.y,cam.position.z] );
-    env.setParamManualFlag("pos",ismanual);
+    env.setParam( "pos", [cam.position.x,cam.position.y,cam.position.z],true );
+    //env.setParamManualFlag("pos",ismanual);
     if (target) { // плохонько но пока сойдет
-      env.setParamWithoutEvents( "center", [target.x,target.y,target.z] );
-      env.setParamManualFlag("center",ismanual);
+      env.setParam( "center", [target.x,target.y,target.z],true );
+      //env.setParamManualFlag("center",ismanual);
     }
   });
+  */
 
   env.setParam("output",cam );
 }
@@ -305,9 +320,23 @@ export function orbit_control( env ) {
     
     cc = new OrbitControls( c, dom );
 
+    // криво косо но пока так
+    if (c.vrungel_camera_env) {
+      c.vrungel_camera_env.onvalues(["pos","center"],(p,c) => {
+        // защита от зацикливания
+        let eps = 0.0001;
+        if (Math.abs( c[0] - cc.target.x) > eps || Math.abs( c[1] - cc.target.y ) > eps || Math.abs( c[2] - cc.target.z ) > eps )
+        { 
+          cc.target.set( c[0], c[1], c[2] );
+          cc.update();
+        }  
+        // вроде как pos ставить не надо т.к. оно и так из камеры его берет
+      })
+    }
+
     cc.addEventListener( 'change', function() {
         if (c.vrungel_camera_env)
-          c.vrungel_camera_env.load_from_threejs( true, cc.target );
+          c.vrungel_camera_env.external_set( c.position, cc.target );
           // так-то можно и аргумент - камеру )))
         //console.log( "oc changbed",c);
         //c.setParam
