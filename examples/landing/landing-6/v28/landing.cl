@@ -158,7 +158,11 @@ view1: feature text="Общий вид" { root: dom_group {
                                 //console.log("dump is",dump)
 
                                 let newobj = obj.vz.createObj({parent: obj.ns.parent});
-                                newobj.feature( v );
+                                newobj.manual_feature( v );
+                                newobj.manuallyInserted=true;
+                                
+                                //newobj.feature( v );
+                                //let newobj = obj.vz.createObjByType({type: v, parent: obj.ns.parent});
 
                                 if (dump) {
                                   dump.manual = true;
