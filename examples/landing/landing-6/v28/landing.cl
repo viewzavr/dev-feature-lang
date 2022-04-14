@@ -82,7 +82,6 @@ view1: feature text="Общий вид" { root: dom_group {
             pole;
             kvadrat;
             stolbik;
-            
 
         };
 
@@ -157,10 +156,10 @@ view1: feature text="Общий вид" { root: dom_group {
 
                                 //console.log("dump is",dump)
 
-                                let newobj = obj.vz.createObj({parent: obj.ns.parent});
+                                 
                                 newobj.manual_feature( v );
                                 newobj.manuallyInserted=true;
-                                
+
                                 //newobj.feature( v );
                                 //let newobj = obj.vz.createObjByType({type: v, parent: obj.ns.parent});
 
@@ -190,12 +189,12 @@ view1: feature text="Общий вид" { root: dom_group {
 
                        button "x" style="position:absolute; top:0px; right:0px;" 
                        {
-                         lambda @co->input code=`(obj) => obj.remove();`;
+                         lambda @co->input code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
                        };  
                      };
                   };
 
-            };  
+            };
           };
 
           v1: view3d style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2" extra=@extra_screen_things;
@@ -287,7 +286,8 @@ feature "stolbik" {
 
 datavis: feature {
   rt: sibling_types=["linestr","ptstr","models"] 
-      sibling_titles=["Линии","Точки","Модели"] {
+      sibling_titles=["Линии","Точки","Модели"] 
+    {
     input_data: 
       param_combo values=["","@dat->output","@dat_prorej->output","@dat_cur_time->output"]
          titles=["","Траектория","Прореженная","Текущее время"]
@@ -297,6 +297,7 @@ datavis: feature {
     //vis_type: param_combo values=["ptstr","linestr","models"] titles=["Точки","Линия","Модель"];  
   };
 };
+
 
 staticvis: feature {
   rt: sibling_types=["axes","pole","kvadrat","stolbik"] 
@@ -315,4 +316,6 @@ detect_type: feature {
         }
     }
   }"
-}
+};
+
+load "ban-deleted.cl";

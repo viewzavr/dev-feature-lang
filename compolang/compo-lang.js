@@ -290,7 +290,7 @@ export function pipe(env)
 // и значит когда создается объект rect к нему цепляются фичи rounded и red
 export function append_feature( env, envopts ) {
   env.onvalues( [0,1],(a,b) => {
-    console.log("append_feature",a,b)
+    //console.log("append_feature",a,b)
     if (a && b) {
       env.vz.register_feature_append( a,b );
     }
@@ -583,12 +583,16 @@ export function feature_lambda( env )
 
    //console.log( "feature_func: installing apply cmd",env.getPath());
    env.addCmd( "apply",(...extra_args) => {
-      if (env.removed) return;
+      if (env.removed) {
+         console.log("lambda remove ban - it is removed", env.getPath())
+         return;
+      }  
 
       if (!func) {
         console.error("lambda: code is not defined but apply is called");
         return;
       }
+      //console.log("lambda apply",env.getPath())
 
       let args = [];
       for (let i=0; i<env.params.args_count;i++) 
@@ -1273,6 +1277,7 @@ export function onevent( env  )
 // очень похоже на connection и на onevent но еще короче и работает пока с хостом
 // name - имя события которое мониторить
 // далее работает как функция
+// feature_on
 export function on( env  )
 {
   
@@ -1284,8 +1289,9 @@ export function on( env  )
   env.onvalues( "name", (name) => {
     u1();
     u1 = env.host.on( env.params.name ,(...args) => {
-
+      // console.log("on: passing event" , env.params.name )
       env.callCmd("apply",...args);
+      // идея - можно было бы всегда в args добавлять объект..
     })
   })
   env.on("remove",u1);
