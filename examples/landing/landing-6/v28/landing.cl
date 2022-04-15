@@ -14,14 +14,16 @@ view1: feature text="Общий вид" { root: dom_group {
            min=0 
            max=(@time->values | arr_length | compute_output code=`return env.params.input-1`) 
            step=1 
-           value=@time->index;
+           value=@time->index
+           ;
 
         //f1:  param_file value="phase_yScaled2.csv";
         f1:  param_file value="https://viewlang.ru/assets/other/landing/2021-10-phase.txt";
 
         y_scale_coef: param_slider min=1 max=200 value=50;
 
-        time: param_combo values=(@_dat | df_get column="T") 
+        time: param_combo 
+           values=(@_dat | df_get column="T") 
            index=@time_slider->value;
         // todo исследовать time: param_combo values=(@dat | df_get column="T");
         
@@ -156,7 +158,7 @@ view1: feature text="Общий вид" { root: dom_group {
 
                                 //console.log("dump is",dump)
 
-                                 
+                                let newobj = obj.vz.createObj({parent: obj.ns.parent});
                                 newobj.manual_feature( v );
                                 newobj.manuallyInserted=true;
 
