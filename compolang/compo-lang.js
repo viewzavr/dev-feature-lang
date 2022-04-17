@@ -1274,13 +1274,11 @@ export function onevent( env  )
   
 }
 
-// очень похоже на connection и на onevent но еще короче и работает пока с хостом
-// name - имя события которое мониторить
-// далее работает как функция
-// feature_on
+/* todo. и поработать что там за режим внутри модификатора. по идее все должно быть просто.
+   интуитивно: some-modifier: feature { on ....; on ..... - и это как бы тело модификатора, применяется к цели получается }
 export function on( env  )
 {
-  
+  let host = env.host;
 
   env.feature("func");
   var u1 = () => {};
@@ -1288,7 +1286,79 @@ export function on( env  )
 
   env.onvalues( "name", (name) => {
     u1();
-    u1 = env.host.on( env.params.name ,(...args) => {
+    u1 = host.on( env.params.name ,(...args) => {
+      // console.log("on: passing event" , env.params.name )
+      env.callCmd("apply",...args);
+      // идея - можно было бы всегда в args добавлять объект..
+    })
+  })
+  env.on("remove",u1);
+}
+*/
+
+// todo попробовать вернуться к такому on который работает тупо с .host
+// этого вроде должно хватить с учетом modify.
+export function on( env, options )
+{
+   env.feature("func"); // см выше
+
+   env.addObjRef("input");
+   env.createLinkTo( {param:"name",from:"~->0",soft:true });
+
+   var tracking = () => {};
+   env.onvalues(["name","input"],(en,obj) => {
+      tracking();
+      //console.log("ON connection tracking name=",en,obj.getPath(), obj.getParamsNames() )
+      tracking = obj.on( en, (...args) => {
+         //console.log("GPN tracking DETECTED! name=",en,obj.getPath()) 
+         env.apply(...args); // вызов метода окружения func
+      })
+   });
+
+   env.on("remove",() => {
+    tracking(); tracking = ()=>{};
+   })
+
+   // такое вот.. как в dom-event
+
+
+   if (!env.params.object) {
+      if (env.hosted) // мы хостируимси - тогда object это хост
+        env.setParam("input",env.host);
+      else {
+        // не надо так видимо делать
+        //env.setParam("object","..");
+      }
+   }
+   
+   //console.log("ON connection created",env.getPath(), env.object, env )
+}
+
+// очень похоже на connection и на onevent но еще короче и работает пока с хостом
+// name - имя события которое мониторить
+// далее работает как функция
+// feature_on
+/*
+export function on( env  )
+{
+  let host = env.host;
+
+
+  if (env.hosted) {
+    host = env.host; // режим обычного модификатора
+  } else {
+    host = env.ns.parent;
+    if (host.hosted) // режим когда on применяется внутри модификатора...
+      host = host.host;
+  }
+
+  env.feature("func");
+  var u1 = () => {};
+  env.createLinkTo( {param:"name",from:"~->0",soft:true });
+
+  env.onvalues( "name", (name) => {
+    u1();
+    u1 = host.on( env.params.name ,(...args) => {
       // console.log("on: passing event" , env.params.name )
       env.callCmd("apply",...args);
       // идея - можно было бы всегда в args добавлять объект..
@@ -1297,6 +1367,7 @@ export function on( env  )
   env.on("remove",u1);
   
 }
+*/
 
 /// if
 /// вход: condition - условие (будет проверено оператором ?)
