@@ -8,7 +8,6 @@ screen1: screen auto-activate {
               index=@ssr->index
               list={ view1; view2; }
               {{ one-of-keep-state }}
-              {{ console_log_params }}
               ;
 
 /*     views: list {view1} {view2};
@@ -36,7 +35,7 @@ feature "one_of_keep_state" {
          let dump = obj.dump();
          let oparams = oneof.params.objects_params || [];
          oparams[ index ] = dump;
-         console.log("dump=",dump)
+         //console.log("dump=",dump)
          oneof.setParam("objects_params", oparams, true );
        }`;
      };
@@ -45,7 +44,7 @@ feature "one_of_keep_state" {
        lambda @root->input code=`(oneof, obj, index) => {
          let oparams = oneof.params.objects_params || [];
          let dump = oparams[ index ];
-         console.log("using dump to restore",dump)
+         //console.log("using dump to restore",dump)
          if (dump) {
              dump.manual = true;
              obj.restoreFromDump( dump, true );

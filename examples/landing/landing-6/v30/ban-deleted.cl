@@ -12,7 +12,7 @@ append_feature "textvis" "mark_deleted_children";
 
 feature "mark_deleted_children" code=`
   env.on("remove",() => {
-    console.log("uu",env.ismanual(),env.removedManually)
+    //console.log("uu",env.ismanual(),env.removedManually)
     if (!env.ismanual() && env.removedManually) { // removedManually - такой вот дебилизм
        // идея с массивом плоха тем что там начинается дублирование
        //let cur = env.ns.parent.params.banned_children || [];
@@ -24,7 +24,7 @@ feature "mark_deleted_children" code=`
        cur[ env.ns.name ] = true;
        env.ns.parent.setParam( "banned_children", cur, true );
 
-       console.log("child", env.getPath(),"is marked as banned")
+       //console.log("child", env.getPath(),"is marked as banned")
        
        /*
        env.ns.parent.$banned_prg_children ||= {};
@@ -43,12 +43,12 @@ feature "skip_deleted_children" code=`
    
    // типа это сработает при восстановлении из дампа
    env.onvalue("banned_children",(bc) => {
-      console.log('iterating',bc)
+      //console.log('iterating',bc)
       for (let b of Object.keys(bc)) {
         let c = env.ns.getChildByName( b );
         if (c) {
           c.remove();
-          console.log("removed child ",c.getPath())
+          //console.log("removed child ",c.getPath())
         }  
       }
    })
