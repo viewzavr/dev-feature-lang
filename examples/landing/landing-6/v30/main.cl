@@ -23,26 +23,26 @@ screen1: screen auto-activate {
 debugger-screen-r;
 
 feature "one_of_keep_state" {
-    root: host=@.
-    {
-      @root->host | on "destroy_obj" {
-           lambda @root->host code=`(oneof, obj, index) => {
-                
-             let dump = obj.dump();
-             let oparams = oneof.params.objects_params || [];
-             oparams[ index ] = dump;
-             oneof.setParam("objects_params", oparams, true );
-           }`;
-      };
-      @root->host | on "create_obj" {
-           lambda @root->host code=`(oneof, obj, index) => {
-             let oparams = oneof.params.objects_params || [];
-             let dump = oparams[ index ];
-             if (dump) {
-                 dump.manual = true;
-                 obj.restoreFromDump( dump, true );
-             }
-           }`;
-      };
-    };
+  root: modify host=@. {
+    on "destroy_obj" {
+       {{console_log_params}} lambda @root->host code=`(oneof, obj, index) => {
+            
+         let dump = obj.dump();
+         let oparams = oneof.params.objects_params || [];
+         oparams[ index ] = dump;
+         oneof.setParam("objects_params", oparams, true );
+       }`;
+     };
+
+     on "create_obj" {
+       lambda @root->host code=`(oneof, obj, index) => {
+         let oparams = oneof.params.objects_params || [];
+         let dump = oparams[ index ];
+         if (dump) {
+             dump.manual = true;
+             obj.restoreFromDump( dump, true );
+         }
+       }`;
+     };  
+  };
 };

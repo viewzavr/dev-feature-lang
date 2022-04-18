@@ -1276,6 +1276,7 @@ export function onevent( env  )
 
 /* todo. и поработать что там за режим внутри модификатора. по идее все должно быть просто.
    интуитивно: some-modifier: feature { on ....; on ..... - и это как бы тело модификатора, применяется к цели получается }
+*/   
 export function on( env  )
 {
   let host = env.host;
@@ -1284,20 +1285,22 @@ export function on( env  )
   var u1 = () => {};
   env.createLinkTo( {param:"name",from:"~->0",soft:true });
 
+  console.log("env on init", env );
   env.onvalues( "name", (name) => {
     u1();
     u1 = host.on( env.params.name ,(...args) => {
-      // console.log("on: passing event" , env.params.name )
+       console.log("on: passing event" , env.params.name )
       env.callCmd("apply",...args);
       // идея - можно было бы всегда в args добавлять объект..
     })
   })
   env.on("remove",u1);
 }
-*/
+
 
 // todo попробовать вернуться к такому on который работает тупо с .host
 // этого вроде должно хватить с учетом modify.
+/*
 export function on( env, options )
 {
    env.feature("func"); // см выше
@@ -1333,6 +1336,7 @@ export function on( env, options )
    
    //console.log("ON connection created",env.getPath(), env.object, env )
 }
+*/
 
 // очень похоже на connection и на onevent но еще короче и работает пока с хостом
 // name - имя события которое мониторить
@@ -1824,6 +1828,11 @@ export function deploy_features( env )
 // вход: input,0 - массив объектов для модификации
 //       list,children - массив объекто фич, которые следует прицепить
 
+export function modify( env )
+{
+  env.feature("insert_features");
+}
+
 // output: массив созданных фич
 export function insert_features( env )
 {
@@ -1867,6 +1876,10 @@ export function insert_features( env )
       for (let rec of features_list) {
         //console.log("insert_features is deploying",rec,"to",tenv.getPath())
 
+        // сообщим и тем что они фичи енвы..
+        // но это не сработает кстати на детей детей.. ех
+        //rec.feature_of_env = env.host;
+
         let new_feature_env = env.vz.importAsParametrizedFeature( rec, tenv );
         new_feature_env.setParam( "objectIndex",ii);
         created_envs.push( new_feature_env );
@@ -1890,6 +1903,9 @@ export function insert_features( env )
  }
 
  env.on("remove",close_envs)
+
+ if (env.hosted && !env.hasParam("input"))
+    env.setParam("input",env.host);
 
 }
 
