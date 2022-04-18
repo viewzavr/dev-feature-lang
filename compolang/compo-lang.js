@@ -1285,11 +1285,13 @@ export function on( env  )
   var u1 = () => {};
   env.createLinkTo( {param:"name",from:"~->0",soft:true });
 
-  console.log("env on init", env );
+  //console.log("env on init", env );
   env.onvalues( "name", (name) => {
     u1();
     u1 = host.on( env.params.name ,(...args) => {
-       console.log("on: passing event" , env.params.name )
+       //console.log("on: passing event" , env.params.name )
+      //let fargs = [host].concat( args );
+      // получается крышеснос
       env.callCmd("apply",...args);
       // идея - можно было бы всегда в args добавлять объект..
     })
@@ -1879,6 +1881,8 @@ export function insert_features( env )
         // сообщим и тем что они фичи енвы..
         // но это не сработает кстати на детей детей.. ех
         //rec.feature_of_env = env.host;
+
+        rec.lexicalParent = env;
 
         let new_feature_env = env.vz.importAsParametrizedFeature( rec, tenv );
         new_feature_env.setParam( "objectIndex",ii);

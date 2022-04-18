@@ -118,11 +118,16 @@ view1: feature text="Общий вид" { root: dom_group {
 
              button "Добавить" margin="1em" {
                 //creator target=@r1 input={show_vis}
-                creator target=@r1 input=(output={linestr; axes;} | get @s->index)
+                creator target=@r1 input={}
                   {{ onevent name="created" code=`
-                     args[0].manuallyInserted=true; 
+                     args[0].manuallyInserted=true;
+
+                     //args[0].manual_feature( "linestr" );
+                     //args[0].setParamManualFlag("manual_features");
+                     let s = "linestr";
+                     args[0].setParam("manual_features",s,true)
                      
-                     console.log("created",args[0])` 
+                     console.log("created",args[0])`
                   }};
              };
 
@@ -166,6 +171,8 @@ view1: feature text="Общий вид" { root: dom_group {
                                 //let newobj = obj.vz.createObjByType({type: v, parent: obj.ns.parent});
 
                                 if (dump) {
+                                  if (dump.params)
+                                      delete dump.params['manual_features'];
                                   dump.manual = true;
                                   newobj.restoreFromDump( dump, true );
                                 }

@@ -7,7 +7,9 @@ screen1: screen auto-activate {
        of: one_of 
               index=@ssr->index
               list={ view1; view2; }
-              {{ one-of-keep-state }};
+              {{ one-of-keep-state }}
+              {{ console_log_params }}
+              ;
 
 /*     views: list {view1} {view2};
        ssr: switch_selector_row items=(@views | map_param "text");
@@ -20,29 +22,35 @@ screen1: screen auto-activate {
    };          
 };
 
+//modify @screen1 { red; };
+// так то это аналог получается сейчас insert_features
+// в том смысле что это поселение в поддерево особое
+// ну и выставка .input ....
+
 debugger-screen-r;
 
 feature "one_of_keep_state" {
-  root: modify host=@. {
+  root: modify input=@. {
     on "destroy_obj" {
-       {{console_log_params}} lambda @root->host code=`(oneof, obj, index) => {
-            
+       lambda @root->input code=`(oneof, obj, index) => {
          let dump = obj.dump();
          let oparams = oneof.params.objects_params || [];
          oparams[ index ] = dump;
+         console.log("dump=",dump)
          oneof.setParam("objects_params", oparams, true );
        }`;
      };
 
      on "create_obj" {
-       lambda @root->host code=`(oneof, obj, index) => {
+       lambda @root->input code=`(oneof, obj, index) => {
          let oparams = oneof.params.objects_params || [];
          let dump = oparams[ index ];
+         console.log("using dump to restore",dump)
          if (dump) {
              dump.manual = true;
              obj.restoreFromDump( dump, true );
          }
        }`;
-     };  
+     };
   };
 };
