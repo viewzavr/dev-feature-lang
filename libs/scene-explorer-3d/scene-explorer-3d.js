@@ -460,7 +460,7 @@ export function scene_explorer_graph( env ) {
   if (!env.hasParam("active")) env.params.active=true;
 
   env.onvalues(["input","update_interval"],(obj) => {
-    console.log("scene_explorer_graph onvalues, obj=",obj)
+    //console.log("scene_explorer_graph onvalues, obj=",obj)
 
     stop_process()
     // запускаем процесс генерации

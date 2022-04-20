@@ -97,7 +97,7 @@ export function screen( obj, opts )
 
     qmlEngine.rootObject.dom.appendChild( dom );
 
-    console.log("screen is emitting");
+    //console.log("screen is emitting");
     obj.emit("screen-created");
   })
 

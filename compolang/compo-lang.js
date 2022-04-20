@@ -1241,6 +1241,47 @@ export function console_log( env, options )
   env.addString("text");
 }
 
+export function console_log_input( env, options )
+{
+  env.createLinkTo( {param:"text",from:"~->0",soft:true });
+
+  function print() {
+    console.log( env.params.text || "", env.params.input || "" );
+  }
+
+  env.onvalue("input",(input) => {
+    print();
+    env.setParam("output",input); // доп-фича - консоле-лог пропускает дальше данные
+  });
+  
+  env.addString("text");
+}
+
+
+export function feature_debugger( env )
+{
+  env.createLinkTo( {param:"text",from:"~->0",soft:true });
+
+  function print() {
+    console.log( env.params.text || "", env.params.input || "" );
+  }
+  
+  env.onvalue("input",(input) => {
+    print();
+    // фича номер два это остановка потому что input поменялся - удобно ловить
+    // хотя это можно было и в консоли делать
+    debugger;
+    env.setParam("output",input); // доп-фича - консоле-лог пропускает дальше данные
+  });
+  
+  env.addString("text");
+
+  // фича номер раз это остановка просто потому что debugger есть
+  print();
+  debugger;
+}
+
+/*
 export function feature_debugger( env )
 {
   if (env.params.msg)
@@ -1248,6 +1289,7 @@ export function feature_debugger( env )
 
   debugger;
 }
+*/
 
 export function onremove( env )
 {

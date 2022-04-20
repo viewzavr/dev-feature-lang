@@ -1,3 +1,5 @@
+// набор модификаторов по добавлению информации о гуи параметров в объект
+
 register_feature name="param_base" code=`
   env.tgt = () => {
     return env.hosted ? env.host : env.ns.parent;
@@ -43,7 +45,7 @@ register_feature name="param_combo" code=`
     
     let tgt = env.tgt()
 
-    var nv = tgt.getParam( env.paramname() ) || env.params.value || ((env.params.values || []) [0]);
+    var nv = tgt.getParam( env.paramname() ) || env.params.value || ((env.params.values || []) [ env.params.index ]);
     //tgt.addComboValue( env.paramname(),nv,env.params.values );
 
     if (env.params.titles) 
@@ -64,8 +66,8 @@ register_feature name="param_combo" code=`
       env.setParam("value",v);
       //update_index(v);
     });
-    if (!env.params.value) {
-      env.setParam("value",nv);
+    if (typeof(env.params.value) == "undefined" && typeof(nv) != "undefined") {
+        env.setParam("value",nv);
     }
     
 

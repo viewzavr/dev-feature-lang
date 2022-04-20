@@ -18,7 +18,10 @@ export function setup(vz, m) {
 export function df_set( env, opts ) {
  //Object.keys( args ) 
  env.onvalue("input",(value) => {
-   if (!df.is_df(value)) return;
+   if (!df.is_df(value)) {
+      console.error( "df_set: incoming value is not df", value)
+      return
+   };
 
    var output = df.create_from_df_no_slice( value );
 

@@ -7,11 +7,13 @@
 */
 register_feature name="df_get" 
   code=`
-  env.setParam("output",[]);
-  env.feature("delayed");
+  // это зло
+  //env.setParam("output",[]);
 
-  let delayed_process = env.delayed( process );
-  env.onvalues(["input","column"],delayed_process);
+  //env.feature("delayed");
+  //let delayed_process = env.delayed( process );
+  // не надо - onvalues итак уже delayed
+  env.onvalues(["input","column"],process);
 
   function process(df,column) {
     if (!df || !df.isDataFrame) {
