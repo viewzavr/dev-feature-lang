@@ -132,6 +132,7 @@ export function load(env,opts)
 
   function loadfile(file) {
      if (!file) return;
+     console.log("compalang loadfile",file)
 
      if (file.endsWith( ".js")) {
        var file2 = env.compute_path( file );
@@ -586,13 +587,13 @@ export function feature_lambda( env )
       if (env.removed) {
          console.log("lambda remove ban - it is removed", env.getPath())
          return;
-      }  
+      }
 
       if (!func) {
         console.error("lambda: code is not defined but apply is called");
         return;
       }
-      //console.log("lambda apply",env.getPath())
+      console.log("lambda apply",env.getPath())
 
       let args = [];
       for (let i=0; i<env.params.args_count;i++) 
@@ -602,6 +603,7 @@ export function feature_lambda( env )
         args.push( extra_args[i] );
 
       //args = args.concat( extra_args );
+      
 
       return func.apply( env,args )
    } )
@@ -766,7 +768,9 @@ export function js( env )
 export function add_cmd( env ) {
   
   env.feature("func");
-  env.onvalue("name",(name) => {
+  //env.createLinkTo( {param:"name",from:"~->0",soft:true });
+  env.onvalues_any(["name",0],(name,name0) => {
+    name ||= name0;
 
     env.host.addCmd(name,f);
 
@@ -1184,9 +1188,9 @@ export function connection( env, options )
       tracking();
       if (en == "gui-changed-undefined" )
         debugger;
-      //console.log("GPN connection tracking name=",en,obj.getPath(), obj.getParamsNames() )
+      console.log("GPN connection tracking name=",en,obj.getPath(), obj.getParamsNames() )
       tracking = obj.on( en, (...args) => {
-         //console.log("GPN tracking DETECTED! name=",en,obj.getPath()) 
+         console.log("GPN tracking DETECTED! name=",en,obj.getPath()) 
          env.apply(...args); // вызов метода окружения func
       })
    });
@@ -1325,18 +1329,23 @@ export function on( env  )
 
   env.feature("func");
   var u1 = () => {};
-  env.createLinkTo( {param:"name",from:"~->0",soft:true });
+  //env.createLinkTo( {param:"name",from:"~->0",soft:true });
 
   //console.log("env on init", env );
-  env.onvalues( "name", (name) => {
+  env.onvalues_any( ["name",0], (name,name0) => {
+    name ||= name0;
+
     u1();
-    u1 = host.on( env.params.name ,(...args) => {
-       //console.log("on: passing event" , env.params.name )
+    //console.log("on: subscribing to event" , name, env.getPath() )
+    u1 = host.on( name ,(...args) => {
+      //console.log("on: passing event" , name )
       //let fargs = [host].concat( args );
       // получается крышеснос
       env.callCmd("apply",...args);
       // идея - можно было бы всегда в args добавлять объект..
     })
+
+    env.emit("connected");
   })
   env.on("remove",u1);
 }
@@ -1664,6 +1673,58 @@ export function creator( env )
 
 }
 
+// действует как deploy_many но по команде apply
+// и в отличие от creator - удаляет созданное в предыдущей apply
+// вход - list, массив описаний
+export function recreator( env, opts )
+{
+  env.onvalue("list",(input) => {
+     //deploy_normal_env_all(input);
+  });
+
+  env.addCmd("apply",() => {
+    //console.log("redeploy called",env.getPath())
+    deploy_normal_env_all( env.params.list );
+  });
+
+ // режим "repeater-mode" - развернуть всех в родителя (хотя может и можно не в родителя)
+ var created_envs = [];
+ function close_envs() {
+     for (let old_env of created_envs) {
+       old_env.remove();
+     }
+     created_envs = [];
+ }
+     
+ function deploy_normal_env_all(input) {
+     env.emit("before_deploy", created_envs);
+     close_envs();
+     let parr=[];
+     if (input && !Array.isArray(input)) input=[input]; // так
+     if (!input) {
+       env.setParam("output",[]);
+       return;
+     }
+
+     //console.log("deploy_many: deploying", env.getPath())
+     for (let edump of input) {
+        edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
+        var p = env.vz.createSyncFromDump( edump,null,env.ns.parent, edump.$name );
+        p.then( (child_env) => {
+           created_envs.push( child_env );
+        });
+        parr.push(p);
+     }
+     Promise.all(parr).then( (values) => {
+       //console.log("deploy_many: emitting after_deploy",env.getPath())
+       env.emit("after_deploy",values);
+       // и еще такая шутка а там видно будет
+       env.setParam("output",values);
+     });
+ }
+ env.on("remove",close_envs)
+}
+
 // создает все объекты из поданного массива описаний input
 // подключая их к родителю узла deploy_many
 // тут кстати напрашивается сделать case - фильтрацию массива... ну и if через это попробовать сделать например...
@@ -1673,6 +1734,8 @@ export function creator( env )
 
 export function deploy_many( env, opts )
 {
+
+  //console.log("deploy_many invoked", env.getPath())
   
   env.onvalue("input",(input) => {
      deploy_normal_env_all(input);
@@ -1702,6 +1765,7 @@ export function deploy_many( env, opts )
        return;
      }
 
+     //console.log("deploy_many: deploying", env.getPath())
      for (let edump of input) {
         edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
         var p = env.vz.createSyncFromDump( edump,null,env.ns.parent, edump.$name );
@@ -1711,6 +1775,7 @@ export function deploy_many( env, opts )
         parr.push(p);
      }
      Promise.all(parr).then( (values) => {
+       //console.log("deploy_many: emitting after_deploy",env.getPath())
        env.emit("after_deploy",values);
        // и еще такая шутка а там видно будет
        env.setParam("output",values);
@@ -1892,8 +1957,17 @@ export function insert_features( env )
   
   env.onvalues_any(["input","list"],perform);
 
+  //let input_used;
   function perform() {
+
     let input = env.params.input || [];
+    /*
+    console.log("modifier: perform",env.getPath(), input)
+    if (input_used && input_used != input)
+      console.log("modifier: input changed",env.getPath()," from",input_used,"to",input)
+    input_used = input;
+    */
+
     if (!Array.isArray(input)) input=[input]; // допускаем что не список а 1 штука
     let features = env.params.features || Object.values(children);
     dodeploy( input, features );
@@ -1950,8 +2024,22 @@ export function insert_features( env )
 
  env.on("remove",close_envs)
 
- if (env.hosted && !env.hasParam("input"))
-    env.setParam("input",env.host);
+ if (env.hosted) {
+    if (env.hasParam("input")) // || env.hasLinksToParam("input"))
+    { 
+       //console.log("hosted modifier has input",env.getPath())
+    }
+    else
+    {
+      //console.log("hosted modifier has NO input",env.getPath(), "setting host", env.host.getPath()) 
+      // интересно а если input это ссылка? которая еще не отработала..
+      // и которая еще даже не установилась.. (т.к. link-объекты создаются позже..)
+
+      // так-то вообще тупняк.. ждать?.. так ссылка может долго устанавливаться..
+      //debugger;
+      env.setParam("input",env.host);
+    }
+ }
 
 }
 
@@ -1979,11 +2067,12 @@ export function insert_children( env )
   function perform() {
     let input = env.params.input || [];
     if (!Array.isArray(input)) input=[input]; // допускаем что не список а 1 штука
-    let features = env.params.features || Object.values(children);
+    let features = env.params.list || Object.values(children);
     dodeploy( input, features );
   }
 
   function dodeploy( objects_arr, features_list ) {
+     
      // ну тут поомтимизировать наверное можно, но пока тупо все давайте очищать
      close_envs();
      //debugger;
@@ -2006,6 +2095,7 @@ export function insert_children( env )
 
           edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
 
+          
           var p = env.vz.createSyncFromDump( edump,null,tenv );
           p.then( (child_env) => {
              created_envs.push( child_env );

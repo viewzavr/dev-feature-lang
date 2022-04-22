@@ -101,6 +101,22 @@ register_feature name="slider" {
 	dom tag="input" dom_type="range" 
 	    min=0 max=100 step=1 value=0
 	    sliding=true 
+	    {{
+	    	 //add_cmd name="refresh_slider_pos" cmd="@r->apply; ";
+	    	 // так то круто было бы в строчке cmd сделать несколько команд через ;
+	    	 // но в целом тут уже напрашивается тупо императивный код для нашей машины...
+	    	 // т.е. пусть @r->apply это вызов функции, все норм; но пусть будут и другие фукции..
+	    	 // аля лисп. возможно. но и как-то это на процессный пересчет бы завернуть тоже...
+	    	 // имеется ввиду вещи вида alfa=(beta | gamma | teta)
+
+         add_cmd name="refresh_slider_pos" 
+                 code="
+                 //console.log('refreshing slider', env.host.params.value,env.host);
+                 env.host.dom.value = env.host.params.value;
+                 // не канает потому что там и так сохраняется в кеше это значение
+                 env.host.setParam('dom_obj_value', env.host.params.value)
+                 ";
+	    }}
 	{
 		/*
 		 link from="..->min"   to="..->dom_min";
@@ -111,7 +127,7 @@ register_feature name="slider" {
 		 setter value=@..->min target="..->dom_min" auto_apply;
 		 setter value=@..->max target="..->dom_max" auto_apply;
 		 setter value=@..->step target="..->dom_step" auto_apply;
-		 setter value=@..->value target="..->dom_obj_value" auto_apply;
+		 r: setter value=@..->value target="..->dom_obj_value" auto_apply;
 		 
 		 dom_event name="input" code=`
 		  let object = env.params.object;

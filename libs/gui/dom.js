@@ -65,9 +65,9 @@ export function dom( obj, options={} )
   });
 
   // todo
-  // dom_, dom_attr_ = аттрибут dom
-  // dom_obj_ - поле объекта dom
-  // dom_style_ - кусочек стиля
+  // dom_*, dom_attr_* = аттрибут dom
+  // dom_obj_* - поле объекта dom
+  // dom_style_* - кусочек стиля
   // style_id - добавка к стилям в виде строки
   function maybe_apply_dom_attr( name, value ) {
     if (obj.dom && (name.startsWith("dom_") && !name.startsWith("dom_attr_") && !name.startsWith("dom_obj_") && !name.startsWith("dom_style_") && !name.startsWith("style_"))) {
@@ -89,6 +89,7 @@ export function dom( obj, options={} )
     if (obj.dom && name.startsWith("dom_obj_")) {
        name = name.substring(8);
        //obj.dom.setAttribute(name,value);
+       ///console.log("dom: setting name=",name,"value=",value)
        obj.dom[name] = value;
        return true;
     }

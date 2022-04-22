@@ -1,5 +1,8 @@
 // разные методы заточенные под позиционные параметры. может их и не надо так группировать но пусть пока будут
 
+debugger;
+
+// странно что join работает с позиционными аргументами а не list например
 register_feature name="join" code=`
   env.on("param_changed",(name) => {
     if (name == "output") return;

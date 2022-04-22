@@ -8,6 +8,8 @@
   * opened - true/false сразу про всех
 */
 
+load "misc";
+
 /*
 register_feature name="render_gui_title" code=`
   env.onvalue("text", (v) => {
@@ -102,23 +104,49 @@ register_feature name="render-params" {
 
 register_feature name="render-one-param" {
   dg: dom_group {{
-      onevent name="param_obj_changed" cmd="@x->apply";
-      onevent name="param_name_changed" cmd="@x->apply";
-      x: func {{delay_execution;}} cmd="@dm->redeploy";
 
+      on "param_obj_changed"  cmd="@x->apply";
+      on "param_name_changed" cmd="@x->apply";
+      x: func {{ delay_execution;}} cmd="@dm->apply";
+
+      mmm: modify input=@dg->obj {
+        on (join "gui-changed-" @dg->name) cmd="@dm->redeploy"
+        {{ on "connected" cmd="@dm->apply"; }}
+      }
+
+/*
       connection 
         object=@dg->obj
         event_name=(compute_output name=@dg->name code="return env.params.name ? 'gui-changed-'+env.params.name : null;")
-        cmd="@dm->redeploy";
+        //cmd="@dm->redeploy" { lambda @dg->name code="(n) => console.log('connection: redeploy',n)" };
+        cmd="@dm->redeploy" { 
+          lambda @dg->name code="(n) => console.log('connection: redeploy',n)";
+        };
+*/        
 
     }}
     {
-      dm: deploy_many input={render-one-param-p obj=@..->obj name=@..->name;};
+      dm: recreator list={
+        render-one-param-p obj=@..->obj name=@..->name;
+      };
+
+      /*
+      dm: deploy_many
+        {{ on name="after_deploy" code="console.log('qq')" 
+          { lambda @dg->name code="(n) => console.log('render-one-param-p (re)deployed',n)" } }}
+        input={
+        render-one-param-p obj=@..->obj name=@..->name
+         {{ on name="gui-changed" cmd="@dm->redeploy"
+           ;
+            console_log (join "subs to gui-changed of " @dg->name ) }}
+        ;
+      };
+      */
     };
 };
 
 register_feature name="render-one-param-p" code='
-  var tr;
+  var tr,tr2;
   env.onvalue("obj",(obj) => {
     //debugger;
     if (tr) tr();
@@ -129,8 +157,22 @@ register_feature name="render-one-param-p" code='
         //if (name.length <= 1 || name == "object") debugger;
         env.setParam("param_path",obj.getPath() + "->" + name);
         env.setParam("gui",g);
+        //console.log("render-one-param-p: name=",name,"gui=",g);
         env.feature( `render-param-${g.type}` );
         // вот. вызвали фичу сообразно типу
+
+/* это стало не надо - подписались выше
+        //console.log("subscribing to","gui-changed-"+name);
+        tr2 = obj.on("gui-changed-"+name,() => {
+          //console.log("catched gui-changed of ",name,"invoking gui-changed",env.getPath())
+          env.emit("gui-changed");
+        })
+*/        
+    })
+
+    env.on("remove",() => {
+      if (tr) tr(); 
+      //if (tr2) tr2();
     })
   });
 ';
@@ -270,7 +312,7 @@ register_feature name="render-param-label" {
 };
 
 register_feature name="render-param-slider" {
-  column {
+  rps: column {
     text text=@..->name;
     row {
       slider {
@@ -283,8 +325,11 @@ register_feature name="render-param-slider" {
           var sl = env.ns.parent;
           if (env.params.gui) {
             sl.setParam("min", env.params.gui.min );
+            //console.log("render-params: setting slider max",env.params.gui.max,"for",env.params.name,env.getPath() )
             sl.setParam("max", env.params.gui.max );
             sl.setParam("step", env.params.gui.step );
+            
+            sl.callCmd("refresh_slider_pos");
           }
         `;
       };
