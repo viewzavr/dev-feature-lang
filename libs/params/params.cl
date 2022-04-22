@@ -184,6 +184,9 @@ register_feature name="param_label" code=`
   });
   function setup() {
     let tgt = env.tgt();
+    if (env.removed) return; // явно лучше сделаем этот случай
+    //if (!tgt) return; // бывало что removed
+
     tgt.addLabel( env.paramname(),env.params.value );
     if (t) t();
     t = tgt.trackParam( env.paramname(),(v) => {

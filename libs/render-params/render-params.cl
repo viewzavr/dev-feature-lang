@@ -8,7 +8,7 @@
   * opened - true/false сразу про всех
 */
 
-load "misc";
+// load "misc";
 
 /*
 register_feature name="render_gui_title" code=`

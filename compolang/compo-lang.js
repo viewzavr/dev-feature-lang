@@ -132,7 +132,7 @@ export function load(env,opts)
 
   function loadfile(file) {
      if (!file) return;
-     console.log("compalang loadfile",file)
+     //console.log("compalang loadfile",file)
 
      if (file.endsWith( ".js")) {
        var file2 = env.compute_path( file );
