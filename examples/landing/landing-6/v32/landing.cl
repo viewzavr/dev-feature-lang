@@ -13,22 +13,6 @@ view1: feature text="Общий вид" {
   {
     see_lines: param_label value=(@_dat | get name="length");
 
-    time_slider: param_slider
-       min=0 
-       max=(@_dat->output | get "length" "alfa" "beta" | @.->input - 1 | console_log_input "THUS MAX IS")
-       //max3=(eval @_dat->output code="(df) => df ? df.length-1 : 0")
-       //max2=(@time->values | arr_length | compute_output code=`return env.params.input-1`) 
-       step=1 
-       value=@time->index
-       ;
-
-    //f1:  param_file value="phase_yScaled2.csv";
-    //f1:  param_file value="https://viewlang.ru/assets/other/landing/2021-10-phase.txt";
-
-    time: param_combo 
-       values=(@_dat | df_get column="T")
-       index=@time_slider->value
-       ;
     // todo исследовать time: param_combo values=(@dat | df_get column="T");
 
     y_scale_coef: param_slider min=1 max=200 value=50;
@@ -47,13 +31,13 @@ view1: feature text="Общий вид" {
 
   dat_prorej: @dat | df_skip_every count=@mainparams->step_N;
 
-  dat_cur_time: @dat       | df_slice start=@time->index count=1;
+  dat_cur_time: @dat       | df_slice start=@vroot->time_index count=1;
 
-  dat_cur_time_orig: @dat0 | df_slice start=@time->index count=1; 
+  dat_cur_time_orig: @dat0 | df_slice start=@vroot->time_index count=1; 
    // оригинальная curr time до изменения имен колонок и прочих преобьразований
    // требуется для вывода на экран исходных данных
 
-   dat_cur_time_zero: @dat | df_slice start=@time->index count=1 | df_set X=0 Y=0 Z=0;
+   dat_cur_time_zero: @dat | df_slice start=@vroot->time_index count=1 | df_set X=0 Y=0 Z=0;
 
 
    ////////////////////////////////////
@@ -107,8 +91,6 @@ view1: feature text="Общий вид" {
                    {"title":"Текст","find":"guiblock screenvis","add":"select-t"}
                  ];
        };
-
-    
 
     }; //vroot
 };

@@ -179,9 +179,13 @@ register_feature name="param_files" code=`
 register_feature name="param_label" code=`
   env.feature("param_base"); 
   var t;
+
+  env.createLinkTo( {param:"value",from:"~->0",soft:true });
+
   env.onvalue( "value", (v) => {
-    env.tgt().setParam( env.ns.name,v) 
+    env.tgt().setParam( env.ns.name,v ) 
   });
+
   function setup() {
     let tgt = env.tgt();
     if (env.removed) return; // явно лучше сделаем этот случай

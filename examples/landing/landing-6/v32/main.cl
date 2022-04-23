@@ -1,12 +1,18 @@
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d 12chairs.cl landing.cl";
 
+fileparams: {
+  f1_info: param_label "Укажите текстовый файл с данными";
+  f1:  param_file value="https://viewlang.ru/assets/other/landing/2021-10-phase.txt";
+  lines_loaded: param_label (@dat0 | get name="length");
+
+  dat0: load-file file=@fileparams->f1
+         | parse_csv separator="\s+";
+
+  // on изменение в выборе файла - перейти в вид1
+};
+
 prgparams:
 {
-  f1:  param_file value="https://viewlang.ru/assets/other/landing/2021-10-phase.txt";
-  lines_loaded: param_label value=(@dat0 | get name="length");
-
-  dat0: load-file file=@prgparams->f1
-         | parse_csv separator="\s+";
 
   loaded_data: @dat0 | df_set X="->x[м]" Y="->y[м]" Z="->z[м]" T="->t[c]"
                 RX="->theta[град]" RY="->psi[град]" RZ="->gamma[град]"
@@ -14,19 +20,46 @@ prgparams:
               | df_div column="RY" coef=57.7
               | df_div column="RZ" coef=57.7;
 
+  time_slider: param_slider
+       min=0 
+       max=(@loaded_data->output | get "length" | @.->input - 1)
+       //max3=(eval @_dat->output code="(df) => df ? df.length-1 : 0")
+       //max2=(@time->values | arr_length | compute_output code=`return env.params.input-1`) 
+       step=1 
+       value=@time->index
+       ;
+
+  time: param_combo 
+       values=(@loaded_data | df_get column="T")
+       index=@time_slider->value
+       ;
+
+};
+
+feature "view0" text="Выбор файла" {
+  render-params  input=@fileparams;
 };
 
 screen1: screen auto-activate {
    column padding="1em" {
-       ssr: switch_selector_row items=["Основное","Ракета"];
+       ssr: switch_selector_row index=1 items=["Выбор файла","Основное","Ракета"];
 
-       render-params @prgparams;
+       column {
+         if (@ssr->index > 0) {
+           column plashka {
+            text "Время";
+            render-params @prgparams;
+           };
+         };
+       };
 
        of: one_of 
               index=@ssr->index
               list={ 
-                view1 loaded_data=@loaded_data->output; 
-                view1 loaded_data=@loaded_data->output; }
+                view0;
+                view1 loaded_data=@loaded_data->output time_index=@time->index;
+                view1 loaded_data=@loaded_data->output time_index=@time->index; 
+              }
               {{ one-of-keep-state }}
               ;
 
