@@ -527,7 +527,9 @@ register_feature name="show_one" {
 register_feature name="switch_selector_column" {
 	root: column index=0 {
 		repeater input=@root->items {
-			 button text=@.->input {
+			 button text=@.->input root_index=@root->index index=@.->modelIndex
+			 {{ modify list=@root->item_modifiers }}
+			 {
 			 	 setter target="@root->index" value=@..->modelIndex;
 			 };
 		};
@@ -548,11 +550,60 @@ register_feature name="switch_selector" {
 register_feature name="switch_selector_row" {
 	root: row index=0 gap="0.2em" {
 		repeater input=@root->items {
-			 button text=@.->input {
+			 button text=@.->input root_index=@root->index index=@.->modelIndex 
+			    {{ modify list=@root->item_modifiers }}
+			 {
 			 	 setter target="@root->index" value=@..->modelIndex;
 			 };
 		};
 	}; // column
 };
 
+feature "hilite_selected" {
+	set_params item_modifiers={ hilite_selected_go; };
+	//set_params item_modifiers={ set_params style_hilite="border: 2px solid #427bff"; }
+};
+
+feature "hilite_selected_go" {
+//	 set_params style_hilite="border: 2px solid #427bff";
+
+	 rt: root_index=@.->root_index index=@.->index 
+	     if (@rt->index == @rt->root_index {{ console_log_params }}) 
+	     {
+	     	  //set_params dom_style_border="2px solid #427bff";
+	     	  //set_params dom_style_border="2px solid #00aaff";
+	     	  //set_params dom_style_border="3px solid rgb(7 206 78)";
+	     	  //set_params dom_style_border="3px solid rgb(0 0 0 / 27%)";
+	     	  //set_params dom_style_background="rgb(140 195 255 / 58%)" dom_style_border="0px";
+	     	  //set_params dom_style_background="rgb(140 195 255 / 58%)" dom_style_border="1px solid";
+	     	  //set_params dom_style_background="rgb(166 209 255 / 77%)" dom_style_border="1px solid";
+	     	  set_params dom_style_background="rgb(166 209 255 / 65%)" dom_style_border="1px solid";
+	     };
+
+};
+
 // но с третьей стороны стили можно оставить на отдельный случай, а тут оставить чисто кнопки
+// мб переделать на get_children | arr_filter_by_features
+/*
+feature "hilite_selected" {
+	rt2: modify curindex=@.->index {{ console_log_params }} {
+		//set_params input=(get input=@rt->. childnum=(@rt->curindex + 1 {{ console_log_params }}) ) 
+		set_params input=(get input=@rt2->. childnum=@rt2->curindex {{ console_log_params }} ) 
+		           style_hilite="2px solid #427bff" {{ console_log_params }};
+	}
+	
+}
+*/
+
+/* кстати я вот опять занимаюсь тем что влажу, пытаюсь "снаружи угадать".
+   а надо ведь не так. надо - дать возможность задать модификаторы для этих кнопочек да и все. вот что надо то.
+*/
+
+/*
+feature "hilite_selected" {
+	rt2: 
+		set_params curindex=@.->index input=(get input=@rt2->. childnum=@rt2->curindex {{ console_log_params }} ) 
+		           style_hilite="2px solid #427bff" {{ console_log_params }};
+	
+}
+*/

@@ -1,6 +1,19 @@
 // кстати если в list добавить length - число аргументов, и привести параметры к аксессорам по именам
 // то все arr-методы смогут обрабатывать list.
 
+//////// arr_filter_by_features
+// вход - input - массив объектов
+//      - features - строка список фич (сейчас одна)
+// выход - output - список объектов у которых эти фича есть
+register_feature name="arr_filter_by_features"
+{
+  arr_filter code="(val,index) => {
+     //let features = env.params.features.split(" ");
+     return val.is_feature_applied( features );
+  }";
+};
+
+
 //////// arr_filter
 // вход:
 // input - массив

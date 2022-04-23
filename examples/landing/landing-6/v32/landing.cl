@@ -11,6 +11,7 @@ view1: feature text="Общий вид" {
 
   mainparams: 
   {
+
     see_lines: param_label value=(@_dat | get name="length");
 
     // todo исследовать time: param_combo values=(@dat | df_get column="T");
@@ -75,10 +76,16 @@ view1: feature text="Общий вид" {
 
    render_interface
        left={
-          collapsible text="Основные параметры" style="min-width:250px;" padding="10px"
+          column plashka {
+            text "";
+            render-params  input=@vroot->time_params;
+          };
+
+          collapsible text="Параметры отображения" style="min-width:250px;" padding="10px"
           {
-            render-params  input=@mainparams;
-          }; 
+            render-params  input=@mainparams plashka;
+          };
+
        }
        middle={
          extra_screen_things: column;

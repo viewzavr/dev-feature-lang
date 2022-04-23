@@ -100,7 +100,8 @@ export function dom( obj, options={} )
   function maybe_apply_dom_style( name, value ) {
     if (obj.dom && name.startsWith("dom_style_")) {
        name = name.substring(10);
-       obj.dom.style[name] = value;
+       //console.log("setting dom style",name,value)
+       obj.dom.style[name] = value || "";
        
        //styles_hash[ name ] = name + ":" + value;
        //obj.signalParam("style");
@@ -116,7 +117,7 @@ export function dom( obj, options={} )
     if (obj.dom && name.startsWith("style_")) {
        styles_hash[ name ] = value;
 
-       //console.log("style part",name,value)
+       //console.log("style part",obj.getPath(),name,value)
 
        obj.signalParam("style");
        //name = name.substring(10);
@@ -144,9 +145,17 @@ export function dom( obj, options={} )
       //obj.dom.style.cssText += ";"+v;
 
       let s = v + ";" + Object.values(styles_hash).join(";");
-      //console.log("style",s)
+      //console.log("style append",s)
 
       obj.dom.style.cssText += s;
+      //console.log("total style",obj.dom.style.cssText)
+
+      // todo короче это проблемное место. получается style_alfa=... и затем обнуление - уже не сработает
+      // надо нормально делать а именно совмещать с dom_style_... как-то умудряться.
+      // возможно, возможно, в dom_style добавить - что и прямая установка, и в хеш-часть
+      // и тогда можно будет и быстро результат получать и все остальное.
+      // см также в layout.js много ставят.. итого нужны аксессоры какие-то тут.
+
       //obj.dom.setAttribute('style', v);
 
       // todo: onvalue сделать оно 1 раз срабатывает а это каждый раз

@@ -114,60 +114,31 @@ register_feature name="render-one-param" {
         {{ on "connected" cmd="@dm->apply"; }}
       }
 
-/*
-      connection 
-        object=@dg->obj
-        event_name=(compute_output name=@dg->name code="return env.params.name ? 'gui-changed-'+env.params.name : null;")
-        //cmd="@dm->redeploy" { lambda @dg->name code="(n) => console.log('connection: redeploy',n)" };
-        cmd="@dm->redeploy" { 
-          lambda @dg->name code="(n) => console.log('connection: redeploy',n)";
-        };
-*/        
-
     }}
     {
       dm: recreator list={
         render-one-param-p obj=@..->obj name=@..->name;
       };
 
-      /*
-      dm: deploy_many
-        {{ on name="after_deploy" code="console.log('qq')" 
-          { lambda @dg->name code="(n) => console.log('render-one-param-p (re)deployed',n)" } }}
-        input={
-        render-one-param-p obj=@..->obj name=@..->name
-         {{ on name="gui-changed" cmd="@dm->redeploy"
-           ;
-            console_log (join "subs to gui-changed of " @dg->name ) }}
-        ;
-      };
-      */
     };
 };
 
 register_feature name="render-one-param-p" code='
   var tr,tr2;
   env.onvalue("obj",(obj) => {
-    //debugger;
+
     if (tr) tr();
     tr = env.onvalue("name",(name) => {
         // итак есть объект, есть параметр в переменной name
         var g = obj.getGui(name);
         if (!g) return;
-        //if (name.length <= 1 || name == "object") debugger;
+
         env.setParam("param_path",obj.getPath() + "->" + name);
         env.setParam("gui",g);
-        //console.log("render-one-param-p: name=",name,"gui=",g);
+
         env.feature( `render-param-${g.type}` );
         // вот. вызвали фичу сообразно типу
 
-/* это стало не надо - подписались выше
-        //console.log("subscribing to","gui-changed-"+name);
-        tr2 = obj.on("gui-changed-"+name,() => {
-          //console.log("catched gui-changed of ",name,"invoking gui-changed",env.getPath())
-          env.emit("gui-changed");
-        })
-*/        
     })
 
     env.on("remove",() => {
@@ -180,8 +151,8 @@ register_feature name="render-one-param-p" code='
 /* апи рисования параметров
    вход
      param_path - путь к параметру (объект->имя)
-     obj объект
-     name имя параметра
+     obj   объект
+     name  имя параметра
      gui - gui-запись о параметре
    выход
      ожидается что фича будет отображать визуально значение указанного параметра,

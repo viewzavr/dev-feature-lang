@@ -21,7 +21,8 @@ rl_root: collapsible text=@.->title
     style_h = "max-height:90vh;"
     body_features={ set_params style_h="max-height: inherit; overflow-y: auto;"}
     {
-     s: switch_selector_column items=(@rl_root->items | arr_map code="(v) => v.title") style="width:200px;";
+     s: switch_selector_column {{ hilite_selected }} plashka
+         items=(@rl_root->items | arr_map code="(v) => v.title") style="width:200px;";
 
      button "Добавить" margin="1em" {
         //creator target=@r1 input={show_vis}

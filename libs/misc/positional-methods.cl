@@ -50,6 +50,7 @@ register_feature name="+" code=`
 
   env.on("param_changed",(name) => {
     if (name == "output") return;
+    console.log("plus: pc")
     compute();
   });
   

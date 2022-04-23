@@ -37,7 +37,13 @@ export function param_subchannels(env)
        let i = env.$subchannels.indexOf( res );
        if (i >= 0)
            env.$subchannels.splice( i, 1 );
-       env.update_params_from_subchannels();  
+       let notified = env.update_params_from_subchannels();
+
+       // ну и еще для кучи для теста разошлем информацию что поменялось то, что ушло
+       // а точнее надо даже прям явно ее и удалить (ну undefined выставим)
+       for (let q of Object.keys(res.params))
+         if (!notified[q]) env.setParam(q,undefined);
+         //if (!notified[q]) env.signalParam(q);
     }
 
     res.setParam = (name,value, ...args) => {
@@ -50,11 +56,14 @@ export function param_subchannels(env)
 
   // тупо едем по всем и выставляем, сообразно кто удалился - больше не установит
   env.update_params_from_subchannels = () => {
+     let notified = {};
      for (let c of env.$subchannels) {
         for (let q of Object.keys(c.params)) {
            orig_setParam( q, c.params[q] ); // тут правда manual собъется мб, ну ладно пока
+           notified[q] = true;
         }
      }
+     return notified;
   };
 
   let channel0 = env.create_subchannel();

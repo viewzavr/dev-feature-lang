@@ -1431,6 +1431,8 @@ export function on( env  )
 ///       children - два дитя, первое если true второе false
 /// сообразно if проверяет условие и создает либо первого либо второго
 /// todo можно кейс еще сделать
+
+// а может так? if (a > 5) then={ .... } else={ .... };
 export function feature_if( env, options )
 {
   var created_envs = [];
@@ -1449,8 +1451,15 @@ export function feature_if( env, options )
   // далее натырено с репитера
   var children;
   env.restoreChildrenFromDump = (dump, ismanual) => {
-    children = dump.children;
-    if (typeof(pending_perform) !== "undefined") perform( pending_perform );
+    
+    //console.log("if chi",env.getPath(),dump.children)
+    // выяснился случай что если мы if обозначаем типом, то ему потом повторно restore вызовут
+    // при развертывании этого типа..
+    if (Object.keys( dump.children ) != 0)
+    {  
+      children = dump.children;
+      if (typeof(pending_perform) !== "undefined") perform( pending_perform );
+    }  
     return Promise.resolve("success");
   }
 
@@ -1477,10 +1486,18 @@ export function feature_if( env, options )
 
      var edump = children[selected_c];
      edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
-     var p = env.vz.createSyncFromDump( edump,null,env.ns.parent );
-     p.then( (child_env) => {
-          created_envs.push( child_env );
-      });
+
+     if (env.hosted) {
+       let child_env = env.vz.importAsParametrizedFeature( edump, env.host );
+       created_envs.push( child_env );
+     }
+     else {
+
+       var p = env.vz.createSyncFromDump( edump,null,env.ns.parent );
+       p.then( (child_env) => {
+            created_envs.push( child_env );
+       });
+     };  
    };
 
 }
@@ -1961,6 +1978,7 @@ export function insert_features( env )
   function perform() {
 
     let input = env.params.input || [];
+
     /*
     console.log("modifier: perform",env.getPath(), input)
     if (input_used && input_used != input)
@@ -1969,7 +1987,7 @@ export function insert_features( env )
     */
 
     if (!Array.isArray(input)) input=[input]; // допускаем что не список а 1 штука
-    let features = env.params.features || Object.values(children);
+    let features = env.params.list || Object.values(children);
     dodeploy( input, features );
     env.setParam("output",created_envs);
   }
@@ -1978,6 +1996,7 @@ export function insert_features( env )
      // ну тут поомтимизировать наверное можно, но пока тупо все давайте очищать
      close_envs();
      //debugger;
+     //console.log("insert_features: objects_arr=",objects_arr,"features_list=",features_list)
 
      if (!features_list) return;
 
@@ -2291,6 +2310,11 @@ export function get( env ) {
 
   env.onvalues(["input","child"],(input,param) => {
     let v = input ? input.ns.childrenTable[ param ] : undefined;
+    env.setParam("output",v );
+  });
+
+  env.onvalues(["input","childnum"],(input,param) => {
+    let v = input ? input.ns.getChildren()[ param ] : undefined;
     env.setParam("output",v );
   });
 
