@@ -90,6 +90,7 @@ rl_root: collapsible text=@.->title
                           if (dump.params)
                               delete dump.params['manual_features'];
                           dump.manual = true;
+                          //console.log("restoring dump",dump);
                           newobj.restoreFromDump( dump, true );
                         }
 

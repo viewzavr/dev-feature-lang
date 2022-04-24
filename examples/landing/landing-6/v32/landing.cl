@@ -4,6 +4,7 @@ load "gui5.cl lib.cl";
 // а на уровне load можно было бы указать таки X и затем говорить X.view например фича
 // ну или объект.. но на с.д. надо и фичу и объект, кстати..
 
+// вход: loaded_data, time_index, time_params
 view1: feature text="Общий вид" { 
   vroot: dom_group {
 
@@ -52,14 +53,9 @@ view1: feature text="Общий вид" {
         camera3d pos=[0,0,100] center=[0,0,0];
         orbit_control;
 
-        //show_vis;
-
-        //show_static_vis vis_type="pole";
-        //show_static_vis vis_type="axes";
-
-        ptstr;
-        linestr;
-
+        linestr input_data="@dat->output";
+        ptstr input_data="@dat->output" radius=2;
+        models input_data="@dat_cur_time->output";
 
         axes;
         pole;
@@ -188,7 +184,7 @@ datavis: feature {
   rt: sibling_types=["linestr","ptstr","models"] 
       sibling_titles=["Линии","Точки","Модели"] 
     {
-    input_data: 
+    input_data:
       param_combo values=["","@dat->output","@dat_prorej->output","@dat_cur_time->output"]
          titles=["","Траектория","Прореженная","Текущее время"]
          ;
