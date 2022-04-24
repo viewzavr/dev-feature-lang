@@ -300,7 +300,8 @@ register_feature name="render-param-slider" {
             sl.setParam("max", env.params.gui.max );
             sl.setParam("step", env.params.gui.step );
             
-            sl.callCmd("refresh_slider_pos");
+            //console.log("calling refresh_slider_pos",env.params.gui)
+            //sl.callCmd("refresh_slider_pos");
           }
         `;
       };

@@ -111,11 +111,14 @@ register_feature name="slider" {
 
          add_cmd name="refresh_slider_pos" 
                  code="
-                 //console.log('refreshing slider', env.host.params.value,env.host);
+                 //console.log('refreshing slider', env.host.params.value,env.host.dom.max);
                  env.host.dom.value = env.host.params.value;
                  // не канает потому что там и так сохраняется в кеше это значение
                  env.host.setParam('dom_obj_value', env.host.params.value)
                  ";
+
+         // если мы садимся на max параметр то до dom еще не докатывается получается        
+         on "param_dom_max_changed" cmd=".->refresh_slider_pos";
 	    }}
 	{
 		/*

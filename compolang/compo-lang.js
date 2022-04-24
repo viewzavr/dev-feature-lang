@@ -116,7 +116,8 @@ var compolang_modules = {};
 // а то уже взрыв мозга, что загружать, package или combolang.
 export function load(env,opts) 
 {
-  env.feature("dbg_skip");
+  //fff
+  //env.feature("dbg_skip");
 
   env.feature("simple-lang");
   //env.parsed_alive = false;
@@ -124,11 +125,29 @@ export function load(env,opts)
 
   env.addString("files");
 
+/*
   env.onvalues_any( ["files",0], (files, files0) => {
-    files ||= files0;
-    if (!files) return;
-    files.split(/\s+/).map( loadfile )
+    //env.setParam("pending",proms);
   });
+*/
+  env.trackParam( "files", process_file_params );
+  env.trackParam( 0, process_file_params );
+
+  function process_file_params() {
+    //files ||= files0;
+    let files = env.params.files || env.params[0];
+    if (!files) return;
+    let proms = Promise.all( files.split(/\s+/).map( loadfile ) );
+    /// пока такой вот хак выходит
+    env.restoreChildrenFromDump = () => proms;
+  }
+
+/*
+  env.restoreChildrenFromDump = (dump, ismanual) => {
+    debugger;
+    return Promise.resolve("success");
+  }
+*/
 
   function loadfile(file) {
      if (!file) return;
@@ -150,15 +169,26 @@ export function load(env,opts)
 
      let new_base_url = env.vz.getDir( file );
      //console.log("load: loading",file)
-     fetch( file ).then( (res) => res.text() ).then( (txt) => {
-       // нужна sub-env для отслеживания base-url
-       var subenv = env.create_obj( {} );
-       subenv.feature("simple-lang");
-       subenv.addLabel("source_file", file );
-       //subenv.setParam("source_file", file );
-       subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url, diag_file: file } );
-       // было
-       //subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url} );
+
+     // будем возвращать промису когда там все загрузится
+     return new Promise( (resolve,reject) => {
+
+       fetch( file ).then( (res) => res.text() ).then( (txt) => {
+         // нужна sub-env для отслеживания base-url
+         var subenv = env.create_obj( {} );
+         subenv.feature("simple-lang");
+         subenv.addLabel("source_file", file );
+         //subenv.setParam("source_file", file );
+         let p1 = subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url, diag_file: file } );
+
+         // было
+         //subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url} );
+
+         p1.then( () => {
+           resolve(); // загрузили, пропарсили все там
+         });
+       });
+
      });
   }
 }
@@ -478,14 +508,24 @@ export function setter( env )
 
    env.addObjectRef("object","");
 
+   ////////////////////////////// кусочек глупого кеширования
+   let tobj;
+   let tname;
+   env.onvalue("target",(t) => {
+      var arr = t.split("->");
+      tname = arr[1];
+      tobj = env.findByPath( arr[0] );
+   })
+   //////////////////////////////
+
    env.addCmd( "apply",() => {
       //console.log("called setter apply. value=",env.params.value);
 
       if (env.params.target) {
-        var arr = env.params.target.split("->");
-        var tobj = env.findByPath( arr[0] );
-        if (tobj) {
-          tobj.setParam( arr[1], env.params.value, env.params.manual );
+        //var arr = env.params.target.split("->");
+        //var tobj = env.findByPath( arr[0] );
+        if (tobj && tname) {
+          tobj.setParam( tname, env.params.value, env.params.manual );
         } else console.log("setter: target obj not found",arr);
       }
       else

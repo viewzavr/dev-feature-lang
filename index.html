@@ -56,7 +56,7 @@
     import * as Player from "./viewzavr-system-a/player/init.js";
     var vzPlayer = Player.create( vz, qmlEngine );
     window.vzPlayer = vzPlayer;
-    vzPlayer.feature("switch_to_editor_kbd switch_to_editor_link");
+    // vzPlayer.feature("switch_to_editor_kbd switch_to_editor_link");
     
     //////////////////////////// graphical api
     import * as VisAPI from "./viewzavr-system-a/graphical-api/init.js";
@@ -79,6 +79,8 @@
 
     var htmldir = vz.getDir(import.meta.url)  
     vzPlayer.loadPackage( htmldir + "./viewzavr-system-a/features/list.txt" ).then( () => {
+
+    vzPlayer.feature("switch_to_editor_kbd switch_to_editor_link");
     
     vzPlayer.addPackage( {code:"lib3d",url:(htmldir + "./libs/lib3d/lib3d.js")});
     vzPlayer.addPackage( {code:"csv",url:(htmldir + "./libs/csv/features.js")});
