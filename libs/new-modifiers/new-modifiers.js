@@ -17,3 +17,126 @@
 export function setup(vz, m) {
   vz.register_feature_set( m );
 }
+
+export function x_modify( env ) 
+{
+
+  let modified_objs = {}; // todo: set
+
+  function getobjid(obj) {
+    if (!obj.$vz_unique_id)
+        obj.feature("vzf_object_uniq_ids");
+    return obj.$vz_unique_id;       
+  }
+
+  // input - приаттачить всем объектам из input
+  //         если уже ранее что-то аттачили, то раз-аттачить у объектов которые были в input и их в input не стало.
+
+  // алгоритм
+  // 1 всех кого еще не посылали - послать аттач
+  // 2 тех кого посылали и нет в списке - послать детач
+  let iter = 0;
+  env.onvalue("input",(i) => {
+    iter++;
+
+    if (!Array.isArray(i)) i = [i];
+
+    for (let obj of i) {
+      let id = getobjid( obj );
+
+      if (modified_objs[id]) {
+         modified_objs[id] = iter;
+         continue;
+      }
+
+      modified_objs[id] = iter;
+      
+      for (let c of env.ns.getChildren()) {
+        c.emit("attach",obj);
+      }
+    }
+
+    for (let k of Object.keys( modified_objs )) {
+      if (modified_objs[k] < iter) {
+        delete modified_objs[k];
+        for (let c of env.ns.getChildren()) {
+          c.emit("detach",obj);
+        }
+      }
+    };
+  
+  });
+
+  env.on("remove",() => env.setParam( "input",[] )); // посмотрим хватит не хватит
+
+  // второй протокол.. видимо, несовместим с первым
+
+  env.on("attach",(obj) => {
+    //modified_objs[ getobjid( obj ) ] = 1;
+    
+    for (let c of env.ns.getChildren()) {
+        c.emit("attach",obj);
+    }
+  })
+
+  env.on("detach",(obj) => {
+    for (let c of env.ns.getChildren()) {
+        c.emit("detach",obj);
+    }
+    //delete modified_objs[ getobjid( obj ) ];
+  })
+
+  ////////////////////// todo:
+  // on appendChild, on removeChild...
+
+}
+
+export function x_on( env  )
+{
+  env.feature("func");
+
+  let detach = {};
+
+  env.on("attach",(obj) => {
+
+    var u1 = () => {};
+    
+    let k1 = env.onvalue( name, connect );
+    let k2 = env.onvalue( 0, connect );
+
+    function connect(name,name0) {
+      name ||= name0;
+
+      u1();
+      //console.log("on: subscribing to event" , name, env.getPath() )
+      u1 = obj.on( name ,(...args) => {
+        //console.log("on: passing event" , name )
+        let fargs = [ obj ].concat( args );
+        // получается крышеснос
+        env.callCmd("apply",...fargs);
+        // идея - можно было бы всегда в args добавлять объект..
+      })
+
+      //console.log("on: connected",name,env.getPath())
+      env.emit("connected", obj);
+     }
+
+     detach[ obj.$vz_unique_id ] = () => { k1(); k2(); u1(); };
+
+     return () => { k1(); k2(); u1(); } 
+
+  });
+
+  env.on("detach",(obj) => {
+    let f = detach[ obj.$vz_unique_id ];
+    if (f) {
+      f();
+      delete detach[ obj.$vz_unique_id ];
+    }
+  });
+  // ну вроде как remove нам не надо? modify же все разрулит?
+  // так да не так. если объект сам удаляется по каким-то причинам.
+  // или если он кстати динамически добавляется.
+  // это должен получается modify тоже разруливать...
+
+}
