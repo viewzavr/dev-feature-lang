@@ -130,7 +130,7 @@ register_feature name="param_checkbox" code=`
 
   // хак треша
   if (!env.paramname().startsWith("item"))
-      env.delayed( setup );  // треш конечно
+      env.delayed( setup )();  // треш конечно
 
   env.on("remove",() => {
     if (t) t(); t = null;
@@ -141,8 +141,11 @@ register_feature name="param_file" code=`
   env.feature("param_base"); 
   var t;
 
+  //console.log("param_file: init",env.getPath());
   function setup() {
+
     let tgt = env.tgt();
+    //console.log("param_file: setting up",env.getPath(),tgt);
     tgt.addFile( env.paramname(),env.params.value );
     if (t) t();
     t = tgt.trackParam( env.paramname(),(v) => {
@@ -150,8 +153,11 @@ register_feature name="param_file" code=`
     });
   }
   //setup();
-  env.delayed( setup );  // треш конечно
+  
+  env.delayed( setup )();  // треш конечно
+  
   env.on("remove",() => {
+    //console.log("param_file: removed",env.getPath());
     if (t) t(); t = null;
   });
 `;
@@ -172,7 +178,7 @@ register_feature name="param_files" code=`
     });
   }
   //setup();
-  env.delayed( setup );  // треш конечно
+  env.delayed( setup )();  // треш конечно
   env.on("remove",() => {
     if (t) t(); t = null;
   });
@@ -200,7 +206,7 @@ register_feature name="param_label" code=`
     });
   }
   //setup();
-  env.delayed( setup, 0 );  // треш конечно
+  env.delayed( setup )();  // треш конечно
   env.on("remove",() => {
     if (t) t(); t = null;
   });
@@ -238,7 +244,7 @@ register_feature name="param_string" code=`
     });
   }
   //setup();
-  env.delayed( setup, 0 );  // треш конечно
+  env.delayed( setup )();  // треш конечно
   env.on("remove",() => {
     if (t) t(); t = null;
   });
@@ -258,7 +264,7 @@ register_feature name="param_status" code=`
     });
   }
 
-  env.delayed( setup, 0 );  // треш конечно
+  env.delayed( setup )();  // треш конечно
   env.on("remove",() => {
     if (t) t(); t = null;
   });
@@ -278,7 +284,7 @@ register_feature name="param_text" code=`
     });
   }
   //setup();
-  env.delayed( setup, 0 );  // треш конечно
+  env.delayed( setup )();  // треш конечно
   env.on("remove",() => {
     if (t) t(); t = null;
   });
@@ -297,7 +303,7 @@ register_feature name="param_color" code=`
     });
   }
   //setup();
-  env.delayed( setup, 0 );  // треш конечно
+  env.delayed( setup )();  // треш конечно
   env.on("remove",() => {
     if (t) t(); t = null;
   });
@@ -327,7 +333,7 @@ register_feature name="param_ref" code=`
     })
   }
   //setup();
-  env.delayed( setup, 0 );  // треш конечно
+  env.delayed( setup )();  // треш конечно
   env.on("remove",() => {
     if (t) t(); t = null;
   });
@@ -357,7 +363,7 @@ register_feature name="param_objref" code=`
     })
   }
   //setup();
-  env.delayed( setup, 0 );  // треш конечно
+  env.delayed( setup )();  // треш конечно
   env.on("remove",() => {
     if (t) t(); t = null;
   });
@@ -380,7 +386,7 @@ register_feature name="param_editablecombo" code=`
     });
   }
   //setup();
-  env.delayed( setup, 0 );  // треш конечно
+  env.delayed( setup )();  // треш конечно
   env.on("remove",() => {
     if (t) t(); t = null;
   });
@@ -400,7 +406,7 @@ register_feature name="param_cmd" code=`
     } );
   }
 
-  env.delayed( setup, 0 );  // треш конечно
+  env.delayed( setup )();  // треш конечно
   //setup();
   
 `;

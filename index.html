@@ -122,10 +122,17 @@
         */
 
         //obj.feature("timers")
-        setTimeout( () => {
+
+        // типа оно не сразу отработает, на это одна надежда
+        // но вообще надо нормальный метод с промисом. 
+        // потому что нам и отработать надо 1 раз всего..
+
+        obj.on("done",(res) => {
+          console.log("done catched",res)
           vzPlayer.loadFromHash();
+          console.log("restored");
           vzPlayer.startSavingToHash();
-        },500); // todo треш - надо дождаться загрузки, а не.
+        });
 
     });
 

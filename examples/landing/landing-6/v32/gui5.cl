@@ -8,8 +8,9 @@ register_feature name="collapsible" {
       pcol: 
       column visible=false {{ use_dom_children from=@../..; }};
 
-      deploy_features input=@btn  features=@cola->button_features;
-      deploy_features input=@pcol features=@cola->body_features;
+      insert_features input=@btn  list=@cola->button_features;
+      insert_features input=@pcol list=@cola->body_features;
+
     };
 
   };

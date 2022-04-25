@@ -6,6 +6,7 @@
 
 register_feature name="axes_box" {
   root: node3d
+  /*
     // пришлось это из КСКВ-проекта сюда перетащить..
     // потому что так-то и метки include_gui из этой же оперы
     // а причем render-guis2 вызывает render-params что как бы не рекурсивно..
@@ -16,6 +17,7 @@ register_feature name="axes_box" {
       |
       render-guis2;
     }
+  */  
   {
 
   	size: param_slider min=0 max=100 step=1;

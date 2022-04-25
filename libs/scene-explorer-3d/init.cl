@@ -48,8 +48,8 @@ register_feature name="get_param" code=`
 
 register_feature name="install_explorer_feature" {
   rt: {
-    deploy_features input=@explr  features=(@rt->dat | get_param name="explorer-features");
-    deploy_features input=@sgraph features=(@rt->dat | get_param name="generator-features");
+    insert_features input=@explr  list=(@rt->dat | get_param name="explorer-features");
+    insert_features input=@sgraph list=(@rt->dat | get_param name="generator-features");
     };
 };
 

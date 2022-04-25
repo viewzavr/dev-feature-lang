@@ -249,9 +249,16 @@ register_feature name="combobox" {
 	     setup_index();
 	     setup_values();
 	   });
+	   main.onvalue("value",recompute_index);
+
+	   function recompute_index() {
+	   	  let index = (main.params.values || []).indexOf( main.params.value );
+	      main.setParam("index",index);
+	      setup_index();
+	   }
 	   function setup_index() {
 	   	  if (!main.params.dom) return;
-	   	  // console.log("setup-index",main.params.index)
+	   	  //console.log("setup-index",main.params.index)
 	   	  main.params.dom.selectedIndex = main.params.index;
 	   }
 	   function setup_values() {
@@ -270,20 +277,15 @@ register_feature name="combobox" {
 	   	  main.params.dom.innerHTML = t;
 
 	   	  // после этого комбобокс дом сбивается, и надо его перенастроить
-	   	  
+	   	  // единственное проблема - может оказаться что value еще неподходящий (еще не прислали, потом пришлют)
+	   	  // поэтому тут мы отрабатываем случай если value подходящий
 	   	  let index = (main.params.values || []).indexOf( main.params.value );
+	   	  //console.log("cb interma, ",main.params.value,main.params.values ,index)
 	   	  if (index >= 0)
 	   	  	main.params.dom.selectedIndex = index;
-	   	  // короче пока так
-	   	   	
-	   	  /*  	
-	   	  	но это крышеснос у нас и так будет val2index
-	   	  	на самом деле надо обнулить наш index и тогда пройдет все само
-	   	  */
-	   	  // чето не сработало	
-	   	  //	  main.setParamWithoutEvents("index",undefined)
+
 	   }
- ';	
+    ';	
 
     ///////////////////////////////////////////////
     // мостик из dom в cl
@@ -299,39 +301,6 @@ register_feature name="combobox" {
 		` {
 			//emit @root "user_change_value" 
 		};
-
-    ///////////////////////////////////////////////
-		// конвертация value<=>index
-		val2index: compute value=@..->value values=@..->values code=`
-		    //console.log("val2index")
-		    // надо поотлаживать, тут сумасшествие... ну или вовсе от этого index отказаться - много раз вызывается
-			  if (typeof(params.value) != "undefined" && params.values) {
-		    	var index = (params.values || []).indexOf( params.value );
-		    	//console.log("setting",index);
-        	env.setParam("output",index);
-        }
-        else {
-        	//console.log("setting",0);
-          env.setParam("output",0);
-        }
-		`;
-		/* в общем выяснилось что если у нас 2 входных парараметра синхронизированных
-		   то это отстой - ставим value оно уходит на круг К на счет index и обратно в value
-		   .. и если посередине этого поставится новый value то оно заткнется затем value из того круга К
-		   .. ну либо втыкать обработку событий надо. 
-
-		   в общем пока - установка только по value.
-
-		index2val: compute index=@..->index values=@..->values code=`
-		   
-		   var val = (params.values || [])[ params.index ];
-		   console.log("index2val: compute called, params.index=",params.index,"setting to ",val)
-		   env.setParam("output",val);
-		`;
-		link to="..->value" from="@index2val->output";
-		*/
-
-		link to="..->index" from="@val2index->output";
 	  
 	};
 };

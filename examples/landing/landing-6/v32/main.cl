@@ -42,6 +42,7 @@ feature "view0" text="Выбор файла" {
   column plashka {
     text "Укажите текстовый файл с данными";
     render-params  input=@fileparams;
+    text "params done";
   };  
   // а зачем тут render-params - можно просто гуи порисовать
   // on изменение в выборе файла - перейти в вид1
@@ -79,22 +80,25 @@ feature "one_of_keep_state" {
   root: modify input=@. {
     on "destroy_obj" {
        lambda @root code=`(oneof, obj, index) => {
+         if (!oneof) return;
          let dump = obj.dump();
          let oparams = oneof.params.objects_params || [];
          oparams[ index ] = dump;
-         //console.log("dump=",dump)
+         //console.log("oneof dump=",dump)
          oneof.setParam("objects_params", oparams, true );
        }`;
      };
 
      on "create_obj" {
        lambda @root code=`(oneof, obj, index) => {
+         if (!oneof) return;
          let oparams = oneof.params.objects_params || [];
          let dump = oparams[ index ];
-         //console.log("using dump to restore",dump)
+         console.log("on oneof create-obj: using dump to restore",dump)
          if (dump) {
              dump.manual = true;
              console.log("one-of-keep-state: restoring from dump",dump)
+             console.log(oneof,obj,index)
              obj.restoreFromDump( dump, true );
          }
        }`;
@@ -106,6 +110,7 @@ feature "one_of_transfer_partial_state" {
   root: modify input=@. {
     on "destroy_obj" {
        lambda @root->input code=`(oneof, obj, index) => {
+         if (!oneof) return;
          let dump = obj.dump();
          let oparams = oneof.params.objects_params || [];
          oparams[ index ] = dump;
@@ -115,6 +120,7 @@ feature "one_of_transfer_partial_state" {
 
      on "create_obj" {
        lambda @root->input code=`(oneof, obj, index) => {
+         if (!oneof) return;
          let oparams = oneof.params.objects_params || [];
          let dump = oparams[ index ];
          //console.log("using dump to restore",dump)

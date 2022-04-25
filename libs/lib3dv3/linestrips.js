@@ -29,6 +29,10 @@ export function linestrips( env ) {
     //debugger;
   });
 
+  env.trackParam("radius",(r) => {
+    console.log("r=",r)
+  })
+
 }
 
 export function linestrip( env ) {

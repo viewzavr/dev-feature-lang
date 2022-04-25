@@ -262,6 +262,7 @@ export function camera3d( env ) {
       cam.position.set( v[0],v[1],v[2] );
   })
   env.onvalue( "center", (v) => {
+    //console.log("onval center",v)
     if (v !== a2)
        cam.lookAt( new THREE.Vector3( v[0],v[1],v[2] ) );
   })

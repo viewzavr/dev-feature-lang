@@ -46,6 +46,7 @@ register_feature name="render-guis" {
 
 register_feature name="get-params-names" {
   eval code=`() => {
+
       env.unsub1 ||= () => {};
       env.unsub1();
       env.unsub1 = () => {};
@@ -56,6 +57,8 @@ register_feature name="get-params-names" {
           // return env.params.input.getGuiNames();
           // но нет, надо взять те что не internal..
           let gn = env.params.input.getGuiNames();
+          // console.log("gn=",gn,env.params.input)                
+
           let acc = [];
           for (let nn of gn)
             if (!env.params.input.getParamOption(nn,"internal"))
@@ -110,12 +113,15 @@ register_feature name="render-one-param" {
       x: func {{ delay_execution;}} cmd="@dm->apply";
 
       mmm: modify input=@dg->obj {
-        on (join "gui-changed-" @dg->name) cmd="@dm->redeploy"
-        {{ on "connected" cmd="@dm->apply"; }}
+        on (join "gui-changed-" @dg->name) cmd="@dm->apply"
+        {{
+           on "connected" cmd="@dm->apply";
+        }};
       }
 
     }}
     {
+      
       dm: recreator list={
         render-one-param-p obj=@..->obj name=@..->name;
       };

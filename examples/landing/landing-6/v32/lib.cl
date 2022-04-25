@@ -68,7 +68,7 @@ rl_root: collapsible text=@.->title
                  combobox  values=(@co->input | get_param "sibling_types" )
                            titles=(@co->input | get_param "sibling_titles")
                            value=(detect_type @co->input @.->values)
-                           style="width: 120px;"
+                           style="width: 120px;" 
                    {{ on "user_changed_value" { // "param_value_changed"
                       lambda @co->input code=`(obj,v) => {
                         // вот мы спотыкаемся - что это, начальное значение или управление пользователем
@@ -121,12 +121,15 @@ rl_root: collapsible text=@.->title
 // эта странная вещь т.к. я отказался от типа объекта и теперь его не знаю. хм.
 detect_type: feature {
   eval code="(obj,types) => {
+    //console.log('detect_type:',obj,types)
     if (obj && types) {
       for (let f of types)
         if (obj.$features_applied[f]) {
+          //console.log(f);
           return f;
         };
     };
+    //console.log(undefined)
   }"
 };
 

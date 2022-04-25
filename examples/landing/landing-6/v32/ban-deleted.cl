@@ -6,6 +6,8 @@
   затем при восстановлении дампа - удаляем этих детей.
 */
 
+debugger;
+
 append_feature "datavis" "mark_deleted_children";
 append_feature "staticvis" "mark_deleted_children";
 append_feature "textvis" "mark_deleted_children";

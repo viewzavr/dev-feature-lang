@@ -415,12 +415,14 @@ export function register_feature( env, envopts ) {
       compalang_part = (tenv) => {
         //console.log("children=",children)
 
+        let promarr = [];
         for (let cname of Object.keys( children )) {
           var edump = children[cname];
           edump.keepExistingChildren = true; // смехопанорама
           // но иначе применение фичи может затереть созданное другими фичами или внешним клиентом
           edump.keepExistingParams = true;
-          tenv.restoreFromDump( edump );
+          let res = tenv.restoreFromDump( edump );
+          promarr.push( Promise.resolve(res) );
 
           // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
           // todo тут надо scope env делать и детям назначать, или вроде того
@@ -430,16 +432,22 @@ export function register_feature( env, envopts ) {
          }; 
             
         //tenv.vz.createChildrenByDump( dump, obj, manualParamsMode );
+        return Promise.all( promarr );
       }
     }
 
     apply_feature = (e,...args) => {
-      js_part( e,...args);
-      compalang_part( e,...args);
+      if (e.removed) {
+        debugger;
+        return Promise.all("removed");
+      }
+      let r1 = js_part( e,...args);
+      let r2 = compalang_part( e,...args);
+      return Promise.all( [Promise.resolve(r1), Promise.resolve(r2)] );
     }
 
     env.vz.register_feature( env.params.name, (e,...args) => {
-      apply_feature(e,...args)
+      return apply_feature(e,...args)
     } );
   }
 
@@ -617,10 +625,11 @@ export function feature_lambda( env )
    env.feature("call_cmd_by_path");
 
   let func;
-  env.onvalues_any(["code"],(code,code0) => {
-     code ||= code0;
-     func = eval( code );
-  })
+  function update_func() {
+    let code = env.params.code;
+    func = eval( code );
+  }
+  env.onvalues_any(["code"],update_func);
 
    //console.log( "feature_func: installing apply cmd",env.getPath());
    env.addCmd( "apply",(...extra_args) => {
@@ -629,8 +638,10 @@ export function feature_lambda( env )
          return;
       }
 
+      // получается нам apply может прилететь пока мы даже еще onvalues не обработали.. нормально..
+      if (!func) update_func();
       if (!func) {
-        console.error("lambda: code is not defined but apply is called");
+        console.error("lambda: code is not defined but apply is called", env.getPath());
         return;
       }
       console.log("lambda apply",env.getPath())
@@ -789,6 +800,8 @@ export function auto_apply( obj ) {
 }
 
 
+// вычисляет js код
+// каждый раз когда происходит изменение переменной code
 export function js( env )
 {
   env.onvalue("code",(code) => {
@@ -1123,9 +1136,12 @@ export function feature_eval( env ) {
   env.setParam("output",undefined);
   env.setParamOption("output","internal",true);
 
+  //console.error("compolang eval init",env.getPath())
+
   function evl() {
+    //console.error("compolang eval working",env.getPath())
     if (!func) {
-      //console.error("compolang eval: code not specified",env.getPath())
+      console.error("compolang eval: code not specified",env.getPath())
       return;
     }
 
@@ -1162,7 +1178,8 @@ export function feature_eval( env ) {
 
   env.addCmd("recompute",eval_delayed);
 
-  eval_delayed();
+  var eval_delayed2 = env.delayed( evl,2 )
+  eval_delayed2();
 }
 
 // искалка объектов. вход строка pattern выход output набор найденных окружений.
@@ -1371,7 +1388,7 @@ export function on( env  )
   var u1 = () => {};
   //env.createLinkTo( {param:"name",from:"~->0",soft:true });
 
-  //console.log("env on init", env );
+  //console.log("on: env on init", env.getPath() );
   env.onvalues_any( ["name",0], (name,name0) => {
     name ||= name0;
 
@@ -1385,6 +1402,7 @@ export function on( env  )
       // идея - можно было бы всегда в args добавлять объект..
     })
 
+    //console.log("on: connected",name,env.getPath())
     env.emit("connected");
   })
   env.on("remove",u1);
@@ -1741,6 +1759,7 @@ export function recreator( env, opts )
 
   env.addCmd("apply",() => {
     //console.log("redeploy called",env.getPath())
+
     deploy_normal_env_all( env.params.list );
   });
 
@@ -1753,7 +1772,14 @@ export function recreator( env, opts )
      created_envs = [];
  }
      
+ let iteration = 0;    
  function deploy_normal_env_all(input) {
+
+     iteration++;
+     let my_iteration = iteration;
+
+     //console.log("recreator: deploying",env.getPath(),"my_iteration=",my_iteration)
+
      env.emit("before_deploy", created_envs);
      close_envs();
      let parr=[];
@@ -1768,11 +1794,18 @@ export function recreator( env, opts )
         edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
         var p = env.vz.createSyncFromDump( edump,null,env.ns.parent, edump.$name );
         p.then( (child_env) => {
+           if (my_iteration != iteration) {
+             //console.log("recreator removing out of iter: ", child_env.getPath())
+             child_env.remove(); // неуспела
+             return;
+           }
            created_envs.push( child_env );
         });
         parr.push(p);
      }
      Promise.all(parr).then( (values) => {
+       if (my_iteration != iteration) 
+         return;
        //console.log("deploy_many: emitting after_deploy",env.getPath())
        env.emit("after_deploy",values);
        // и еще такая шутка а там видно будет
@@ -1931,7 +1964,7 @@ export function deploy_many_to( env, opts )
   feautures - список фич
 */
 
-export function deploy_features( env )
+export function deploy_features___deprecated( env )
 {
   
   env.onvalues(["input","features"],(input,features) => {
@@ -2006,9 +2039,13 @@ export function insert_features( env )
 
   env.createLinkTo( {param:"input",from:"~->0",soft:true });
 
+  let pending_perform;
   env.restoreChildrenFromDump = (dump, ismanual) => {
-    children = dump.children;
-    if (typeof(pending_perform) !== "undefined") perform( pending_perform );
+    // но вообще вопросов все больше получается..
+    if (Object.keys( dump.children ) != 0) {
+      children = dump.children;
+      if (typeof(pending_perform) !== "undefined") perform( pending_perform );
+    }  
     return Promise.resolve("success");
   }
   
@@ -2018,16 +2055,23 @@ export function insert_features( env )
   function perform() {
 
     let input = env.params.input || [];
-
+    
+    //console.log("modifier: perform",env.getPath(), input)
     /*
-    console.log("modifier: perform",env.getPath(), input)
     if (input_used && input_used != input)
       console.log("modifier: input changed",env.getPath()," from",input_used,"to",input)
     input_used = input;
     */
 
     if (!Array.isArray(input)) input=[input]; // допускаем что не список а 1 штука
-    let features = env.params.list || Object.values(children);
+    let features = env.params.list || Object.values(children || {});
+
+    if (features.length == 0) {
+      pending_perform = true;
+      return;
+    }
+    pending_perform = false;
+
     dodeploy( input, features );
     env.setParam("output",created_envs);
   }
@@ -2036,7 +2080,7 @@ export function insert_features( env )
      // ну тут поомтимизировать наверное можно, но пока тупо все давайте очищать
      close_envs();
      //debugger;
-     //console.log("insert_features: objects_arr=",objects_arr,"features_list=",features_list)
+     //console.log("insert_features: ",env.getPath(),"objects_arr=",objects_arr,"features_list=",features_list)
 
      if (!features_list) return;
 
@@ -2059,15 +2103,20 @@ export function insert_features( env )
 
         rec.lexicalParent = env;
 
-        let new_feature_env = env.vz.importAsParametrizedFeature( rec, tenv );
-        new_feature_env.setParam( "objectIndex",ii);
-        created_envs.push( new_feature_env );
+        let np = env.vz.importAsParametrizedFeature( rec, tenv );
+        let my_ii = ii;
+        np.then( new_feature_env => {
+          new_feature_env.setParam( "objectIndex",my_ii);
+          created_envs.push( new_feature_env );
 
-        // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
-        // todo тут надо scope env делать и детям назначать, или вроде того
-        // но пока обойдемся так
-        new_feature_env.$env_extra_names ||= {};
-        new_feature_env.$env_extra_names[ new_feature_env.$feature_name ] = true;
+          // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
+          // todo тут надо scope env делать и детям назначать, или вроде того
+          // но пока обойдемся так
+          new_feature_env.$env_extra_names ||= {};
+          new_feature_env.$env_extra_names[ new_feature_env.$feature_name ] = true;
+        })
+
+
       };
       ii++;
      };
@@ -2139,7 +2188,7 @@ export function insert_children( env )
      if (!features_list) return;
 
      if (!Array.isArray(features_list)) {
-      console.error("deploy_features: features_list is not array!",features_list);
+      console.error("insert_children: features_list is not array!",features_list);
 
       return;
      }
