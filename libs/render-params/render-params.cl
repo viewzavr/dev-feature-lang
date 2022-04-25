@@ -110,7 +110,7 @@ register_feature name="render-one-param" {
 
       on "param_obj_changed"  cmd="@x->apply";
       on "param_name_changed" cmd="@x->apply";
-      x: func {{ delay_execution;}} cmd="@dm->apply";
+      x: func {{ delay_execution }} cmd="@dm->apply";
 
       mmm: modify input=@dg->obj {
         on (join "gui-changed-" @dg->name) cmd="@dm->apply"

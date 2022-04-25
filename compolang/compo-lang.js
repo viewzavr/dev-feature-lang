@@ -644,7 +644,7 @@ export function feature_lambda( env )
         console.error("lambda: code is not defined but apply is called", env.getPath());
         return;
       }
-      console.log("lambda apply",env.getPath())
+      //console.log("lambda apply",env.getPath())
 
       let args = [];
       for (let i=0; i<env.params.args_count;i++) 
@@ -657,7 +657,7 @@ export function feature_lambda( env )
       
 
       return func.apply( env,args )
-   } )
+   } );
 }
 
 // вариант: вызывает содержимое после задержки
@@ -665,16 +665,17 @@ export function feature_lambda( env )
 export function delay_execution( env ) {
   env.feature("delayed");
 
+  let orig_apply;
   function setup() {
-    //console.log("delay_execution: setting up on",env.host.apply)
-    if (env.host?.apply?.delay_execution_installed)
-      return;
-    env.host.apply = env.delayed( env.host.apply );
-    env.host.apply.delay_execution_installed=true;
+    if (!orig_apply) orig_apply = env.host.apply;
+
+    env.host.apply = env.delayed( orig_apply, env.params.timeout || 0 );
   }
   if (env.host.apply)
       setup();
   env.host.on("gui-changed-apply",setup );
+
+  env.onvalue("timeout",setup);
   //console.log("delay_execution: hooked into ",env.host.getPath())
   //env.host.onvalue("apply",setup);
 }
@@ -1298,8 +1299,16 @@ export function console_log( env, options )
     print();
     env.setParam("output",input); // доп-фича - консоле-лог пропускает дальше данные
   });
-  
+
   env.addString("text");
+
+  // первый вид поведения - само по себе, когда текст появится.
+  // второй вид поведения - по input-у.
+
+  // третий вид поведения - по apply
+  env.addCmd("apply",(...args) => {
+    console.log( env.params.text || "", env.params.input || "", ...args);
+  })
 }
 
 export function console_log_input( env, options )
@@ -1380,6 +1389,7 @@ export function onevent( env  )
 /* todo. и поработать что там за режим внутри модификатора. по идее все должно быть просто.
    интуитивно: some-modifier: feature { on ....; on ..... - и это как бы тело модификатора, применяется к цели получается }
 */   
+// feature_on
 export function on( env  )
 {
   let host = env.host;
@@ -1389,7 +1399,13 @@ export function on( env  )
   //env.createLinkTo( {param:"name",from:"~->0",soft:true });
 
   //console.log("on: env on init", env.getPath() );
-  env.onvalues_any( ["name",0], (name,name0) => {
+
+  //env.onvalues_any( ["name",0], connect );
+  // типа надо без пропуска тактов..
+  env.trackParam("name",(n) => connect(n));
+  env.trackParam(0,(n) => connect(n));
+
+  function connect(name,name0) {
     name ||= name0;
 
     u1();
@@ -1404,7 +1420,7 @@ export function on( env  )
 
     //console.log("on: connected",name,env.getPath())
     env.emit("connected");
-  })
+  }
   env.on("remove",u1);
 }
 
@@ -1452,7 +1468,7 @@ export function on( env, options )
 // очень похоже на connection и на onevent но еще короче и работает пока с хостом
 // name - имя события которое мониторить
 // далее работает как функция
-// feature_on
+
 /*
 export function on( env  )
 {
@@ -1623,11 +1639,15 @@ export function one_of( env, options )
       pending_perform = num;
       return;
     }
+
+     env.emit("pre_create_obj", edump, num );
      
      edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
+
      var p = env.vz.createSyncFromDump( edump,null,env.ns.parent );
 
      p.then( (child_env) => {
+
           created_envs.push( child_env );
           env.emit("create_obj", child_env, num )
           created_num = num;
@@ -2037,6 +2057,8 @@ export function insert_features( env )
 {
   var children;
 
+  //console.log("modifier: init",env.getPath())
+
   env.createLinkTo( {param:"input",from:"~->0",soft:true });
 
   let pending_perform;
@@ -2044,12 +2066,17 @@ export function insert_features( env )
     // но вообще вопросов все больше получается..
     if (Object.keys( dump.children ) != 0) {
       children = dump.children;
-      if (typeof(pending_perform) !== "undefined") perform( pending_perform );
-    }  
+      if (typeof(pending_perform) !== "undefined") {
+         // но вообще это заодно еще и точка синхронизации
+         // поэтому - вот определенеия из детей приехали и мы начинаем их выполнять
+         // и скажем что все готово только когда их сделаем
+         return perform( pending_perform );
+      }
+    }
+
     return Promise.resolve("success");
   }
   
-  env.onvalues_any(["input","list"],perform);
 
   //let input_used;
   function perform() {
@@ -2072,8 +2099,14 @@ export function insert_features( env )
     }
     pending_perform = false;
 
-    dodeploy( input, features );
-    env.setParam("output",created_envs);
+    let res = dodeploy( input, features );
+
+    // todo надо итерации отслеживать
+    res.then( () => {
+       env.setParam("output",created_envs);
+    });  
+
+    return res;
   }
 
   function dodeploy( objects_arr, features_list ) {
@@ -2082,17 +2115,21 @@ export function insert_features( env )
      //debugger;
      //console.log("insert_features: ",env.getPath(),"objects_arr=",objects_arr,"features_list=",features_list)
 
-     if (!features_list) return;
+     if (!features_list) return Promise.resolve("no_features");
 
      if (!Array.isArray(features_list)) {
       console.error("insert_features: features_list is not array!",features_list);
 
-      return;
+      return Promise.resolve("features are not array");;
      }
 
      let to_deploy_to = objects_arr;
 
+     let promarr = [];
+
      let ii=0;
+     //console.log("modifier: unrolling",env.getPath(), to_deploy_to, features_list)
+
      for (let tenv of to_deploy_to) {
       for (let rec of features_list) {
         //console.log("insert_features is deploying",rec,"to",tenv.getPath())
@@ -2104,9 +2141,15 @@ export function insert_features( env )
         rec.lexicalParent = env;
 
         let np = env.vz.importAsParametrizedFeature( rec, tenv );
+        promarr.push( np );
         let my_ii = ii;
+        let my_tenv = tenv;
         np.then( new_feature_env => {
           new_feature_env.setParam( "objectIndex",my_ii);
+          new_feature_env.setParam( "host",my_tenv); // ну или .input я не знаю
+          //new_feature_env.setParam( "input",my_tenv);
+
+          //child_env.setParam("host") 
           created_envs.push( new_feature_env );
 
           // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
@@ -2120,6 +2163,8 @@ export function insert_features( env )
       };
       ii++;
      };
+
+     return Promise.allSettled( promarr );
   }
 
  var created_envs = [];
@@ -2148,6 +2193,8 @@ export function insert_features( env )
       env.setParam("input",env.host);
     }
  }
+
+ env.onvalues_any(["input","list"],perform);
 
 }
 
@@ -2202,7 +2249,6 @@ export function insert_children( env )
       for (let edump of features_list) {
 
           edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
-
           
           var p = env.vz.createSyncFromDump( edump,null,tenv );
           p.then( (child_env) => {

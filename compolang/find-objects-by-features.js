@@ -6,7 +6,11 @@ export function setup(vz, m) {
 
 // root - с какого объекта искать
 // features - список фич которые объект должен содержать, массив или строка
+// recursive - если объект удовлетворяет, следует ли ли идти в его поддерево?
+// include_root - включать ли root в обзор
+
 // пример: find_objects_bf root=@some features="alfa beta";
+
 export function find_objects_bf( env  ) {
 
   //if (!env.hasParam("root")) env.setParam("root","/");  
@@ -17,10 +21,13 @@ export function find_objects_bf( env  ) {
 
   // субфича - явный флаг recursive для поиска внутри найденных объектов
   if (!env.hasParam("recursive"))
-    env.setParam("recurvsive",true)
+    env.setParam("recursive",true)
 
   if (!env.hasParam("include_root"))
       env.setParam("include_root",true);
+
+  if (!env.hasParam("include_subfeatures"))
+    env.setParam("include_subfeatures",true);
 
   ////// отладка
   let log = () => {};
@@ -49,6 +56,7 @@ export function find_objects_bf( env  ) {
       delayed_begin( r,f );
     else {
       delayed_begin.stop();
+      //debugger;
       begin( r,f );
     }
 
@@ -95,7 +103,7 @@ export function find_objects_bf( env  ) {
   env.on("remove",unsub_all);
   env.on("reset",unsub_all);
 
-  function begin(root,features) {
+  function begin(root,features, include_subfeatures ) {
     //console.log("find_objects_bf begin: root=",root.getPath(),"\nfeatures=",features,"\nobj=",env.getPath())
     //if (root.getPath() == "/")  debugger;
     //unsub_all();
@@ -104,7 +112,8 @@ export function find_objects_bf( env  ) {
     env.emit("reset"); // вызовет всеобщую отписку
     publish_result(); // либо пустой массив будет либо заполнится чем-нибудь уже на этом такте
 
-    if (!features) return;
+    if (typeof(features) !== "string") 
+        return;
 
     if (!Array.isArray(features)) features = features.trim().split(/\s+/);
 
@@ -112,7 +121,7 @@ export function find_objects_bf( env  ) {
     // поэтому приведем все к "стандартному" виду.
     features = features.map( str => str.replaceAll("_","-"));
 
-    traverse_if( root,(obj) => process_one_obj( obj, features ) );
+    traverse_if( root,(obj) => process_one_obj( obj, features ), env.params.include_subfeatures );
   }
 
   function process_one_obj (obj, features ) {
@@ -140,7 +149,7 @@ export function find_objects_bf( env  ) {
       // идея - нельзя ли тут нам как-то красиво подписать объект appendChild на вот это событие перенаправить?...
       let apc_unsub2 = obj.on("rescan-find-objects",() => {
         // process_one_obj(obj)
-        traverse_if( obj,process_one_obj );
+        traverse_if( obj,process_one_obj,env.params.include_subfeatures );
         // тут место для утечки - если объект уже был подписан и просканирован, то мы получается
         // сейчас повторно на-подписываемся.
         // нам бы тогда сохранять, на кого мы уже подписки все нужные оформили?
@@ -152,8 +161,9 @@ export function find_objects_bf( env  ) {
         return false;
 
       // 2. если в объект добавили узла-дитя, то проверять эту дитя
+      //console.log("fobf: subs to obj-append-child",obj.getPath());
       let apc_unsub = obj.on("appendChild",(cobj) => {
-        //log("fobf: obj-append-child",cobj.getPath());
+         //console.log("fobf: obj-append-child",cobj.getPath());
          //log("fobf: obj-append-child",features, cobj.$features_applied, cobj);
          if (!is_object_in_found_set( obj ) || env.params.recursive)
               process_one_obj(cobj,features);
@@ -252,23 +262,28 @@ export function find_objects_bf( env  ) {
 }
 
 // поиск - обход всех детей с вызовом fn
-function traverse_if( obj, fn ) {
+function traverse_if( obj, fn, include_subfeatures ) {
+
   if (!fn( obj )) return;
   var cc = obj.ns.getChildren();
   for (var cobj of cc) {
-    traverse_if( cobj,fn );
+    traverse_if( cobj,fn,include_subfeatures );
   }
-  // экспериментально - пойдем ка по прицепленным фичам
-  cc = obj.$feature_list_envs || [];
-  for (var cobj of cc) {
-    traverse_if( cobj,fn );
-  }
+
+  if (include_subfeatures) {
+
+    // экспериментально - пойдем ка по прицепленным фичам
+    cc = obj.$feature_list_envs || [];
+    for (var cobj of cc) {
+      traverse_if( cobj,fn,include_subfeatures );
+    }
+  }  
 
   // возможность указать дополнительный маршрут
   // важно - проверки на циклы нет
   cc = obj.$find_objects_follow_list || [];
   for (var cobj of cc) {
-    traverse_if( cobj,fn );
+    traverse_if( cobj,fn,include_subfeatures );
   }
 }
 
