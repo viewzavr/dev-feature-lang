@@ -102,7 +102,7 @@ rl_root: collapsible text=@.->title
                    }};
                };
                column {
-                 deploy_many input=(@co->input | get_param name="gui");
+                  insert_children input=@.. list=(@co->input | get_param name="gui");
                };
 
 

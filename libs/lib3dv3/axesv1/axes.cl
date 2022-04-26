@@ -4,9 +4,11 @@
 // size - размер
 // пример: axes_box size=10;
 
+feature "include_gui";
+
 register_feature name="axes_box" {
   root: node3d
-  /*
+  
     // пришлось это из КСКВ-проекта сюда перетащить..
     // потому что так-то и метки include_gui из этой же оперы
     // а причем render-guis2 вызывает render-params что как бы не рекурсивно..
@@ -15,9 +17,9 @@ register_feature name="axes_box" {
       render-params input=@main;
       find-objects pattern_root=@root pattern="** include_gui" 
       |
-      render-guis2;
+      render-guis;
     }
-  */  
+  
   {
 
   	size: param_slider min=0 max=100 step=1;
@@ -57,14 +59,16 @@ register_feature name="axes_lines" {
 // рисует подписи осям
 // вход: s - сдвиг
 register_feature name="axes_titles" {
-  text3d
-    lines=["X","Y","Z"]
-    positions=(compute_output s=@.->s code=`
-    let s = env.params.s;
+  t: text3d
+    lines=(eval @t->names code=`(str) => str.split(/\s+/)`)
+    positions=(eval @.->s code=`(s) => {
     if (!isFinite(s)) return [];
     return [ 0,0,s,
              0,s,0,
              s,0,0
      ]
-  `;)
+    }`;)
+    {
+      ps: param_string name="names" value="X Y Z";
+    }
 };

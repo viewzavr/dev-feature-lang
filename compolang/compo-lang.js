@@ -1144,6 +1144,7 @@ export function feature_eval( env ) {
 
   function evl() {
     //console.error("compolang eval working",env.getPath())
+    if (!func) update_code();
     if (!func) {
       console.error("compolang eval: code not specified",env.getPath())
       return;
@@ -1155,7 +1156,14 @@ export function feature_eval( env ) {
     if (env.hasParam("input")) args.push( env.params.input );
 
     for (let i=0; i<env.params.args_count;i++) 
-      args.push( env.params[i] );
+    {
+      let v = env.params[i];
+      if (typeof(v) == "undefined") { // ну пока так.. хотя странно все это..
+        /// 
+        return;
+      }
+      args.push( v );
+    }
 
     let res = func.apply( env, args );
 
@@ -1172,10 +1180,13 @@ export function feature_eval( env ) {
 
   let func;
 
-  env.onvalues_any(["code"],(code,code0) => {
-     
-     code ||= code0;
-     func = eval( code );
+  function update_code() {
+    if (env.params.code)
+      func = eval( env.params.code );
+  }
+
+  env.onvalues_any(["code"],() => {
+     update_code();
      eval_delayed();
      // итоого у нас уже вызов некий произойдет
   })
