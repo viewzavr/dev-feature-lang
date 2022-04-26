@@ -45,24 +45,24 @@ export function x_modify( env )
       let id = getobjid( obj );
 
       if (modified_objs[id]) {
-         modified_objs[id].iter = iter;;
+         modified_objs[id].iter = iter;
          continue;
       }
 
-      modified_objs[id] = {iter:iter, obj:obj};
-      
+      let rec = {iter: iter, detach_arr_f: [] };
+      modified_objs[id] = rec;
+
       for (let c of env.ns.getChildren()) {
-        c.emit("attach",obj);
+        let d = c.emit("attach",obj);
+        rec.detach_arr_f.push( d );
       }
     }
 
     for (let k of Object.keys( modified_objs )) {
       if (modified_objs[k].iter < iter) {
-        let obj = modified_objs[k].obj;
+        for (let f of modified_objs[k].detach_arr_f)
+           f();
         delete modified_objs[k];
-        for (let c of env.ns.getChildren()) {
-          c.emit("detach",obj);
-        }
       }
     };
   
@@ -74,18 +74,22 @@ export function x_modify( env )
 
   env.on("attach",(obj) => {
     //modified_objs[ getobjid( obj ) ] = 1;
-    
+    arr = [];
     for (let c of env.ns.getChildren()) {
-        c.emit("attach",obj);
+       arr.push( c.emit("attach",obj) );
     }
+    let f =() => arr.map( val => val() );
+    return f;
   })
 
+/*
   env.on("detach",(obj) => {
     for (let c of env.ns.getChildren()) {
         c.emit("detach",obj);
     }
     //delete modified_objs[ getobjid( obj ) ];
   })
+  */
 
   ////////////////////// todo:
   // on appendChild, on removeChild...
@@ -102,19 +106,18 @@ export function x_on( env  )
 
     var u1 = () => {};
     
-    let k1 = env.onvalue( "name", connect );
+    let k1 = env.onvalue( name, connect );
     let k2 = env.onvalue( 0, connect );
 
     function connect(name,name0) {
       name ||= name0;
 
       u1();
-      //console.log("on: subscribing to event" , name, obj.getPath() )
+      //console.log("on: subscribing to event" , name, env.getPath() )
       u1 = obj.on( name ,(...args) => {
         //console.log("on: passing event" , name )
         let fargs = [ obj ].concat( args );
         // получается крышеснос
-        // мб там как-то на this повлиять и пусть в нем будет obj и пр
         env.callCmd("apply",...fargs);
         // идея - можно было бы всегда в args добавлять объект..
       })
@@ -123,12 +126,13 @@ export function x_on( env  )
       env.emit("connected", obj);
      }
 
-     detach[ obj.$vz_unique_id ] = () => { k1(); k2(); u1(); };
+     //detach[ obj.$vz_unique_id ] = () => { k1(); k2(); u1(); };
 
      return () => { k1(); k2(); u1(); } 
 
   });
 
+/*
   env.on("detach",(obj) => {
     let f = detach[ obj.$vz_unique_id ];
     if (f) {
@@ -136,6 +140,7 @@ export function x_on( env  )
       delete detach[ obj.$vz_unique_id ];
     }
   });
+*/  
   // ну вроде как remove нам не надо? modify же все разрулит?
   // так да не так. если объект сам удаляется по каким-то причинам.
   // или если он кстати динамически добавляется.

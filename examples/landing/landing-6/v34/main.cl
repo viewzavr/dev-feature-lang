@@ -152,11 +152,10 @@ feature "monitor_tree_params" {
       | x_modify {
       
       rt: x_on 'param_changed' {
-        lambda @rt->host @f code="() => { console.log(33)}";
+        //lambda @rt->host @f code="() => { console.log(33)}";
         
-        /*
-        lambda @rt->host @f code="(obj,f,name) => {
-            console.log('see param change in', name,obj);
+        lambda @f code="(obj,f,name) => {
+            //console.log('see param change in', name,obj);
             if (obj && f) {
                 let m = obj.getParamManualFlag( name );
                 let i = obj.getParamOption(name,'internal')
@@ -166,7 +165,6 @@ feature "monitor_tree_params" {
                 }
             }
         };";
-        */
         
       };
 
