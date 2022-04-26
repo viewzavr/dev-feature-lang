@@ -57,8 +57,10 @@ screen1: screen auto-activate {
               index=@ssr->index
               list={ 
                 view0;
-                view1 loaded_data=@loaded_data->output time_index=@time->index time_params=@timeparams;
-                view1 loaded_data=@loaded_data->output time_index=@time->index time_params=@timeparams; 
+                view1 loaded_data0=@dat0->output 
+                      loaded_data=@loaded_data->output time_index=@time->index time_params=@timeparams;
+                view2 loaded_data0=@dat0->output 
+                      loaded_data=@loaded_data->output time_index=@time->index time_params=@timeparams; 
               }
               {{ one-of-keep-state }}
               ;

@@ -158,6 +158,11 @@ export function x_patch( env  )
   env.on("attach",(obj) => {
 
     let resarr = env.callCmd("apply",obj);
+    
+    if (!resarr) resarr = [];
+    if (!Array.isArray(resarr)) resarr = [resarr];
+    resarr = resarr.flat(5);
+
     let unsub = () => resarr.map( (f) => f.bind ? f() : false )
     detach[ obj.$vz_unique_id ] = () => {
        unsub();

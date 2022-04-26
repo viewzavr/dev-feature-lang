@@ -29,6 +29,7 @@ view1: feature text="Общий вид" {
   ///////////////////////////////////////
 
   _dat: df_set input=@vroot->loaded_data;
+  dat0: df_set input=@vroot->loaded_data0;
   //_dat: output=(@vroot->loaded_data | get_param name="output");
 
   dat: @_dat | df_div column="Y" coef=@mainparams->y_scale_coef;
@@ -38,10 +39,10 @@ view1: feature text="Общий вид" {
   dat_cur_time: @dat       | df_slice start=@vroot->time_index count=1;
 
   dat_cur_time_orig: @dat0 | df_slice start=@vroot->time_index count=1; 
-   // оригинальная curr time до изменения имен колонок и прочих преобьразований
-   // требуется для вывода на экран исходных данных
+  // оригинальная curr time до изменения имен колонок и прочих преобьразований
+  // требуется для вывода на экран исходных данных
 
-   dat_cur_time_zero: @dat | df_slice start=@vroot->time_index count=1 | df_set X=0 Y=0 Z=0;
+   // dat_cur_time_zero: @dat | df_slice start=@vroot->time_index count=1 | df_set X=0 Y=0 Z=0;
 
 
    ////////////////////////////////////
@@ -91,6 +92,70 @@ view1: feature text="Общий вид" {
        right={
         render_layers title="Визуальные объекты" 
            root=@vroot
+           items=[ { "title":"Объекты данных", 
+                     "find":"datavis","add":"linestr",
+                     "types":{ "linestr":"Линии"}},
+
+                   {"title":"Статичные","find":"guiblock staticvis","add":"axes"},
+                   {"title":"Текст","find":"guiblock screenvis","add":"select-t"}
+                 ];
+       };
+
+    }; //vroot
+};
+
+view2: feature text="Ракета в центре координат" { 
+  vroot: dom_group {
+
+  ////// основные параметры
+  
+  ///////////////////////////////////////
+  /////////////////////////////////////// данные
+  ///////////////////////////////////////
+
+  _dat: df_set input=@vroot->loaded_data;
+  dat0: df_set input=@vroot->loaded_data0;
+
+  dat_cur_time_zero: @_dat | df_slice start=@vroot->time_index count=1 | df_set X=0 Y=0 Z=0;
+  dat_cur_time_orig: @dat0 | df_slice start=@vroot->time_index count=1;
+
+   ////////////////////////////////////
+   ////// сцена
+   ////////////////////////////////////
+
+    r1: render3d 
+          bgcolor=[0.1,0.2,0.3]
+          target=@v1 {{ skip_deleted_children }}
+    {
+        camera3d pos=[0,100,100] center=[0,0,0];
+        orbit_control;
+
+        models input_data="@dat_cur_time_zero->output";
+
+        axes;
+        pole;
+
+    };
+
+   ////////////////////////////////////
+   ////// интерфейс
+   ////////////////////////////////////
+
+   v1: view3d style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2" extra=@extra_screen_things;
+
+   render_interface
+       left={
+          column plashka {
+            text "";
+            render-params  input=@vroot->time_params;
+          };
+       }
+       middle={
+         extra_screen_things: column;
+       }
+       right={
+        render_layers title="Визуальные объекты" 
+           root=@vroot
            items=[ {"title":"Объекты данных", "find":"guiblock datavis","add":"linestr"},
                    {"title":"Статичные","find":"guiblock staticvis","add":"axes"},
                    {"title":"Текст","find":"guiblock screenvis","add":"select-t"}
@@ -100,47 +165,39 @@ view1: feature text="Общий вид" {
     }; //vroot
 };
 
-view2: feature text="Ракета" {
-    dom_group {
-        v1: view3d style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2";
-    };
-};
-
 ///////////////////////////
 ///////////////////////////
 /////////////////////////// наполнение
 
 linestr: feature {
-        main: linestrips guiblock datavis
-          gui={ render-params input=@main ; }
-        {
-        };
+  datavis { linestrips }
 };
 
 ptstr: feature {
-        main: points gui={ render-params input=@main ; } guiblock datavis;
+  datavis { points };
 };
     
     // вход input это dataframe
 models: feature {
-      root: node3d gui={ render-params input=@root; } guiblock datavis
-        {
-        param_slider name="scale" min=1 max=10 value=1;
-        param_color  name="hilight_color" value=[0,0,0];
-        param_label  name="count" value=(@rep->input | get name="length");
+  datavis {
+    root: node3d
+          {
+            param_slider name="scale" min=1 max=10 value=1;
+            param_color  name="hilight_color" value=[0,0,0];
+            param_label  name="count" value=(@rep->input | get name="length");
 
-        @root->input | df_slice count=100 | df_to_rows | rep: repeater {
-          gltf:
-            render_gltf
-            src="https://viewlang.ru/assets/models/Lake_IV_Heavy.glb" 
-            positions=(@gltf->input | df_combine columns=["X","Y","Z"])
-            rotations=(@gltf->input | df_combine columns=["RX","RY","RZ"])
-            
-            {{ scale3d coef=@root->scale; }}
-            color=@root->hilight_color;
-            
+            @root->input | df_slice count=100 | df_to_rows | rep: repeater {
+              gltf:
+                render_gltf
+                src="https://viewlang.ru/assets/models/Lake_IV_Heavy.glb" 
+                positions=(@gltf->input | df_combine columns=["X","Y","Z"])
+                rotations=(@gltf->input | df_combine columns=["RX","RY","RZ"])
+                
+                {{ scale3d coef=@root->scale; }}
+                color=@root->hilight_color;
+            };
         };
-      };
+  };        
 };
 
 feature "axes"  {
@@ -183,19 +240,35 @@ feature "stolbik" {
 
 
 datavis: feature {
-  rt: sibling_types=["linestr","ptstr","models"] 
+  rt: node3d 
+      sibling_types=["linestr","ptstr","models"] 
       sibling_titles=["Линии","Точки","Модели"] 
+      gui= { 
+        render-params input=@rt;
+        render-params input=(get childnum=2 input=@rt); // хак и треш
+      }
+    {{
+      x-on "param_input_changed" {
+        lambda code="(obj,val) => {
+          for (let c of obj.ns.getChildren()) // в надежде что link и combo не испортим
+            c.setParam('input',val);
+        }
+        "
+      };
+      x-patch code="(env) => {
+        env.setParamOption('visible','internal',true);
+      }";
+    }}  
     {
-    input_data:
-      param_combo values=["","@dat->output","@dat_prorej->output","@dat_cur_time->output"]
-         titles=["","Траектория","Прореженная","Текущее время"]
-         ;
+      input_data:
+        param_combo values=["","@dat->output","@dat_prorej->output","@dat_cur_time->output"]
+           titles=["","Траектория","Прореженная","Текущее время"]
+           ;
       link to="@rt->input" from=@input_data->value tied_to_parent=true soft_mode=true;
 
-    //vis_type: param_combo values=["ptstr","linestr","models"] titles=["Точки","Линия","Модель"];  
+      //vis_type: param_combo values=["ptstr","linestr","models"] titles=["Точки","Линия","Модель"];  
   };
 };
-
 
 staticvis: feature {
   rt: sibling_types=["axes","pole","kvadrat","stolbik"] 
