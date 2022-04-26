@@ -79,13 +79,37 @@ debugger-screen-r;
 
 // прим: тут @root используется для хранения параметров и это правильно; но в коде он фигурирует как oneof
 feature "one_of_keep_state" {
-  root: modify input2=@. {
-    console_log ">>>>>>>>>>>>>>>>>>>>>>> keep-state modifier applied";
+  root: x_modify input=@. input2=@. {
+    //console_log ">>>>>>>>>>>>>>>>>>>>>>> keep-state modifier applied";
 
-    on "destroy_obj" {
-       lambda @root->input2 code=`(oneof, obj, index) => {
+    x-patch {
+      lambda code=`(env) => {
+         let origdump = env.dump;
+         env.dump = () => {
+           env.emit( "save_state");
+           return origdump();
+         }
+       }`;
+    };
+
+    x-on "save_state" {
+       lambda code=`(oneof) => {
          if (!oneof) return;
-         let dump = obj.dump();
+         let obj = oneof.params.output;
+         let index = oneof.params.index;
+         if (obj && index >= 0) {
+           let dump = obj.dump(true);
+           let oparams = oneof.params.objects_params || [];
+           oparams[ index ] = dump;
+           oneof.setParam("objects_params", oparams, true );
+         }  
+       }`;
+     };    
+
+    x-on "destroy_obj" {
+       lambda code=`(oneof, obj, index) => {
+         if (!oneof) return;
+         let dump = obj.dump(true);
          let oparams = oneof.params.objects_params || [];
          oparams[ index ] = dump;
          //console.log("oneof dump=",dump)
@@ -93,111 +117,26 @@ feature "one_of_keep_state" {
        }`;
      };
 
-     on "create_obj" {
-       lambda @root->input2 code=`(oneof, obj, index) => {
-         console.log(">>>>>>>>>>>>>>>>>>>>>> on oneof create-obj: oneof=",oneof)
+     x-on "create_obj" {
+       lambda code=`(oneof, obj, index) => {
+         //console.log(">>>>>>>>>>>>>>>>>>>>>> on oneof create-obj: oneof=",oneof)
          if (!oneof) return;
          let oparams = oneof.params.objects_params || [];
-         console.log(">>>>>>>>>>>>>>>>>>>>>> on oneof create-obj: objects_params=",oparams)
+         //console.log(">>>>>>>>>>>>>>>>>>>>>> on oneof create-obj: objects_params=",oparams)
          let dump = oparams[ index ];
-         console.log(">>>>>>>>>>>>>>>>>>>>>> on oneof create-obj: using dump to restore",dump)
+         //console.log(">>>>>>>>>>>>>>>>>>>>>> on oneof create-obj: using dump to restore",dump)
          if (dump) {
              dump.manual = true;
              //console.log("one-of-keep-state: restoring from dump",dump)
              //console.log(oneof,obj,index)
              obj.restoreFromDump( dump, true );
          }
+
+         let origdump = obj.dump;
+         obj.dump = (force) => {
+            if (force) return origdump();
+         }
        }`;
      };
-
-     on "save_state" {
-       lambda @..->host code=`(oneof) => {
-         if (!oneof) return;
-         let obj = oneof.params.output;
-         let index = oneof.params.index;
-         if (obj && index >= 0) {
-           let dump = obj.dump();
-           let oparams = oneof.params.objects_params || [];
-           oparams[ index ] = dump;
-           //console.log("oneof saved current:",dump)
-           oneof.setParam("objects_params", oparams, true );
-         }  
-       }`;
-     }
   };
 };
-
-//find-objects-bf root=@of->output features="viewzavr-object" recursive=true | console_log_input "UUUUUUUUUUUUUU";
-
-
-monitor_tree_params root=@of->output action={
-  pause_apply {
-    console_log text="eeeeeee";
-    emit_event object=@of name="save_state";
-  }
-};
-
-
-feature "monitor_tree_params" {
-  root: {
-    f: func {
-      insert_children input=@f list=@root->action;
-      // о поздравляю генератор таки ))) ну ибо func различает своих по другому смыслу.
-    };
-
-    find-objects-bf root=@root->root features="" recursive=true include_subfeatures=false
-    //{{ console_log_params "UUUUUUUUUUUUUUUUUUUUU"}}
-      | pause_input
-      | console_log_input "modify input for param-changed"
-      | x_modify {
-      
-      rt: x_on 'param_changed' {
-        //lambda @rt->host @f code="() => { console.log(33)}";
-        
-        lambda @f code="(obj,f,name) => {
-            //console.log('see param change in', name,obj);
-            if (obj && f) {
-                let m = obj.getParamManualFlag( name );
-                let i = obj.getParamOption(name,'internal')
-                if (m && !i) {
-                  //console.log('see manual param change in', name,obj);
-                  f.callCmd('apply',obj,name);
-                }
-            }
-        };";
-        
-      };
-
-      
-      
-    };    
-  }
-};
-
-feature "pause_input" code=`
-  env.feature("delayed");
-  let pass = env.delayed( () => {
-    env.setParam("output", env.params.input);
-  },1000/30);
-
-  env.onvalue("input",pass);
-`;
-
-
-feature "pause_apply" {
-  r: func timeout=100 {{ delay_execution timeout=@r->timeout }};
-};
-
-
-/*
-feature "timeout" code=`
-  env.feature("delayed");
-  let pass = env.delayed( () => {
-    
-  },1000/30);
-
-  env.addCmd("apply",() => {
-     pass();  
-  })
-`;
-*/

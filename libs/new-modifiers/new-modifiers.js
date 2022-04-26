@@ -101,7 +101,8 @@ export function x_on( env  )
   env.on("attach",(obj) => {
 
     var u1 = () => {};
-    
+
+    // todo вынести это наружу attach-а    
     let k1 = env.onvalue( "name", connect );
     let k2 = env.onvalue( 0, connect );
 
@@ -126,6 +127,38 @@ export function x_on( env  )
      detach[ obj.$vz_unique_id ] = () => { k1(); k2(); u1(); };
 
      return () => { k1(); k2(); u1(); } 
+
+  });
+
+  env.on("detach",(obj) => {
+    let f = detach[ obj.$vz_unique_id ];
+    if (f) {
+      f();
+      delete detach[ obj.$vz_unique_id ];
+    }
+  });
+  // ну вроде как remove нам не надо? modify же все разрулит?
+  // так да не так. если объект сам удаляется по каким-то причинам.
+  // или если он кстати динамически добавляется.
+  // это должен получается modify тоже разруливать...
+
+}
+
+// реагирует на сигнал attach, применяя указанный код к окружению
+
+export function x_patch( env  )
+{
+  env.feature("func");
+
+  let detach = {};
+
+  env.on("attach",(obj) => {
+
+    let resarr = env.callCmd("apply",obj);
+    let unsub = () => resarr.map( (f) => f.bind ? f() : false )
+    detach[ obj.$vz_unique_id ] = unsub;
+
+    return unsub; 
 
   });
 

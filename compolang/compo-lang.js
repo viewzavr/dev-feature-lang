@@ -596,20 +596,24 @@ export function feature_func( env )
    //console.log( "feature_func: installing apply cmd",env.getPath());
    env.addCmd( "apply",(...args) => {
       if (env.removed) return;
+      let resarr = [];
 
       if (env.params.code) {
         // кстати идея - а что если там сигнатуру подают то ее использовать?
         // т.е. если cmd="(obj,coef) => { ..... }"
         var func = new Function( "env","args", env.params.code );
-        func.call( null, env, args );
+        let r = func.call( null, env, args );
+        resarr.push(r);
         //eval( obj.params.code );
       }
       if (env.params.cmd) {
         env.callCmdByPath(env.params.cmd,...args)
       }
       for (let c of env.ns.getChildren()) {
-        c.callCmd("apply",...args);
+        let q = c.callCmd("apply",...args);
+        resarr.push(q);
       }
+      return resarr;
    } )
 }
 
@@ -654,7 +658,6 @@ export function feature_lambda( env )
         args.push( extra_args[i] );
 
       //args = args.concat( extra_args );
-      
 
       return func.apply( env,args )
    } );

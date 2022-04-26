@@ -501,7 +501,7 @@ register_feature name="switch_selector_column" {
 		rep: repeater input=@root->items {
 			 button text=@.->input 
 			 {
-			 	 setter target="@root->index" value=@..->modelIndex;
+			 	 setter target="@root->index" value=@..->modelIndex manual=true;
 			 };
 		};
 	}; // column
@@ -512,7 +512,7 @@ register_feature name="switch_selector_column" {
 register_feature name="switch_selector" {
 	root: repeater input=@root->items index=0 {
 			 button text=@.->input {
-			 	 setter target="@root->index" value=@..->modelIndex;
+			 	 setter target="@root->index" value=@..->modelIndex manual=true;
 			 };
 		};
 };
@@ -523,7 +523,7 @@ register_feature name="switch_selector_row" {
 		rep: repeater input=@root->items {
 			 button text=@.->input
 			 {
-			 	 setter target="@root->index" value=@..->modelIndex;
+			 	 setter target="@root->index" value=@..->modelIndex manual=true;
 			 };
 		};
 	}; // column
