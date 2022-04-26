@@ -76,11 +76,18 @@ debugger-screen-r;
 // работает в связке с one_of - сохраняет данные объекта и восстанавливает их
 // идея также - сделать передачу параметров между объектами в духе как сделано переключение 
 // типа по combobox/12chairs (см lib.cl)
+// дополнительно - делает так чтобы в дамп системы не попадали параметры сохраняемого объекта
+// а сохранялись бы внутри one-of и затем использовались при пересоздании
+// таким образом one-of целиком сохраняет состояние всех своих вкладов в дампе системы
 
 // прим: тут @root используется для хранения параметров и это правильно; но в коде он фигурирует как oneof
 feature "one_of_keep_state" {
-  root: x_modify input=@. input2=@. {
-    //console_log ">>>>>>>>>>>>>>>>>>>>>>> keep-state modifier applied";
+  root: x_modify 
+    {{ on 'attach' {
+        //console_log_apply ">>>>>>>>>>>>>>>>>>>>>>> keep-state modifier applied 1";
+     }
+    }}
+  {
 
     x-patch {
       lambda code=`(env) => {
@@ -90,6 +97,7 @@ feature "one_of_keep_state" {
            return origdump();
          }
        }`;
+       //console_log_apply ">>>>>>>>>>>>>>>>>>>>>>> keep-state modifier applied 2";
     };
 
     x-on "save_state" {

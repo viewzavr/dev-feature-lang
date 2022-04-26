@@ -124,9 +124,12 @@ export function x_on( env  )
       env.emit("connected", obj);
      }
 
-     detach[ obj.$vz_unique_id ] = () => { k1(); k2(); u1(); };
+     detach[ obj.$vz_unique_id ] = () => { 
+        k1(); k2(); u1();
+        delete detach[ obj.$vz_unique_id ];
+     };
 
-     return () => { k1(); k2(); u1(); } 
+     return detach[ obj.$vz_unique_id ] 
 
   });
 
@@ -134,7 +137,7 @@ export function x_on( env  )
     let f = detach[ obj.$vz_unique_id ];
     if (f) {
       f();
-      delete detach[ obj.$vz_unique_id ];
+      // delete detach[ obj.$vz_unique_id ];
     }
   });
   // ну вроде как remove нам не надо? modify же все разрулит?
@@ -156,7 +159,10 @@ export function x_patch( env  )
 
     let resarr = env.callCmd("apply",obj);
     let unsub = () => resarr.map( (f) => f.bind ? f() : false )
-    detach[ obj.$vz_unique_id ] = unsub;
+    detach[ obj.$vz_unique_id ] = () => {
+       unsub();
+       delete detach[ obj.$vz_unique_id ];
+    }   
 
     return unsub; 
 
@@ -166,7 +172,7 @@ export function x_patch( env  )
     let f = detach[ obj.$vz_unique_id ];
     if (f) {
       f();
-      delete detach[ obj.$vz_unique_id ];
+      //delete detach[ obj.$vz_unique_id ];
     }
   });
   // ну вроде как remove нам не надо? modify же все разрулит?

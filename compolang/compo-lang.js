@@ -1330,6 +1330,15 @@ export function console_log_input( env, options )
   env.addString("text");
 }
 
+export function console_log_apply( env, options )
+{
+  //env.createLinkTo( {param:"text",from:"~->0",soft:true });
+
+  env.addCmd("apply",(...args) => {
+    console.log( env.params.text || env.params[0] || "", ...args);
+  })
+}
+
 
 export function feature_debugger( env )
 {
