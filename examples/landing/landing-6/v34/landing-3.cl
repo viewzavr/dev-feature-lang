@@ -1,3 +1,5 @@
+// размещение вариантов данных в объектах данных/ которые ссылаются в итоге на вьюшку
+
 load "gui5.cl lib.cl ban-deleted3.cl set-params";
 
 feature "guiblock" {}; feature "include-gui" {};
@@ -47,14 +49,6 @@ view1: feature text="Общий вид" {
   datavis_data_info: 
       titles=["","Траектория","Прореженная","Текущее время"] 
       values=["","@dat->output","@dat_prorej->output","@dat_cur_time->output"];
-
-  find-objects-bf root=@r1 features="datavis" 
-      | x-modify { 
-      x-set-params
-       data_link_values = ["","@dat->output","@dat_prorej->output","@dat_cur_time->output"]
-       data_link_titles = ["","Траектория","Прореженная","Текущее время"]
-       ;
-    };
 
    ////////////////////////////////////
    ////// сцена
@@ -109,14 +103,12 @@ view1: feature text="Общий вид" {
         render_layers title="Визуальные объекты" 
            root=@vroot
            items=[ { "title":"Объекты данных", 
-                     "find":"datavis",
-                     "add":"linestr"
-                   },
+                     "find":"datavis","add":"linestr",
+                     "types":{ "linestr":"Линии"}},
 
                    {"title":"Статичные","find":"staticvis","add":"axes"},
                    {"title":"Текст","find":"screenvis","add":"select-t"}
-                 ]
-           ;
+                 ];
        };
 
     }; //vroot
@@ -194,28 +186,16 @@ view2: feature text="Ракета в центре координат" {
 /////////////////////////// наполнение
 
 linestr: feature {
-  main: linestrips datavis 
-     gui={ 
-      /*
-       row padding="0.2em" { 
-         text "Данные: ";
-         combobox
-           name="input_link" 
-           values=@main->data_link_values 
-           titles=@main->data_link_titles;
-       };
-       */
-       render-params input=@main filters={ params-priority list="input_link"; };
-      };
+  main: linestrips datavis gui={ render-params input=@main; };
 };
 
 ptstr: feature {
-  main: points datavis gui={ render-params input=@main filters={ params-priority list="input_link"; }; };
+  main: points datavis gui={ render-params input=@main; };
 };
     
     // вход input это dataframe
 models: feature {
-    root: node3d datavis gui={ render-params input=@root filters={ params-priority list="input_link"; }; }
+    root: node3d datavis gui={ render-params input=@root; }
           {
             param_slider name="scale" min=1 max=10 value=1;
             param_color  name="hilight_color" value=[0,0,0];
@@ -291,46 +271,6 @@ select_input_view1: feature {
   };
 };
 
-/*
-x-patch {
-   reactive @r->name @r->ttiles @r->values {
-   }
-}
-*/
-
-/*
-feauture "x-param-combo" {
-  r: x-patch @r->name @r->titles @r->values 
-  code="(name,titles,values,obj) => {
-    obj.addComboValue( name, undefined, values );
-    if (titles) 
-      obj.setParamOption( name,"titles",titles);
-    else
-      obj.setParamOption( name,"titles",null);
-    env.onvalue("value", (v) => {
-      obj.setParam( name, v );
-    });
-    obj.trackParam
-  ";
-};
-*/
-
-/*
-feauture "x-param-combo" {
-  r: x-patch 
-  code="(obj) => {
-    env.onvalue("name",setup);
-
-    function setup() {
-      obj.addComboValue( env.params.name, undefined, env.params.values );
-      if (env.params.titles) 
-        obj.setParamOption( env.params.name,"titles",env.params.titles);
-      else
-        obj.setParamOption( env.params.name,"titles",null);
-    };
-  ";
-};
-*/
 
 select_input: feature {
   root: {
@@ -346,33 +286,15 @@ select_input_view111: feature {
     titles=["","Траектория","Прореженная","Текущее время"];
 };
 
-datavis0: feature {
+datavis: feature {
   rt: 
       sibling_types=["linestr","ptstr","models"] 
       sibling_titles=["Линии","Точки","Модели"] 
-      data_link_values=[1]
-      data_link_titles=[1]
-      {{
+      {
         input_link:
-          param_combo values=@rt->data_link_values titles=@rt->data_link_titles priority=-1;
+          param_combo values=@datavis_data_info->values titles=@datavis_data_info->titles;        
         link to="@rt->input" from=@rt->input_link tied_to_parent=true soft_mode=true;
-      }}
-};
-
-datavis: feature {
-  rt: {{
-    x-set-params sibling_types=["linestr","ptstr","models"] 
-      sibling_titles=["Линии","Точки","Модели"] 
-      data_link_values=[1]
-      data_link_titles=[1];
-
-    x-param-combo
-         name="input_link" 
-         values=@rt->data_link_values 
-         titles=@rt->data_link_titles; // {{ param-priority 0 }};
-
-    link to=".->input" from=@.->input_link tied_to_parent=true soft_mode=true;
-  }}
+      }
 };
 
 staticvis: feature {
@@ -380,29 +302,3 @@ staticvis: feature {
       sibling_titles=["Оси","Земля","Квадрат","Масштабный столбик"];
 };
 
-feature "x-param-combo" {
-  r: x-patch-r @r->name @r->titles @r->values 
-  code="(name,titles,values,obj) => {
-    if (name && values)
-      obj.addComboValue( name, undefined, values );
-    if (name && titles) 
-      obj.setParamOption( name,'titles',titles);
-    else
-      obj.setParamOption( name,'titles',null);
-  }    
-  ";
-};
-
-feature "x-param-slider" {
-  r: x-patch-r @r->name @r->min @r->max @r->step
-  code="(name,min,max,step,obj) => {
-    if (!name) return;
-    obj.addSlider( name, undefined, min, max, step );
-  }    
-  ";
-};
-
-/*
-    x-param-slider name="test" max=200;
-    x-on "param_test_changed" code=`(a,b,c) => console.log('sl changed',a,b,c)`;
-*/
