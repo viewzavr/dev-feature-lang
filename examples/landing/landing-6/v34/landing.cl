@@ -1,4 +1,4 @@
-load "gui5.cl lib.cl ban-deleted3.cl";
+load "gui5.cl lib.cl ban-deleted3.cl set-params";
 
 feature "guiblock" {}; feature "include-gui" {};
 
@@ -44,6 +44,9 @@ view1: feature text="Общий вид" {
 
    // dat_cur_time_zero: @dat | df_slice start=@vroot->time_index count=1 | df_set X=0 Y=0 Z=0;
 
+  datavis_data_info: 
+      titles=["","Траектория","Прореженная","Текущее время"] 
+      values=["","@dat->output","@dat_prorej->output","@dat_cur_time->output"];
 
    ////////////////////////////////////
    ////// сцена
@@ -56,9 +59,14 @@ view1: feature text="Общий вид" {
         camera3d pos=[0,0,100] center=[0,0,0];
         orbit_control;
 
-        linestr input_data="@dat->output";
-        ptstr input_data="@dat->output" radius=2;
-        models input_data="@dat_cur_time->output";
+        linestr input_link="@dat->output";
+           //{{ select_input_view1 input_data="@dat->output" }};
+        ptstr radius=2 input_link="@dat->output";
+            //select_input_view1 input_data="@dat->output";
+           //{{ select_input_view1 input_data="@dat->output" }};
+        models input_link="@dat_cur_time->output";
+            //select_input_view1 input_data="@dat_cur_time->output";
+           //{{ select_input_view1 input_data="@dat_cur_time->output" }};
 
         axes;
         pole;
@@ -96,8 +104,8 @@ view1: feature text="Общий вид" {
                      "find":"datavis","add":"linestr",
                      "types":{ "linestr":"Линии"}},
 
-                   {"title":"Статичные","find":"guiblock staticvis","add":"axes"},
-                   {"title":"Текст","find":"guiblock screenvis","add":"select-t"}
+                   {"title":"Статичные","find":"staticvis","add":"axes"},
+                   {"title":"Текст","find":"screenvis","add":"select-t"}
                  ];
        };
 
@@ -119,6 +127,8 @@ view2: feature text="Ракета в центре координат" {
   dat_cur_time_zero: @_dat | df_slice start=@vroot->time_index count=1 | df_set X=0 Y=0 Z=0;
   dat_cur_time_orig: @dat0 | df_slice start=@vroot->time_index count=1;
 
+  //data_variants: names=["Основное положение"] titles=""
+
    ////////////////////////////////////
    ////// сцена
    ////////////////////////////////////
@@ -130,7 +140,8 @@ view2: feature text="Ракета в центре координат" {
         camera3d pos=[0,100,100] center=[0,0,0];
         orbit_control;
 
-        models input_data="@dat_cur_time_zero->output";
+        //models input_data="@dat_cur_time_zero->output";
+        models input=@dat_cur_time_zero->output;
 
         axes;
         pole;
@@ -156,9 +167,9 @@ view2: feature text="Ракета в центре координат" {
        right={
         render_layers title="Визуальные объекты" 
            root=@vroot
-           items=[ {"title":"Объекты данных", "find":"guiblock datavis","add":"linestr"},
-                   {"title":"Статичные","find":"guiblock staticvis","add":"axes"},
-                   {"title":"Текст","find":"guiblock screenvis","add":"select-t"}
+           items=[ {"title":"Объекты данных", "find":"datavis","add":"linestr"},
+                   {"title":"Статичные","find":"staticvis","add":"axes"},
+                   {"title":"Текст","find":"screenvis","add":"select-t"}
                  ];
        };
 
@@ -170,17 +181,16 @@ view2: feature text="Ракета в центре координат" {
 /////////////////////////// наполнение
 
 linestr: feature {
-  datavis { linestrips }
+  main: linestrips datavis gui={ render-params input=@main; };
 };
 
 ptstr: feature {
-  datavis { points };
+  main: points datavis gui={ render-params input=@main; };
 };
     
     // вход input это dataframe
 models: feature {
-  datavis {
-    root: node3d
+    root: node3d datavis gui={ render-params input=@root; }
           {
             param_slider name="scale" min=1 max=10 value=1;
             param_color  name="hilight_color" value=[0,0,0];
@@ -197,7 +207,6 @@ models: feature {
                 color=@root->hilight_color;
             };
         };
-  };        
 };
 
 feature "axes"  {
@@ -238,28 +247,15 @@ feature "stolbik" {
 
 /////////////////////////// визуальные 3д образы
 
+dfffff: feature {
+  x-modify {
+     //x-set-params gui={ render-params input=@. {{ console_log_params text=">>>>>>>>>>>>>>" }}; }
+     //x-patch code=`(env) => env.feature('datavis');`;
+  };
+};
 
-datavis: feature {
-  rt: node3d 
-      sibling_types=["linestr","ptstr","models"] 
-      sibling_titles=["Линии","Точки","Модели"] 
-      gui= { 
-        render-params input=@rt;
-        render-params input=(get childnum=2 input=@rt); // хак и треш
-      }
-    {{
-      x-on "param_input_changed" {
-        lambda code="(obj,val) => {
-          for (let c of obj.ns.getChildren()) // в надежде что link и combo не испортим
-            c.setParam('input',val);
-        }
-        "
-      };
-      x-patch code="(env) => {
-        env.setParamOption('visible','internal',true);
-      }";
-    }}  
-    {
+select_input_view1: feature {
+  rt: {
       input_data:
         param_combo values=["","@dat->output","@dat_prorej->output","@dat_cur_time->output"]
            titles=["","Траектория","Прореженная","Текущее время"]
@@ -268,6 +264,32 @@ datavis: feature {
 
       //vis_type: param_combo values=["ptstr","linestr","models"] titles=["Точки","Линия","Модель"];  
   };
+};
+
+
+select_input: feature {
+  root: {
+      input_data:
+        param_combo values=@root->values titles=@root->titles;
+      link to="@rt->input" from=@input_data->value tied_to_parent=true soft_mode=true;
+  };
+};
+
+select_input_view111: feature {
+  select_input 
+    values=["","@dat->output","@dat_prorej->output","@dat_cur_time->output"]
+    titles=["","Траектория","Прореженная","Текущее время"];
+};
+
+datavis: feature {
+  rt: 
+      sibling_types=["linestr","ptstr","models"] 
+      sibling_titles=["Линии","Точки","Модели"] 
+      {
+        input_link:
+          param_combo values=@datavis_data_info->values titles=@datavis_data_info->titles;        
+        link to="@rt->input" from=@rt->input_link tied_to_parent=true soft_mode=true;
+      }
 };
 
 staticvis: feature {

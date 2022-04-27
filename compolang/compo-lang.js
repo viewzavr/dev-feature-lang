@@ -184,7 +184,7 @@ export function load(env,opts)
          // было
          //subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url} );
 
-         p1.then( () => {
+         Promise.resolve(p1).then( () => {
            resolve(); // загрузили, пропарсили все там
          });
        });

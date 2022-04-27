@@ -23,6 +23,42 @@ export function set_params( env )
    env.on("remove", () => channel.remove() );
 }
 
+// новый модификатор
+export function x_set_params( env )
+{
+
+  let detach = {};
+
+  env.on("attach",(obj) => {
+
+      obj.feature("param_subchannels");
+
+      let channel = obj.create_subchannel();
+
+      env.on('param_changed',(name,value) => { // todo optimize
+         channel.setParam( name, value ); 
+      });
+      
+      for (let c of env.getParamsNames())
+         channel.setParam( c, env.getParam(c));
+
+      let unsub = () => { if (!channel.removed) channel.remove(); }
+      env.on("remove", unsub ); // todo optimize
+      detach[ obj.$vz_unique_id ] = unsub;
+
+      return unsub;
+  });
+
+  env.on("detach",(obj) => {
+    let f = detach[ obj.$vz_unique_id ];
+    if (f) {
+      f();
+      //delete detach[ obj.$vz_unique_id ];
+    }
+  });
+
+}
+
 // отличается от setter тем что сразу же делает
 // по сути это то же самое что compute.. только на вход не код а value..
 export function param_subchannels(env) 
