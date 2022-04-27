@@ -54,7 +54,6 @@ feature "pause_input" code=`
   env.onvalue("input",pass);
 `;
 
-
 feature "pause_apply" {
   r: func timeout=100 {{ delay_execution timeout=@r->timeout }};
 };

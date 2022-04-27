@@ -101,10 +101,17 @@ rl_root: collapsible text=@.->title
                    }
                    }};
                };
+               /*
+               col: column {
+                  insert_children input=@col list=(@rl_root->before_each | get @s->index)
+                    | console_log_input "yyyyyyyyyyyyyyyyyyy"
+                    // | x-modify { x-set-params obj_input=@co->input }
+                    ;
+               };
+               */
                column {
                   insert_children input=@.. list=(@co->input | get_param name="gui");
                };
-
 
                button "x" style="position:absolute; top:0px; right:0px;" 
                {

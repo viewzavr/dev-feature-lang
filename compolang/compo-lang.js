@@ -2246,6 +2246,7 @@ export function insert_children( env )
     let input = env.params.input || [];
     if (!Array.isArray(input)) input=[input]; // допускаем что не список а 1 штука
     let features = env.params.list || Object.values(children);
+    if (features && !Array.isArray(features)) features = [features];
     dodeploy( input, features );
   }
 
@@ -2614,4 +2615,10 @@ export function add_feature(env) {
     env.host.unfeature( name );
   })
 
+}
+
+export function pass_input(env){
+  env.onvalue("input",(i) => {
+    env.setParam("output",i);
+  })
 }

@@ -48,6 +48,14 @@ view1: feature text="Общий вид" {
       titles=["","Траектория","Прореженная","Текущее время"] 
       values=["","@dat->output","@dat_prorej->output","@dat_cur_time->output"];
 
+  find-objects-bf root=@r1 features="datavis" 
+      | x-modify { 
+      x-set-params
+       data_link_values = ["","@dat->output","@dat_prorej->output","@dat_cur_time->output"]
+       data_link_titles = ["","Траектория","Прореженная","Текущее время"]
+       ;
+    };
+
    ////////////////////////////////////
    ////// сцена
    ////////////////////////////////////
@@ -101,12 +109,14 @@ view1: feature text="Общий вид" {
         render_layers title="Визуальные объекты" 
            root=@vroot
            items=[ { "title":"Объекты данных", 
-                     "find":"datavis","add":"linestr",
-                     "types":{ "linestr":"Линии"}},
+                     "find":"datavis",
+                     "add":"linestr"
+                   },
 
                    {"title":"Статичные","find":"staticvis","add":"axes"},
                    {"title":"Текст","find":"screenvis","add":"select-t"}
-                 ];
+                 ]
+           ;
        };
 
     }; //vroot
@@ -288,9 +298,11 @@ datavis: feature {
   rt: 
       sibling_types=["linestr","ptstr","models"] 
       sibling_titles=["Линии","Точки","Модели"] 
+      data_link_values=[1]
+      data_link_titles=[1]
       {
         input_link:
-          param_combo values=@datavis_data_info->values titles=@datavis_data_info->titles;        
+          param_combo values=@rt->data_link_values titles=@rt->data_link_titles priority=-1;
         link to="@rt->input" from=@rt->input_link tied_to_parent=true soft_mode=true;
       }
 };
