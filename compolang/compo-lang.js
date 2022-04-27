@@ -100,7 +100,7 @@ function parsed2dump( vz, parsed, base_url ) {
     parsed2dump( vz, cc, base_url );
   }
   for (let pv of (Object.values(parsed.params) || [])) {
-     if (Array.isArray(pv) && pv[0].this_is_env) {
+     if (Array.isArray(pv) && pv.length > 0 && pv[0].this_is_env) {
         for (let penv of pv)
            parsed2dump( vz, penv, base_url );
      }

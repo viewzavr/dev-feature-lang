@@ -83,27 +83,36 @@ register_feature name="render-params-list" {
   };
 };
 
+
 feature "params-priority" {
   pp: x-modify list="" {
     x-set-params 
       filter=(lambda @pp->list 
         code="(list,arr) => {
-           console.log('params-priority',{list,arr})
+           
            if (!arr) return;
-           return arr.sort( (a,b) => list.indexOf(a) >= 0 ? -1 : (a<b) )
+           return arr.sort( (a,b,index) => list.indexOf(a) >= 0 ? -1 : (a<b) )
          }";
       )
   };  
 };
 
-/*
-feature "priority_params" {
-  pp: x-patch {
-    arr_sort func=(lambda @pp->list code="(list,a,b) => list.indexOf(a) >= 0 ? 1 : (a<b))");
-  };
+feature "params-hide" {
+  pp: x-modify list="" {
+    x-set-params 
+      filter2=(lambda @pp->list 
+        code="(list,arr) => {
+           if (!arr) return;
+           return arr.filter( (a) => list.indexOf(a) < 0 )
+         }";
+      )
+  };  
 };
 
-feature "hide_params" {
+
+/*
+
+feature "params_hide" {
   pp: x-patch {
     arr_filter h=@pp->list code="(item) => env.params.h.indexOf(item) < 0";
   };
@@ -112,7 +121,9 @@ feature "hide_params" {
 
 register_feature name="render-params" {
   rp: column gap="0.1em" object=@.->input input=@.->0 
+    filter_chain=[]
     filter=(lambda code="(arr) => arr")
+    filter2=(lambda code="(arr) => arr")
   {
 
     link to=".->object" from=@..->object_path tied_to_parent=true soft_mode=true; // тут надо maybe что там объект и тогда норм будет..
@@ -120,7 +131,7 @@ register_feature name="render-params" {
     // а кстати классно было бы cmd="(** file_uploads)->recompute"
     // connection object=@..->object event_name="gui-added" cmd="@getparamnames->recompute";
 
-    @rp->object | get-params-names | eval code=@rp->filter
+    @rp->object | get-params-names | eval code=@rp->filter | eval code=@rp->filter2
     | repeater {
       column {
         //text text=@..->modelData;
