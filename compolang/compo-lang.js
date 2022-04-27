@@ -249,6 +249,8 @@ export function load_package(env,opts)
 // открытый вопрос: куда идет output c3 ? это pipe.output = @c3->output ?
 // кстати интересная идея от Кости - linestrips output это 3d object..
 //import {delayed} from "viewzavr/utils.js";
+
+// это кстати напоминает "режим" в kepler
 export function pipe(env) 
 {
   let pipe_is_generating_links;
@@ -302,7 +304,9 @@ export function pipe(env)
       if (cprev)
           created_links.push( env.linkParam("output",`${cprev.ns.name}->output`) );
       else
-          created_links.push( env.linkParam("output",``) );
+          created_links.push( env.linkParam("output",`.->input`) ); // по умолчанию выход из пайпы пусть будет и входом?
+          //created_links.push( env.linkParam("output",`.->input`) ); // по умолчанию выход из пайпы пусть будет и входом?
+          
       // input первого ставим на инпут пайпы
 
       if (cfirst) {
@@ -1159,7 +1163,10 @@ export function feature_eval( env ) {
     let args = [];
 
     // попытка
-    if (env.hasParam("input")) args.push( env.params.input );
+    // тоже крышесносец. то он есть, то его нет. это писец и заставляет в кодах делать проверку.
+    // и еще - там меняется порядок параметров
+    // хотя бы может делать тогда this.input, что ли...
+    // if (env.hasParam("input")) args.push( env.params.input );
 
     for (let i=0; i<env.params.args_count;i++) 
     {

@@ -50,8 +50,8 @@ rl_root: collapsible text=@.->title
                      root=@rl_root->root
                      recursive=false
      | eval code="(arr) => {
-         if (!arr) return [];
-       return arr.sort( (a,b) => {
+       if (!env.params.input) return [];
+       return env.params.input.sort( (a,b) => {
         function getpri(q) { 
             if (!q.params.block_priority)
                q.setParam( 'block_priority', q.$vz_unique_id,true )

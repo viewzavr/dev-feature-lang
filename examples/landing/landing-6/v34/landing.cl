@@ -194,7 +194,7 @@ view2: feature text="Ракета в центре координат" {
 /////////////////////////// наполнение
 
 linestr: feature {
-  main: linestrips datavis gui={ render-params input=@main {{ params-priority list="input_link"; params-hide list="visible"; }} };
+  main: linestrips datavis gui={ render-params input=@main filters={ params-priority list="input_link"; params-hide list="visible"; } };
 };
 
 ptstr: feature {

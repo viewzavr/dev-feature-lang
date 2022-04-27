@@ -83,47 +83,29 @@ register_feature name="render-params-list" {
   };
 };
 
-
 feature "params-priority" {
-  pp: x-modify list="" {
-    x-set-params 
-      filter=(lambda @pp->list 
-        code="(list,arr) => {
-           
+  pp: eval @pp->list 
+        code="(params_list) => {
+           //console.log('pppp',arr,list)
+           let arr = env.params.input;
            if (!arr) return;
-           return arr.sort( (a,b,index) => list.indexOf(a) >= 0 ? -1 : (a<b) )
+           if (!params_list) return;
+           return arr.sort( (a,b,index) => params_list.indexOf(a) >= 0 ? -1 : (a<b) )
          }";
-      )
-  };  
 };
 
 feature "params-hide" {
-  pp: x-modify list="" {
-    x-set-params 
-      filter2=(lambda @pp->list 
-        code="(list,arr) => {
+  pp: eval @pp->list 
+        code="(params_list) => {
+           let arr = env.params.input;
            if (!arr) return;
-           return arr.filter( (a) => list.indexOf(a) < 0 )
+           if (!params_list) return;
+           return arr.filter( (a) => params_list.indexOf(a) < 0 )
          }";
-      )
-  };  
 };
-
-
-/*
-
-feature "params_hide" {
-  pp: x-patch {
-    arr_filter h=@pp->list code="(item) => env.params.h.indexOf(item) < 0";
-  };
-};
-*/
 
 register_feature name="render-params" {
   rp: column gap="0.1em" object=@.->input input=@.->0 
-    filter_chain=[]
-    filter=(lambda code="(arr) => arr")
-    filter2=(lambda code="(arr) => arr")
   {
 
     link to=".->object" from=@..->object_path tied_to_parent=true soft_mode=true; // тут надо maybe что там объект и тогда норм будет..
@@ -131,7 +113,9 @@ register_feature name="render-params" {
     // а кстати классно было бы cmd="(** file_uploads)->recompute"
     // connection object=@..->object event_name="gui-added" cmd="@getparamnames->recompute";
 
-    @rp->object | get-params-names | eval code=@rp->filter | eval code=@rp->filter2
+    insert_children @extra_filters list=@rp->filters;
+
+    @rp->object | get-params-names | extra_filters: pipe
     | repeater {
       column {
         //text text=@..->modelData;
