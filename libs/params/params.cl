@@ -40,7 +40,7 @@ register_feature name="param_combo" code=`
     let v = (env.params.values || [])[i];
     if (typeof(v) != 'undefined')
         env.setParam("value",v);
-  })
+  });
 
   var t;
   function setup() {

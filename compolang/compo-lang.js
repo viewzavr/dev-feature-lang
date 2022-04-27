@@ -628,6 +628,11 @@ export function feature_lambda( env )
 {
    env.feature("call_cmd_by_path");
 
+  // пусть у лямбды аутпут будет js-функция для вызова
+  env.setParam("output", (...args) => {
+    return env.callCmd("apply",...args);
+  }) 
+
   let func;
   function update_func() {
     let code = env.params.code;
@@ -1143,7 +1148,8 @@ export function feature_eval( env ) {
   //console.error("compolang eval init",env.getPath())
 
   function evl() {
-    //console.error("compolang eval working",env.getPath())
+    
+
     if (!func) update_code();
     if (!func) {
       console.error("compolang eval: code not specified",env.getPath())
@@ -1165,6 +1171,8 @@ export function feature_eval( env ) {
       args.push( v );
     }
 
+    //console.log("compolang eval working",env.getPath(),args)
+
     let res = func.apply( env, args );
 
     env.setParam("output",res);
@@ -1182,7 +1190,13 @@ export function feature_eval( env ) {
 
   function update_code() {
     if (env.params.code)
+    {
+      // возможность прямо код сюды вставлять
+      if (typeof( env.params.code ) == 'function')
+         func = env.params.code;
+      else
       func = eval( env.params.code );
+    }
   }
 
   env.onvalues_any(["code"],() => {

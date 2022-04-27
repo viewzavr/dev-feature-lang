@@ -105,6 +105,7 @@ export function x_modify( env )
 
 export function x_on( env  )
 {
+  //env.feature("lambda");
   env.feature("func");
 
   let detach = {};
@@ -127,12 +128,16 @@ export function x_on( env  )
         let fargs = [ obj ].concat( args );
         // получается крышеснос
         // мб там как-то на this повлиять и пусть в нем будет obj и пр
+
+        // но нам надо таки.. уметь послать объект, на котором это все приключилось.
+        // а то там мало ли объектов
+
         env.callCmd("apply",...fargs);
         // идея - можно было бы всегда в args добавлять объект..
       })
 
       //console.log("on: connected",name,env.getPath())
-      env.emit("connected", obj);
+        env.emit("connected", obj);
      }
 
      detach[ obj.$vz_unique_id ] = () => { 
@@ -188,6 +193,68 @@ export function x_patch( env  )
     let f = detach[ obj.$vz_unique_id ];
     if (f) {
       f();
+      //delete detach[ obj.$vz_unique_id ];
+    }
+  });
+  // ну вроде как remove нам не надо? modify же все разрулит?
+  // так да не так. если объект сам удаляется по каким-то причинам.
+  // или если он кстати динамически добавляется.
+  // это должен получается modify тоже разруливать...
+
+}
+
+
+// reactive - перевызывает код при изменении аргументов
+export function x_patch_r( env  )
+{
+  env.feature("lambda");
+
+  env.on("param_changed",(name) => {
+    if (name == "code") return;
+
+    for (let rec of Object.values( attached_list )) {
+       let obj = rec.obj;
+       env.callCmd("apply",obj, rec.unsub );
+
+       // да хрен с ним, не будем менять пока unsub..
+    }
+  })
+
+  
+  let attached_list = {};
+
+  env.on("attach",(obj) => {
+
+    let resarr = env.callCmd("apply",obj);
+    
+    if (!resarr) resarr = [];
+    if (!Array.isArray(resarr)) resarr = [resarr];
+    resarr = resarr.flat(5);
+
+    let unsub = () => resarr.map( (f) => f.bind ? f() : false )
+
+    attached_list[ obj.$vz_unique_id ] = {
+      obj: obj,
+      unsub: unsub
+    };
+
+/*
+    detach[ obj.$vz_unique_id ] = () => {
+       unsub();
+       delete detach[ obj.$vz_unique_id ];
+    }
+*/    
+
+    return unsub; 
+
+  });
+
+  env.on("detach",(obj) => {
+    let rec = attached_list[ obj.$vz_unique_id ];
+    let f = rec ? rec.unsub : undefined;
+    if (f) {
+      f();
+      delete attached_list[ obj.$vz_unique_id ];
       //delete detach[ obj.$vz_unique_id ];
     }
   });

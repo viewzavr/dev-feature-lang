@@ -194,16 +194,16 @@ view2: feature text="Ракета в центре координат" {
 /////////////////////////// наполнение
 
 linestr: feature {
-  main: linestrips datavis gui={ render-params input=@main; };
+  main: linestrips datavis gui={ render-params input=@main {{ params-priority list="input_link"; }} };
 };
 
 ptstr: feature {
-  main: points datavis gui={ render-params input=@main; };
+  main: points datavis gui={ render-params input=@main {{ params-priority list="input_link"; }}; };
 };
     
     // вход input это dataframe
 models: feature {
-    root: node3d datavis gui={ render-params input=@root; }
+    root: node3d datavis gui={ render-params input=@root {{ params-priority list="input_link"; }}; }
           {
             param_slider name="scale" min=1 max=10 value=1;
             param_color  name="hilight_color" value=[0,0,0];
@@ -279,6 +279,46 @@ select_input_view1: feature {
   };
 };
 
+/*
+x-patch {
+   reactive @r->name @r->ttiles @r->values {
+   }
+}
+*/
+
+/*
+feauture "x-param-combo" {
+  r: x-patch @r->name @r->titles @r->values 
+  code="(name,titles,values,obj) => {
+    obj.addComboValue( name, undefined, values );
+    if (titles) 
+      obj.setParamOption( name,"titles",titles);
+    else
+      obj.setParamOption( name,"titles",null);
+    env.onvalue("value", (v) => {
+      obj.setParam( name, v );
+    });
+    obj.trackParam
+  ";
+};
+*/
+
+/*
+feauture "x-param-combo" {
+  r: x-patch 
+  code="(obj) => {
+    env.onvalue("name",setup);
+
+    function setup() {
+      obj.addComboValue( env.params.name, undefined, env.params.values );
+      if (env.params.titles) 
+        obj.setParamOption( env.params.name,"titles",env.params.titles);
+      else
+        obj.setParamOption( env.params.name,"titles",null);
+    };
+  ";
+};
+*/
 
 select_input: feature {
   root: {
@@ -294,17 +334,33 @@ select_input_view111: feature {
     titles=["","Траектория","Прореженная","Текущее время"];
 };
 
-datavis: feature {
+datavis0: feature {
   rt: 
       sibling_types=["linestr","ptstr","models"] 
       sibling_titles=["Линии","Точки","Модели"] 
       data_link_values=[1]
       data_link_titles=[1]
-      {
+      {{
         input_link:
           param_combo values=@rt->data_link_values titles=@rt->data_link_titles priority=-1;
         link to="@rt->input" from=@rt->input_link tied_to_parent=true soft_mode=true;
-      }
+      }}
+};
+
+datavis: feature {
+  rt: {{
+    x-set-params sibling_types=["linestr","ptstr","models"] 
+      sibling_titles=["Линии","Точки","Модели"] 
+      data_link_values=[1]
+      data_link_titles=[1];
+
+    x-param-combo
+         name="input_link" 
+         values=@rt->data_link_values 
+         titles=@rt->data_link_titles; // {{ param-priority 0 }};
+
+    link to=".->input" from=@.->input_link tied_to_parent=true soft_mode=true;
+  }}
 };
 
 staticvis: feature {
@@ -312,3 +368,29 @@ staticvis: feature {
       sibling_titles=["Оси","Земля","Квадрат","Масштабный столбик"];
 };
 
+feature "x-param-combo" {
+  r: x-patch-r @r->name @r->titles @r->values 
+  code="(name,titles,values,obj) => {
+    if (name && values)
+      obj.addComboValue( name, undefined, values );
+    if (name && titles) 
+      obj.setParamOption( name,'titles',titles);
+    else
+      obj.setParamOption( name,'titles',null);
+  }    
+  ";
+};
+
+feature "x-param-slider" {
+  r: x-patch-r @r->name @r->min @r->max @r->step
+  code="(name,min,max,step,obj) => {
+    if (!name) return;
+    obj.addSlider( name, undefined, min, max, step );
+  }    
+  ";
+};
+
+/*
+    x-param-slider name="test" max=200;
+    x-on "param_test_changed" code=`(a,b,c) => console.log('sl changed',a,b,c)`;
+*/

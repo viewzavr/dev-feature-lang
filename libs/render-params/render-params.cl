@@ -83,15 +83,45 @@ register_feature name="render-params-list" {
   };
 };
 
+feature "params-priority" {
+  pp: x-modify list="" {
+    x-set-params 
+      filter=(lambda @pp->list 
+        code="(list,arr) => {
+           console.log('params-priority',{list,arr})
+           if (!arr) return;
+           return arr.sort( (a,b) => list.indexOf(a) >= 0 ? -1 : (a<b) )
+         }";
+      )
+  };  
+};
+
+/*
+feature "priority_params" {
+  pp: x-patch {
+    arr_sort func=(lambda @pp->list code="(list,a,b) => list.indexOf(a) >= 0 ? 1 : (a<b))");
+  };
+};
+
+feature "hide_params" {
+  pp: x-patch {
+    arr_filter h=@pp->list code="(item) => env.params.h.indexOf(item) < 0";
+  };
+};
+*/
+
 register_feature name="render-params" {
-  rp: column gap="0.1em" object=@.->input input=@.->0 {
+  rp: column gap="0.1em" object=@.->input input=@.->0 
+    filter=(lambda code="(arr) => arr")
+  {
 
     link to=".->object" from=@..->object_path tied_to_parent=true soft_mode=true; // тут надо maybe что там объект и тогда норм будет..
 
     // а кстати классно было бы cmd="(** file_uploads)->recompute"
     // connection object=@..->object event_name="gui-added" cmd="@getparamnames->recompute";
 
-    @rp->object | get-params-names | repeater {
+    @rp->object | get-params-names | eval code=@rp->filter
+    | repeater {
       column {
         //text text=@..->modelData;
         render-one-param obj=@rp->object name=@..->modelData;
