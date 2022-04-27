@@ -59,14 +59,14 @@ view1: feature text="Общий вид" {
         camera3d pos=[0,0,100] center=[0,0,0];
         orbit_control;
 
-        linestr input_link="@dat->output";
-           //{{ select_input_view1 input_data="@dat->output" }};
-        ptstr radius=2 input_link="@dat->output";
-            //select_input_view1 input_data="@dat->output";
-           //{{ select_input_view1 input_data="@dat->output" }};
-        models input_link="@dat_cur_time->output";
-            //select_input_view1 input_data="@dat_cur_time->output";
-           //{{ select_input_view1 input_data="@dat_cur_time->output" }};
+        linestr 
+             input_link="@dat->output";
+
+        ptstr radius=2 
+             input_link="@dat->output";
+
+        models 
+             input_link="@dat_cur_time->output";
 
         axes;
         pole;
@@ -128,6 +128,9 @@ view2: feature text="Ракета в центре координат" {
   dat_cur_time_orig: @dat0 | df_slice start=@vroot->time_index count=1;
 
   //data_variants: names=["Основное положение"] titles=""
+  datavis_data_info: 
+      titles=["","Текущее положение"] 
+      values=["","@dat_cur_time_zero->output"];
 
    ////////////////////////////////////
    ////// сцена
@@ -141,7 +144,7 @@ view2: feature text="Ракета в центре координат" {
         orbit_control;
 
         //models input_data="@dat_cur_time_zero->output";
-        models input=@dat_cur_time_zero->output;
+        models input_link="@dat_cur_time_zero->output";
 
         axes;
         pole;
