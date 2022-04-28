@@ -8,7 +8,7 @@ feature "guiblock" {}; feature "include-gui" {};
 
 // вход: loaded_data, time_index, time_params
 view1: feature text="Общий вид" { 
-  vroot: dom_group {
+  vroot: dom_group {{ console_log_params "77777777777" }} {
 
   ////// основные параметры
 
@@ -29,7 +29,7 @@ view1: feature text="Общий вид" {
   ///////////////////////////////////////
 
   _dat: df_set input=@vroot->loaded_data;
-  dat0: df_set input=@vroot->loaded_data0;
+  dat0: df_set input=@vroot->loaded_data0 {{ console_log_params "888888888888" }};
   //_dat: output=(@vroot->loaded_data | get_param name="output");
 
   dat: @_dat | df_div column="Y" coef=@mainparams->y_scale_coef;
@@ -38,9 +38,13 @@ view1: feature text="Общий вид" {
 
   dat_cur_time: @dat       | df_slice start=@vroot->time_index count=1;
 
-  dat_cur_time_orig: @dat0 | df_slice start=@vroot->time_index count=1; 
+  dat_cur_time_orig: @dat0 | console_log_input "TTTTTTTTTTTTT" | df_slice start=@vroot->time_index count=1; 
   // оригинальная curr time до изменения имен колонок и прочих преобьразований
   // требуется для вывода на экран исходных данных
+
+  // так то может это и не плохая идея что ожидаем в контексте того или иного...
+  // но так-то и неважная но и прокидывать это в datavis и прочие элементы не хочется
+  // надо понять как тут правильно поступать
 
    // dat_cur_time_zero: @dat | df_slice start=@vroot->time_index count=1 | df_set X=0 Y=0 Z=0;
 
@@ -64,7 +68,7 @@ view1: feature text="Общий вид" {
           bgcolor=[0.1,0.2,0.3]
           target=@v1 {{ skip_deleted_children }}
     {
-        camera3d pos=[0,0,100] center=[0,0,0];
+        camera3d pos=[-400,350,350] center=[0,0,0];
         orbit_control;
 
         linestr 
@@ -103,18 +107,30 @@ view1: feature text="Общий вид" {
 
        }
        middle={
-         extra_screen_things: column;
+         extra_screen_things: column {
+           curtime; allvars;
+         };
        }
        right={
         render_layers title="Визуальные объекты" 
            root=@vroot
            items=[ { "title":"Объекты данных", 
                      "find":"datavis",
-                     "add":"linestr"
+                     "add":"linestr",
+                     "add_to": "@r1->."
                    },
 
-                   {"title":"Статичные","find":"staticvis","add":"axes"},
-                   {"title":"Текст","find":"screenvis","add":"select-t"}
+                   {"title":"Статичные",
+                    "find":"staticvis",
+                    "add":"axes",
+                    "add_to": "@r1->."
+                   },
+
+                   {"title":"Текст",
+                    "find":"screenvis",
+                    "add":"curtime",
+                    "add_to":"@extra_screen_things->."
+                   }
                  ]
            ;
        };
@@ -150,14 +166,14 @@ view2: feature text="Ракета в центре координат" {
           bgcolor=[0.1,0.2,0.3]
           target=@v1 {{ skip_deleted_children }}
     {
-        camera3d pos=[0,100,100] center=[0,0,0];
+        camera3d pos=[10,30,30] center=[0,0,0];
         orbit_control;
 
         //models input_data="@dat_cur_time_zero->output";
         models input_link="@dat_cur_time_zero->output";
 
-        axes;
-        pole;
+        axes size=20;
+        //pole;
 
     };
 
@@ -263,93 +279,6 @@ feature "stolbik" {
 
 /////////////////////////// визуальные 3д образы
 
-dfffff: feature {
-  x-modify {
-     //x-set-params gui={ render-params input=@. {{ console_log_params text=">>>>>>>>>>>>>>" }}; }
-     //x-patch code=`(env) => env.feature('datavis');`;
-  };
-};
-
-select_input_view1: feature {
-  rt: {
-      input_data:
-        param_combo values=["","@dat->output","@dat_prorej->output","@dat_cur_time->output"]
-           titles=["","Траектория","Прореженная","Текущее время"]
-           ;
-      link to="@rt->input" from=@input_data->value tied_to_parent=true soft_mode=true;
-
-      //vis_type: param_combo values=["ptstr","linestr","models"] titles=["Точки","Линия","Модель"];  
-  };
-};
-
-/*
-x-patch {
-   reactive @r->name @r->ttiles @r->values {
-   }
-}
-*/
-
-/*
-feauture "x-param-combo" {
-  r: x-patch @r->name @r->titles @r->values 
-  code="(name,titles,values,obj) => {
-    obj.addComboValue( name, undefined, values );
-    if (titles) 
-      obj.setParamOption( name,"titles",titles);
-    else
-      obj.setParamOption( name,"titles",null);
-    env.onvalue("value", (v) => {
-      obj.setParam( name, v );
-    });
-    obj.trackParam
-  ";
-};
-*/
-
-/*
-feauture "x-param-combo" {
-  r: x-patch 
-  code="(obj) => {
-    env.onvalue("name",setup);
-
-    function setup() {
-      obj.addComboValue( env.params.name, undefined, env.params.values );
-      if (env.params.titles) 
-        obj.setParamOption( env.params.name,"titles",env.params.titles);
-      else
-        obj.setParamOption( env.params.name,"titles",null);
-    };
-  ";
-};
-*/
-
-select_input: feature {
-  root: {
-      input_data:
-        param_combo values=@root->values titles=@root->titles;
-      link to="@rt->input" from=@input_data->value tied_to_parent=true soft_mode=true;
-  };
-};
-
-select_input_view111: feature {
-  select_input 
-    values=["","@dat->output","@dat_prorej->output","@dat_cur_time->output"]
-    titles=["","Траектория","Прореженная","Текущее время"];
-};
-
-datavis0: feature {
-  rt: 
-      sibling_types=["linestr","ptstr","models"] 
-      sibling_titles=["Линии","Точки","Модели"] 
-      data_link_values=[1]
-      data_link_titles=[1]
-      {{
-        input_link:
-          param_combo values=@rt->data_link_values titles=@rt->data_link_titles priority=-1;
-        link to="@rt->input" from=@rt->input_link tied_to_parent=true soft_mode=true;
-      }}
-};
-
 datavis: feature {
   rt: {{
     x-set-params sibling_types=["linestr","ptstr","models"] 
@@ -373,4 +302,37 @@ datavis: feature {
 staticvis: feature {
   rt: sibling_types=["axes","pole","kvadrat","stolbik"] 
       sibling_titles=["Оси","Земля","Квадрат","Масштабный столбик"];
+};
+
+screenvis: feature {
+  rt: sibling_types=["curtime","allvars","selectedvars"] 
+      sibling_titles=["Текущее время","Все переменные","Переменные по выбору"];
+};
+
+///////////////////////////////
+// todo опора на vroot
+feature "curtime" {
+  screenvis dom tag="h2" style="color: white"
+        innerText=(eval @vroot->time code="(t) => 'T='+(t || 0).toFixed(3)");
+};
+
+feature "allvars" {
+  screenvis 
+        dom style="color: white; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                   min-width: 400px; font-size: larger"
+        innerHTML=(eval @dat_cur_time_orig->output {{ console_log_params "rererere" }} code="(df) => {
+           debugger;
+           let str='';
+           df ||= {};
+           
+           for (let n of (df.colnames || [])) {
+             let val = df[n][0];
+             if (isFinite(val)) {
+                 val = val.toFixed(3);
+                 str += `<span>${n}=${val}</span>`;
+             }
+           }
+           
+           return 'qqq' + str;
+        }");
 };

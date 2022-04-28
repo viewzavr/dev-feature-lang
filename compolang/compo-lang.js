@@ -925,6 +925,9 @@ export function repeater( env, fopts, envopts ) {
   let model;
 
   function recreate() {
+     //console.log("repeater recreate", env.getPath() )
+     if (env.removed)
+        debugger;
      model = env.params.model || env.params.input;
 
      if (env.removed) return; // бывает...

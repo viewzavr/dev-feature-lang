@@ -9,6 +9,9 @@ fileparams: {
          | parse_csv separator="\s+";
 
   // on изменение в выборе файла - перейти в вид1
+  // но опять же - при старте программы это изменение тоже происходит.. 
+
+
 };
 
 timeparams: {
@@ -46,6 +49,7 @@ feature "view0" text="Выбор файла" {
   };  
   // а зачем тут render-params - можно просто гуи порисовать
   // on изменение в выборе файла - перейти в вид1
+  // порисовал - выглядит некрасиво
 };
 
 screen1: screen auto-activate {
@@ -53,14 +57,22 @@ screen1: screen auto-activate {
        ssr: switch_selector_row index=1 items=["Выбор файла","Основное","Ракета"] 
                 style_qq="margin-bottom:15px;" {{ hilite_selected }};
 
+                console_log "dddddddddd" input=@dat0->output;
        of: one_of 
               index=@ssr->index
               list={ 
                 view0;
-                view1 loaded_data0=@dat0->output 
-                      loaded_data=@loaded_data->output time_index=@time->index time_params=@timeparams;
+                view1 loaded_data0=@dat0->output
+                      loaded_data=@loaded_data->output 
+                      time_index=@time->index 
+                      time=@timeparams->time
+                      time_params=@timeparams {{ console_log_params "333333333" }};
                 view2 loaded_data0=@dat0->output 
-                      loaded_data=@loaded_data->output time_index=@time->index time_params=@timeparams; 
+                      loaded_data=@loaded_data->output 
+                      time_index=@time->index 
+                      time=@timeparams->time
+                      time_params=@timeparams;
+                view3;       
               }
               {{ one-of-keep-state; one_of_all_dump; }}
               ;
@@ -68,161 +80,11 @@ screen1: screen auto-activate {
    };          
 };
 
-//modify @screen1 { red; };
-// так то это аналог получается сейчас insert_features
-// в том смысле что это поселение в поддерево особое
-// ну и выставка .input ....
-
 debugger-screen-r;
 
-// работает в связке с one_of - сохраняет данные объекта и восстанавливает их
-// идея также - сделать передачу параметров между объектами в духе как сделано переключение 
-// типа по combobox/12chairs (см lib.cl)
-// дополнительно - делает так чтобы в дамп системы не попадали параметры сохраняемого объекта
-// а сохранялись бы внутри one-of и затем использовались при пересоздании
-// таким образом one-of целиком сохраняет состояние всех своих вкладов в дампе системы
-
-// прим: тут @root используется для хранения параметров и это правильно; но в коде он фигурирует как oneof
-/*
-feature "one_of_keep_state" {
-  root: x_modify 
-  {
-    x-patch {
-      lambda code=`(env) => {
-         let origdump = env.dump;
-         env.dump = () => {
-           env.emit( "save_state");
-           return origdump();
-         }
-       }`;
-    };
-
-    x-on "save_state" {
-       lambda code=`(oneof) => {
-         if (!oneof) return;
-         let obj = oneof.params.output;
-         let index = oneof.params.index;
-         if (obj && index >= 0) {
-           let dump = obj.dump(true);
-           let oparams = oneof.params.objects_params || [];
-           oparams[ index ] = dump;
-           oneof.setParam("objects_params", oparams, true );
-         }  
-       }`;
-     };    
-
-    x-on "destroy_obj" {
-       lambda code=`(oneof, obj, index) => {
-         if (!oneof) return;
-         let dump = obj.dump(true);
-         let oparams = oneof.params.objects_params || [];
-         oparams[ index ] = dump;
-         //console.log("oneof dump=",dump)
-         oneof.setParam("objects_params", oparams, true );
-       }`;
-     };
-
-     x-on "create_obj" {
-       lambda code=`(oneof, obj, index) => {
-         //console.log(">>>>>>>>>>>>>>>>>>>>>> on oneof create-obj: oneof=",oneof)
-         if (!oneof) return;
-         let oparams = oneof.params.objects_params || [];
-         //console.log(">>>>>>>>>>>>>>>>>>>>>> on oneof create-obj: objects_params=",oparams)
-         let dump = oparams[ index ];
-         //console.log(">>>>>>>>>>>>>>>>>>>>>> on oneof create-obj: using dump to restore",dump)
-         if (dump) {
-             dump.manual = true;
-             //console.log("one-of-keep-state: restoring from dump",dump)
-             //console.log(oneof,obj,index)
-             obj.restoreFromDump( dump, true );
-         }
-
-         let origdump = obj.dump;
-         obj.dump = (force) => {
-            if (force) return origdump();
-         }
-       }`;
-     };
-  };
-};
-*/
-
-// сохраняет состояние вкладок при переключении
-feature "one_of_keep_state" {
-  root: x_modify 
-  {
-    x-on "destroy_obj" {
-       lambda code=`(oneof, obj, index) => {
-         if (!oneof) return;
-         let dump = obj.dump(true);
-         let oparams = oneof.params.objects_params || [];
-         oparams[ index ] = dump;
-         //console.log("oneof dump=",dump)
-         oneof.setParam("objects_params", oparams, true );
-       }`;
-     };
-
-     x-on "create_obj" {
-       lambda code=`(oneof, obj, index) => {
-         if (!oneof) return;
-         let oparams = oneof.params.objects_params || [];
-         let dump = oparams[ index ];
-         if (dump) {
-             dump.manual = true;
-             //console.log("restoring tab",dump)
-             obj.restoreFromDump( dump, true );
-
-             /* 
-             env.feature("delayed");
-             let q = env.delayed( () => obj.restoreFromDump( dump, true ), 5);
-             //obj.restoreFromDump( dump, true );
-             q();
-             */
-         }
-       }`;
-     };
-  };
-};
-
-// заменяет dump у one-of и у создаваемого им объекта таким образом, чтобы
-// 1 создаваемый объект не выдавал dump при общем сохранении
-// 2 создаваемый объект сохранял бы dump в переменную save_state[i] у one-of
-// это позволяет корректно сохранять состояние всех вкладок 
-// и восстанавливает его при перезагрузке страницы
-feature "one_of_all_dump" {
-  root: x_modify 
-  {
-    x-patch {
-      lambda code=`(env) => {
-         let origdump = env.dump;
-         env.dump = () => {
-           env.emit( "save_state");
-           return origdump();
-         }
-       }`;
-    };
-
-    x-on "save_state" {
-       lambda code=`(oneof) => {
-         if (!oneof) return;
-         let obj = oneof.params.output;
-         let index = oneof.params.index;
-         if (obj && index >= 0) {
-           let dump = obj.dump(true);
-           let oparams = oneof.params.objects_params || [];
-           oparams[ index ] = dump;
-           oneof.setParam("objects_params", oparams, true );
-         }  
-       }`;
-     };    
-
-     x-on "create_obj" {
-       lambda code=`(oneof, obj, index) => {
-         let origdump = obj.dump;
-         obj.dump = (force) => {
-            if (force) return origdump();
-         }
-       }`;
-     };
-  };
-};
+// *****************************
+feature "view3" {
+  column {
+    text "privet";
+  }
+}
