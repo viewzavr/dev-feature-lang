@@ -6,7 +6,12 @@ register_feature name="collapsible" {
       btn: button text=@../..->text cmd="@pcol->trigger_visible";
 
       pcol: 
-      column visible=false {{ use_dom_children from=@../..; }};
+      column visible=@cola->expanded {{ use_dom_children from=@../..; }};
+      // сохраняет состояние развернутости колонки в collapsible-е
+      // без этого сохранения не получится т.к. содержимое колонки 
+      // не проходит dump по причине что shadow_dom вычеркнул себя из списка детей.
+      // возможно это стоит и полечить.
+      link from="@pcol->visible" to="@cola->expanded" manual_mode=true;
 
       insert_features input=@btn  list=@cola->button_features;
       insert_features input=@pcol list=@cola->body_features;

@@ -209,16 +209,35 @@ export function x_patch_r( env  )
 {
   env.feature("lambda");
 
+  // 1. дадим поменяться нескольким параметрам
+  // 2. если идет remove-процесс то наше param-changed по идее не сработает (его удалят на delayed)
+  // именно вклинивание сюда позволило мне решить ситуацию, когда параллельно шли процессы
+  // удаления дерева, как следствие удаление модификаторов, изменение параметров,
+  // и как следствие пере-применение других модификаторов (вот этих, x-partch-r)
+  // что влекло работу затем recreator и конструирование на участках поддерева до которых еще не дошел remove
+  // - и все это на этапе удаления общего дерева..
+  env.feature("delayed");
+  let recall_attached = env.delayed( () => {
+    for (let rec of Object.values( attached_list )) {
+       let obj = rec.obj;
+       env.callCmd("apply",obj, rec.unsub );
+       // да хрен с ним, не будем менять пока unsub..
+    }
+  });
+
+  env.on("param_changed", recall_attached );
+
+/*
   env.on("param_changed",(name) => {
     if (name == "code") return;
 
     for (let rec of Object.values( attached_list )) {
        let obj = rec.obj;
        env.callCmd("apply",obj, rec.unsub );
-
        // да хрен с ним, не будем менять пока unsub..
     }
   })
+  */
 
   
   let attached_list = {};
@@ -264,3 +283,4 @@ export function x_patch_r( env  )
   // это должен получается modify тоже разруливать...
 
 }
+

@@ -196,26 +196,17 @@ view2: feature text="Ракета в центре координат" {
 linestr: feature {
   main: linestrips datavis 
      gui={ 
-      /*
-       row padding="0.2em" { 
-         text "Данные: ";
-         combobox
-           name="input_link" 
-           values=@main->data_link_values 
-           titles=@main->data_link_titles;
-       };
-       */
-       render-params input=@main filters={ params-priority list="input_link"; };
+       render-params input=@main;
       };
 };
 
 ptstr: feature {
-  main: points datavis gui={ render-params input=@main filters={ params-priority list="input_link"; }; };
+  main: points datavis gui={ render-params input=@main };
 };
     
     // вход input это dataframe
 models: feature {
-    root: node3d datavis gui={ render-params input=@root filters={ params-priority list="input_link"; }; }
+    root: node3d datavis gui={ render-params input=@root  }
           {
             param_slider name="scale" min=1 max=10 value=1;
             param_color  name="hilight_color" value=[0,0,0];
@@ -370,6 +361,10 @@ datavis: feature {
          name="input_link" 
          values=@rt->data_link_values 
          titles=@rt->data_link_titles; // {{ param-priority 0 }};
+    x-param-option
+         name="input_link"
+         option="priority"
+         value=10;
 
     link to=".->input" from=@.->input_link tied_to_parent=true soft_mode=true;
   }}
@@ -379,30 +374,3 @@ staticvis: feature {
   rt: sibling_types=["axes","pole","kvadrat","stolbik"] 
       sibling_titles=["Оси","Земля","Квадрат","Масштабный столбик"];
 };
-
-feature "x-param-combo" {
-  r: x-patch-r @r->name @r->titles @r->values 
-  code="(name,titles,values,obj) => {
-    if (name && values)
-      obj.addComboValue( name, undefined, values );
-    if (name && titles) 
-      obj.setParamOption( name,'titles',titles);
-    else
-      obj.setParamOption( name,'titles',null);
-  }    
-  ";
-};
-
-feature "x-param-slider" {
-  r: x-patch-r @r->name @r->min @r->max @r->step
-  code="(name,min,max,step,obj) => {
-    if (!name) return;
-    obj.addSlider( name, undefined, min, max, step );
-  }    
-  ";
-};
-
-/*
-    x-param-slider name="test" max=200;
-    x-on "param_test_changed" code=`(a,b,c) => console.log('sl changed',a,b,c)`;
-*/

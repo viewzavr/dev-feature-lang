@@ -1,3 +1,37 @@
+load "new-modifiers";
+
+feature "x-param-combo" {
+  r: x-patch-r @r->name @r->titles @r->values 
+  code="(name,titles,values,obj) => {
+    if (name && values)
+      obj.addComboValue( name, undefined, values );
+    if (name && titles) 
+      obj.setParamOption( name,'titles',titles);
+    else
+      obj.setParamOption( name,'titles',null);
+  }    
+  ";
+};
+
+feature "x-param-slider" {
+  r: x-patch-r @r->name @r->min @r->max @r->step
+  code="(name,min,max,step,obj) => {
+    if (!name) return;
+    obj.addSlider( name, undefined, min, max, step );
+  }    
+  ";
+};
+
+feature "x-param-option" {
+  r: x-patch-r @r->name @r->option @r->value
+  code="(name,option,val,obj) => {
+    if (name && option && val && obj)
+      obj.setParamOption( name, option, val );
+  }";
+};
+
+//////////////////////////////////////////////////////////
+
 // набор модификаторов по добавлению информации о гуи параметров в объект
 
 register_feature name="param_base" code=`

@@ -319,6 +319,7 @@ export function dom( obj, options={} )
   obj.addCmd("trigger_visible",() => { 
     //obj.visible = !obj.visible 
     obj.setParam("visible", !obj.visible, true); // отметка что сделано вручную
+    //console.log("v triggered",obj.dump(),obj)
   });
 
 /*

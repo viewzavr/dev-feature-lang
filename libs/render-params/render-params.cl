@@ -63,6 +63,15 @@ register_feature name="get-params-names" {
           for (let nn of gn)
             if (!env.params.input.getParamOption(nn,"internal"))
               acc.push( nn );
+
+          // экспериментально.. хотя так-то часто надо..    
+          acc = acc.sort( (a,b) => {
+            let x = env.params.input.getParamOption(a,"priority") || 100;
+            let y = env.params.input.getParamOption(b,"priority") || 100;
+            if (x<y) return -1;
+            if (x>y) return 1;
+            return 0;
+          } );
           
           env.unsub1 = env.params.input.on("gui-added",() => env.recompute() );
           //env.params.input.on("gui-changed",() => env.recompute() );
@@ -133,14 +142,14 @@ register_feature name="render-params" {
 register_feature name="render-one-param" {
   dg: dom_group {{
 
-      on "param_obj_changed"  cmd="@x->apply";
-      on "param_name_changed" cmd="@x->apply";
+      x-on "param_obj_changed"  cmd="@x->apply";
+      x-on "param_name_changed" cmd="@x->apply";
       x: func {{ delay_execution }} cmd="@dm->apply";
 
       mmm: modify input=@dg->obj {
-        on (join "gui-changed-" @dg->name) cmd="@dm->apply"
+        on (join "gui-changed-" @dg->name) cmd="@x->apply" // cmd="@dm->apply"
         {{
-           on "connected" cmd="@dm->apply";
+           on "connected" cmd="@x->apply"; //cmd="@dm->apply"
         }};
       }
 

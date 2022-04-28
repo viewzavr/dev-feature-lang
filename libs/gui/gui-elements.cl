@@ -230,7 +230,7 @@ register_feature name="select_color" {
     combobox values=["alfa","beta","teta"];
 */
 register_feature name="combobox" {
-	root: dom tag="select" {
+	cbroot: dom tag="select" {
 
     ///////////////////////////////////////////////
     // мостик из CL в dom

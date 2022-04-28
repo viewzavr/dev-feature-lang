@@ -2242,7 +2242,7 @@ export function insert_features( env )
 
 }
 
-//////////////// insert_features 
+//////////////// insert_children 
 // новое видение deploy_many_to
 // отличается тем что список фич это могут быть дети
 

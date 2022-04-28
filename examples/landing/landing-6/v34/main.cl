@@ -62,7 +62,7 @@ screen1: screen auto-activate {
                 view2 loaded_data0=@dat0->output 
                       loaded_data=@loaded_data->output time_index=@time->index time_params=@timeparams; 
               }
-              {{ one-of-keep-state }}
+              {{ one-of-keep-state; one_of_all_dump; }}
               ;
 
    };          
@@ -83,14 +83,10 @@ debugger-screen-r;
 // таким образом one-of целиком сохраняет состояние всех своих вкладов в дампе системы
 
 // прим: тут @root используется для хранения параметров и это правильно; но в коде он фигурирует как oneof
+/*
 feature "one_of_keep_state" {
   root: x_modify 
-    {{ on 'attach' {
-        //console_log_apply ">>>>>>>>>>>>>>>>>>>>>>> keep-state modifier applied 1";
-     }
-    }}
   {
-
     x-patch {
       lambda code=`(env) => {
          let origdump = env.dump;
@@ -99,7 +95,6 @@ feature "one_of_keep_state" {
            return origdump();
          }
        }`;
-       //console_log_apply ">>>>>>>>>>>>>>>>>>>>>>> keep-state modifier applied 2";
     };
 
     x-on "save_state" {
@@ -142,6 +137,87 @@ feature "one_of_keep_state" {
              obj.restoreFromDump( dump, true );
          }
 
+         let origdump = obj.dump;
+         obj.dump = (force) => {
+            if (force) return origdump();
+         }
+       }`;
+     };
+  };
+};
+*/
+
+// сохраняет состояние вкладок при переключении
+feature "one_of_keep_state" {
+  root: x_modify 
+  {
+    x-on "destroy_obj" {
+       lambda code=`(oneof, obj, index) => {
+         if (!oneof) return;
+         let dump = obj.dump(true);
+         let oparams = oneof.params.objects_params || [];
+         oparams[ index ] = dump;
+         //console.log("oneof dump=",dump)
+         oneof.setParam("objects_params", oparams, true );
+       }`;
+     };
+
+     x-on "create_obj" {
+       lambda code=`(oneof, obj, index) => {
+         if (!oneof) return;
+         let oparams = oneof.params.objects_params || [];
+         let dump = oparams[ index ];
+         if (dump) {
+             dump.manual = true;
+             //console.log("restoring tab",dump)
+             obj.restoreFromDump( dump, true );
+
+             /* 
+             env.feature("delayed");
+             let q = env.delayed( () => obj.restoreFromDump( dump, true ), 5);
+             //obj.restoreFromDump( dump, true );
+             q();
+             */
+         }
+       }`;
+     };
+  };
+};
+
+// заменяет dump у one-of и у создаваемого им объекта таким образом, чтобы
+// 1 создаваемый объект не выдавал dump при общем сохранении
+// 2 создаваемый объект сохранял бы dump в переменную save_state[i] у one-of
+// это позволяет корректно сохранять состояние всех вкладок 
+// и восстанавливает его при перезагрузке страницы
+feature "one_of_all_dump" {
+  root: x_modify 
+  {
+    x-patch {
+      lambda code=`(env) => {
+         let origdump = env.dump;
+         env.dump = () => {
+           env.emit( "save_state");
+           return origdump();
+         }
+       }`;
+    };
+
+    x-on "save_state" {
+       lambda code=`(oneof) => {
+         if (!oneof) return;
+         let obj = oneof.params.output;
+         let index = oneof.params.index;
+         if (obj && index >= 0) {
+           let dump = obj.dump(true);
+           let oparams = oneof.params.objects_params || [];
+           oparams[ index ] = dump;
+           oneof.setParam("objects_params", oparams, true );
+         }  
+       }`;
+     };    
+
+     x-on "create_obj" {
+       lambda code=`(oneof, obj, index) => {
          let origdump = obj.dump;
          obj.dump = (force) => {
             if (force) return origdump();
