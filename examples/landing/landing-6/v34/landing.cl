@@ -212,7 +212,7 @@ view2: feature text="Ракета в центре координат" {
            root=@vroot
            items=[ {"title":"Объекты данных", "find":"datavis","add":"linestr"},
                    {"title":"Статичные","find":"staticvis","add":"axes"},
-                   {"title":"Текст","find":"screenvis","add":"select-t"}
+                   {"title":"Текст","find":"screenvis","add":"curtime"}
                  ];
        };
 
