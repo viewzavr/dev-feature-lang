@@ -179,11 +179,11 @@ export function x_patch( env  )
     if (!Array.isArray(resarr)) resarr = [resarr];
     resarr = resarr.flat(5);
 
-    let unsub = () => resarr.map( (f) => f.bind ? f() : false )
+    let unsub = () => resarr.map( (f) => f?.bind ? f() : false )
     detach[ obj.$vz_unique_id ] = () => {
        unsub();
        delete detach[ obj.$vz_unique_id ];
-    }   
+    }
 
     return unsub; 
 

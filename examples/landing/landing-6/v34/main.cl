@@ -3,9 +3,9 @@ load "lib3dv3 csv params io gui render-params df scene-explorer-3d 12chairs.cl l
 fileparams: {
   //f1_info: param_label "Укажите текстовый файл с данными";
   f1:  param_file value="https://viewlang.ru/assets/other/landing/2021-10-phase.txt";
-  lines_loaded: param_label (@dat0 | get name="length");
+  lines_loaded: param_label (@data_from_file | get name="length");
 
-  dat0: load-file file=@fileparams->f1
+  data_from_file: load-file file=@fileparams->f1
          | parse_csv separator="\s+";
 
   // on изменение в выборе файла - перейти в вид1
@@ -33,7 +33,7 @@ timeparams: {
 prgparams:
 {
 
-  loaded_data: @dat0 | df_set X="->x[м]" Y="->y[м]" Z="->z[м]" T="->t[c]"
+  loaded_data: @data_from_file | df_set X="->x[м]" Y="->y[м]" Z="->z[м]" T="->t[c]"
                 RX="->theta[град]" RY="->psi[град]" RZ="->gamma[град]"
               | df_div column="RX" coef=57.7
               | df_div column="RY" coef=57.7
@@ -57,17 +57,17 @@ screen1: screen auto-activate {
        ssr: switch_selector_row index=1 items=["Выбор файла","Основное","Ракета"] 
                 style_qq="margin-bottom:15px;" {{ hilite_selected }};
 
-                console_log "dddddddddd" input=@dat0->output;
+                
        of: one_of 
               index=@ssr->index
               list={ 
                 view0;
-                view1 loaded_data0=@dat0->output
+                view1 loaded_data0=@data_from_file->output
                       loaded_data=@loaded_data->output 
                       time_index=@time->index 
                       time=@timeparams->time
-                      time_params=@timeparams {{ console_log_params "333333333" }};
-                view2 loaded_data0=@dat0->output 
+                      time_params=@timeparams;
+                view2 loaded_data0=@data_from_file->output 
                       loaded_data=@loaded_data->output 
                       time_index=@time->index 
                       time=@timeparams->time

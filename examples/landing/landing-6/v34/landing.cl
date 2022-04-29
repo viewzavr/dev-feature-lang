@@ -8,7 +8,7 @@ feature "guiblock" {}; feature "include-gui" {};
 
 // вход: loaded_data, time_index, time_params
 view1: feature text="Общий вид" { 
-  vroot: dom_group {{ console_log_params "77777777777" }} {
+  vroot: dom_group {
 
   ////// основные параметры
 
@@ -29,7 +29,7 @@ view1: feature text="Общий вид" {
   ///////////////////////////////////////
 
   _dat: df_set input=@vroot->loaded_data;
-  dat0: df_set input=@vroot->loaded_data0 {{ console_log_params "888888888888" }};
+  dat0: df_set input=@vroot->loaded_data0;
   //_dat: output=(@vroot->loaded_data | get_param name="output");
 
   dat: @_dat | df_div column="Y" coef=@mainparams->y_scale_coef;
@@ -38,7 +38,7 @@ view1: feature text="Общий вид" {
 
   dat_cur_time: @dat       | df_slice start=@vroot->time_index count=1;
 
-  dat_cur_time_orig: @dat0 | console_log_input "TTTTTTTTTTTTT" | df_slice start=@vroot->time_index count=1; 
+  dat_cur_time_orig: @dat0 | df_slice start=@vroot->time_index count=1; 
   // оригинальная curr time до изменения имен колонок и прочих преобьразований
   // требуется для вывода на экран исходных данных
 
@@ -93,6 +93,14 @@ view1: feature text="Общий вид" {
 
    v1: view3d style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2" extra=@extra_screen_things;
 
+   extra_screen_things: 
+     column style="padding-left:2em; min-width: 80vw; 
+        position:absolute; bottom: 1em; left: 1em;" 
+        {{ skip_deleted_children }}
+        {
+           allvars;
+        };
+
    render_interface
        left={
           column plashka {
@@ -107,9 +115,6 @@ view1: feature text="Общий вид" {
 
        }
        middle={
-         extra_screen_things: column {
-           curtime; allvars;
-         };
        }
        right={
         render_layers title="Визуальные объекты" 
@@ -173,6 +178,7 @@ view2: feature text="Ракета в центре координат" {
         models input_link="@dat_cur_time_zero->output";
 
         axes size=20;
+        setka;
         //pole;
 
     };
@@ -182,6 +188,14 @@ view2: feature text="Ракета в центре координат" {
    ////////////////////////////////////
 
    v1: view3d style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2" extra=@extra_screen_things;
+
+   extra_screen_things: 
+     column style="padding-left:2em; min-width: 80vw; 
+        position:absolute; bottom: 1em; left: 1em;" 
+        {{ skip_deleted_children }}
+        {
+           allvars;
+        };   
 
    render_interface
        left={
@@ -255,6 +269,27 @@ feature "pole" {
         ;
 };
 
+feature "setka" {
+        main: lines gui={ render-params input=@main; } guiblock staticvis
+          color=[0.7, 0.7, 0.8]
+          positions=(eval code="() => {
+            let step=100;
+            let k = 10;
+            let d = k*step;
+            let acc=[];
+            for (let i=-k; i<=k; i++) {
+              acc.push( i*step, 0, -d );
+              acc.push( i*step, 0, +d );
+            };
+            for (let i=-k; i<=k; i++) {
+              acc.push( -d, 0, i*step );
+              acc.push( +d, 0, i*step );
+            };
+            return acc;
+          }")
+        ;
+};
+
 feature "kvadrat" {
         main: mesh gui={ render-params input=@main; } guiblock staticvis
           positions=[
@@ -277,7 +312,82 @@ feature "stolbik" {
           };
     };
 
-/////////////////////////// визуальные 3д образы
+
+/////////////////////////////// надписи для экрана
+// todo опора на vroot
+// 
+
+feature "curtime" {
+  screenvis dom tag="h2" style="color: white; margin: 0;"
+        innerText=(eval @vroot->time code="(t) => 'T='+(t || 0).toFixed(3)");
+};
+
+feature "allvars" {
+  screenvis 
+        dom style="color: white; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                   min-width: 400px; font-size: larger"
+        innerHTML=(eval @dat_cur_time_orig->output code="(df) => {
+           
+           let str='';
+           df ||= {};
+           
+           for (let n of (df.colnames || [])) {
+             let val = df[n][0];
+             if (isFinite(val)) {
+                 val = val.toFixed(3);
+                 str += `<span>${n}=${val}</span>`;
+             }
+           }
+           
+           return str;
+        }");
+};
+
+
+feature "selectedvars" {
+  screenvis       
+        dom 
+        style="color: white; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                   min-width: 300px; font-size: larger"
+        innerHTML=@qq->output 
+        gui={ render-params input=@selected; } 
+        {
+
+          selected: gui_title="Выбрать" 
+             {{ 
+             x-on name="param_changed" cmd="@qq->recompute";
+             x-on name="gui-added" cmd="@qq->recompute";
+             }}
+          {
+
+              @dat0->output | get name="colnames" | repeater 
+              {
+                param_checkbox name=@.->input value=true;
+              };
+
+              qq: eval @dat_cur_time_orig->output @selected code="(df,selected) => {
+               let str='';
+               df ||= {};
+               if (!selected) return '';
+               
+               for (let n of (df.colnames || [])) {
+                 let f = selected.getParam( n );
+                 if (!f) continue;
+                 let val = df[n][0];
+                 if (isFinite(val)) {
+                     val = val.toFixed(3);
+                     str += `<span>${n}=${val}</span>`;
+                 }    
+               }
+               return str;
+               }";
+
+              
+          };
+        }
+    };
+
+/////////////////////////// суммарная информация
 
 datavis: feature {
   rt: {{
@@ -300,39 +410,11 @@ datavis: feature {
 };
 
 staticvis: feature {
-  rt: sibling_types=["axes","pole","kvadrat","stolbik"] 
-      sibling_titles=["Оси","Земля","Квадрат","Масштабный столбик"];
+  rt: sibling_types=["axes","pole","kvadrat","stolbik","setka"] 
+      sibling_titles=["Оси","Земля","Квадрат","Масштабный столбик","Сетка"];
 };
 
 screenvis: feature {
   rt: sibling_types=["curtime","allvars","selectedvars"] 
       sibling_titles=["Текущее время","Все переменные","Переменные по выбору"];
-};
-
-///////////////////////////////
-// todo опора на vroot
-feature "curtime" {
-  screenvis dom tag="h2" style="color: white"
-        innerText=(eval @vroot->time code="(t) => 'T='+(t || 0).toFixed(3)");
-};
-
-feature "allvars" {
-  screenvis 
-        dom style="color: white; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-                   min-width: 400px; font-size: larger"
-        innerHTML=(eval @dat_cur_time_orig->output {{ console_log_params "rererere" }} code="(df) => {
-           debugger;
-           let str='';
-           df ||= {};
-           
-           for (let n of (df.colnames || [])) {
-             let val = df[n][0];
-             if (isFinite(val)) {
-                 val = val.toFixed(3);
-                 str += `<span>${n}=${val}</span>`;
-             }
-           }
-           
-           return 'qqq' + str;
-        }");
-};
+};    
