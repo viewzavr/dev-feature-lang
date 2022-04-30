@@ -108,7 +108,7 @@ feature "landing-view-1"
 	mainparams: 
 	  {
 
-	    see_lines: param_label value=(@_dat | get name="length");
+	    see_lines: param_label value=(@internal_columns_dat | get name="length");
 
 	    // todo исследовать time: param_combo values=(@dat | df_get column="T");
 
@@ -143,10 +143,12 @@ feature "landing-view-1"
         models 
              input_link="@dat_cur_time->output";
 
-        axes;
+        // вроде как не нужны - смотрелкой добавляются.. axes;
         pole;
         kvadrat;
         stolbik;
+
+        // вообще может оказаться что это будет отдельный визуальный процесс - "антураж"
 	};  	
 
     // ну вот... как бы это.. а мы бы хотели...
