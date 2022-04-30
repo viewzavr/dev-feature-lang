@@ -27,8 +27,8 @@ register_feature name="plashka" {
   style_b="border-left: 8px solid #00000042;
                       border-bottom: 1px solid #00000042;
                       border-radius: 5px;
-                      margin-bottom: 5px;
-                     ";
+                     "
+  style_border_b="margin-bottom: 5px;"                    
 };
 
 
@@ -48,6 +48,118 @@ register_feature name="plashka" {
 */
 
 feature "render_layers_inner" {
+
+rl_root: 
+    column text=@.->title
+    style="min-width:250px" 
+    style_h = "max-height:80vh;"
+
+    body_features={ set_params style_h="max-height: inherit; overflow-y: auto;"}
+    {
+     s: switch_selector_row {{ hilite_selected }} 
+         items=(@rl_root->items | arr_map code="(v) => v.title")
+         plashka style_qq="margin-bottom:0px !important;"
+         ;
+
+     button "Добавить" margin="0.5em" {
+        
+        link from=(@rl_root->items | get @s->index | get "add_to") to="@cre->target";
+
+        cre: creator input={} // target=@r1
+          {{ onevent name="created" 
+             newf=(@rl_root->items | get @s->index | get "add")
+             code=`
+                 args[0].manuallyInserted=true;
+
+                 // сейчас мы через фичи инициализируем новые объекты через manual_features
+                 // чтобы выбранный тип "сохранялся" в состоянии сцены.
+                 // в будущем это можно будет изменить на другой подход
+                 //args[0].manual_feature( "linestr" );
+                 //args[0].setParamManualFlag("manual_features");
+                 //let s = "linestr";
+                 let s = env.params.newf;
+                 args[0].setParam("manual_features",s,true)
+                 
+                 console.log("created",args[0])
+             `
+          }};
+     };
+
+     find-objects-bf (@rl_root->items | get @s->index | get "find") 
+                     root=@rl_root->root
+                     recursive=false
+     | eval code="(arr) => {
+       if (!env.params.input) return [];
+       return env.params.input.sort( (a,b) => {
+        function getpri(q) { 
+            if (!q.params.block_priority)
+               q.setParam( 'block_priority', q.$vz_unique_id,true )
+            return q.params.block_priority;   
+          }
+        return getpri(a) - getpri(b); 
+       })
+       }"
+     | repeater {
+             co: column plashka style_r="position:relative;" {
+               //text (@co->input);
+               row {
+                 text "Образ: ";
+                 combobox  values=(@co->input | get_param "sibling_types" )
+                           titles=(@co->input | get_param "sibling_titles")
+                           value=(detect_type @co->input @.->values)
+                           style="width: 120px;" 
+                   {{ on "user_changed_value" { // "param_value_changed"
+                      lambda @co->input code=`(obj,v) => {
+                        // вот мы спотыкаемся - что это, начальное значение или управление пользователем
+
+                        //console.log("existing obj",obj,"creating new obj type",v);
+
+                        let dump = obj.dump();
+
+                        //console.log("dump is",dump)
+
+                        let newobj = obj.vz.createObj({parent: obj.ns.parent});
+                        newobj.manual_feature( v );
+                        newobj.manuallyInserted=true;
+
+                        //newobj.feature( v );
+                        //let newobj = obj.vz.createObjByType({type: v, parent: obj.ns.parent});
+
+                        if (dump) {
+                          if (dump.params)
+                              delete dump.params['manual_features'];
+                          dump.manual = true;
+                          //console.log("restoring dump",dump);
+                          newobj.restoreFromDump( dump, true );
+                        }
+
+                        obj.remove();
+
+                        }`;
+
+                   }
+                   }};
+               };
+               /*
+               col: column {
+                  insert_children input=@col list=(@rl_root->before_each | get @s->index)
+                    | console_log_input "yyyyyyyyyyyyyyyyyyy"
+                    // | x-modify { x-set-params obj_input=@co->input }
+                    ;
+               };
+               */
+               column {
+                  insert_children input=@.. list=(@co->input | get_param name="gui");
+               };
+
+               button "x" style="position:absolute; top:0px; right:0px;" 
+               {
+                 lambda @co->input code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
+               };  
+             };
+          };
+
+    };  
 };
 
 feature "render_layers" {

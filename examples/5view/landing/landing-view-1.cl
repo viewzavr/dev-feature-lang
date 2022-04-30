@@ -39,7 +39,7 @@ feature "landing-view-1"
    }
    
    gui2={ 
-   	render_layers title="Визуальные объекты" expanded=true
+   	render_layers_inner title="Визуальные объекты" expanded=true
            root=@view
            items=[ { "title":"Объекты данных", 
                      "find":"datavis",
