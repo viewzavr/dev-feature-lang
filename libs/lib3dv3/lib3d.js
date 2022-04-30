@@ -141,6 +141,13 @@ export function render3d( env ) {
     // это то что рендерера попросили нарисовать явно
     if (env.params.input?.isObject3D)
         env.scene.add( env.params.input );
+    // и еще списком - но может это стоит в node3d отдать..
+
+    if (Array.isArray(env.params.input)) {
+      for (let q of env.params.input)
+        if (q?.isObject3D)
+           env.scene.add( q );
+    }      
   }
 
   update_scene();
@@ -162,6 +169,7 @@ export function node3d( env, opts={} ) {
     tracked.forEach( (t) => t() ); tracked=[];
     
     object3d.clear();
+    // вот может не только чилдренов монитроить а и доп списки?
     for (var c of env.ns.getChildren()) {
       
       tracked.push( c.trackParam("output",rescan) ); // следим за изменениями

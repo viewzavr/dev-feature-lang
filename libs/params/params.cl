@@ -16,11 +16,17 @@ feature "x-param-combo" {
 feature "x-param-slider" {
   r: x-patch-r @r->name @r->min @r->max @r->step
   code="(name,min,max,step,obj) => {
+    
     if (!name) return;
     obj.addSlider( name, undefined, min, max, step );
-  }    
+  }
   ";
 };
+
+/*
+    x-param-slider name="test" max=200;
+    x-on "param_test_changed" code=`(a,b,c) => console.log('sl changed',a,b,c)`;
+*/
 
 feature "x-param-option" {
   r: x-patch-r @r->name @r->option @r->value

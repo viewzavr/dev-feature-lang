@@ -14,7 +14,7 @@ register_feature name="axes_box" {
     // а причем render-guis2 вызывает render-params что как бы не рекурсивно..
     // странно все это... очень странно... надо какую-то модель тут разработать другую может
     gui={
-      render-params input=@main;
+      render-params input=@root;
       find-objects pattern_root=@root pattern="** include_gui" 
       |
       render-guis;

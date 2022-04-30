@@ -105,7 +105,7 @@ export function text3d( env ) {
      for (var i=0; i<group.children.length; i++) {
         var m = group.children[i];
         var i3 = 3*i;
-        if (env.params.positions.length >= i3) {
+        if (env.params?.positions?.length >= i3) {
           pos[0] = env.params.positions[i3];
           pos[1] = env.params.positions[i3+1];
           pos[2] = env.params.positions[i3+2];

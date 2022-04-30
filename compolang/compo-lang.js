@@ -2379,6 +2379,7 @@ export function get_param( env )
     {
       */
       let v = input?.getParam ? input.getParam( param ) : undefined;
+      v ||= env.params.default;
       env.setParam("output",v );
 
       param_tracking();
@@ -2393,6 +2394,7 @@ export function get_param( env )
 }
 
 // решил раздельно
+// на вход получает массив объектов и имя параметра который из них вытащить
 export function map_param( env )
 {
   let param_tracking = () => {};
@@ -2417,6 +2419,7 @@ export function map_param( env )
       
       for (let i=0; i<input.length; i++) {
         let v = input[i]?.getParam ? input[i].getParam( param ) : undefined;
+        v ||= env.params.default;
         acc.push( v );
 
         if (!input[i]) continue;
