@@ -1,8 +1,9 @@
 register_feature name="collapsible" {
   cola: 
-  column
+  column //button_type=["button"]
   {
     shadow_dom {
+      //btn: manual_features=@cola->button_type text=@../..->text cmd="@pcol->trigger_visible";
       btn: button text=@../..->text cmd="@pcol->trigger_visible";
 
       pcol: 
@@ -46,9 +47,13 @@ register_feature name="plashka" {
     sibling_titles sibling_types - внедрены в. мб вынести            
 */
 
+feature "render_layers_inner" {
+};
+
 feature "render_layers" {
 
-rl_root: collapsible text=@.->title
+rl_root: 
+    collapsible text=@.->title
     style="min-width:250px" 
     style_h = "max-height:90vh;"
     body_features={ set_params style_h="max-height: inherit; overflow-y: auto;"}

@@ -31,7 +31,15 @@ feature "landing-view-1"
         render-params  input=@mainparams plashka;
     };
 
-	render_layers title="Визуальные объекты" 
+    button "[Настройки объектов]" {
+      //emit_event object=@view
+      lambda @view @view->gui2 code="(obj,g2) => obj.emit('show-settings',g2)";
+    };
+
+   }
+   
+   gui2={ 
+   	render_layers title="Визуальные объекты" expanded=true
            root=@view
            items=[ { "title":"Объекты данных", 
                      "find":"datavis",
@@ -51,7 +59,7 @@ feature "landing-view-1"
                     "add_to":"@screen_space->."
                    }
                  ]
-           ;    
+           ;
 
 
   }
@@ -71,7 +79,7 @@ feature "landing-view-1"
 	           index=@timeparams->time_index
 	           ;
 
-	   visible: param_checkbox;        
+	   //visible: param_checkbox;        
 	};   	
 
 	fileparams: {

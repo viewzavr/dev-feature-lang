@@ -33,10 +33,13 @@ project: {
 feature "show_visual_tab" {
    sv: dom_group {
 
+    row {
+
     svlist: column {
       repeater input=@sv->input {
         mm: 
-        dom tag="fieldset" style="border-radius: 5px; padding: 2px; margin: 2px;" {
+         row {
+        //dom tag="fieldset" style="border-radius: 5px; padding: 2px; margin: 2px;" {
           collapsible text=(@mm->input | get_param "title" default="no title") 
             style="min-width:250px;" padding="2px"
             style_h = "max-height:80vh;"
@@ -45,14 +48,42 @@ feature "show_visual_tab" {
              insert_children input=@.. list=(@mm->input | get_param "gui");
              // вот мы вставили гуи
           };
+
           cbv: checkbox value=(@mm->input | get_param "visible");
           x-modify input=@mm->input {
             x-set-params visible=@cbv->value ;
-          }
-        };
-      }; // repeater  
+            x-on "show-settings" {
+              lambda @extra_settings_panel code="(panel,obj,settings) => {
+                 // todo это поведение панели уже..
+                 // да и вообще надо замаршрузизировать да и все будет.. в панель прям
+                 // а там типа событие или тоже команда
+                 if (panel.params.list == settings)
+                   panel.setParam('list',[]);
+                 else  
+                   panel.setParam('list',settings);
+                 //console.log(obj,settings)
+              };
+              ";
+            };
+          };
+        }; // fieldset
+      }; // repeater
 
     }; // svlist
+
+    extra_settings_panel_outer: row gap="2px" {
+      extra_settings_panel: 
+      column // style="position:absolute; top: 1em; right: 1em;" 
+      {
+         insert_children input=@.. list=@extra_settings_panel->list;
+      };
+      button "&lt;" style_h="height:1.5em;" visible=(eval @extra_settings_panel->list code="(list) => list && list.length>0") 
+      {
+        setter target="@extra_settings_panel->list" value=[];
+      };
+    }; // extra_settings_panel_outer
+
+    }; // row
 
     scene_3d_view: view3d style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2";
 
@@ -71,7 +102,6 @@ feature "show_visual_tab" {
        position:absolute; bottom: 1em; left: 1em;" {
        dom_group 
          input=(@sv->input | map_param "scene2d");
-       
     };
 
     // думаю нет ничего плохого если мы этим скажим рисоваться сюды
