@@ -192,8 +192,9 @@ export function node3d( env, opts={} ) {
 
   env.addCheckbox("visible",true);
 
-  env.onvalues(["output","visible"],(so,vis) => {
-    so.visible = vis;
+  env.onvalues_any(["output","visible"],(so,vis) => {
+    if (so)
+       so.visible = vis ? true : false;
   });
 }
 

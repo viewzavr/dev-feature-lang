@@ -35,13 +35,20 @@ feature "show_visual_tab" {
 
     svlist: column {
       repeater input=@sv->input {
-        mm: collapsible text=(@.->input | get_param "title" default="no title") 
-          style="min-width:250px;" padding="5px"
-          style_h = "max-height:80vh;"
-          body_features={ set_params style_h="max-height: inherit; overflow-y: auto;"}          
-        {
-           insert_children input=@.. list=(@mm->input | get_param "gui");
-           // вот мы вставили гуи
+        mm: 
+        dom tag="fieldset" style="border-radius: 5px; padding: 2px; margin: 2px;" {
+          collapsible text=(@mm->input | get_param "title" default="no title") 
+            style="min-width:250px;" padding="2px"
+            style_h = "max-height:80vh;"
+            body_features={ set_params style_h="max-height: inherit; overflow-y: auto;"}          
+          {
+             insert_children input=@.. list=(@mm->input | get_param "gui");
+             // вот мы вставили гуи
+          };
+          cbv: checkbox value=(@mm->input | get_param "visible");
+          x-modify input=@mm->input {
+            x-set-params visible=@cbv->value ;
+          }
         };
       }; // repeater  
 

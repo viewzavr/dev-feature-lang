@@ -6,7 +6,7 @@
 feature "landing-view-1" 
 {
 
-  view: visual_process title="Возвращение" 
+  view: visual_process title="Возвращение" visible=true 
 
   scene3d=@scene->output
   scene2d=@screen_space->output
@@ -70,6 +70,8 @@ feature "landing-view-1"
 	           values=(@internal_columns_dat | df_get column="T")
 	           index=@timeparams->time_index
 	           ;
+
+	   visible: param_checkbox;        
 	};   	
 
 	fileparams: {
@@ -133,7 +135,7 @@ feature "landing-view-1"
        ;
       };
 
-    scene: node3d {
+    scene: node3d visible=@view->visible {
         linestr 
              input_link="@dat->output";
 
@@ -153,7 +155,7 @@ feature "landing-view-1"
 
     // ну вот... как бы это.. а мы бы хотели...
 
-    screen_space: dom {
+    screen_space: dom visible=@view->visible {
 
     };
     /*
