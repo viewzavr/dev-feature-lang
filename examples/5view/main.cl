@@ -1,6 +1,6 @@
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d gui5.cl new-modifiers";
 
-load "landing/view1.cl"; // отдельный вопрос
+load "landing/landing-view-1.cl landing/test.cl universal/universal-vp.cl"; // отдельный вопрос
 
 feature "addview" {
   column {
@@ -53,19 +53,21 @@ feature "show_visual_tab" {
     {
         camera3d pos=[-400,350,350] center=[0,0,0];
         orbit_control;
-
         
     };
 
     extra_screen_things: 
     column style="padding-left:2em; min-width: 80vw; 
        position:absolute; bottom: 1em; left: 1em;" {
+       dom_group 
+         input=(@sv->input | map_param "scene2d");
+       
     };
 
     // думаю нет ничего плохого если мы этим скажим рисоваться сюды
     x-modify input=@sv->input {
       //x-set-params slice_scene3d=@scene_3d_view slice_renderer=@r1 scene2d=@extra_screen_things;
-      x-set-params scene2d=@extra_screen_things;
+      //x-set-params scene2d=@extra_screen_things;
     };
 
    }; // domgroup

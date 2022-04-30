@@ -477,6 +477,10 @@ export function dom_group( env ) {
   let rescan_delayed = env.delayed( rescan );
   env.on("childrenChanged",rescan_delayed);
 
+  env.onvalue("input",rescan);
+  // тупо это конечно все с текущими уведомлениями rescan_children..
+  // типа дети сами кого-то там уведомляют. но ничего, сдюжим.
+
   function rescan() {
     env.setParam("output", () => {
       let acc = [];
@@ -488,6 +492,29 @@ export function dom_group( env ) {
               else acc.push( od );
           }
        );
+
+      
+      if (Array.isArray(env.params.input)) 
+      for (let c of env.params.input)
+          {
+            if (!c) continue;
+
+            // разрешим подавать на input массив в котором есть функции
+            if (typeof(c) === "function") c = c();
+
+            if (c instanceof Element)
+            {
+              acc.push( c ); // разрешим подавать массив просто дом объектов
+              continue;
+            }            
+
+            let od = c.params.output;
+            if (typeof(od) === "function") od = od();
+            if (Array.isArray(od)) od.forEach( (el) => acc.push(el) )
+              else acc.push( od );
+          };
+          
+
       return acc;
 
       /* вариант с мэп не учитывает что могут вернуть массив и получится мы генерим массив массивов

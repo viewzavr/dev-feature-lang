@@ -1,13 +1,4 @@
-feature "axes-view" {
-	view: visual_process title="Оси координат"
-	gui=@ab->gui
-	scene3d=@ab->output
-	{
-	 ab: axes-box size=20;
-    };
-};
-
-feature "landing-view-1" 
+feature "test-view-1" 
 {
 
   view1: visual_process title="Возвращение" gui={
