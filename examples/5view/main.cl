@@ -1,25 +1,32 @@
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d gui5.cl new-modifiers";
 
-load "landing/landing-view-1.cl landing/test.cl universal/universal-vp.cl"; // отдельный вопрос
+load "landing/landing-view.cl landing/test.cl universal/universal-vp.cl"; // отдельный вопрос
 
-feature "addview" {
+feature "setup_view" {
   column {
-    button "Добавить вид"
+    button "Настройки"
   };
+};
+
+feature "the_view" {
 };
 
 feature "visual_process" {
 };
 
 project: {
-  v1: {
+  v1: the-view title="Общий вид" {
+    landing-view-1;
+    landing-view-1 title="Общий вид 2" visible=false;
     axes-view;
-    landing-view-1;
-    landing-view-1;
   };
-  v2: {
-    landing-view-1;
+  v2: the-view title="Вид 2" {
+    landing-view-2;
+    axes-view;
   };
+  v_setup: the-view title="Настройки" {
+    //sync_params_process root=@project;
+  }
 };
 
 // отображение. тут и параметр как компоновать
@@ -30,13 +37,16 @@ project: {
 // так это уже конкретная показывалка - с конкретным методом комбинирования.
 // мы потом это заоверрайдим чтобы было несколько методов комбинирования и был выбор у человека
 // хотя это можно и как параметр этой хрени и как суб-компоненту сделать.
+
+// обновление. input это объект вида. the-view.
 feature "show_visual_tab" {
-   sv: dom_group {
+   sv: dom_group 
+   {
 
     row {
 
     svlist: column {
-      repeater input=@sv->input {
+      repeater input=(@sv->input | get_children_arr) {
         mm: 
          row {
         //dom tag="fieldset" style="border-radius: 5px; padding: 2px; margin: 2px;" {
@@ -90,18 +100,17 @@ feature "show_visual_tab" {
     r1: render3d 
         bgcolor=[0.1,0.2,0.3]
         target=@scene_3d_view //{{ skip_deleted_children }}
-        input=(@sv->input | map_param "scene3d") // кстати идея так-то сделать аналог и для 2д - до-бирать детей отсель
+        input=(@sv->input | get_children_arr | map_param "scene3d") // кстати идея так-то сделать аналог и для 2д - до-бирать детей отсель
     {
         camera3d pos=[-400,350,350] center=[0,0,0];
         orbit_control;
-        
     };
 
     extra_screen_things: 
     column style="padding-left:2em; min-width: 80vw; 
        position:absolute; bottom: 1em; left: 1em;" {
        dom_group 
-         input=(@sv->input | map_param "scene2d");
+         input=(@sv->input | get_children_arr | map_param "scene2d");
     };
 
     // думаю нет ничего плохого если мы этим скажим рисоваться сюды
@@ -123,22 +132,27 @@ feature "oneview" {
 
 //lv1: landing-view-1;
 
-screen1: screen auto-activate {
+screen1: screen auto-activate project=@project {
    column padding="1em" {
-       ssr: switch_selector_row index=0 items=["Вид 1","Вид 2","Добавить"] 
+       ssr: switch_selector_row index=0 items=(@screen1->project | get_children_arr | map_param "title")
+                //items=["Вид 1","Вид 2","Настройки"] 
                 style_qq="margin-bottom:15px;" {{ hilite_selected }};
-                
+
+       //show_visual_tab input=(@screen1->project | get_children_arr | get index=@ssr->index);
+
        of: one_of 
               index=@ssr->index
               list={ 
-                show_visual_tab input=(get_children_arr input=@v1); // так то.. так то.. показывай просто текущий, согласно project[index].. но параметры сохраняй...
-                show_visual_tab input=(get_children_arr input=@v2);
-                addview;
+                show_visual_tab input=(@screen1->project | get_children_arr | get 0); // так то.. так то.. показывай просто текущий, согласно project[index].. но параметры сохраняй...
+                show_visual_tab input=(@screen1->project | get_children_arr | get 1);
+                show_visual_tab input=(@screen1->project | get_children_arr | get 2);
+                show_visual_tab input=(@screen1->project | get_children_arr | get 3);
+                show_visual_tab input=(@screen1->project | get_children_arr | get 4);
               }
               {{ one-of-keep-state; one_of_all_dump; }}
               ;
 
-   };          
+   };
 };
 
 debugger-screen-r;

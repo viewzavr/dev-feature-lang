@@ -1155,7 +1155,6 @@ export function feature_eval( env ) {
   //console.error("compolang eval init",env.getPath())
 
   function evl() {
-    
 
     if (!func) update_code();
     if (!func) {

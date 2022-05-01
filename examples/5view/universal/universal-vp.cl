@@ -5,5 +5,5 @@ feature "axes-view" {
 	visible=true
 	{
 	 ab: axes-box size=20 visible=@view->visible;
-    };
+  };
 };

@@ -16,9 +16,19 @@ feature "x-param-combo" {
 feature "x-param-slider" {
   r: x-patch-r @r->name @r->min @r->max @r->step
   code="(name,min,max,step,obj) => {
-    
+
     if (!name) return;
     obj.addSlider( name, undefined, min, max, step );
+  }
+  ";
+};
+
+feature "x-param-string" {
+  r: x-patch-r @r->name
+  code="(name,obj) => {
+    
+    if (!name) return;
+    obj.addString( name, undefined );
   }
   ";
 };

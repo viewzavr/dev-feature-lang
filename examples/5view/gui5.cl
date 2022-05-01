@@ -54,6 +54,120 @@ rl_root:
     style="min-width:250px" 
     style_h = "max-height:80vh;"
 
+    {
+     s: switch_selector_row {{ hilite_selected }} 
+         items=(@rl_root->items | arr_map code="(v) => v.title")
+         plashka style_qq="margin-bottom:0px !important;"
+         ;
+
+     button "Добавить" margin="0.5em" {
+        
+        link from=(@rl_root->items | get @s->index | get "add_to") to="@cre->target";
+
+        cre: creator input={} // target=@r1
+          {{ onevent name="created" 
+             newf=(@rl_root->items | get @s->index | get "add")
+             code=`
+                 args[0].manuallyInserted=true;
+
+                 // сейчас мы через фичи инициализируем новые объекты через manual_features
+                 // чтобы выбранный тип "сохранялся" в состоянии сцены.
+                 // в будущем это можно будет изменить на другой подход
+                 //args[0].manual_feature( "linestr" );
+                 //args[0].setParamManualFlag("manual_features");
+                 //let s = "linestr";
+                 let s = env.params.newf;
+                 args[0].setParam("manual_features",s,true)
+                 
+                 console.log("created",args[0])
+             `
+          }};
+     };
+
+     objects_list:
+     find-objects-bf (@rl_root->items | get @s->index | get "find") 
+                     root=@rl_root->root
+                     recursive=false
+     | eval code="(arr) => {
+       if (!env.params.input) return [];
+       return env.params.input.sort( (a,b) => {
+        function getpri(q) { 
+            if (!q.params.block_priority)
+               q.setParam( 'block_priority', q.$vz_unique_id,true )
+            return q.params.block_priority;   
+          }
+        return getpri(a) - getpri(b); 
+       })
+       }"
+     ;
+
+     cbsel: combobox style="margin: 5px;" dom_size=5 
+     //values=(@objects_list->output | arr_map code=(detect_type_l types=));
+       values=(@objects_list->output | arr_map code="(elem) => elem.params.title || elem.$vz_unique_id");
+
+     co: column plashka style_r="position:relative;" 
+       input = (@objects_list->output | get index=@cbsel->index )
+     {
+               //text (@co->input);
+               row {
+                 text "Образ: ";
+                 combobox  values=(@co->input | get_param "sibling_types" )
+                           titles=(@co->input | get_param "sibling_titles")
+                           value=(detect_type @co->input @.->values)
+                           style="width: 120px;" 
+                   {{ on "user_changed_value" { // "param_value_changed"
+                      lambda @co->input code=`(obj,v) => {
+                        // вот мы спотыкаемся - что это, начальное значение или управление пользователем
+
+                        //console.log("existing obj",obj,"creating new obj type",v);
+
+                        let dump = obj.dump();
+
+                        //console.log("dump is",dump)
+
+                        let newobj = obj.vz.createObj({parent: obj.ns.parent});
+                        newobj.manual_feature( v );
+                        newobj.manuallyInserted=true;
+
+                        //newobj.feature( v );
+                        //let newobj = obj.vz.createObjByType({type: v, parent: obj.ns.parent});
+
+                        if (dump) {
+                          if (dump.params)
+                              delete dump.params['manual_features'];
+                          dump.manual = true;
+                          //console.log("restoring dump",dump);
+                          newobj.restoreFromDump( dump, true );
+                        }
+
+                        obj.remove();
+
+                        }`;
+
+                   }
+                   }};
+               };
+               
+               column {
+                  insert_children input=@.. list=(@co->input | get_param name="gui");
+               };
+
+               button "x" style="position:absolute; top:0px; right:0px;" 
+               {
+                 lambda @co->input code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
+               };  
+             };
+          };
+
+};
+
+feature "render_layers_inner0" {
+
+rl_root: 
+    column text=@.->title
+    style="min-width:250px" 
+    style_h = "max-height:80vh;"
+
     body_features={ set_params style_h="max-height: inherit; overflow-y: auto;"}
     {
      s: switch_selector_row {{ hilite_selected }} 
@@ -288,6 +402,17 @@ detect_type: feature {
         };
     };
     //console.log(undefined)
+  }"
+};
+
+detect_type_l: feature {
+  lambda code="(obj,types) => {
+    if (obj && types) {
+      for (let f of types)
+        if (obj.$features_applied[f]) {
+          return f;
+        };
+    };
   }"
 };
 

@@ -132,6 +132,14 @@ export function x_on( env  )
         // но нам надо таки.. уметь послать объект, на котором это все приключилось.
         // а то там мало ли объектов
 
+        /* не работает
+        if (name == "remove") {
+           // особый случай
+           env.set_feature_applied("func",false);
+           env.feature("func");
+        }
+        */
+
         env.callCmd("apply",...fargs);
         // идея - можно было бы всегда в args добавлять объект..
       })

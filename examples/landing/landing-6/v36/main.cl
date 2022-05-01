@@ -72,7 +72,7 @@ screen1: screen auto-activate {
                       time_index=@time->index 
                       time=@timeparams->time
                       time_params=@timeparams;
-                view3;       
+                view3;
               }
               {{ one-of-keep-state; one_of_all_dump; }}
               ;
