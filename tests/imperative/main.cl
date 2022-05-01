@@ -24,18 +24,18 @@ screen auto_activate {
     };
 
     button "test 6" {
-      i-repeat 10 (i_console_log "mir trud may!");
+      i-repeat 10 (i_console_log "mir trud may!"); // todo
     };
 
     button "test 7" {
-      i-repeat 10 (ib: i-block { i_console_log "mir trud may!" (i-mul @ib->0 @ib->0)});
+      i-repeat 10 (ib: i-block { i_console_log "mir trud may!" (i-mul @ib->0 @ib->0)}); // todo
     };
 
   };
 };
 
 feature "sum_kv" {
-  root: i-block {
+  root: i-block { // todo
     i-sum
       (i-mul @root->0 @root->0)
       (i-mul @root->1 @root->1)
