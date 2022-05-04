@@ -1,3 +1,5 @@
+// ну на самом деле это не императивное а пошаговое.. ну ладно..
+
 export function setup(vz, m) {
   vz.register_feature_set( m );
 }
@@ -23,14 +25,17 @@ export function i_lambda( env )
     // семантика - пройтись по параметрам и вызвать их пересчет.
     // потом полученные результаты передать в свою функцию.
 
-
+    // оп. а это оказывается работает только для позиционных параметров..
+    // а я так хвалился, так хвалился.. тем что у нас будет и ключи-параметры..
+    // а получается сейчас qqq: i-console-log alfa=15 не сработает..
     for (let i=0; i<env.params.args_count;i++)
     {
       let v = env.params[i];
 
       // волшебный момент
+      console.log({i,v})
       if (v?.this_is_i_lambda) {
-        
+        //console.log("calling v")
         v = v();
       }
       
@@ -49,13 +54,14 @@ export function i_lambda( env )
   let func;
 
   function update_code() {
-    if (env.params.code)
+    let code = env.params.code;
+    if (code)
     {
       // возможность прямо код сюды вставлять
-      if (typeof( env.params.code ) == 'function')
-         func = env.params.code;
+      if (typeof( code ) == 'function')
+         func = code;
       else
-         func = eval( env.params.code );
+         func = eval( code );
     }
   }
 
@@ -64,47 +70,67 @@ export function i_lambda( env )
   /* r: i-lambda { i-console @r->0 }
   */
 
-  ///// подтоговтим функцию вычисления лямбды которая есть аргумент
-  let trailing_lambda = (...args) => {
-    let res;
-    for (let q of env.ns.getChildren()) {
+  ///// подтоговтим функцию передачи управления операторам из блока {}.
 
-      let v = q.params.output;
+  function update_attached_block() {
+    let call_attached_block_operators = (...args) => {
+      let res;
+      let args_rec = {args_array: args};
+      for (let q of env.ns.getChildren()) {
 
-      // еще один волшебный момент
-      if (v?.this_is_i_lambda) {
+        let v = q.params.output;
 
-        v = v( ...args ); // легкий отстой.
-        // мы а) впихиваем аргументы блока, а это неправильно мб. 
-        // б) не передаем окружение блока. хотя окружение блока технически это.. наше окружение
-        // у которого лишь параметр children есть массив окружений.. хм.. 
-        // ладно щас практика покажет
+        // собственно применение apply к функции, заданной данным оператором..
+        // но кстати, хотелось бы писать и так: q: 5; ну или q: alfa=5 beta=(compute...)
+        // т.е. у окружения нет своей лямбды, но аргументы вычислить как бы надо..
+        // но и не просто вычислить а записать их... чтобы потом использовать.. загадка...
+        if (v?.this_is_i_lambda) {
+          v = v.apply( args_rec );
+          // просто передать управление, без параметров - если там нужны параметры то их возьмут
+          // их окружения или из args-окружения (для этого мы передаем args_rec текущее)
+          // тут бы return проверить - не вернули ли то что надо выходить. ну ладно пока.
 
-        // я думаю это не отстой - а возможность не передавать этих аргументов.
-        // тамошние лямбды сами себе аргументы какие надо соберут..
-        // см 2022-05-03-2 императивность.txt QQQ
-        // а {} не является лямбдой - лямбой является все окружение.
-        // таким образом здесь {} это не лямбда, а список выражений, прицепленный к текущему окружению.
-        // я его даже назову - attached_block
+          // пока будем присваивать "результат" только от того что было "нашим"
+          res = v;
+        };
+        
       };
-
-      // тут бы return проверить - не вернули ли то что надо выходить. ну ладно пока.
-      res = v;
+      
+      return res;
     };
-    return res;
+    call_attached_block_operators.this_is_i_lambda = true; // тоже отметим
+
+    env.setParam("attached_block",call_attached_block_operators);
+    env.addCmd("eval_attached_block",call_attached_block_operators)
+    env.eval_attached_block = call_attached_block_operators;
+
+    env.setParam("has_attached_block", env.ns.getChildren().length > 0);
   };
 
-  env.setParam("attached_block",trailing_lambda); // назовем как вруби пока
+  env.on("appendChild",update_attached_block);
+  update_attached_block();
 
-  // вот так вот, по умолчанию функция это будет - передача управления в блок.
-  // причем без аргументом - элементы блока если им надо сами соберут аргументы
-  // вот так вот странно пока
-  func = (...args) => trailing_lambda();
+  // лямбда это как выяснено вещь состоящая из:
+  // 1 параметры для алгоритма передачи параметров
+  // 2 тело лямбды (код который надо выполнить)
+  // тело у нас может быть в 2 формах задано пусть:
+  // а) js код (func), б) операторы в кавычках {}
+  // сообразно мы делаем так что func по умолчанию равен выполнению {} кавычек.
+  // при этом, в варианте (б) мы не работаем над темой передачи параметров
+  // т.к. считается что эта тема будет решена отдельно за счет обращения из операторов
+  // к переменным окружений, или к спец-окружению args.
+
+  // на будущее - может быть стоит писать не js="(a,b) => ...."
+  // а все-таки js=" код " а параметры приделать автоматически.
+  // это позволило бы решать и вопрос с аргументами для тела на компаланге..
+  // ну пусть пока тк.
+
+  //func = (...args) => return env.callCmd("eval_attached_block",...args);
+  func = (...args) => env.eval_attached_block(...args);
 
   env.onvalues_any(["code"],() => {
      update_code();
   });
-
 
 }
 
@@ -114,11 +140,11 @@ export function i_sum( env ) {
 
   function f(...args) 
   {
-    //console.log("summing",...args);
+    // console.log("summing",...args);
     let sum = args[0];
     for (let i=1; i<args.length; i++)
       sum = sum + args[i];
-    //console.log("Returning",sum)
+    // console.log("Returning",sum)
     return sum;
   }
 
@@ -187,15 +213,20 @@ export function i_if( env ) {
   env.addCmd( "apply", apply );
   env.apply = apply; // хак на хаке
 
+  env.setParam("output",apply);
+
   function apply() {
 
     if ((env.params.args_count || 0) <= 0) return; 
 
     let predicate_value = const_or_call( env.params[0] );
 
-    console.log("predicate_value=",predicate_value,"env.params=",env.params)
+    //console.log("predicate_value=",predicate_value,"env.params=",env.params)
     if (predicate_value) {
-      return const_or_call( env.params[1] )
+      if (env.params.has_attached_block)
+        return env.eval_attached_block();
+      else
+        return const_or_call( env.params[1] )
     }
     else
     {
@@ -203,5 +234,54 @@ export function i_if( env ) {
     }
   }
   apply.this_is_i_lambda = true;
+
+}
+
+// назначение - разместить аргументы, с которыми пришли к текущему блоку
+// в данном окружении (i-args);
+// пример: i-repeat 10 { aa: i-args; i_console_log @aa->0; }
+
+export function i_args( env ) {
+  env.feature("i_lambda");
+
+  env.addCmd( "apply", apply );
+  env.apply = apply; // хак на хаке
+  env.setParam("output",apply);
+
+  function apply() {
+     //console.log( 'this is',this );
+     // перекидываем аргументы в текущее окружение
+     if (this.args_array) {
+       for (let i =0; i<this.args_array.length; i++)
+         env.setParam( i, this.args_array[i] );
+       for (let i= this.args_array.length; i < env.params.args_count; i++)
+         env.setParam( i, undefined );
+       env.params.args_count = this.args_array.length;
+     }
+     else
+     {
+      for (let i=0; i < env.params.args_count; i++)
+         env.setParam( i, undefined );
+       env.params.args_count = 0; 
+     }
+  }
+  apply.this_is_i_lambda = true;
+}  
+
+export function i_call( env ) {
+  env.feature("i_lambda");
+  env.setParam("code",f);
+
+  function f(...args) 
+  {
+    let func = args[0];
+    if (typeof(func) == "function") {
+      let res = func.apply( env, args.slice(1,-1) );
+      return res;
+    }
+    else {
+       console.error("i-call: first arg is not a function",args)
+    }
+  }
 
 }
