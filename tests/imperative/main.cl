@@ -43,3 +43,8 @@ feature "sum_kv" {
     ;
   };
 };
+
+feature "i-repeat" {
+  i_lambda code="(count) => {
+  }";
+}
