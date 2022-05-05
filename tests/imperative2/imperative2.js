@@ -6,19 +6,13 @@ export function setup(vz, m) {
 
 export function i_lambda( env ) 
 {
-  env.setParam("output",apply);
-
-  env.addCmd( "apply", apply );
+  env.setParam("output",() => apply);
+  env.addCmd( "apply", () => apply );
+  env.lambda_apply = apply;
 
   function apply() {
     // рассчитать аргументы.
     // передать себе в код.
-
-    if (!func) update_code();
-    if (!func) {
-      console.error("i_code: code not specified",env.getPath())
-      return;
-    }
 
     let args = [];
 
@@ -45,26 +39,13 @@ export function i_lambda( env )
 
     //console.log("compolang eval working",env.getPath(),args)
 
+    let func = env.eval_attached_block;
     let res = func.apply( env, args );
 
     return res;
 
   }
   apply.this_is_i_lambda = true;
-
-  let func;
-
-  function update_code() {
-    let code = env.params.code;
-    if (code)
-    {
-      // возможность прямо код сюды вставлять
-      if (typeof( code ) == 'function')
-         func = code;
-      else
-         func = eval( code );
-    }
-  }
 
   // далее мы считаем что code - вызовет по умолчанию trailing-lambda
   // и это значит что мы сможем писать вещи так:
@@ -127,16 +108,144 @@ export function i_lambda( env )
   // ну пусть пока тк.
 
   //func = (...args) => return env.callCmd("eval_attached_block",...args);
-  func = (...args) => env.eval_attached_block(...args);
+
+};
+
+export function i_call_block( env ) 
+{
+  env.feature("i-lambda");
+  env.setParam("output",env.lambda_apply, true );
+  env.addCmd( "apply", env.lambda_apply, true );
+}
+
+// todo - абстрагировать подгтовоку аргументов
+export function i_call_js( env ) 
+{
+  env.setParam("output",apply);
+  env.addCmd( "apply", apply );
+
+  function apply() {
+    // рассчитать аргументы.
+    // передать себе в код.
+
+    if (!func) update_code();
+    if (!func) {
+      console.error("i_code: code not specified",env.getPath())
+      return;
+    }
+
+    let args = [];
+
+    // семантика - пройтись по параметрам и вызвать их пересчет.
+    // потом полученные результаты передать в свою функцию.
+
+    // оп. а это оказывается работает только для позиционных параметров..
+    // а я так хвалился, так хвалился.. тем что у нас будет и ключи-параметры..
+    // а получается сейчас qqq: i-console-log alfa=15 не сработает..
+    for (let i=0; i<env.params.args_count;i++)
+    {
+      let v = env.params[i];
+
+      // у нас за счет процессов аргумент уже вычислен и выдает на output - функцию
+      // (таковое мы добились см выше) и если это наша функция - мы ее вызываем
+      //console.log({i,v})
+      if (v?.this_is_i_lambda) {
+        //console.log("calling v")
+        v = v();
+      }
+      
+      args.push( v );
+    }
+
+    //console.log("compolang eval working",env.getPath(),args)
+
+    let res = func.apply( env, args );
+
+    return res;
+
+  }
+  apply.this_is_i_lambda = true;
+
+  let func;
+
+  function update_code() {
+    let code = env.params.code;
+    if (code)
+    {
+      // возможность прямо код сюды вставлять
+      if (typeof( code ) == 'function')
+         func = code;
+      else
+         func = eval( code );
+    }
+  }
 
   env.onvalues_any(["code"],() => {
      update_code();
   });
 
+};
+
+// вызывает функцию, указанную в первом аргументе
+// кстати вот интересно.. процесс не вызывает, процесс генерирует функцию, которая есть
+// вызов другой функции, вот в чем прикол то. ну и еще локальные аргументы процесса бы учеть
+// которые в env заданы.
+export function i_call( env ) {
+ env.setParam("output",apply);
+  env.addCmd( "apply", apply );
+
+  function apply() {
+    let func = env.params[0];
+    if (!func) {
+      console.error("i-call: func is not specified");
+      return;
+    }
+    if (func.params) {
+        func = env.params.output;
+        if (!func) {
+          console.error("i-call: func arg is specified as object, but it has no function in .output field")
+          return;
+        }
+    }    
+
+    let args = [];
+
+    // семантика - пройтись по параметрам и вызвать их пересчет.
+    // потом полученные результаты передать в свою функцию.
+
+    // оп. а это оказывается работает только для позиционных параметров..
+    // а я так хвалился, так хвалился.. тем что у нас будет и ключи-параметры..
+    // а получается сейчас qqq: i-console-log alfa=15 не сработает..
+    for (let i=1; i<env.params.args_count;i++)
+    {
+      let v = env.params[i];
+
+      // у нас за счет процессов аргумент уже вычислен и выдает на output - функцию
+      // (таковое мы добились см выше) и если это наша функция - мы ее вызываем
+      //console.log({i,v})
+      if (v?.this_is_i_lambda) {
+        //console.log("calling v")
+        v = v();
+      }
+      
+      args.push( v );
+    }
+
+    //console.log("compolang eval working",env.getPath(),args)
+
+    let res = func.apply( env, args );
+
+    return res;
+
+  }
+  apply.this_is_i_lambda = true;
 }
 
+
+//////////////////////////////////////////////
+
 export function i_sum( env ) {
-  env.feature("i_lambda");
+  env.feature("i_call_js");
   env.setParam("code",f);
 
   function f(...args) 
@@ -152,7 +261,7 @@ export function i_sum( env ) {
 }
 
 export function i_mul( env ) {
-  env.feature("i_lambda");
+  env.feature("i_call_js");
   env.setParam("code",f);
 
   function f(...args) 
@@ -166,7 +275,7 @@ export function i_mul( env ) {
 }
 
 export function i_console_log( env ) {
-  env.feature("i_lambda");
+  env.feature("i_call_js");
   env.setParam("code",f);
 
   function f(...args) 
@@ -177,7 +286,7 @@ export function i_console_log( env ) {
 }
 
 export function i_less( env ) {
-  env.feature("i_lambda");
+  env.feature("i_call_js");
   env.setParam("code",f);
 
   function f(...args) 
@@ -189,7 +298,7 @@ export function i_less( env ) {
 }
 
 export function i_more( env ) {
-  env.feature("i_lambda");
+  env.feature("i_call_js");
   env.setParam("code",f);
 
   function f(...args) 
@@ -211,9 +320,7 @@ export function i_if( env ) {
 
   // тут уже свой алгоритм должен быть, не стандартный
   
-  env.addCmd( "apply", apply );
-  env.apply = apply; // хак на хаке
-
+  env.addCmd( "apply", apply, true );
   env.setParam("output",apply);
 
   function apply() {
@@ -246,8 +353,7 @@ export function i_if( env ) {
 export function i_args( env ) {
   env.feature("i_lambda");
 
-  env.addCmd( "apply", apply );
-  env.apply = apply; // хак на хаке
+  env.addCmd( "apply", apply,true );
   env.setParam("output",apply);
 
   function apply() {
@@ -271,24 +377,3 @@ export function i_args( env ) {
   apply.this_is_i_lambda = true;
 }  
 
-// вызывает функцию, указанную в первом аргументе
-// кстати вот интересно.. процесс не вызывает, процесс генерирует функцию, которая есть
-// вызов другой функции, вот в чем прикол то. ну и еще локальные аргументы процесса бы учеть
-// которые в env заданы.
-export function i_call( env ) {
-  env.feature("i_lambda");
-  env.setParam("code",f);
-
-  function f(...args) 
-  {
-    let func = args[0];
-    if (typeof(func) == "function") {
-      let res = func.apply( env, args.slice(1,-1) );
-      return res;
-    }
-    else {
-       console.error("i-call: first arg is not a function",args)
-    }
-  }
-
-}
