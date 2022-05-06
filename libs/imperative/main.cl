@@ -91,6 +91,12 @@ screen auto_activate {
       };
     };
 
+    button "test pipe" {
+      i-call-block {
+        output=[1,3,5] | i-arr-map (i-lambda { x: i-args; i-mul @x->0 @x->0;}) | i-console-log "result is";
+      }
+    }
+
   };
 };
 
@@ -114,6 +120,14 @@ feature "sum_kv" {
       (i-mul @args->2 @args->2)
     ;
   };
+};
+
+feature "i-arr-map" {
+  i_call_js code="(f,arr) => {
+    //console.log( 'i-arr-map called', this,f,arr );
+    return arr.map( f )
+    ///return [1,1,1];
+}";
 };
 
 /*

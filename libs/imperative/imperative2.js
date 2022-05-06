@@ -1,5 +1,6 @@
 // ну на самом деле это не императивное а пошаговое.. ну ладно..
 
+
 export function setup(vz, m) {
   vz.register_feature_set( m );
 }
@@ -20,6 +21,7 @@ function compute_params( env ) {
     }
     res[i] = v;
   }
+  res.args_count ||= 0;
   return res;
 }
 
@@ -54,16 +56,26 @@ function eval_attached_block( env, args ) {
 export function i_lambda( env ) 
 {
   env.this_is_lambda_env = true;
-
-  env.setParam("output",() => apply);
-  env.addCmd( "apply", () => apply );
   env.lambda_apply = apply;
 
-  function apply() {
+  let lambda_process_result = () => apply;
+  lambda_process_result.this_is_imperative_participant = true;
+
+  env.setParam("output",lambda_process_result );
+  env.addCmd( "apply", lambda_process_result );
+
+  function apply(...external_positional_args) {
     // рассчитать аргументы.
     // передать себе в код.
 
     let args = compute_params( env );
+
+    // докопировать пришедшие извне.. ну справа..
+    let ptr = args.args_count;
+    for (let i=0; i<external_positional_args.length; i++)
+      args[ ptr + i ] = external_positional_args[i];
+    args.args_count += external_positional_args.length;  
+
     let res = eval_attached_block( env, args );
     
     return res;
@@ -96,7 +108,10 @@ export function i_call_js( env )
 
     if (!func) update_code();
     if (!func) {
-      console.error("i_code: code not specified",env.getPath())
+      if (env.params.code)
+        console.error("i_call_js: code is specified but compiles to nothing",env.params.code,env.getPath())
+        else
+        console.error("i_call_js: code not specified",env.getPath())
       return;
     }
 
@@ -108,11 +123,17 @@ export function i_call_js( env )
       args.push( args_dict[i] );
 
     // и добавим внешние... но кстати.. еще же в this могут быть, из блока переданные...
-    // хотя хрена лысого из блока ниче не передается.. ну оно через спец-окружение args точнее передатеся..
+    // хотя из блока ниче не передается.. ну оно через спец-окружение args точнее передатеся..
+
+    // договоримся вот как пока: наличие input приводит к его добавке в позиционные аргументы в js-кодах
+    // хотя опять же... а другие как? ну другие.. пока никак...
+    if (args_dict.input)
+      args.push( args_dict.input );
 
     // ладно добавим хотя бы внешние - справа..
     for (let i=0; i<external_positional_args.length; i++)
       args.push( external_positional_args[i] );
+
 
     let res = func.apply( env, args );
 
@@ -153,7 +174,7 @@ export function i_call( env ) {
  env.setParam("output",apply);
   env.addCmd( "apply", apply );
 
-  function apply() {
+  function apply() { 
     let func = env.params[0];
 
     if (!func) {
