@@ -1,4 +1,6 @@
-load files="imperative2.js gui";
+// тест
+// load files="imperative2.js gui";
+load files="imperative gui";
 
 screen auto_activate {
   column padding="1em" gap="0.4em" {
