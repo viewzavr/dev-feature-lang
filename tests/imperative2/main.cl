@@ -16,11 +16,27 @@ screen auto_activate {
     button "test 4" {
       //i-if (i-sum 0 1) @t2->output; // работает
       //i-if (i-sum 0 1) (@t2); // почему-то не работает..
-      i-if (i-sum 0 1) (output=@t2->output); // тож работает
+      //i-if (i-sum 0 1) (output=@t2->output); // тож работает
+      i-if (i-sum 0 1) i-call-block {
+        i-console-log "i call test 2 line 1";
+        i-call @t2 "extra-arg from test 4";
+        i-console-log "done";
+      }
+    };
+
+    button "test 4a - call lambda" {
+      la: i-lambda { i-console-log "lambda called" };
+      i-console-log "calling lambda";
+      i-call @la;
+      i-console-log "done";
     };
 
     button "test 5" {
       i-if (i_less 3 5) (i_console_log "one"; i_console_log "two");
+    };
+
+    button "test 5a" {
+      i-if (i_less 3 5) { i_console_log "one"; i_console_log "two"; };
     };
 
     button "test 6" {
@@ -49,7 +65,7 @@ screen auto_activate {
       i-console-log (sum_kv 5 5 5);
     };
 
-    button "test 8" {
+    button "test 8 test func" {
       test-func 123;
     };
 
@@ -60,9 +76,10 @@ screen auto_activate {
 */    
 
     button "test aa" {
-      i-lambda {
+      i-call-block {
         qqq: alfa=(sum_kv 3 3 3); // todo каррирования нет - все перезатрется
-        i-console-log @qqq;
+        i-console-log "qqq is " @qqq;
+        i-console-log "qqq->alfa is " @qqq->alfa;
         i-console-log (i-mul (i-call @qqq->alfa 2 2 2) @qqq->alfa);
 
         /*
@@ -76,32 +93,36 @@ screen auto_activate {
 };
 
 feature "test-func" {
-  root: i-lambda {
+  root: i-call-block {
     //i-console-log "testfunc working 1";
     //q: i-lambda code="() => console.log('hi from js')";
-    q2: i-lambda code="() => 22;";
-    i-console-log "testfunc working" @root->0 (i-call @q2);
+    args: i-args;
+    q2: i-lambda { i-call-js code="() => 22;" };
+    i-console-log "testfunc working" @args->0 (i-call @q2);
   };
 };
 
 feature "sum_kv" {
-  root: i-lambda {
-    //i-console-log "sum-kv lambda called" @root->0 @root->1 @root->2;
+  root: i-call-block {
+    args: i-args;
+    i-console-log "sum-kv lambda called" @args->0 @args->1 @args->2;
     i-sum
-      (i-mul @root->0 @root->0)
-      (i-mul @root->1 @root->1)
-      (i-mul @root->2 @root->2)
+      (i-mul @args->0 @args->0)
+      (i-mul @args->1 @args->1)
+      (i-mul @args->2 @args->2)
     ;
   };
 };
 
+/*
 feature "i-repeat" {
-  i_lambda code="(count) => {
+  i_call_js code="(count) => {
      for (let i=0; i<count; i++)
      {
         //env.callCmd('eval_attached_block',i);
+        // можно вернуть если надо будет
         env.eval_attached_block( i );
      }
   }";
 };
-
+*/
