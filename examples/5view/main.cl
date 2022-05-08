@@ -1,6 +1,6 @@
-load "lib3dv3 csv params io gui render-params df scene-explorer-3d gui5.cl new-modifiers";
+load "lib3dv3 csv params io gui render-params df scene-explorer-3d gui5.cl new-modifiers imperative";
 
-load "landing/landing-view.cl landing/test.cl universal/universal-vp.cl"; // отдельный вопрос
+load "landing2/landing-view.cl landing/test.cl universal/universal-vp.cl"; // отдельный вопрос
 
 feature "setup_view" {
   column {
@@ -14,20 +14,35 @@ feature "the_view" {
 feature "visual_process" {
 };
 
-project: {
+project: active_view_index=1 {
+  v0: the-view title="Данные" {
+    landing-file;
+  };
+
   v1: the-view title="Общий вид" {
     landing-view-1;
-    landing-view-1 title="Общий вид 2" visible=false;
-    axes-view;
+    landing-view-1 title="Траектория 2" visible=false;
+    axes-view size=100;
   };
-  v2: the-view title="Вид 2" {
+
+  v2: the-view title="Вид на ракету" {
     landing-view-2;
     axes-view;
   };
+  /*
   v_setup: the-view title="Настройки" {
     //sync_params_process root=@project;
   }
+  */
 };
+
+screen1: screen auto-activate  {
+  render_project @project active_view_index=1;
+};
+
+debugger-screen-r;
+
+////////////////////////////////////////////////////////
 
 // отображение. тут и параметр как компоновать
 // параметр - список визуальных процессов видимо.
@@ -132,30 +147,47 @@ feature "oneview" {
 
 //lv1: landing-view-1;
 
-screen1: screen auto-activate project=@project {
-   column padding="1em" {
-       ssr: switch_selector_row index=0 items=(@screen1->project | get_children_arr | map_param "title")
+feature "render_project" {
+   rend: column padding="1em" project=@.->0 active_view_index=0 {
+       ssr: switch_selector_row 
+               index=@rend->active_view_index
+               items=(@rend->project | get_children_arr | map_param "title")
                 //items=["Вид 1","Вид 2","Настройки"] 
-                style_qq="margin-bottom:15px;" {{ hilite_selected }};
+                style_qq="margin-bottom:15px;" {{ hilite_selected }}
+                /*
+                {{ link to="@rend->active_view_index" from="@.->index" manual=true }}
+                
+                {{ x-on "param_index_changed" {
+                     i-call-block {
+                       args: i-args;
+                       setter target="@rend->active_view_index" value=@args->1 manual_mode=true;
+                       //i-set-param target=@rend param="index" value=@args->1;
+                       i-console-log "done" @args->0 @args->1;
+                     };  
+                  };
+                }}
+                */
+                
+                ;
 
        //show_visual_tab input=(@screen1->project | get_children_arr | get index=@ssr->index);
 
        of: one_of 
               index=@ssr->index
               list={ 
-                show_visual_tab input=(@screen1->project | get_children_arr | get 0); // так то.. так то.. показывай просто текущий, согласно project[index].. но параметры сохраняй...
-                show_visual_tab input=(@screen1->project | get_children_arr | get 1);
-                show_visual_tab input=(@screen1->project | get_children_arr | get 2);
-                show_visual_tab input=(@screen1->project | get_children_arr | get 3);
-                show_visual_tab input=(@screen1->project | get_children_arr | get 4);
+                show_visual_tab input=(@rend->project | get_children_arr | get 0); // так то.. так то.. показывай просто текущий, согласно project[index].. но параметры сохраняй...
+                show_visual_tab input=(@rend->project | get_children_arr | get 1);
+                show_visual_tab input=(@rend->project | get_children_arr | get 2);
+                show_visual_tab input=(@rend->project | get_children_arr | get 3);
+                show_visual_tab input=(@rend->project | get_children_arr | get 4);
               }
               {{ one-of-keep-state; one_of_all_dump; }}
               ;
 
-   };
-};
+   };  
+}
 
-debugger-screen-r;
+
 
 /*
   of: one_of 

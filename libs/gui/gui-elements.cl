@@ -98,8 +98,9 @@ register_feature name="radio_button" {
 
 ///////////////////////////////////////////////////// slider
 register_feature name="slider" {
-	dom tag="input" dom_type="range" 
+	the_slider: dom tag="input" dom_type="range" 
 	    min=0 max=100 step=1 value=0
+	    manual=true
 	    sliding=true 
 	    {{
 	    	 //add_cmd name="refresh_slider_pos" cmd="@r->apply; ";
@@ -138,13 +139,13 @@ register_feature name="slider" {
 		 	if (object.params.sliding) {
 		 		  let v = parseFloat( object.params.dom.value );
 		 		  //console.log("slider sets manual param 'value'",v)
-		 		  object.setParam("value", v, true );
+		 		  object.setParam("value", v, object.params.manual );
 		  }		  
 		 `;
 		 dom_event name="change" code=`
 		   let object = env.params.object;
 		   //console.log("slider change",object.params.dom.value) 
-		 		  object.setParam("value", parseFloat( object.params.dom.value ), true );
+		 		  object.setParam("value", parseFloat( object.params.dom.value ), object.params.manual );
 		 `;
 
   };

@@ -523,7 +523,10 @@ feature "one_of_keep_state" {
              dump.manual = true;
              //console.log("one-of-keep-state: restoring from dump",dump)
              //console.log(oneof,obj,index)
-             obj.restoreFromDump( dump, true );
+             env.feature("delayed");
+             env.delayed( () => {
+                obj.restoreFromDump( dump, true );
+             }, 4) (); // типа пусть репитер отработает.. если там внутрях есть..   
          }
 
          let origdump = obj.dump;
@@ -558,8 +561,14 @@ feature "one_of_keep_state" {
          let dump = oparams[ index ];
          if (dump) {
              dump.manual = true;
+
+             env.feature("delayed");
+             env.delayed( () => {
+                obj.restoreFromDump( dump, true );
+             }, 2) (); // типа пусть репитер отработает.. если там внутрях есть..  
+
              //console.log("restoring tab",dump)
-             obj.restoreFromDump( dump, true );
+             //obj.restoreFromDump( dump, true );
 
              /* 
              env.feature("delayed");

@@ -45,6 +45,11 @@ import * as df from "../df/df.js";
 // сделаем просто конвертор
 export function linestrips_to_lines( env ) {
   env.trackParam("input",(dat) => {
+    if (!df.is_df(dat)) {
+      console.error( "linestrips_to_lines: incoming value is not df", dat)
+      return
+   };
+
     var prevn;
     var vals = {X:[],Y:[],Z:[],X2:[],Y2:[],Z2:[],R:[],G:[],B:[],R2:[],G2:[],B2:[]}
     var Nvals = dat.N ? dat.N : [];

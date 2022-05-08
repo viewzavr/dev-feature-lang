@@ -60,9 +60,13 @@ register_feature name="get-params-names" {
           // console.log("gn=",gn,env.params.input)                
 
           let acc = [];
-          for (let nn of gn)
-            if (!env.params.input.getParamOption(nn,"internal"))
-              acc.push( nn );
+          for (let nn of gn) {
+            if (env.params.input.getParamOption(nn,"internal"))
+              continue;
+            //if (env.params.input.getParamOption(nn,"visible") == false)
+            //  continue;  
+            acc.push( nn );
+          }
 
           // экспериментально.. хотя так-то часто надо..    
           acc = acc.sort( (a,b) => {
@@ -179,11 +183,18 @@ register_feature name="render-one-param-p" code='
         env.feature( `render-param-${g.type}` );
         // вот. вызвали фичу сообразно типу
 
+        if (obj.getParamOption(name,"visible") == false)
+          env.setParam("visible",false);
+
+        tr2 = obj.trackParamOption( name,"visible",(v) => {
+          env.setParam("visible",v);
+        })
+
     })
 
     env.on("remove",() => {
       if (tr) tr(); 
-      //if (tr2) tr2();
+      if (tr2) tr2();
     })
   });
 ';
@@ -326,7 +337,7 @@ register_feature name="render-param-slider" {
   rps: column {
     text text=@..->name;
     row {
-      slider {
+      slider manual=false {
         link from=@../../..->param_path to=".->value" tied_to_parent=true;
         link to=@../../..->param_path from=".->value" tied_to_parent=true 
           soft_mode=true manual_mode=true;

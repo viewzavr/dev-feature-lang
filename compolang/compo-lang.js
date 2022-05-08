@@ -268,6 +268,10 @@ export function pipe(env)
 
     delayed_chain_children()
   });
+  env.on('forgetChild',(c) => {
+    if (pipe_is_generating_links) return;
+    delayed_chain_children()
+  });
   //delayed_chain_children(); // тырнем разик вручную
   
   // микрофича - передать команду apply первому ребенку
@@ -292,6 +296,7 @@ export function pipe(env)
       for (let c of env.ns.getChildren()) {
          //console.log("chain_children: child ",c.getPath()) 
          if (c.is_link) continue;
+         if (c.is_feature_applied("if")) continue;
          if (!cfirst) cfirst = c;
          // пропускаем ссылки.. вообще странное решение конечно.. сделать ссылки объектами
          // и потом об них спотыкаться
@@ -550,6 +555,9 @@ export function setter( env )
       }
       //else console.log("setter: has no target defined",env.getPath());
    } );
+
+   env.apply.this_is_imperative_participant = true;
+   env.setParam("output", env.apply);
 }
 
 // отличается от setter тем что сразу же делает
@@ -1560,6 +1568,7 @@ export function feature_if( env, options )
   var activated=false;
   env.monitor_values(["condition",0],(cond,cond0) => {
     var res = (cond || cond0) ? true : false;
+    //console.log("trigger",res)
     env.setParam("condition_result",res);
     perform( res ? 0 : 1 );
     activated=true;
@@ -2086,7 +2095,22 @@ export function deploy_features___deprecated( env )
 
 }
 
-//////////////// insert_features 
+// эксперимент
+/*
+export function insert( env )
+{
+  if (env.feature_of_env) {
+    env.setParam("input",env.feature_of_env);
+    env.feature("insert_features");
+  }
+ else {
+    env.setParam("input", env.ns.parent );
+    env.feature("insert_children");
+ }
+}
+*/
+
+//////////////// insert_features - добавляет процессы заданных фич в целевой процесс 
 // новое видение deploy_features
 // отличается тем что список фич это могут быть дети
 
@@ -2244,7 +2268,7 @@ export function insert_features( env )
 
 }
 
-//////////////// insert_children 
+//////////////// insert_children
 // новое видение deploy_many_to
 // отличается тем что список фич это могут быть дети
 

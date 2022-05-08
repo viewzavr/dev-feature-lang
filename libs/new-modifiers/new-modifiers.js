@@ -39,7 +39,7 @@ export function x_modify( env )
   function getobjid(obj) {
     if (!obj.$vz_unique_id)
         obj.feature("vzf_object_uniq_ids");
-    return obj.$vz_unique_id;       
+    return obj.$vz_unique_id;
   }
 
   // input - приаттачить всем объектам из input

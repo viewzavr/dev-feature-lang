@@ -129,10 +129,15 @@
         // потому что нам и отработать надо 1 раз всего..
 
         obj.on("done",(res) => {
-          console.log("done catched",res)
-          vzPlayer.loadFromHash();
-          console.log("restored");
-          vzPlayer.startSavingToHash();
+          //console.log("done catched",res)
+
+          obj.delayed( () => {
+            vzPlayer.loadFromHash();
+            console.log("restored");
+            vzPlayer.startSavingToHash();
+          },2)(); // все ссылки отработают (им нужен 1 такт)
+          // но хотя и это спорно
+          
         });
 
     });

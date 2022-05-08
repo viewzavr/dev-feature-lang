@@ -13,6 +13,39 @@ feature "x-param-combo" {
   ";
 };
 
+feature "x-param-checkbox" {
+  r: x-patch-r @r->name
+    code="(name,obj) => {
+      if (name) {
+        obj.addCheckbox( name, undefined );
+      }
+    }
+    ";  
+};
+
+/* наша попытка работать с род. окружением
+feature "x-param-checkbox" {
+  r: x-modify name=@~->0 value=@~->1
+  {
+    x-patch-r @r->name @r->value 
+    code="(name,val,obj) => {
+      if (name) {
+        console.log('yyy',name,val);
+        obj.addCheckbox( name, undefined );
+      }
+    }
+    ";
+  };
+};
+
+feature "x-param-checkbox" {
+  r: x-patch-r @r->name {
+     q: i-args;
+     i-call-cmd @q->obj "addCheckbox" @r->name @r->value | i-get "remove";
+  };
+};
+*/
+
 feature "x-param-slider" {
   r: x-patch-r @r->name @r->min @r->max @r->step
   code="(name,min,max,step,obj) => {
@@ -41,7 +74,7 @@ feature "x-param-string" {
 feature "x-param-option" {
   r: x-patch-r @r->name @r->option @r->value
   code="(name,option,val,obj) => {
-    if (name && option && val && obj)
+    if (name && option && obj)
       obj.setParamOption( name, option, val );
   }";
 };
