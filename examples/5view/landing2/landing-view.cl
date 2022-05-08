@@ -54,9 +54,12 @@ feature "landing-view-1" {
 
 feature "landing-view-2" {
 	landing-view-base title="Приземление, вид на объект"
+    file_params_modifiers={
+      x-set-params project_x=true project_y=true project_z=true scale_y=false;
+    }
 	  scene3d_items={
         models 
-             input_link="@dat_cur_time_zero->output";
+             input_link="@dat_cur_time->output";
 
         // вроде как не нужны - смотрелкой добавляются.. axes;
         setka;
@@ -144,6 +147,8 @@ feature "landing-view-base"
   {{
         datafiles: find-objects-bf features="landing-file" | arr_map code="(v) => v.getPath()+'->output'";
 
+        x-modify list=@view->file_params_modifiers;
+
         x-param-combo
          name="input_link" 
          values=@datafiles->output;
@@ -161,9 +166,9 @@ feature "landing-view-base"
         x-param-slider name="y_scale_coef" min=1 max=200;
         x-param-option name="y_scale_coef" option="visible" value=@fileparams->scale_y;
 
-        x-param-checkbox name="proredit";
+        //x-param-checkbox name="proredit";
+        //x-param-option name="step_N" option="visible" value=@fileparams->proredit;
         x-param-slider name="step_N" min=1 max=100;
-        x-param-option name="step_N" option="visible" value=@fileparams->proredit;
     }}
   {
 	  loaded_data: ;
@@ -195,9 +200,6 @@ feature "landing-view-base"
         if (output=@fileparams->scale_y) {
           df_div column="Y" coef=@fileparams->y_scale_coef;
         };
-        if (output=@fileparams->proredit) {
-          df_skip_every count=@fileparams->step_N;
-        };
     };
 
     /*
@@ -214,34 +216,19 @@ feature "landing-view-base"
     dat: output=@compute_pipe->output;
     //dat: output=@internal_columns_dat->output;
 
-	  // dat_prorej: @dat | df_skip_every count=@mainparams->step_N;
-
+	  dat_prorej: @dat | df_skip_every count=@fileparams->step_N;
 	  dat_cur_time: @dat  | df_slice start=@timeparams->time_index count=1;
 
-    dat_cur_time_zero: @dat_cur_time | df_set X=0 Y=0 Z=0;
+    //dat_cur_time_zero: @dat_cur_time | df_set X=0 Y=0 Z=0;
 	  dat_cur_time_orig: @loaded_data | df_slice start=@timeparams->time_index count=1; 	              
 
 	};
 
-/*
-	mainparams: 
-	  {
-
-	    //see_lines: param_label value=(@internal_columns_dat | get name="length");
-
-	    // todo исследовать time: param_combo values=(@dat | df_get column="T");
-
-	    //y_scale_coef: param_slider min=1 max=200 value=50;
-
-	    step_N: param_slider value=10 min=1 max=100;
-	  };
-*/    
-
   find-objects-bf root=@scene features="datavis" 
       | x-modify { 
       x-set-params
-       data_link_values = ["@dat->output","@dat_prorej->output","@dat_cur_time->output","@dat_cur_time_zero->output"]
-       data_link_titles = ["Траектория","Прореженная","Текущее время","Прореженная","Текущее время","Текущее время, точка O"]
+       data_link_values = ["@dat->output","@dat_cur_time->output","@dat_prorej->output"]
+       data_link_titles = ["Траектория","Текущее время","Прореженная траектория"]
        ;
     };
 
@@ -466,7 +453,9 @@ feature "selectedvars" {
 /////////////////////////// суммарная информация
 
 datavis: feature {
-  rt: {{
+  rt: //input=@pipe->output
+    proredit=false
+  {{
     x-set-params sibling_types=["linestr","ptstr","models"] 
       sibling_titles=["Линии","Точки","Модели"] 
       data_link_values=[1]
@@ -482,6 +471,24 @@ datavis: feature {
          value=10;
 
     link to=".->input" from=@.->input_link tied_to_parent=true soft_mode=true;
+    /*     
+    link to="pipe->input" from=@.->input_link tied_to_parent=true soft_mode=true;
+    pipe: {
+        if (output=@rt->proredit) {
+          df_skip_every count=@rt->step_N;
+        };
+    };
+    link to=".->input" from="pipe->output" tied_to_parent=true soft_mode=true;
+    */
+
+/*
+    x-param-checkbox name="proredit";
+    x-param-slider name="step_N" min=1 max=100;
+    x-param-option name="step_N" option="visible" value=@rt->proredit;    
+
+    x-param-option name="proredit" option="priority" value=11;
+    x-param-option name="step_N" option="priority" value=12;
+*/    
 
     x-param-string
          name="title";
