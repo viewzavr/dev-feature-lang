@@ -89,11 +89,6 @@ feature "landing-view-base"
 	    };
 	  };
 
-    collapsible text="Параметры отображения"
-    {
-        render-params  input=@mainparams plashka;
-    };
-
     button "[Настройки объектов]" {
       //emit_event object=@view
       lambda @view @view->gui2 code="(obj,g2) => obj.emit('show-settings',g2)";
@@ -144,7 +139,9 @@ feature "landing-view-base"
 	   //visible: param_checkbox;        
 	};   	
 
-	fileparams: scale_y=true y_scale_coef=50 {{
+	fileparams: scale_y=true y_scale_coef=50 
+              proredit=false step_N=10
+  {{
         datafiles: find-objects-bf features="landing-file" | arr_map code="(v) => v.getPath()+'->output'";
 
         x-param-combo
@@ -159,10 +156,14 @@ feature "landing-view-base"
         x-param-checkbox name="project_x";
         x-param-checkbox name="project_y";
         x-param-checkbox name="project_z";
+
         x-param-checkbox name="scale_y";
         x-param-slider name="y_scale_coef" min=1 max=200;
         x-param-option name="y_scale_coef" option="visible" value=@fileparams->scale_y;
-        // {{ param-visible @fileparams->scale_y }}
+
+        x-param-checkbox name="proredit";
+        x-param-slider name="step_N" min=1 max=100;
+        x-param-option name="step_N" option="visible" value=@fileparams->proredit;
     }}
   {
 	  loaded_data: ;
@@ -194,6 +195,9 @@ feature "landing-view-base"
         if (output=@fileparams->scale_y) {
           df_div column="Y" coef=@fileparams->y_scale_coef;
         };
+        if (output=@fileparams->proredit) {
+          df_skip_every count=@fileparams->step_N;
+        };
     };
 
     /*
@@ -210,15 +214,16 @@ feature "landing-view-base"
     dat: output=@compute_pipe->output;
     //dat: output=@internal_columns_dat->output;
 
-	  dat_prorej: @dat | df_skip_every count=@mainparams->step_N;
+	  // dat_prorej: @dat | df_skip_every count=@mainparams->step_N;
 
-	  dat_cur_time: @dat       | df_slice start=@timeparams->time_index count=1;
+	  dat_cur_time: @dat  | df_slice start=@timeparams->time_index count=1;
 
     dat_cur_time_zero: @dat_cur_time | df_set X=0 Y=0 Z=0;
 	  dat_cur_time_orig: @loaded_data | df_slice start=@timeparams->time_index count=1; 	              
 
 	};
 
+/*
 	mainparams: 
 	  {
 
@@ -230,6 +235,7 @@ feature "landing-view-base"
 
 	    step_N: param_slider value=10 min=1 max=100;
 	  };
+*/    
 
   find-objects-bf root=@scene features="datavis" 
       | x-modify { 
