@@ -309,10 +309,10 @@ export function pipe(env)
       if (cprev)
           created_links.push( env.linkParam("output",`${cprev.ns.name}->output`) );
       else
-          created_links.push( env.linkParam("output",`.->input`) ); // по умолчанию выход из пайпы пусть будет и входом?
+          created_links.push( env.linkParam("output",`~->input`) ); // по умолчанию выход из пайпы пусть будет и входом?
           //created_links.push( env.linkParam("output",`.->input`) ); // по умолчанию выход из пайпы пусть будет и входом?
           
-      // input первого ставим на инпут пайпы
+      // input первому ставим на инпут пайпы
 
       if (cfirst) {
           //if (!cfirst.hasLinksToParam("input") && !cfirst.hasParam("input"))
@@ -1396,6 +1396,11 @@ export function feature_debugger( env )
     // хотя это можно было и в консоли делать
     debugger;
     env.setParam("output",input); // доп-фича - консоле-лог пропускает дальше данные
+  });
+
+  env.addCmd("apply",() => {
+    print();
+    debugger;    
   });
   
   env.addString("text");

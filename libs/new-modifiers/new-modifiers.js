@@ -65,6 +65,7 @@ export function x_modify( env )
       modified_objs[id] = {iter:iter, obj:obj};
       
       for (let c of env.ns.getChildren()) {
+        //console.log("x-modify .input sending attach to children",c.getPath())
         c.emit("attach",obj);
       }
     }
@@ -86,9 +87,18 @@ export function x_modify( env )
   // второй протокол.. видимо, несовместим с первым
 
   env.on("attach",(obj) => {
-    //modified_objs[ getobjid( obj ) ] = 1;
+    // конечно тут контра с input.. ну да ладно - зато полезно для работы x-modify
+    // когда он в режиме отлова attach-событий и при этом ему динамически детей добавляют
+    // возможно тут стоило бы изменить на работу с input в режиме {{}}, ну да ладно
+
+    // важно - делаем запись ток если записи нет (т.е. пришли не через input)
+    if (!modified_objs[ getobjid( obj ) ])
+        modified_objs[ getobjid( obj ) ] = {obj:obj};
+
+    //console.log("x-modify forwarding attach to children",env.getPath())
     
     for (let c of env.ns.getChildren()) {
+        //console.log(c.getPath())
         c.emit("attach",obj);
     }
   })
@@ -97,11 +107,32 @@ export function x_modify( env )
     for (let c of env.ns.getChildren()) {
         c.emit("detach",obj);
     }
-    //delete modified_objs[ getobjid( obj ) ];
+
+    delete modified_objs[ getobjid( obj ) ];
   })
 
   ////////////////////// todo:
-  // on appendChild, on removeChild...
+  // on appendChild, on forgetChild...
+
+  env.feature("delayed");
+  
+  env.on("appendChild",(c) => {
+    let iter_a = iter; 
+    // надо задержку - там фича еще недоделанная может быть, а уже appendChild вызвали..
+    env.timeout( () => {
+      // и важно, если итерация сменилась - значит инпут сработал и нам уже реагировать не надо здесь
+      if (iter_a != iter) return;
+      for (let k of Object.keys( modified_objs )) {
+        c.emit("attach",modified_objs[k].obj);
+      }
+    },1 );
+  });
+  
+  
+  env.on("forgetChild",(c) => {
+    for (let k of Object.keys( modified_objs )) 
+      c.emit("detach",modified_objs[k].obj);
+  });
 
 }
 
@@ -113,6 +144,7 @@ export function x_on( env  )
   let detach = {};
 
   env.on("attach",(obj) => {
+    //console.log("x-on: attach to obj",obj.getPath())
 
     var u1 = () => {};
 
@@ -293,4 +325,3 @@ export function x_patch_r( env  )
   // это должен получается modify тоже разруливать...
 
 }
-

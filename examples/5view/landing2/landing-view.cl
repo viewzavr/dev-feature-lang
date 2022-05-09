@@ -36,13 +36,13 @@ feature "landing-view-1" {
 	landing-view-base title="Приземление, общий вид"
 	  scene3d_items={
 	  	linestr 
-             input_link="@dat->output";
+             data_adjust="traj";
 
         ptstr radius=2 
-             input_link="@dat->output";
+             data_adjust="traj";
 
         models 
-             input_link="@dat_cur_time->output";
+             data_adjust="curtime";
 
         // вроде как не нужны - смотрелкой добавляются.. axes;
         pole;
@@ -55,11 +55,11 @@ feature "landing-view-1" {
 feature "landing-view-2" {
 	landing-view-base title="Приземление, вид на объект"
     file_params_modifiers={
-      x-set-params project_x=true project_y=true project_z=true scale_y=false;
+      xx: x-set-params project_x=true project_y=true project_z=true scale_y=false;
     }
 	  scene3d_items={
         models 
-             input_link="@dat_cur_time->output";
+             data_adjust="curtime";
 
         // вроде как не нужны - смотрелкой добавляются.. axes;
         setka;
@@ -92,9 +92,9 @@ feature "landing-view-base"
 	    };
 	  };
 
-    button "[Настройки объектов]" {
+    button "Настройки объектов" {
       //emit_event object=@view
-      lambda @view @view->gui2 code="(obj,g2) => obj.emit('show-settings',g2)";
+      lambda @view @view->gui2 code="(obj,g2) => { console.log('emitting show-settings'); obj.emit('show-settings',g2) }";
     };
 
    }
@@ -142,12 +142,13 @@ feature "landing-view-base"
 	   //visible: param_checkbox;        
 	};   	
 
-	fileparams: scale_y=true y_scale_coef=50 
-              proredit=false step_N=10
+	fileparams: scale_y=true y_scale_coef=50
   {{
         datafiles: find-objects-bf features="landing-file" | arr_map code="(v) => v.getPath()+'->output'";
 
-        x-modify list=@view->file_params_modifiers;
+        x-modify {
+          insert_children input=@.. list=@view->file_params_modifiers;
+        };
 
         x-param-combo
          name="input_link" 
@@ -165,10 +166,6 @@ feature "landing-view-base"
         x-param-checkbox name="scale_y";
         x-param-slider name="y_scale_coef" min=1 max=200;
         x-param-option name="y_scale_coef" option="visible" value=@fileparams->scale_y;
-
-        //x-param-checkbox name="proredit";
-        //x-param-option name="step_N" option="visible" value=@fileparams->proredit;
-        x-param-slider name="step_N" min=1 max=100;
     }}
   {
 	  loaded_data: ;
@@ -212,56 +209,31 @@ feature "landing-view-base"
     };
     */
 
-	  //dat: @compute_pipe | df_div column="Y" coef=@mainparams->y_scale_coef;
     dat: output=@compute_pipe->output;
-    //dat: output=@internal_columns_dat->output;
-
-	  dat_prorej: @dat | df_skip_every count=@fileparams->step_N;
-	  dat_cur_time: @dat  | df_slice start=@timeparams->time_index count=1;
-
-    //dat_cur_time_zero: @dat_cur_time | df_set X=0 Y=0 Z=0;
 	  dat_cur_time_orig: @loaded_data | df_slice start=@timeparams->time_index count=1; 	              
-
+    // dat_cur_time_orig - по идее рисовалки текста сами себе могли бы выдирать данные
+    // но да ладно уж
 	};
 
-  find-objects-bf root=@scene features="datavis" 
-      | x-modify { 
+  find-objects-bf root=@scene features="datavis" | x-modify { 
       x-set-params
-       data_link_values = ["@dat->output","@dat_cur_time->output","@dat_prorej->output"]
-       data_link_titles = ["Траектория","Текущее время","Прореженная траектория"]
-       ;
+        time_index=@timeparams->time_index
+        df=@dat->output
+        ;
     };
 
-  find-objects-bf root=@screen_space features="screenvis" 
-      | x-modify { 
+  find-objects-bf root=@screen_space features="screenvis" | x-modify { 
       x-set-params
-       time=@timeparams->time
-       df=@dat_cur_time_orig->output
-       ;
-      };
+        time=@timeparams->time
+        df=@dat_cur_time_orig->output
+        ;
+    };
 
     insert_children input=@scene list=@view->scene3d_items;
     scene: node3d visible=@view->visible {{ skip_deleted_children }}
     {
-    	
-    	/*
-        linestr 
-             input_link="@dat->output";
-
-        ptstr radius=2 
-             input_link="@dat->output";
-
-        models 
-             input_link="@dat_cur_time->output";
-
-        // вроде как не нужны - смотрелкой добавляются.. axes;
-        pole;
-        kvadrat;
-        stolbik;
-        */
-
         // вообще может оказаться что это будет отдельный визуальный процесс - "антураж"
-	};
+  	};
 
     // ну вот... как бы это.. а мы бы хотели...
 
@@ -269,11 +241,6 @@ feature "landing-view-base"
     screen_space: dom visible=@view->visible {{ skip_deleted_children }}
     {
     };
-    /*
-	insert_children input=@view1->scene2d list={
-		text "привет";
-	};	
-	*/
 
   };
 	
@@ -453,42 +420,34 @@ feature "selectedvars" {
 /////////////////////////// суммарная информация
 
 datavis: feature {
-  rt: //input=@pipe->output
-    proredit=false
+  rt: 
+    input=@pipe->output
+    sibling_types=["linestr","ptstr","models"] 
+    sibling_titles=["Линии","Точки","Модели"]
   {{
-    x-set-params sibling_types=["linestr","ptstr","models"] 
-      sibling_titles=["Линии","Точки","Модели"] 
-      data_link_values=[1]
-      data_link_titles=[1];
 
     x-param-combo
-         name="input_link" 
-         values=@rt->data_link_values 
-         titles=@rt->data_link_titles; // {{ param-priority 0 }};
+         name="data_adjust" 
+         titles=["Траектория","Текущее время","Прореженная траектория"]
+         values=["traj","curtime","prorej"];
+         
     x-param-option
-         name="input_link"
+         name="data_adjust"
          option="priority"
          value=10;
 
-    link to=".->input" from=@.->input_link tied_to_parent=true soft_mode=true;
-    /*     
-    link to="pipe->input" from=@.->input_link tied_to_parent=true soft_mode=true;
-    pipe: {
-        if (output=@rt->proredit) {
+    pipe: pipe input=@rt->df {
+        if (@rt->data_adjust == "curtime") {
+          df_slice start=@rt->time_index count=1         
+        };
+        if (@rt->data_adjust == "prorej") {
           df_skip_every count=@rt->step_N;
         };
     };
-    link to=".->input" from="pipe->output" tied_to_parent=true soft_mode=true;
-    */
 
-/*
-    x-param-checkbox name="proredit";
     x-param-slider name="step_N" min=1 max=100;
-    x-param-option name="step_N" option="visible" value=@rt->proredit;    
-
-    x-param-option name="proredit" option="priority" value=11;
     x-param-option name="step_N" option="priority" value=12;
-*/    
+    x-param-option name="step_N" option="visible" value=(@rt->data_adjust == "prorej");
 
     x-param-string
          name="title";

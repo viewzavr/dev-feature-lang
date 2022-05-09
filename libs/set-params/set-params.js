@@ -30,6 +30,7 @@ export function x_set_params( env )
   let detach = {};
 
   env.on("attach",(obj) => {
+     //console.log("x-set-params attach",env.getPath(),obj.getPath())
 
       obj.feature("param_subchannels");
 
@@ -39,8 +40,10 @@ export function x_set_params( env )
          channel.setParam( name, value ); 
       });
       
-      for (let c of env.getParamsNames())
+      for (let c of env.getParamsNames()) {
+         //console.log("setting param ",c)
          channel.setParam( c, env.getParam(c));
+      }
 
       let unsub = () => { if (!channel.removed) channel.remove(); }
       env.on("remove", unsub ); // todo optimize
