@@ -8,8 +8,8 @@
 register_feature name="arr_filter_by_features"
 {
   arr_filter code="(val,index) => {
-     //let features = env.params.features.split(" ");
-     return val.is_feature_applied( features );
+     //let features = env.params.features.split(' ');
+     return val.is_feature_applied( env.params.features );
   }";
 };
 
@@ -204,4 +204,24 @@ register_feature name="arr_length" code=`
 
     env.setParam("output",res);
   });
+`;
+
+// уже идея такая - может сделать N-арный arr-метод который в js уходит
+// т.к index, map, reverse и sort
+
+register_feature name="arr_contains"
+  code=`
+
+  env.onvalues_any(["input",0],process);
+
+  function process(arr,elem) {
+    if (!Array.isArray(arr)) {
+      env.setParam("output",false);
+      return;
+    }
+
+    let res = arr.indexOf(elem) >= 0;
+    
+    env.setParam("output",res);
+  }
 `;

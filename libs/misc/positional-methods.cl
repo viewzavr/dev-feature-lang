@@ -25,6 +25,7 @@ register_feature name="join" code=`
 // а так бы мостик соорудить - аргументы в массив в допом ключ..
 // назовем его list по аналогии как в лисп
 
+// итак list берет на вход список аргументов, а на выход дает массив. хорошо.
 register_feature name="list" code=`
   env.on("param_changed",(name) => {
     if (name == "output") return;

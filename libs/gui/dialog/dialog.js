@@ -55,7 +55,9 @@ export function dialog( obj, opts )
   obj.addCmd( "show_modal", () => obj.showModal() );
   //obj.addCmd( "close", () => obj.close() );
   // вот почему у меня тут разные наименования? не знаю..
-  obj.addCmd("apply", () => obj.showModal())
+
+  // апплий было showModal но пока сделал show
+  obj.addCmd("apply", () => obj.show())
 
   // фича мышкой закрывать диалоги
   // я редактировал длинный код и два раза кликнул и оно закрылось. это был криминал.
