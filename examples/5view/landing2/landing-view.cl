@@ -94,7 +94,7 @@ feature "landing-view-base"
 
     button "Настройки объектов" {
       //emit_event object=@view
-      lambda @view @view->gui2 code="(obj,g2) => { console.log('emitting show-settings'); obj.emit('show-settings',g2) }";
+      lambda @view @view->gui2 code="(obj,g2) => { obj.emit('show-settings',g2) }";
     };
 
    }
@@ -108,7 +108,7 @@ feature "landing-view-base"
                      "add_to": "@scene->."
                    },
 
-                   {"title":"Антураж",
+                   {"title":"Статические",
                     "find":"staticvis",
                     "add":"axes",
                     "add_to": "@scene->."
@@ -419,14 +419,36 @@ feature "selectedvars" {
 
 /////////////////////////// суммарная информация
 
+feature "compute_title" {
+  r: output=@q->output {
+    q: eval @r->key @r->types @r->titles code="(t,a,b) =>
+       {
+          
+          let ind = a.indexOf(t); 
+          return b[ind];
+       }";
+  };
+};
+
 datavis: feature {
   rt: 
     input=@pipe->output
     sibling_types=["linestr","ptstr","models"] 
     sibling_titles=["Линии","Точки","Модели"]
+    //title=(@rt->sibling_types | get name=(detect_type @rt @rt->sibling_types))
+    title=(join 
+              (compute_title key=@rt->data_adjust
+                         types=@da->values
+                         titles=@da->titles)
+              " - "
+              (compute_title key=(detect_type @rt @rt->sibling_types) 
+                         types=@rt->sibling_types 
+                         titles=@rt->sibling_titles)
+          )
+    step_N=25
   {{
 
-    x-param-combo
+    da: x-param-combo
          name="data_adjust" 
          titles=["Траектория","Текущее время","Прореженная траектория"]
          values=["traj","curtime","prorej"];
@@ -449,17 +471,23 @@ datavis: feature {
     x-param-option name="step_N" option="priority" value=12;
     x-param-option name="step_N" option="visible" value=(@rt->data_adjust == "prorej");
 
-    x-param-string
-         name="title";
+    //x-param-string name="title";
   }}
 };
 
 staticvis: feature {
   rt: sibling_types=["axes","pole","kvadrat","stolbik","setka"] 
-      sibling_titles=["Оси","Земля","Квадрат","Масштабный столбик","Сетка"];
+      sibling_titles=["Оси","Земля","Квадрат","Масштабный столбик","Сетка"]
+      title=(compute_title key=(detect_type @rt @rt->sibling_types) 
+                         types=@rt->sibling_types 
+                         titles=@rt->sibling_titles)
+      ;
 };
 
 screenvis: feature {
   rt: sibling_types=["curtime","allvars","selectedvars"] 
-      sibling_titles=["Текущее время","Все переменные","Переменные по выбору"];
+      sibling_titles=["Текущее время","Все переменные","Переменные по выбору"]
+      title=(compute_title key=(detect_type @rt @rt->sibling_types) 
+                         types=@rt->sibling_types titles=@rt->sibling_titles)
+      ;
 };

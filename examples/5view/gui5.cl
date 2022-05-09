@@ -103,7 +103,10 @@ rl_root:
 
      cbsel: combobox style="margin: 5px;" dom_size=5 
      //values=(@objects_list->output | arr_map code=(detect_type_l types=));
-       values=(@objects_list->output | arr_map code="(elem) => elem.params.title || elem.$vz_unique_id");
+       //values=(@objects_list->output | arr_map code="(elem) => elem.params.title || elem.$vz_unique_id");
+       values=(@objects_list->output | map_param "title")
+       ;
+       
 
      co: column plashka style_r="position:relative;" 
        input = (@objects_list->output | get index=@cbsel->index )
