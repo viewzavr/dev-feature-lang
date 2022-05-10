@@ -18,8 +18,27 @@ feature "the_view"
     x-param-string name="title";
   }}
   sibling_types=["the-view","the-view-row"] 
-  sibling_titles=["Одна сцена","Слева на право"]  
+  sibling_titles=["Одна сцена","Слева на право"]
+
+  project=@..
+  //sources=(find-objects root=@tv->project paths=@tv->sources_pattern features="visual-process")
+  //sources=(find-objects-bf root=@tv->project features="visual-process")
+  //find-objects-bf features="visual-process" root=@project | sort_by_priority
+
+  // arr_map @tv->sources code="(s) => s.getPathRelative( env )"
+  // i-arr_map @tv->sources { i-call-func @.->input "getPathRelative" @tv }
+
+/*
+  {{ x-on "param_sources_changed" {
+     i-call-js code="(obj,sources) => {
+        sources.map
+        for (let s of sources)
+      ";
+    }
+  }}
+*/  
   ;
+  
 };
 
 feature "the_view_row" 
@@ -283,6 +302,7 @@ feature "show_visual_tab_row" {
 
 }; // show vis tab
 
+// подфункция реакции на чекбокс view_settings_dialog
 feature "toggle_visprocess_view_assoc" {
 i-call-js 
   code="(cobj,val) => { // вот какого ежа тут js, где наш i-код?
