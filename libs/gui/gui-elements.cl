@@ -229,6 +229,14 @@ register_feature name="select_color" {
 
    пример
     combobox values=["alfa","beta","teta"];
+
+   примечание
+    это больная реализация combobox. она опирается на values а в результате
+    выдает допом в кач-ве бонуса index.
+    это все означает что если есть повторяющиеся values, то индекс будет выдаваться
+    первого вхождения в эти values. а не selectedIndex из хтмл. кстати может стоит
+    перейти именно к хтмл-поведению в этом смысле и не заниматься пересчетами.
+    но в общем пока так.
 */
 register_feature name="combobox" {
 	cbroot: dom tag="select" {
@@ -265,7 +273,15 @@ register_feature name="combobox" {
 	   function setup_values() {
 	   	  if (!main.params.dom) return;
 	   	  // todo idea может номера тогда?
-	   	  if (!main.params.values?.map) return;
+	   	  if (!main.params.values?.map) 
+	   	  {
+	   	  		// если задали ток заголовки то покажем их...
+	   	  		// а воообще это больная логика - ну мало ли values у меня какие, хоть дублирующиеся
+	   	  		// а нет, тут же требуется чтобы values были различны..
+	   	  		// хотя может это чисто наш прибабах, кстати. да это чисто наш
+	   	  	  //if (main.params.titles) {} else 
+	   	  	  return;
+	   	  };
 	   	  var t = "";
 
 	   	  let titles = main.params.titles || [];

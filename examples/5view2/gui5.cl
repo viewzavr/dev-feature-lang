@@ -1,6 +1,6 @@
 register_feature name="collapsible" {
   cola: 
-  column //button_type=["button"]
+  column text=@.->0 //button_type=["button"]
   {
     shadow_dom {
       //btn: manual_features=@cola->button_type text=@../..->text cmd="@pcol->trigger_visible";
@@ -31,6 +31,20 @@ register_feature name="plashka" {
   style_border_b="margin-bottom: 5px;"                    
 };
 
+feature "sort_by_priority"
+{
+    eval code="(arr) => {
+       if (!env.params.input) return [];
+       return env.params.input.sort( (a,b) => {
+        function getpri(q) { 
+            if (!q.params.block_priority)
+               q.setParam( 'block_priority', q.$vz_unique_id,true )
+            return q.params.block_priority;   
+          }
+        return getpri(a) - getpri(b); 
+       })
+       }";    
+};
 
 // рисует набор кнопочек для управления объектами сцены
 /*
@@ -88,23 +102,14 @@ rl_root:
      find-objects-bf (@rl_root->items | get @s->index | get "find") 
                      root=@rl_root->root
                      recursive=false
-     | eval code="(arr) => {
-       if (!env.params.input) return [];
-       return env.params.input.sort( (a,b) => {
-        function getpri(q) { 
-            if (!q.params.block_priority)
-               q.setParam( 'block_priority', q.$vz_unique_id,true )
-            return q.params.block_priority;   
-          }
-        return getpri(a) - getpri(b); 
-       })
-       }"
+     | sort_by_priority;
      ;
 
      cbsel: combobox style="margin: 5px;" dom_size=5 
      //values=(@objects_list->output | arr_map code=(detect_type_l types=));
        //values=(@objects_list->output | arr_map code="(elem) => elem.params.title || elem.$vz_unique_id");
-       values=(@objects_list->output | map_param "title")
+       values=(@objects_list->output | arr_map code="(elem) => elem.$vz_unique_id")
+       titles=(@objects_list->output | map_param "title")
        ;
        
 
@@ -131,9 +136,6 @@ rl_root:
                         let newobj = obj.vz.createObj({parent: obj.ns.parent});
                         newobj.manual_feature( v );
                         newobj.manuallyInserted=true;
-
-                        //newobj.feature( v );
-                        //let newobj = obj.vz.createObjByType({type: v, parent: obj.ns.parent});
 
                         if (dump) {
                           if (dump.params)
