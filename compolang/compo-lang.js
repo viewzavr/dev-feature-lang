@@ -1,11 +1,13 @@
 // фича parseSimpleLang и базовые фичи языка load, loadPackage, pipe, register_feature
 
 import * as F from "./find-objects-by-features.js";
+//import * as G from "./geta.js";
 
 export function setup(vz, m) {
   vz.register_feature_set(m);
   //vz.register_feature_set(F);
   F.setup( vz, F);
+//  G.setup( vz, G);
 }
 
 import * as P from "./lang-parser.js";
@@ -756,7 +758,7 @@ export function call( env )
 
       //console.log("calling ",nam,"args",args)
 
-      if (to.hasCmd( nam ))
+      if (to.hasCmd( nam )) // идея предусмотреть вариант когда объект это не
         to.callCmd( nam, ...args );
       else if (typeof( to[nam] ) == "function")
         to[nam].call( undefined, ...args );
@@ -777,6 +779,9 @@ export function call( env )
       // в общем тут нужен некий дизайн, понять что это и почему и зачем
       // кстати в qml - там есть а) явная регистрация событий, б) и эта регистрация формирует
       // "команду", которую можно даже вызывать.
+
+      // т.е. мы можем зарегать событие.. и если таковое есть - то это будет превращаться в команду
+      // и быть доступным через call.
 
    } )
 }
@@ -2101,7 +2106,7 @@ export function deploy_features___deprecated( env )
 }
 
 // эксперимент
-/*
+
 export function insert( env )
 {
   if (env.feature_of_env) {
@@ -2113,7 +2118,7 @@ export function insert( env )
     env.feature("insert_children");
  }
 }
-*/
+
 
 //////////////// insert_features - добавляет процессы заданных фич в целевой процесс 
 // новое видение deploy_features
@@ -2419,7 +2424,7 @@ export function get_param( env )
   env.on("remove",param_tracking);
 
   env.onvalues(["input","name"],source_param_changed);
-}
+};
 
 // решил раздельно
 // на вход получает массив объектов и имя параметра который из них вытащить
@@ -2492,6 +2497,8 @@ export function get_child( env )
 
   env.onvalues(["input","name"],source_param_changed); 
 }
+
+
 
 //////////////// get
 // плохой дизайн - реагировать в зависимости от аргумента...
@@ -2630,8 +2637,10 @@ export function get_children_arr(env) {
     }
 
     unsub = senv.on("childrenChanged",() => {
+      
       env.setParam("output", senv.ns.children );
     });
+    
     env.setParam("output", senv.ns.children );
   })
   env.on("remove",() => unsub());

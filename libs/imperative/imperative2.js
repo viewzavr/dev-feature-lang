@@ -53,6 +53,11 @@ function eval_attached_block( env, args ) {
       return res;  
 }
 
+// лямбда для и-вычислений
+// результат срабатывания apply-операции этой штуки это функция по вызову блока лямбды
+// есть нюанс - тут заодно выполняется каррирование, т.е. лямбда будет передавать в блок
+// аргументы вопрядке: аргументы-лямбды, внешние аргументы
+// вероятно это лишнее
 export function i_lambda( env ) 
 {
   env.this_is_lambda_env = true;
@@ -241,6 +246,7 @@ export function i_args( env ) {
      //console.log( 'this is',this );
      // перекидываем аргументы в текущее окружение
      // это аргументы сделанные списоком которые
+
      if (this.args_dict) {
        for (let k of Object.keys( this.args_dict )) {
          env.setParam( k, this.args_dict[k])
@@ -335,6 +341,7 @@ export function i_sum( env ) {
   {
     // console.log("summing",...args);
     let sum = args[0];
+
     for (let i=1; i<args.length; i++)
       sum = sum + args[i];
     // console.log("Returning",sum)
@@ -342,6 +349,18 @@ export function i_sum( env ) {
   }
 
 }
+
+/*
+export function i_join( env ) {
+  env.feature("i_call_js");
+  env.setParam("code",f);
+
+  function f(...args) 
+  {
+    return args.join( env.params.separator || ",");
+  }
+}
+*/
 
 export function i_mul( env ) {
   env.feature("i_call_js");

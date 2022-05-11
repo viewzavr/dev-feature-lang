@@ -13,6 +13,33 @@ feature "x-param-combo" {
   ";
 };
 
+feature "x-add-cmd" {
+  //r: code=@.->0 name=@.->1;
+  //мечты мечты.. но кстати зато можно порожденные объекты в output хреначить..
+  // но опять же а как репитер тут сделаешь? ведь тогда апутупом будет репитер.. ну и ладно..
+
+  r: x-patch-r @r->name @r->code
+    code="(name,fn, obj) => {
+      if (name) {
+        obj.addCmd( name, fn, true );
+      }
+    }
+    ";
+};
+
+feature "x-param-objref" {
+  r: x-patch-r @r->name @r->root
+    code="(name,root, obj) => {
+      if (name) {
+        obj.addObjRef( name, undefined );
+        if (root) {
+          obj.setParamOption(name,"tree_func",() => root);
+        }
+      }
+    }
+    ";
+};
+
 feature "x-param-checkbox" {
   r: x-patch-r @r->name
     code="(name,obj) => {

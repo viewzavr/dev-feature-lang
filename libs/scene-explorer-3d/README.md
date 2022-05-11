@@ -1,6 +1,10 @@
 Рисует с помощью gui список параметров указанного объекта (окружения).
-
 Используется библиотека https://github.com/vasturiano/3d-force-graph
+
+# Подключение к проекту
+
+load "scene-explorer-3d";
+debugger-screen-r;
 
 # Об алгоритме рисования
 
