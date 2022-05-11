@@ -21,7 +21,7 @@ s: arr=[1,2,3,4,5]
 
 screen auto_activate {
     column {
-      /*
+      
       text (join "result is 15? " (geta input=@s "alfa" "beta")); // доступ к параметру
       text (join "result is nul? " (geta input=@s "alfa" "beta" "teta" "zita" )); // промах
       text (join "result is 4" (geta input=@s "teta" "zita" "r" )); // доступ к параметру поглубже
@@ -57,8 +57,10 @@ screen auto_activate {
       text (join "result is 15,25? " (map_geta input=(get_children_arr input=@s->.) "beta"));
       
       text (join "result is 15,25? 2nd syntax" (map_geta input=(@s | get_children_arr) "beta"));
-      */
+      
       text (join "result is 15,25? 3rd syntax" (@s->. | get_children_arr | map_geta "beta"));
+      
+      text (join "result is 15,25? 3rd syntax and no nulls" (@s->. | get_children_arr | map_geta "beta" | arr_filter code="(val,index) => val != null" ));
 
 /*      
       text (

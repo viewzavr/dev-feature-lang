@@ -440,7 +440,16 @@ function peg$parse(input, options) {
 
      append_children_envs( pipe, tail );
 
-     var input_link_v = input_link.value.replaceAll("->.","->output");
+     //var input_link_v = input_link.value.replaceAll("->.","->output");
+
+     // по итогу долгих историй выяснилось что вот эта строчка великое зло
+     // потому что она 1 портит input вида: @s->. | m1 заменяя @s на @s->output что неверно
+     // и 2 требует чтобы мозг помнил что записи вида @s | m1 будут заменены на @s->output
+     // короче решено пусть всегда все будет нафиг единообразно.
+     // т.е. какую ссылку в начале пайпы указали - то и будет входом безо всяких преобразований.
+
+     let input_link_v = input_link.value;
+
      pipe.links["pipe_input_link"] = { to: "~->input", from: input_link_v}
      //return finish_env();
      return pipe;
