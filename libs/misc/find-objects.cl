@@ -104,9 +104,10 @@ feature "find-objects-by-crit" {
 
 						if ((@splitted->output | geta "length") > 1)
 						then={ // есть фичи
-							  console_log "features found!";
-							  bf: find-objects-bf root=@rt->output features=(@splitted->output | geta "slice" 1)
-							   {{ console_log_params }};
+							  console_log "path and features found!";
+							  bf: find-objects-bf root=@rt->output 
+							         features=(@splitted->output | geta "slice" 1)
+							         ;
 							  link to="@q->output" from="@bf->output";
 						}
 						else={ // нету фичи в этом критерии
@@ -114,12 +115,14 @@ feature "find-objects-by-crit" {
 					  };
 				  }
 				  else={
-				  	console_log "else --";
+				  	//console_log "else --";
 	  				// else тупо фичи
-						bf: find-objects-bf root=@ee->root features=@q->input {{ console_log_params }};
+						bf: find-objects-bf root=@ee->root features=@q->input;
+						link to="@q->output" from="@bf->output";
 				  };
 			} // q
 		} // рипитер
+		//| console_log_input "after repeater"
 		| // в итоге репитер выдает нам массив объектов в параметром .output
 		map_geta "output" // где output это может быть объект или массив объектов
 		//| console_log_input "after output fields join"

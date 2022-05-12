@@ -42,7 +42,6 @@ export function find_objects_bf( env  ) {
 
   let delayed_begin = env.delayed( begin, 10 );
   env.monitor_values(["root","features"],(r,f) => {
-    debugger;
     if (!r) {
       env.emit("reset");
       publish_result();
@@ -244,7 +243,10 @@ export function find_objects_bf( env  ) {
 
   // сделано т.к. у нас по нескольку новых объектов за так может появляться
   env.feature("delayed");
-  env.do_publish = env.delayed( () => env.setParam( "output", [...result_object_list] ) );
+  env.do_publish = env.delayed( () => {
+     // todo optimize добавить счетчик $vz_param_state_counter см geta.js
+     env.setParam( "output", [...result_object_list] ) 
+   });
   function publish_result() {
     env.do_publish();
   }
