@@ -1,9 +1,23 @@
-feature "if" {
-  i: {
+feature "if" 
+code="
+  let cnt=0;
+  env.on('appendChild',(c) => {
+    cnt++;
+    if (cnt > 1 
+        && c.ns.name !== 'arg_link_to' // тупняк конечно - чтобы разрешить условия вида if @alfa
+        )
+      console.warn('if: extra children found!',c.getPath());
+  });
+"
+{
+  i: 
+    {
     generate
        list=(eval @i->0 @i->then @i->else allow_undefined=true
-             code="(cond,t,e) => cond ? t : e;");
-  };
+             code="(cond,t,e) => {
+               return cond ? t : e
+             };");
+    };
 };
 
 register_feature name="get_query_param" code=`

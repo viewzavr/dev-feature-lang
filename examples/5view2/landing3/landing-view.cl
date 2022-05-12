@@ -19,7 +19,7 @@ feature "landing-file" {
     fileparams: {
       //f1_info: param_label "Укажите текстовый файл с данными";
       f1:  param_file value="https://viewlang.ru/assets/other/landing/2021-10-phase.txt";
-      lines_loaded: param_label (@loaded_data | get name="length");
+      lines_loaded: param_label (@loaded_data->output | get name="length");
 
       loaded_data: load-file file=@fileparams->f1
              | parse_csv separator="\s+";
@@ -147,7 +147,7 @@ feature "landing-view-base"
 	           ;
 
 	      time: param_combo 
-	           values=(@internal_columns_dat | df_get column="T")
+	           values=(@internal_columns_dat->output | df_get column="T")
 	           index=@timeparams->time_index
 	           ;
 
@@ -188,7 +188,7 @@ feature "landing-view-base"
 	data_compute:
 	{
 
-	  internal_columns_dat: @loaded_data | df_set X="->x[м]" Y="->y[м]" Z="->z[м]" T="->t[c]"
+	  internal_columns_dat: @loaded_data->output | df_set X="->x[м]" Y="->y[м]" Z="->z[м]" T="->t[c]"
 	                RX="->theta[град]" RY="->psi[град]" RZ="->gamma[град]"
 	              | df_div column="RX" coef=57.7
 	              | df_div column="RY" coef=57.7
@@ -197,16 +197,16 @@ feature "landing-view-base"
     // привели, ок.
 
     compute_pipe: pipe input=@internal_columns_dat->output {
-        if (output=@fileparams->project_x) {
+        if (output=@fileparams->project_x) then={
           df_set X=0;
         };
-        if (output=@fileparams->project_y) {
+        if (output=@fileparams->project_y) then={
           df_set Y=0;
         };
-        if (output=@fileparams->project_z) {
+        if (output=@fileparams->project_z) then={
           df_set Z=0;
         };
-        if (output=@fileparams->scale_y) {
+        if (output=@fileparams->scale_y) then={
           df_div column="Y" coef=@fileparams->y_scale_coef;
         };
     };
@@ -222,7 +222,7 @@ feature "landing-view-base"
     */
 
     dat: output=@compute_pipe->output;
-	  dat_cur_time_orig: @loaded_data | df_slice start=@timeparams->time_index count=1; 	              
+	  dat_cur_time_orig: @loaded_data->output | df_slice start=@timeparams->time_index count=1; 	              
     // dat_cur_time_orig - по идее рисовалки текста сами себе могли бы выдирать данные
     // но да ладно уж
 	};
@@ -471,10 +471,10 @@ datavis: feature {
          value=10;
 
     pipe: pipe input=@rt->df {
-        if (@rt->data_adjust == "curtime") {
+        if (@rt->data_adjust == "curtime") then={
           df_slice start=@rt->time_index count=1         
         };
-        if (@rt->data_adjust == "prorej") {
+        if (@rt->data_adjust == "prorej") then={
           df_skip_every count=@rt->step_N;
         };
     };

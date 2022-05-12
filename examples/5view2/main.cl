@@ -20,6 +20,8 @@ feature "the_view"
   sibling_types=["the-view","the-view-row"] 
   sibling_titles=["Одна сцена","Слева на право"]
 
+  sources=(find-objects-by-crit input=@tv->sources_str root=@tv->project)
+
   project=@..
   //sources=(find-objects root=@tv->project paths=@tv->sources_pattern features="visual-process")
   //sources=(find-objects-bf root=@tv->project features="visual-process")
@@ -70,19 +72,19 @@ project: active_view_index=1
   a2: axes-view title="Оси координат 2";
 
   v0: the-view title="Данные" 
-      sources=(list @lf)
+      sources_str="@lf"
   {
   };
 
   v1: the-view title="Общий вид" 
-      sources=(list @lv->scene1 @a1);
+      sources_str="@lv/lv1 ,@a1";
   {
     
   };
 
   v2: the-view title="Вид на ракету" 
-      sources=(list @lv->scene2 @a2);
-  {    
+      sources_str="@lv/lv2,@a2";
+  {
   };
 
   /*
@@ -354,7 +356,7 @@ feature "view_settings_dialog" {
               };
             };
           }; // repeater2
-        }; dom_group2 
+        }; // dom_group2 
       }; // dom grid  
 
     }; // dlg

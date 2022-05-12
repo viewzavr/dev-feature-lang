@@ -32,7 +32,11 @@ screen auto_activate {
         input="env1" | map_geta "getPath"));      
 
       text (join "result is teta and tuta? (crit test+ft)" ( find-objects-by-crit 
-        input="@/s env1, @/s/teta env2" | map_geta "getPath"));      
-    };   
+        input="@/s env1, @/s/teta env2" | map_geta "getPath"));
+
+      text (join "result is blank? (crit test+ft)" ( find-objects-by-crit 
+        input="@/s2 env1, @/s3/teta env2" | console_log_input "blank?"));
+        //| map_geta (i-call-js code="() => JSON.stringify(env.params.input)")));
+    };
 
 };

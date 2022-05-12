@@ -104,7 +104,7 @@ feature "find-objects-by-crit" {
 
 						if ((@splitted->output | geta "length") > 1)
 						then={ // есть фичи
-							  console_log "path and features found!";
+							  //console_log "path and features found!";
 							  bf: find-objects-bf root=@rt->output 
 							         features=(@splitted->output | geta "slice" 1)
 							         ;
@@ -124,10 +124,12 @@ feature "find-objects-by-crit" {
 		} // рипитер
 		//| console_log_input "after repeater"
 		| // в итоге репитер выдает нам массив объектов в параметром .output
-		map_geta "output" // где output это может быть объект или массив объектов
+		map_geta "output" // где output это может быть объект или массив объектов или пустота
 		//| console_log_input "after output fields join"
 		| // получили серию значений возможно некоторые из них массивы - схлопнем
-		m: geta "flat";
+		geta "flat"
+		|
+		m: arr_compact;
 	};
 };
 
