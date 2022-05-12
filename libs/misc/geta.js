@@ -64,6 +64,10 @@ export function map_geta( env )
     // т.е. не совсем это map для словаря получается..
     // но опяь же на словаре можно сказать get_param_values и получить массив. пока так. 
 
+    if (!Array.isArray(input_arr)) {
+      console.error("map_geta: input is not array!",input_arr);
+      return;
+    }
 
     output=[];
     output.length = input_arr.length;

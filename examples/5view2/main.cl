@@ -8,19 +8,78 @@ feature "setup_view" {
   };
 };
 
+// подфункция реакции на чекбокс view_settings_dialog
+feature "toggle_visprocess_view_assoc2" {
+i-call-js 
+  code="(cobj,val) => { // cobj объект чекбокса, val значение
+    let view = env.params.view; // вид the_view
+    //let view = cobj.params.view;
+    console.log({view,cobj,val});
+    view.params.sources ||= [];
+    view.params.sources_str ||= '';
+    if (val) { // надо включить
+      let curind = view.params.sources.indexOf( env.params.process );
+      if (curind < 0) {
+        let add = '@' + env.params.process.getPathRelative( view.params.project );
+        console.log('adding',add);
+        let nv = view.params.sources_str.split(',').concat([add]).join(',');
+        console.log('nv',nv)
+        
+        view.setParam( 'sources_str', nv);
+      }
+        // видимо придется как-то к кодам каким-то прибегнуть..
+        // или к порядковым номерам, или к путям.. (массив objref тут так-то)
+    }
+    else
+    {
+        // надо выключить
+      let curind = view.params.sources.indexOf( env.params.process );
+      //debugger;
+      if (curind >= 0) {
+        //obj.params.sources.splice( curind,1 );
+        //obj.signalParam( 'sources' );
+        let arr = view.params.sources_str.split(',').map( x => x.trim());
+        arr = [...new Set(arr)]; // унекальнозть
+        let p = '@' + env.params.process.getPathRelative( view.params.project );
+        let curind_in_str = arr.indexOf(p);
+        if (curind_in_str >= 0) {
+          arr.splice( curind_in_str,1 );
+          view.setParam( 'sources_str', arr.join(','))
+        };
+      }
+    };
+  };";  
+};
+
 feature "the_view" 
 {
   tv: 
   show_view={ show_visual_tab1; }
   title="Вид"
-  gui={ render-params @tv; }
+  gui={ 
+    render-params @tv; 
+    //console_log "tv is " @tv "view procs are" (@tv | geta "sources" | map_geta "getPath");
+    qq: tv=@tv; // без этого внутри ссылка на @tv уже не робит..
+    @tv->project | geta "processes" | repeater {
+      i: row {
+       //console_log "adding checkbox" (@i->input | get_param "title") "view is" @qq->tv;
+       checkbox value=(@qq->tv | get_param "sources" | arr_contains @i->input)
+         {{ x-on "user-changed" {
+              toggle_visprocess_view_assoc2 process=@i->input view=@qq->tv;
+          } }};
+       text (@i->input | get_param "title");
+
+      };
+    };
+  }
   {{
     x-param-string name="title";
   }}
   sibling_types=["the-view","the-view-row"] 
   sibling_titles=["Одна сцена","Слева на право"]
 
-  sources=(find-objects-by-crit input=@tv->sources_str root=@tv->project)
+  //sources=(find-objects-by-crit input=@tv->sources_str root=@tv->project {{ console_log_params}})
+  sources=(find-objects-by-pathes input=@tv->sources_str root=@tv->project {{ console_log_params}})
 
   project=@..
   //sources=(find-objects root=@tv->project paths=@tv->sources_pattern features="visual-process")
