@@ -1,3 +1,11 @@
+feature "if" {
+  i: {
+    generate
+       list=(eval @i->0 @i->then @i->else allow_undefined=true
+             code="(cond,t,e) => cond ? t : e;");
+  };
+};
+
 register_feature name="get_query_param" code=`
     function getParameterByName(name) {
       name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");

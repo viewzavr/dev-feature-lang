@@ -1186,7 +1186,7 @@ export function feature_eval( env ) {
     for (let i=0; i<env.params.args_count;i++) 
     {
       let v = env.params[i];
-      if (typeof(v) == "undefined") { // ну пока так.. хотя странно все это..
+      if (!env.params.allow_undefined && typeof(v) == "undefined") { // ну пока так.. хотя странно все это..
         /// 
         return;
       }
@@ -1336,6 +1336,24 @@ export function console_log_params( env, options )
   });
 }
 
+// решил пусть будет один режим работы - по позиционным параметрам
+// а другие всякие вещи... ну отдельными методами.
+export function console_log( env, options )
+{
+  function print() {
+    let acc=[];
+    for (let i=0; i<env.params.args_count; i++) {
+      acc.push( env.params[i] );
+    }
+    console.log( ...acc );
+  }
+
+  env.feature("delayed");
+  let printd = env.delayed(print);
+  env.on("param_changed",print);
+}
+
+/*
 export function console_log( env, options )
 {
   env.createLinkTo( {param:"text",from:"~->0",soft:true });
@@ -1360,13 +1378,14 @@ export function console_log( env, options )
     console.log( env.params.text || "", env.params.input || "", ...args);
   })
 }
+*/
 
 export function console_log_input( env, options )
 {
   env.createLinkTo( {param:"text",from:"~->0",soft:true });
 
   function print() {
-    console.log( env.params.text || "", env.params.input || "" );
+    console.log( "console_log_input",env.params.text || "", env.params.input || "" );
   }
 
   env.onvalue("input",(input) => {
@@ -1488,158 +1507,6 @@ export function on( env  )
   env.on("remove",u1);
 }
 
-
-// todo попробовать вернуться к такому on который работает тупо с .host
-// этого вроде должно хватить с учетом modify.
-/*
-export function on( env, options )
-{
-   env.feature("func"); // см выше
-
-   env.addObjRef("input");
-   env.createLinkTo( {param:"name",from:"~->0",soft:true });
-
-   var tracking = () => {};
-   env.onvalues(["name","input"],(en,obj) => {
-      tracking();
-      //console.log("ON connection tracking name=",en,obj.getPath(), obj.getParamsNames() )
-      tracking = obj.on( en, (...args) => {
-         //console.log("GPN tracking DETECTED! name=",en,obj.getPath()) 
-         env.apply(...args); // вызов метода окружения func
-      })
-   });
-
-   env.on("remove",() => {
-    tracking(); tracking = ()=>{};
-   })
-
-   // такое вот.. как в dom-event
-
-
-   if (!env.params.object) {
-      if (env.hosted) // мы хостируимси - тогда object это хост
-        env.setParam("input",env.host);
-      else {
-        // не надо так видимо делать
-        //env.setParam("object","..");
-      }
-   }
-   
-   //console.log("ON connection created",env.getPath(), env.object, env )
-}
-*/
-
-// очень похоже на connection и на onevent но еще короче и работает пока с хостом
-// name - имя события которое мониторить
-// далее работает как функция
-
-/*
-export function on( env  )
-{
-  let host = env.host;
-
-
-  if (env.hosted) {
-    host = env.host; // режим обычного модификатора
-  } else {
-    host = env.ns.parent;
-    if (host.hosted) // режим когда on применяется внутри модификатора...
-      host = host.host;
-  }
-
-  env.feature("func");
-  var u1 = () => {};
-  env.createLinkTo( {param:"name",from:"~->0",soft:true });
-
-  env.onvalues( "name", (name) => {
-    u1();
-    u1 = host.on( env.params.name ,(...args) => {
-      // console.log("on: passing event" , env.params.name )
-      env.callCmd("apply",...args);
-      // идея - можно было бы всегда в args добавлять объект..
-    })
-  })
-  env.on("remove",u1);
-  
-}
-*/
-
-/// if
-/// вход: condition - условие (будет проверено оператором ?)
-///       children - два дитя, первое если true второе false
-/// сообразно if проверяет условие и создает либо первого либо второго
-/// todo можно кейс еще сделать
-
-// а может так? if (a > 5) then={ .... } else={ .... };
-export function feature_if( env, options )
-{
-  var created_envs = [];
-
-  var activated=false;
-  env.monitor_values(["condition",0],(cond,cond0) => {
-    var res = (cond || cond0) ? true : false;
-    //console.log("trigger",res)
-    env.setParam("condition_result",res);
-    perform( res ? 0 : 1 );
-    activated=true;
-  });
-  if (!activated) perform( 1 );
-
-  env.addString("condition_result");
-
-  // далее натырено с репитера
-  var children;
-  env.restoreChildrenFromDump = (dump, ismanual) => {
-    
-    //console.log("if chi",env.getPath(),dump.children)
-    // выяснился случай что если мы if обозначаем типом, то ему потом повторно restore вызовут
-    // при развертывании этого типа..
-    if (Object.keys( dump.children ) != 0)
-    {  
-      children = dump.children;
-      if (typeof(pending_perform) !== "undefined") perform( pending_perform );
-    }  
-    return Promise.resolve("success");
-  }
-
-  var pending_perform;
-  function perform( num ) {
-     //console.log("IF PERFORM",num, env.getPath(),children)
-     
-     for (let old_env of created_envs) {
-       old_env.remove();
-     }
-     created_envs=[];
-
-     if (!children) {
-       pending_perform=num;
-       return;
-     }
-     pending_perform=undefined;
-
-     var selected_c = Object.keys( children )[ num ];
-     if (!selected_c) {
-      //pending_perform
-      return;
-     }
-
-     var edump = children[selected_c];
-     edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
-
-     if (env.hosted) {
-       let child_env = env.vz.importAsParametrizedFeature( edump, env.host );
-       created_envs.push( child_env );
-     }
-     else {
-
-       var p = env.vz.createSyncFromDump( edump,null,env.ns.parent );
-       p.then( (child_env) => {
-            created_envs.push( child_env );
-       });
-     };  
-   };
-
-}
 
 /// one-of
 /// вход: index - номер
@@ -2109,12 +1976,51 @@ export function deploy_features___deprecated( env )
 
 export function insert( env )
 {
-  if (env.feature_of_env) {
+  let unsub = env.onvalue("input",(i) => {
+    unsub();
+
+    if (env.feature_of_env) {
+       env.setParam("input",env.feature_of_env);
+       env.feature("insert_features");
+     }
+     /*else if (env.ns.parent.feature_of_env) { // надо для "генерации"
+        env.setParam("input",env.ns.parent.feature_of_env);
+        env.feature("insert_features");
+     }*/
+     else {
+        env.setParam("input", env.ns.parent );
+        env.feature("insert_children");
+     }
+
+  })
+ /*
+ if (env.feature_of_env) {
     env.setParam("input",env.feature_of_env);
     env.feature("insert_features");
-  }
+ }
+ else if (env.ns.parent.feature_of_env) { // надо для "генерации"
+    env.setParam("input",env.ns.parent.feature_of_env);
+    env.feature("insert_features");
+ }
  else {
     env.setParam("input", env.ns.parent );
+    env.feature("insert_children");
+ }
+ */
+}
+
+// работает как insert но на родителя / аттачед окружение.
+// т.е. делает как бы для дедушки/бабушки.
+export function generate( env )
+{
+ let exam_obj = env.ns.parent || env.feature_of_env;
+
+ if (exam_obj.feature_of_env) {
+    env.setParam("input",exam_obj.feature_of_env);
+    env.feature("insert_features");
+ }
+ else {
+    env.setParam("input", exam_obj.ns.parent );
     env.feature("insert_children");
  }
 }
@@ -2138,6 +2044,8 @@ export function insert_features( env )
   var children;
 
   //console.log("modifier: init",env.getPath())
+  //if (!env.hasParam(""))
+  env.setParam("use_children",true);
 
   env.createLinkTo( {param:"input",from:"~->0",soft:true });
 
@@ -2156,7 +2064,6 @@ export function insert_features( env )
 
     return Promise.resolve("success");
   }
-  
 
   //let input_used;
   function perform() {
@@ -2171,7 +2078,9 @@ export function insert_features( env )
     */
 
     if (!Array.isArray(input)) input=[input]; // допускаем что не список а 1 штука
-    let features = env.params.list || Object.values(children || {});
+    let features = env.params.list;
+    if (!features && env.params.use_children)
+       features = Object.values(children || {});
 
     if (features.length == 0) {
       pending_perform = true;
@@ -2287,7 +2196,10 @@ export function insert_features( env )
 // output: массив созданных объектов
 export function insert_children( env )
 {
-  var children;
+  var children = {};
+  var created_envs = [];
+
+  env.setParam("use_children",true);
 
   env.createLinkTo( {param:"input",from:"~->0",soft:true });
 
@@ -2302,8 +2214,13 @@ export function insert_children( env )
   function perform() {
     let input = env.params.input || [];
     if (!Array.isArray(input)) input=[input]; // допускаем что не список а 1 штука
-    let features = env.params.list || Object.values(children);
+    let features = env.params.list;
+    
+    if (!features && env.params.use_children)
+       features = Object.values(children || {});
+
     if (features && !Array.isArray(features)) features = [features];
+
     dodeploy( input, features );
   }
 
@@ -2347,10 +2264,10 @@ export function insert_children( env )
        env.setParam("output",values);
      });
 
-  }; // perform   
+  }; // perform
 
 
- var created_envs = [];
+ 
  function close_envs() {
    for (let old_env of created_envs) {
      old_env.remove();

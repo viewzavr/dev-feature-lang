@@ -6,8 +6,9 @@ debugger-screen-r;
 s: arr=[1,2,3,4,5]
   {
   alfa: beta=15;
-  teta: beta=25;
-  {{ x-add-cmd name="cmd1" code=(i-call-block { 
+  teta:
+    beta=25
+  {{ x-add-cmd name="cmd1" code=(i-call-block {
       args: i-args;
       i-console-log "privet"; //output=22; 
       i-sum  @args->0 2;
@@ -21,10 +22,16 @@ s: arr=[1,2,3,4,5]
 
 screen auto_activate {
     column {
+    
+      text (join "result is 4?" (geta input=@s "teta" "zita" "r" )); // доступ к параметру поглубже
+      
+    
+      text (join "result is 1? " (@s->arr | geta 0) {{ console_log_params }}); // тест массива
+      
       
       text (join "result is 15? " (geta input=@s "alfa" "beta")); // доступ к параметру
       text (join "result is nul? " (geta input=@s "alfa" "beta" "teta" "zita" )); // промах
-      text (join "result is 4" (geta input=@s "teta" "zita" "r" )); // доступ к параметру поглубже
+      
       text (join "result is obj? " (geta input=@s "teta" "zita" )); // доступ к объекту
       
       text (join "result is 22 (and log message)? " (geta input=@s "teta" "cmd1" 20 )); // доступ к методу
@@ -62,6 +69,11 @@ screen auto_activate {
       
       text (join "result is 15,25? 3rd syntax and no nulls" (@s->. | get_children_arr | map_geta "beta" | arr_filter code="(val,index) => val != null" ));
 
+      
+   };
+};      
+      
+
 /*      
       text (
         join "result is sum of squares of 1..5? " 
@@ -72,8 +84,9 @@ screen auto_activate {
         join "result is sum of squares of 1..5? " 
           (map_get input=@s->arr (i-call-block { args: i-args; i-mul @args->0 @args->0})) | arr_reduce (lambda (args) ( i-sum @args->0 @args->1 )) 0;
       );
-*/
+
     };
+*/
 /*
     spisok {
       text (join "result is " (geta input=@s "alfa" "beta"));
@@ -81,9 +94,8 @@ screen auto_activate {
       text (join "result is " (geta input=@s "teta" "zita" "r" ));
       text (join "result is " (geta input=@s "teta" "zita" ));
     };
-*/    
 };
-
+*/
 /*
 todo: 
 * children должны быть св-вом чтобы пересчитываться когда чилдрены меняются..

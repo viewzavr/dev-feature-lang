@@ -1,3 +1,11 @@
+// новая идея в том что geta должна работать таки с 1 компонентой
+// а map_geta тоже имеет право быть но тоже работать с 1 компонентой
+// у нас уже есть стыковка через | таки - этого должно хватить.
+// ну а то что пересчет массивов - пережить можно а потом оптимизировать (на каналы перевести)
+
+// но пока далее старая многоаргументная реализация
+/////////////////////////////////
+
 /// geta - доступ к компонентам compolang-объектов и любых js структур
 // доступ идет сразу ко многим компонентам, т.е. 
 // geta input=@alfa beta gamma - выполнит операцию alfa.beta.gamma
@@ -23,7 +31,7 @@ export function setup(vz, m) {
 // берет все подряд, a | get b c d 
 
 export function geta( env ) {
-  env.convert_to_arr=true;
+  env.single_geta_mode=true;
   env.feature( "map_geta"); // типа там с 1 штучкой тоже работать умеют
   // но есть проблема - надо упаковывать в 1 штучку всегда, а не то что при условии "если это не массив"
 }
@@ -49,7 +57,7 @@ export function map_geta( env )
     }
 
     //if (input_arr && !Array.isArray(input_arr))
-    if (env.convert_to_arr) // пожелание из geta
+    if (env.single_geta_mode) // пожелание из geta
       input_arr = [input_arr];
     // может быть стоит все-таки в случае если это словарь - идти по его значениям ключей
     // сейчас же мы получается если это словарь - обратимся к ему самому и пойдем только в 1 ключ..
@@ -60,12 +68,15 @@ export function map_geta( env )
     output=[];
     output.length = input_arr.length;
 
+    if (env.params.debug) 
+       debugger;
+
     for (let i=0; i<input_arr.length; i++) {
       // готовим поэлементную отписку
       // отписка у нас тут будет башенкой
       // а именно - каждый уровень соответствует аргументу
       let unsub_arr = [];
-      let unsub = () => { unsub(0); }
+      let unsub = () => { unsub_from(0); }
       let unsub_from = (level) => { 
         let toremove = unsub_arr.splice( level );
         toremove.map( f => f() );
@@ -82,8 +93,13 @@ export function map_geta( env )
   let output;
   env.feature("delayed");
   let schedule_update_output = env.delayed( () => {
-    env.setParamWithoutEvents("output",output);
-    env.signalParam("output");
+    //console.log("output of map-geta", output, env.getPath())
+    // спец счетчик чтобы проходило фильтр во вьюзавре на тему изменения объектов
+    output.$vz_param_state_counter = (output.$vz_param_state_counter || 0) +1;
+
+    env.setParam("output",output);
+    //env.setParamWithoutEvents("output",output);
+    //env.signalParam("output");
     // типа так оно не отразит что поменялось
   });
 
@@ -91,7 +107,11 @@ export function map_geta( env )
     env.params.args_count ||= 0;
     
     get_one( input, env.params, 0,(res) => {
-      //env.setParam( "output",res )
+      if (env.single_geta_mode) {
+        env.setParam( "output",res );
+        return;
+      }
+
       output[index] = res;
       schedule_update_output();
     },unsub_struc );
@@ -180,6 +200,18 @@ export function map_geta( env )
        cb( res );
        return;
     }
+
+    // особый случай - запрашиваем параметр а его еще не прописали...
+    // но так-то тут может быть история что там не только параметр а и команда и дите..
+    // надо бы событие особое типа item-имя-changed и его высылать на все эти случаи..
+    if (nv == null && input.hasParam) {
+        // копируем алгоритм выше
+        // поменяется параметр - рестартуем хвост
+        let u = input.trackParam( name, () => { get_one( input, params, current_arg_pos, cb, unsub_struc)} );
+        // едем дальше
+        return go_next_level( input.getParam(name), params, current_arg_pos,cb,unsub_struc, u );      
+    }
+
     go_next_level( input[ name ], params, current_arg_pos,cb,unsub_struc, () => {} );
   }
 }

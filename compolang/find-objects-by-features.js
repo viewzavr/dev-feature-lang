@@ -42,7 +42,7 @@ export function find_objects_bf( env  ) {
 
   let delayed_begin = env.delayed( begin, 10 );
   env.monitor_values(["root","features"],(r,f) => {
-
+    debugger;
     if (!r) {
       env.emit("reset");
       publish_result();
@@ -112,14 +112,21 @@ export function find_objects_bf( env  ) {
     env.emit("reset"); // вызовет всеобщую отписку
     publish_result(); // либо пустой массив будет либо заполнится чем-нибудь уже на этом такте
 
-    if (typeof(features) !== "string") 
-        return;
+    if (Array.isArray(features))
+    {
 
-    if (!Array.isArray(features)) features = features.trim().split(/\s+/);
+    }
+    else
+    {
+      if (typeof(features) !== "string") 
+        return;
+      features = features.trim().split(/\s+/);
+    }  
 
     // фичи записываются все через - и это используется в т.ч. в именах событий фич
     // поэтому приведем все к "стандартному" виду.
     features = features.map( str => str.replaceAll("_","-"));
+
 
     traverse_if( root,(obj) => process_one_obj( obj, features ), env.params.include_subfeatures );
   }
