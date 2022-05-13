@@ -46,10 +46,11 @@ feature "sort_by_priority"
        }";    
 };
 
+// add_to add_type
 feature "button_add_object" {
   bt_root: button "Добавить" margin="0.5em" {
         
-        link from=@bt_root->add_to to="@cre->target";
+        link from="@bt_root->add_to" to="@cre->target";
 
         cre: creator input={}
           {{ onevent name="created" 
@@ -72,59 +73,101 @@ feature "button_add_object" {
      };    
 };
 
-feature "object_change_type" {
-   co: ;
+//target_obj | object_change_type | console_log;
+//вот тут хотелось бы... чтобы вместо object_change_type оказалось бы 2 объекта..
 
-   row {
-     text "Образ: ";
-     combobox  values=@co->types 
-               titles=@co->titles 
-               value=(detect_type @co->input @.->values)
-               style="width: 120px;" 
-       {{ on "user_changed_value" {
-          lambda @co->input code=`(obj,v) => {
-            // вот мы спотыкаемся - что это, начальное значение или управление пользователем
+// можно оказывается напрямую на русском языке писать и это будут фичи;
 
-            //console.log("existing obj",obj,"creating new obj type",v);
-
-            let dump = obj.dump();
-
-            //console.log("dump is",dump)
-
-            let newobj = obj.vz.createObj({parent: obj.ns.parent});
-            newobj.manual_feature( v );
-            newobj.manuallyInserted=true;
-
-            if (dump) {
-              if (dump.params)
-                  delete dump.params['manual_features'];
-              dump.manual = true;
-              //console.log("restoring dump",dump);
-              newobj.restoreFromDump( dump, true );
-            }
-
-            obj.remove();
-
-            }`;
-
-       }
-       }}; // on user changed
-   };    
-};
-
+// комбо выбиралки типа объекта
 // input - объект, 
 // types - список типов
 // titles - список названий
-feature "object_change_type_and_gui" {
-  co: column plashka style_r="position:relative;"  
-  {
-   object_change_type input=@co->input;  
-   column {
-      insert_children input=@.. list=(@co->input | get_param name="gui");
-   };
-  };
+feature "object_change_type"
+{
+   cot: {};
+
+   text "Образ: ";
+
+   combobox values=@cot->types 
+              titles=@cot->titles 
+                   value=(detect_type @cot->input @.->values)
+                   style="width: 120px;" 
+           {{ on "user_changed_value" {
+              lambda @co->input code=`(obj,v) => {
+                // вот мы спотыкаемся - что это, начальное значение или управление пользователем
+
+                //console.log("existing obj",obj,"creating new obj type",v);
+
+                let dump = obj.dump();
+
+                //console.log("dump is",dump)
+
+                let newobj = obj.vz.createObj({parent: obj.ns.parent});
+                newobj.manual_feature( v );
+                newobj.manuallyInserted=true;
+
+                if (dump) {
+                  if (dump.params)
+                      delete dump.params['manual_features'];
+                  dump.manual = true;
+                  //console.log("restoring dump",dump);
+                  newobj.restoreFromDump( dump, true );
+                }
+
+                obj.remove();
+
+                }`;
+
+           }
+           }}; // on user changed
+
 };
 
+// комбо выбиралки типа объекта (вариант для insert_here)
+// input - объект, 
+// types - список типов
+// titles - список названий
+feature "object_change_type2"
+{
+   cot: output={
+
+   text "Образ: ";
+
+   combobox values=@cot->types 
+              titles=@cot->titles 
+                   value=(detect_type @cot->input @.->values)
+                   style="width: 120px;" 
+           {{ on "user_changed_value" {
+              lambda @co->input code=`(obj,v) => {
+                // вот мы спотыкаемся - что это, начальное значение или управление пользователем
+
+                //console.log("existing obj",obj,"creating new obj type",v);
+
+                let dump = obj.dump();
+
+                //console.log("dump is",dump)
+
+                let newobj = obj.vz.createObj({parent: obj.ns.parent});
+                newobj.manual_feature( v );
+                newobj.manuallyInserted=true;
+
+                if (dump) {
+                  if (dump.params)
+                      delete dump.params['manual_features'];
+                  dump.manual = true;
+                  //console.log("restoring dump",dump);
+                  newobj.restoreFromDump( dump, true );
+                }
+
+                obj.remove();
+
+                }`;
+
+           }
+           }}; // on user changed
+
+  };
+};
 
 // рисует набор кнопочек для управления объектами сцены
 /*
@@ -164,23 +207,35 @@ rl_root:
      | sort_by_priority;
      ;
 
+     /// выбор объекта
+
      cbsel: combobox style="margin: 5px;" dom_size=5 
-     //values=(@objects_list->output | arr_map code=(detect_type_l types=));
-       //values=(@objects_list->output | arr_map code="(elem) => elem.params.title || elem.$vz_unique_id");
        values=(@objects_list->output | arr_map code="(elem) => elem.$vz_unique_id")
        titles=(@objects_list->output | map_param "title")
        ;
 
+    /// параметры объекта   
 
-     co: object_change_type_and_gui input=(@objects_list->output | get index=@cbsel->index)
-          types=(@co->input | get_param "sibling_types" )
-          titles=(@co->input | get_param "sibling_titles")
-     {
+     co: column plashka style_r="position:relative;"  
+            input=(@objects_list->output | get index=@cbsel->index)
+      {
+        row {
+          insert_here list=(object_change_type2 input=@co->input
+            types=(@co->input | get_param "sibling_types" )
+            titles=(@co->input | get_param "sibling_titles"));
+        };
+
+        column {
+          insert_children input=@.. list=(@co->input | get_param name="gui");
+        };
+
         button "x" style="position:absolute; top:0px; right:0px;" 
         {
           lambda @co->input code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
         };
+
      };
+
 
   };   
 

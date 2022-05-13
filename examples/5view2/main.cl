@@ -9,6 +9,7 @@ feature "setup_view" {
 };
 
 // подфункция реакции на чекбокс view_settings_dialog
+// идея вынести это в метод вьюшки. типа вкл-выкл процесс.
 feature "toggle_visprocess_view_assoc2" {
 i-call-js 
   code="(cobj,val) => { // cobj объект чекбокса, val значение
@@ -22,10 +23,11 @@ i-call-js
       if (curind < 0) {
         let add = '@' + env.params.process.getPathRelative( view.params.project );
         console.log('adding',add);
-        let nv = view.params.sources_str.split(',').concat([add]).join(',');
+        let filtered = view.params.sources_str.split(',').filter( (v) => v.length>0)
+        let nv = filtered.concat([add]).join(',');
         console.log('nv',nv)
         
-        view.setParam( 'sources_str', nv);
+        view.setParam( 'sources_str', nv, true);
       }
         // видимо придется как-то к кодам каким-то прибегнуть..
         // или к порядковым номерам, или к путям.. (массив objref тут так-то)
@@ -44,11 +46,11 @@ i-call-js
         let curind_in_str = arr.indexOf(p);
         if (curind_in_str >= 0) {
           arr.splice( curind_in_str,1 );
-          view.setParam( 'sources_str', arr.join(','))
+          view.setParam( 'sources_str', arr.join(','), true)
         };
       }
     };
-  };";  
+  };";
 };
 
 feature "the_view" 
@@ -61,15 +63,11 @@ feature "the_view"
     //console_log "tv is " @tv "view procs are" (@tv | geta "sources" | map_geta "getPath");
     qq: tv=@tv; // без этого внутри ссылка на @tv уже не робит..
     @tv->project | geta "processes" | repeater {
-      i: row {
-       //console_log "adding checkbox" (@i->input | get_param "title") "view is" @qq->tv;
-       checkbox value=(@qq->tv | get_param "sources" | arr_contains @i->input)
-         {{ x-on "user-changed" {
+       i: checkbox text=(@i->input | get_param "title") 
+             value=(@qq->tv | get_param "sources" | arr_contains @i->input)
+          {{ x-on "user-changed" {
               toggle_visprocess_view_assoc2 process=@i->input view=@qq->tv;
           } }};
-       text (@i->input | get_param "title");
-
-      };
     };
   }
   {{
@@ -79,7 +77,7 @@ feature "the_view"
   sibling_titles=["Одна сцена","Слева на право"]
 
   //sources=(find-objects-by-crit input=@tv->sources_str root=@tv->project {{ console_log_params}})
-  sources=(find-objects-by-pathes input=@tv->sources_str root=@tv->project {{ console_log_params}})
+  sources=(find-objects-by-pathes input=@tv->sources_str root=@tv->project)
 
   project=@..
   //sources=(find-objects root=@tv->project paths=@tv->sources_pattern features="visual-process")
@@ -122,6 +120,7 @@ feature "pause_input" code=`
 project: active_view_index=1 
   //views=(get-children-arr input=@project | pause_input | arr_filter_by_features features="the-view")
   views=(find-objects-bf features="the-view" root=@project | sort_by_priority)
+  
   //processes=(get-children-arr input=@project | arr_filter_by_features features="visual-process")
   processes=(find-objects-bf features="visual-process" root=@project | sort_by_priority)
 {
@@ -457,26 +456,13 @@ feature "oneview" {
 //lv1: landing-view-1;
 
 feature "render_project" {
-   rend: column padding="1em" project=@.->0 active_view_index=0 {
+   rend: column padding="1em" project=@.->0 active_view_index=0 
+            active_view=(@rend->project|geta "views"|geta @ssr->index){
+
        ssr: switch_selector_row 
                index=@rend->active_view_index
                items=(@rend->project | get_param "views" | map_param "title")
-                //items=["Вид 1","Вид 2","Настройки"] 
-                style_qq="margin-bottom:15px;" {{ hilite_selected }}
-                /*
-                {{ link to="@rend->active_view_index" from="@.->index" manual=true }}
-                
-                {{ x-on "param_index_changed" {
-                     i-call-block {
-                       args: i-args;
-                       setter target="@rend->active_view_index" value=@args->1 manual_mode=true;
-                       //i-set-param target=@rend param="index" value=@args->1;
-                       i-console-log "done" @args->0 @args->1;
-                     };  
-                  };
-                }}
-                */
-                
+               style_qq="margin-bottom:15px;" {{ hilite_selected }}
                 ;
 
        right_col: 
@@ -487,8 +473,29 @@ feature "render_project" {
          };
          collapsible "Настройка вида" {
 
-                     
+           co: column plashka style_r="position:relative;"
+            input=@rend->active_view 
+            {
 
+              row {
+                insert_here list=(object_change_type2 input=@co->input
+                  types=(@co->input | get_param "sibling_types" )
+                  titles=(@co->input | get_param "sibling_titles"));
+              };
+
+              column {
+                insert_here list=(@co->input | get_param name="gui");
+              };
+
+              button "Удалить вид" //style="position:absolute; top:0px; right:0px;" 
+              {
+                lambda @co->input code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
+              };
+           };
+
+           
+
+/*
            render_layers_inner title="Виды" expanded=true
            root=@rend->project
            items=[ { "title":"Виды", 
@@ -496,9 +503,12 @@ feature "render_project" {
                      "add":"the-view",
                      "add_to": "@rend->project"
                    } ];
+*/                   
          };          
 
-       };
+       button_add_object "Добавить вид" add_to=@rend->project add_type="the-view";  
+
+       }; // column справа
 
        of: one_of 
               index=@ssr->index

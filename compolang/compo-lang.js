@@ -432,13 +432,31 @@ export function register_feature( env, envopts ) {
         //console.log("children=",children)
 
         let promarr = [];
+        let first = true;
         for (let cname of Object.keys( children )) {
           var edump = children[cname];
           edump.keepExistingChildren = true; // смехопанорама
           // но иначе применение фичи может затереть созданное другими фичами или внешним клиентом
           edump.keepExistingParams = true;
-          let res = tenv.restoreFromDump( edump );
-          promarr.push( Promise.resolve(res) );
+
+          let res;
+          if (first) {
+            first = false;
+            res = tenv.restoreFromDump( edump );
+          }
+          else {
+            //console.warn("compolang feature: skipping 2nd and rest elem",edump);
+            
+            edump.lexicalParent = tenv;
+            if (tenv.feature_of_env) {              
+              res = env.vz.importAsParametrizedFeature( rec, tenv.feature_of_env );
+            }
+            else {
+              res = tenv.vz.createSyncFromDump( edump,null,tenv.ns.parent );
+            }
+            
+          }
+          promarr.push( Promise.resolve(res) ); 
 
           // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
           // todo тут надо scope env делать и детям назначать, или вроде того
@@ -1984,8 +2002,8 @@ export function insert( env )
   let unsub = env.onvalue("input",(i) => {
     unsub();
 
-    if (env.feature_of_env) {
-       env.setParam("input",env.feature_of_env);
+    if (i.feature_of_env) {
+       //env.setParam("input",i );
        env.feature("insert_features");
      }
      /*else if (env.ns.parent.feature_of_env) { // надо для "генерации"
@@ -1993,7 +2011,7 @@ export function insert( env )
         env.feature("insert_features");
      }*/
      else {
-        env.setParam("input", env.ns.parent );
+        //env.setParam("input", i );
         env.feature("insert_children");
      }
 
@@ -2019,6 +2037,20 @@ export function insert( env )
 export function generate( env )
 {
  let exam_obj = env.ns.parent || env.feature_of_env;
+
+ if (exam_obj.feature_of_env) {
+    env.setParam("input",exam_obj.feature_of_env);
+    env.feature("insert_features");
+ }
+ else {
+    env.setParam("input", exam_obj.ns.parent );
+    env.feature("insert_children");
+ }
+}
+
+export function insert_here( env )
+{
+ let exam_obj = env;
 
  if (exam_obj.feature_of_env) {
     env.setParam("input",exam_obj.feature_of_env);
@@ -2133,7 +2165,6 @@ export function insert_features( env )
         //rec.feature_of_env = env.host;
 
         rec.lexicalParent = env;
-
         let np = env.vz.importAsParametrizedFeature( rec, tenv );
         promarr.push( np );
         let my_ii = ii;
