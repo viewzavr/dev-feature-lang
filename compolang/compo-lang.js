@@ -953,6 +953,7 @@ export function repeater( env, fopts, envopts ) {
   var pending_perform;
   env.onvalue("model",recreate );
   env.onvalue("input",recreate );
+  env.onvalue("target_parent",recreate );
 
   env.addCmd("refresh",() => recreate());
 
@@ -1000,6 +1001,9 @@ export function repeater( env, fopts, envopts ) {
      if (target_parent.is_feature_applied("pipe"))
         target_parent = target_parent.ns.parent;
 
+     if (env.params.target_parent) 
+        target_parent = env.params.target_parent;
+
 
      //////////// вот здесь момент создания.
      // и вопрос - надо добавить или убавить. именно на этот вопрос надо отвечать.
@@ -1021,6 +1025,7 @@ export function repeater( env, fopts, envopts ) {
 
            var edump = children[firstc];
            edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
+           //edump.lexicalParent = env;
 
            var p = env.vz.createSyncFromDump( edump,null,target_parent );
            current_state.push( {promise: p} );
@@ -1051,13 +1056,6 @@ export function repeater( env, fopts, envopts ) {
 
               child_env.setParam("modelData",element);
               child_env.setParam("modelIndex",i);
-
-              /*  
-              created_envs.push( child_env );
-              // выдаем в output созданные объекты
-              if (created_envs.length == model.length)
-                 env.setParam( "output", created_envs );
-              */
 
               env.emit("item-created", child_env);
            });        

@@ -61,7 +61,8 @@ export function render3d( env ) {
     if (!env.renderer) return; // нечего рисовать то
 
     var cam = env.params.camera;
-    if (cam.params) cam = cam.params.output; // случай когда камеру залинковали на объект
+    if (cam.params) 
+        cam = cam.params.output; // случай когда камеру залинковали на объект
     // т.е render3d camera=@somecam
 
     // фича - управление размерами. Альтернативно можно сделать Resize Observer Api
@@ -79,9 +80,11 @@ export function render3d( env ) {
 
       if (installed_h > 0) {
         cam.aspect = installed_w / installed_h;
+        // console.log("updated cam aspect", cam.aspect)
         cam.updateProjectionMatrix();  
       }
 
+      //console.log("renderer setsize",installed_w,installed_h,de, de.offsetWidth)
       env.renderer.setSize( installed_w,installed_h, false );
     }  
     // если делаем на каждом такте то ном, однако..
@@ -316,7 +319,7 @@ export function orbit_control( env ) {
   function update() {
     var c = env.params.camera;
     if (c?.params)
-        c = c.params.target_dom;
+        c = c.params.output;
     var dom = env.ns.parent.params.target_dom;
     //if (typeof(dom) == "function") dom = dom(); // фишка такая
     // т.е. родителем должен быть некто
@@ -327,6 +330,8 @@ export function orbit_control( env ) {
     if (!c) return;
 
     if (cc) cc.dispose();
+
+    //console.log('making orbit controls over camera c',c, 'and dom ',dom);
     
     cc = new OrbitControls( c, dom );
 

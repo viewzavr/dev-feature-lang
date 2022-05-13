@@ -61,42 +61,33 @@ feature "the_view"
   gui={ 
     render-params @tv; 
     //console_log "tv is " @tv "view procs are" (@tv | geta "sources" | map_geta "getPath");
+
     qq: tv=@tv; // без этого внутри ссылка на @tv уже не робит..
-    @tv->project | geta "processes" | repeater {
-       i: checkbox text=(@i->input | get_param "title") 
-             value=(@qq->tv | get_param "sources" | arr_contains @i->input)
+    text "Отображаемые процессы:";
+    //qoco: param_field name="Отображаемые процессы" { column; };
+
+    @tv->project | geta "processes" | repeater //target_parent=@qoco 
+    {
+       i: checkbox text=(@i->input | geta "title") 
+             value=(@qq->tv | geta "sources" | arr_contains @i->input)
           {{ x-on "user-changed" {
               toggle_visprocess_view_assoc2 process=@i->input view=@qq->tv;
           } }};
     };
+
   }
   {{
     x-param-string name="title";
   }}
   sibling_types=["the-view","the-view-row"] 
   sibling_titles=["Одна сцена","Слева на право"]
-
-  //sources=(find-objects-by-crit input=@tv->sources_str root=@tv->project {{ console_log_params}})
   sources=(find-objects-by-pathes input=@tv->sources_str root=@tv->project)
-
   project=@..
-  //sources=(find-objects root=@tv->project paths=@tv->sources_pattern features="visual-process")
-  //sources=(find-objects-bf root=@tv->project features="visual-process")
-  //find-objects-bf features="visual-process" root=@project | sort_by_priority
-
-  // arr_map @tv->sources code="(s) => s.getPathRelative( env )"
-  // i-arr_map @tv->sources { i-call-func @.->input "getPathRelative" @tv }
-
-/*
-  {{ x-on "param_sources_changed" {
-     i-call-js code="(obj,sources) => {
-        sources.map
-        for (let s of sources)
-      ";
-    }
-  }}
-*/  
-  ;
+  camera=@cam
+  {
+     cam: camera3d pos=[-400,350,350] center=[0,0,0];
+     // вот бы метод getCameraFor(i).. т.е. такое вычисление по запросу..
+  };
   
 };
 
@@ -279,7 +270,7 @@ feature "show_visual_tab_row" {
     row {
 
     svlist: column {
-      repeater input=(@sv->input | get_param "sources") {
+      repeater input=(@sv->input | geta "sources") {
         mm: 
          row {
         //dom tag="fieldset" style="border-radius: 5px; padding: 2px; margin: 2px;" {
@@ -313,6 +304,9 @@ feature "show_visual_tab_row" {
         }; // fieldset
       }; // repeater
 
+      //@repa->output | render-guis;
+      //render-params @rrviews;
+
     }; // svlist
 
     extra_settings_panel_outer: row gap="2px" {
@@ -323,35 +317,39 @@ feature "show_visual_tab_row" {
       };
       button "&lt;" style_h="height:1.5em;" visible=(eval @extra_settings_panel->list code="(list) => list && list.length>0") 
       {
-        setter target="@extra_settings_panel->list" value=[];
+         setter target="@extra_settings_panel->list" value=[];
       };
     }; // extra_settings_panel_outer
 
     }; // row
 
-    row style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2" 
+    //cam: output=(@sv->input | geta "camera");
+
+    rrviews: row style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2;
+        justify-content: center;
+    " 
     {
-      repeater input=(@sv->input | get_param "sources") {
+      repa: repeater input=(@sv->input | geta "sources") {
         src: 
-          view3d {
+          view3d style="flex: 1 1 0; width: 100px;" {
 
           r1: render3d 
               bgcolor=[0.1,0.2,0.3]
               target=@src //{{ skip_deleted_children }}
-              input=(@src->input | map_param "scene3d")
+              input=(@src->input | geta "scene3d")
+              camera=(@sv->input | geta "camera")
               {
-                  camera3d pos=[-400,350,350] center=[0,0,0];
                   // идея надо просто камеру в инпут утащить. шоб она там была. да и все.
                   // но опять же а может ее во вьюшку надо утащить.
                   // кстати я же делал как-то синхронизацию камер.. 
-                  orbit_control;
+                  orbit_control; // camera=@cam;
               };
           
               // плоское
               column style="padding-left:2em; min-width: 100%;
                  position:absolute; bottom: 1em; left: 1em;" {
                  dom_group 
-                   input=(@src->input | map_param "scene3d");
+                   input=(@src->input | geta "scene2d");
               };
               
         }; // view3d
@@ -461,7 +459,7 @@ feature "render_project" {
 
        ssr: switch_selector_row 
                index=@rend->active_view_index
-               items=(@rend->project | get_param "views" | map_param "title")
+               items=(@rend->project | get_param "views" | sort_by_priority | map_param "title")
                style_qq="margin-bottom:15px;" {{ hilite_selected }}
                 ;
 
