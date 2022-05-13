@@ -485,7 +485,10 @@ feature "render_project" {
          button "Настройка соответствий" {
             view_settings_dialog project=@rend->project;
          };
-         collapsible "Настройка видов" {
+         collapsible "Настройка вида" {
+
+                     
+
            render_layers_inner title="Виды" expanded=true
            root=@rend->project
            items=[ { "title":"Виды", 

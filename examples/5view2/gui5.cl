@@ -46,41 +46,14 @@ feature "sort_by_priority"
        }";    
 };
 
-// рисует набор кнопочек для управления объектами сцены
-/*
-   пример
-    render_layers 
-         title="Визуальные объекты" 
-         root=@vroot
-         items=[ {"title":"Объекты данных", find":"guiblock datavis","add":"linestr"},
-                 {"title":"Статичные","find":"guiblock staticvis","add":"axes"},
-                 {"title":"Текст","find":"guiblock screenvis","add":"select-t"}
-               ];
-
-   заметки
-    sibling_titles sibling_types - внедрены в. мб вынести            
-*/
-
-feature "render_layers_inner" {
-
-rl_root: 
-    column text=@.->title
-    style="min-width:250px" 
-    style_h = "max-height:80vh;"
-
-    {
-     s: switch_selector_row {{ hilite_selected }} 
-         items=(@rl_root->items | arr_map code="(v) => v.title")
-         plashka style_qq="margin-bottom:0px !important;"
-         ;
-
-     button "Добавить" margin="0.5em" {
+feature "button_add_object" {
+  bt_root: button "Добавить" margin="0.5em" {
         
-        link from=(@rl_root->items | get @s->index | get "add_to") to="@cre->target";
+        link from=@bt_root->add_to to="@cre->target";
 
-        cre: creator input={} // target=@r1
+        cre: creator input={}
           {{ onevent name="created" 
-             newf=(@rl_root->items | get @s->index | get "add")
+             newf=@bt_root->add_type
              code=`
                  args[0].manuallyInserted=true;
 
@@ -96,7 +69,93 @@ rl_root:
                  console.log("created",args[0])
              `
           }};
-     };
+     };    
+};
+
+feature "object_change_type" {
+   co: ;
+
+   row {
+     text "Образ: ";
+     combobox  values=@co->types 
+               titles=@co->titles 
+               value=(detect_type @co->input @.->values)
+               style="width: 120px;" 
+       {{ on "user_changed_value" {
+          lambda @co->input code=`(obj,v) => {
+            // вот мы спотыкаемся - что это, начальное значение или управление пользователем
+
+            //console.log("existing obj",obj,"creating new obj type",v);
+
+            let dump = obj.dump();
+
+            //console.log("dump is",dump)
+
+            let newobj = obj.vz.createObj({parent: obj.ns.parent});
+            newobj.manual_feature( v );
+            newobj.manuallyInserted=true;
+
+            if (dump) {
+              if (dump.params)
+                  delete dump.params['manual_features'];
+              dump.manual = true;
+              //console.log("restoring dump",dump);
+              newobj.restoreFromDump( dump, true );
+            }
+
+            obj.remove();
+
+            }`;
+
+       }
+       }}; // on user changed
+   };    
+};
+
+// input - объект, 
+// types - список типов
+// titles - список названий
+feature "object_change_type_and_gui" {
+  co: column plashka style_r="position:relative;"  
+  {
+   object_change_type input=@co->input;  
+   column {
+      insert_children input=@.. list=(@co->input | get_param name="gui");
+   };
+  };
+};
+
+
+// рисует набор кнопочек для управления объектами сцены
+/*
+   пример
+    render_layers 
+         title="Визуальные объекты" 
+         root=@vroot
+         items=[ {"title":"Объекты данных", find":"guiblock datavis","add":"linestr","add_to":"@some->path_param"},
+                 {"title":"Статичные","find":"guiblock staticvis","add":"axes"},
+                 {"title":"Текст","find":"guiblock screenvis","add":"select-t"}
+               ];
+
+   заметки
+    sibling_titles sibling_types - внедрены в. мб вынести            
+*/
+
+
+feature "render_layers_inner" {
+
+rl_root: 
+    column text=@.->title
+    style="min-width:250px" 
+    style_h = "max-height:80vh;"
+    {
+     s: switch_selector_row {{ hilite_selected }} 
+         items=(@rl_root->items | arr_map code="(v) => v.title")
+         plashka style_qq="margin-bottom:0px !important;"
+         ;
+
+     button_add_object add_to=(@rl_root->items | get @s->index | get "add_to")
+                       add_type=(@rl_root->items | get @s->index | get "add");
 
      objects_list:
      find-objects-bf (@rl_root->items | get @s->index | get "find") 
@@ -111,58 +170,19 @@ rl_root:
        values=(@objects_list->output | arr_map code="(elem) => elem.$vz_unique_id")
        titles=(@objects_list->output | map_param "title")
        ;
-       
 
-     co: column plashka style_r="position:relative;" 
-       input = (@objects_list->output | get index=@cbsel->index )
+
+     co: object_change_type_and_gui input=(@objects_list->output | get index=@cbsel->index)
+          types=(@co->input | get_param "sibling_types" )
+          titles=(@co->input | get_param "sibling_titles")
      {
-               //text (@co->input);
-               row {
-                 text "Образ: ";
-                 combobox  values=(@co->input | get_param "sibling_types" )
-                           titles=(@co->input | get_param "sibling_titles")
-                           value=(detect_type @co->input @.->values)
-                           style="width: 120px;" 
-                   {{ on "user_changed_value" { // "param_value_changed"
-                      lambda @co->input code=`(obj,v) => {
-                        // вот мы спотыкаемся - что это, начальное значение или управление пользователем
+        button "x" style="position:absolute; top:0px; right:0px;" 
+        {
+          lambda @co->input code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
+        };
+     };
 
-                        //console.log("existing obj",obj,"creating new obj type",v);
-
-                        let dump = obj.dump();
-
-                        //console.log("dump is",dump)
-
-                        let newobj = obj.vz.createObj({parent: obj.ns.parent});
-                        newobj.manual_feature( v );
-                        newobj.manuallyInserted=true;
-
-                        if (dump) {
-                          if (dump.params)
-                              delete dump.params['manual_features'];
-                          dump.manual = true;
-                          //console.log("restoring dump",dump);
-                          newobj.restoreFromDump( dump, true );
-                        }
-
-                        obj.remove();
-
-                        }`;
-
-                   }
-                   }};
-               };
-               
-               column {
-                  insert_children input=@.. list=(@co->input | get_param name="gui");
-               };
-
-               button "x" style="position:absolute; top:0px; right:0px;" 
-               {
-                 lambda @co->input code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
-               };  
-             };
-          };
+  };   
 
 };
 
