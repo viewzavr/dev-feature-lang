@@ -52,7 +52,7 @@ export function map_geta( env )
     unsub_all();
 
     if (input_arr == null) { // вроде как норм вариант проверять и на ундефинет
-      env.setParam( "output",undefined );
+      env.setParam( "output",env.single_geta_mode ? null : [] );
       return;
     }
 
@@ -66,6 +66,12 @@ export function map_geta( env )
 
     if (!Array.isArray(input_arr)) {
       console.error("map_geta: input is not array!",input_arr);
+      env.setParam( "output",env.single_geta_mode ? null : [] );
+      return;
+    }
+
+    if (input_arr.length == 0) {
+      env.setParam( "output",env.single_geta_mode ? null : [] );
       return;
     }
 
@@ -99,12 +105,14 @@ export function map_geta( env )
   let schedule_update_output = env.delayed( () => {
     //console.log("output of map-geta", output, env.getPath())
     // спец счетчик чтобы проходило фильтр во вьюзавре на тему изменения объектов
-    output.$vz_param_state_counter = (output.$vz_param_state_counter || 0) +1;
-
-    env.setParam("output",output);
+    // нахер это - накололся
+    //output.$vz_param_state_counter = (output.$vz_param_state_counter || (env.$vz_unique_id*1024)) +1;
+    //env.setParam("output",output);
     //env.setParamWithoutEvents("output",output);
     //env.signalParam("output");
     // типа так оно не отразит что поменялось
+
+    env.setParam("output",[...output]);
   });
 
   function process1( input, unsub_struc, index ) {

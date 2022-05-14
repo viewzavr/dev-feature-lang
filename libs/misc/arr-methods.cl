@@ -229,3 +229,35 @@ register_feature name="arr_contains"
     env.setParam("output",res);
   }
 `;
+
+/*
+register_feature name="arr_uniq" {
+  geta (i-call-js code=("(arr) => [...new Set(arr)]"))
+};
+*/
+
+
+register_feature name="arr_uniq"
+  code=`
+
+  env.onvalues_any(["input",0],process);
+
+  function process(arr,elem) {
+    if (!Array.isArray(arr)) {
+      env.setParam("output",false);
+      return;
+    }
+
+/*
+    function onlyUnique(value, index, self) {
+      return self.indexOf(value) === index;
+    }
+
+    let res = arr.filter( onlyUnique );
+
+*/    
+    let res = [...new Set(arr)];
+    env.setParam("output",res);
+    
+  }
+`;

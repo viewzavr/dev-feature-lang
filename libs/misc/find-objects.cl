@@ -58,13 +58,19 @@ feature "find-objects-by-pathes" {
 	ee: input=@.->0 
 	    output=@m->output
 	{
-		eval @ee->input code="(p) => p.split(',').map(s => s.trim())"
+		eval @ee->input code="(p) => {
+			  if (p === '') return [];
+			  return p.split(',').map(s => s.trim())
+		}"
+		//| console_log_input "find-objects-by-pathes pt1"
 		|
 		r: repeater {
 			find-one-object root=@ee->root;
 		}
+		//| console_log_input "find-objects-by-pathes pt2"
 		|
-		m: map_geta "output"		
+		m: map_geta "output"	
+		//| console_log_input "find-objects-by-pathes pt3"
 		;
 	};
 };
@@ -86,12 +92,13 @@ feature "find-objects-by-pathes" {
 feature "find-objects-by-crit" {
 	ee: input=@.->0 
 	    output=@m->output
-	    root=@/
+	    root=@/ //{{ console_log_params "crit objs"}}
 	{
 		eval @ee->input code="(p) => p.split(',').map(s => s.trim())"
+		//| console_log_input "UU: after eval"
 		|
-		r: repeater {
-			q: {
+		r: repeater always_recreate=true {
+			q:  {
 				splitted: eval @q->input code="(str) => str.split(/\s+/)";
 				//console_log "splitted test" @splitted->output (@splitted->output | geta 0);
 				i: if ( (@splitted->output | geta 0 0) == "@") then={
@@ -122,14 +129,20 @@ feature "find-objects-by-crit" {
 				  };
 			} // q
 		} // рипитер
-		//| console_log_input "after repeater"
+		//| console_log_input "UU: after repeater"
 		| // в итоге репитер выдает нам массив объектов в параметром .output
 		map_geta "output" // где output это может быть объект или массив объектов или пустота
-		//| console_log_input "after output fields join"
+		//| console_log_input "UU: after output fields join"
 		| // получили серию значений возможно некоторые из них массивы - схлопнем
 		geta "flat"
+		//| console_log_input "UU: after flat"
 		|
-		m: arr_compact;
+		arr_uniq // выяснилось что там могут быть разные правила а дать одинаковых объектов а нам это не надо
+		//| console_log_input "UU: after uniq"
+		|
+		m: arr_compact
+		//| console_log_input "UU: after compact"		
+		;
 	};
 };
 
