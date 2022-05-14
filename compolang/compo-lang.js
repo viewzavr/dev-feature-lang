@@ -1075,12 +1075,11 @@ export function repeater( env, fopts, envopts ) {
               let element = model[i];
               child_env.setParam("input",element);
               //child_env.setParam("inputData",element);
-              //child_env.setParam("inputIndex",i);
+              child_env.setParam("input_index",i);
               // короче плохо input - там может быть штука со своим input...
               // поэтом лучше другое имя, хотя бы inputData
 
               child_env.setParam("modelData",element);
-              //child_env.setParam("modelIndex",i);
 
               env.emit("item-created", child_env);
            });        
@@ -1114,7 +1113,7 @@ export function repeater( env, fopts, envopts ) {
               let element = model[i];
               child_env.setParam("input",element);
               child_env.setParam("modelData",element);
-              //child_env.setParam("inputIndex",i);
+              //child_env.setParam("input_index",i); не меняетца
        }
   }
 

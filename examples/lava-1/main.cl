@@ -83,12 +83,12 @@ rend: render3d bgcolor=[0.1,0.2,0.3] target=@view
 
         @dat | ptsa: points radius=@lavaparams->ptradius 
         {{
-           pos3d y=(compute_output in=@pts->modelIndex d=@lavaparams->slice_delta code=`return env.params.in*env.params.d`);
+           pos3d y=(compute_output in=@pts->input_index d=@lavaparams->slice_delta code=`return env.params.in*env.params.d`);
         }} 
         {{ 
            auto_scale size=100 input=@rend->output; 
         }}
-        colors=( @dat | df_get column=@pts->modelData 
+        colors=( @dat | df_get column=@pts->input 
                       | arr_to_colors color_params guitext=@pts->modelData );
 
         text3d_one text=@pts->modelData {{
@@ -96,7 +96,7 @@ rend: render3d bgcolor=[0.1,0.2,0.3] target=@view
           pos3d pos=@box->max;
           //pos3d pos=(compute_output in=@box->center code=`return [env.params.in[0], env.params.in[1] + 5, env.params.in[2]]`);
 
-          //pos3d y=(compute_output in=@pts->modelIndex code=`return env.params.in*5 + 90`) x=60 z=-130;
+          //pos3d y=(compute_output in=@pts->input code=`return env.params.in*5 + 90`) x=60 z=-130;
          }};
       };
         

@@ -529,7 +529,7 @@ register_feature name="switch_selector_column" {
 register_feature name="switch_selector" {
 	root: repeater input=@root->items index=0 {
 			 button text=@.->input {
-			 	 setter target="@root->index" value=@..->modelIndex manual=true;
+			 	 setter target="@root->index" value=@..->input_index manual=true;
 			 };
 		};
 };
@@ -540,7 +540,7 @@ register_feature name="switch_selector_row" {
 		rep: repeater input=@root->items {
 			 button text=@.->input
 			 {
-			 	 setter target="@root->index" value=@..->modelIndex manual=true;
+			 	 setter target="@root->index" value=@..->input_index manual=true;
 			 };
 		};
 	}; // column

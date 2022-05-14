@@ -73,7 +73,7 @@ feature "the_view"
     ba1: @ba0->output | arr_filter_by_features features="visual_process" ;
     ba2: @ba0->output | arr_filter_by_features features="the_view" | arr_filter me=@tv code="(val) => val != env.params.me";
 
-    console_log "ba0=" @ba0->output @ba0;
+    //console_log "ba0=" @ba0->output @ba0;
      //"a1=" @ba1->output "ba2=" @ba2->output;
 
     column {      
@@ -195,7 +195,7 @@ screen1: screen auto-activate  {
   render_project @project active_view_index=1;
 };
 
-debugger-screen-r;
+//debugger-screen-r;
 
 ////////////////////////////////////////////////////////
 
