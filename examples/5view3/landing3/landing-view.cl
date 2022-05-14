@@ -89,10 +89,11 @@ feature "landing-view-base"
 
   view: visual_process title="Возвращение" visible=true 
 
-  exporting_3d
+  show_view={ show_3d_scene input=@view; }
+  exporting_3d exporting_2d
   scene3d=@scene->output
   scene2d=@screen_space->output
-
+  camera=@cam
   gui={
 	
   	column plashka {
@@ -141,6 +142,8 @@ feature "landing-view-base"
 
   {
 
+    cam: camera3d pos=[-400,350,350] center=[0,0,0];
+
 	timeparams: {
 	  time_index: param_slider
 	           min=0 
@@ -186,7 +189,6 @@ feature "landing-view-base"
 	  loaded_data: ;
     link from=@fileparams->input_link to="@loaded_data->output";
 	};
-
 
 	data_compute:
 	{
