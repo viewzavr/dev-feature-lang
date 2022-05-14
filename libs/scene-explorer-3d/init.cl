@@ -9,7 +9,7 @@ vf1: visual-features
 { // выдает - набор окружений с параметрами {title:..., features1:....., features2: ..... } 
   visual-feature title="Flat mode"   body={feat_struc_z_all_0};
   visual-feature title="Head on top" body={feat_struc_golova_naverhu} init_on=true;
-  visual-feature title="Filter" body={feat_filter};
+  visual-feature title="Filter" body={feat_filter} init_on=true;
     //visual-feature title="Hide debugger" body={feat_hide_dbg} init_on=true;
     //visual-feature title="Hide loaders" body={feat_hide_load} init_on=true;
   visual-feature title="Show debugger" body={feat_show_dbg};
@@ -70,13 +70,14 @@ scr: screen {
     cols: two_side_columns {
 
       column gap="0.5em" padding="0.5em" margin="1em" style="background: rgba( 255 255 255 / 25% ); color: white;" {
+        text (join "showing items: " (@sgraph->output | geta "nodes" | geta "length"));
         dom tag="h3" innerText="Selected object" style="margin:0;";
-        text text="path:";
-        text text=@explr->current_object_path;
-        text text="params:";
+        text "path:";
+        text @explr->current_object_path style="max-width:250px";;
+        text "params:";
         render-params object_path=@explr->current_object_path;
 
-        button text="js debugger" curpath=@explr->current_object_path code=`
+        button "js debugger" curpath=@explr->current_object_path code=`
            let obj = env.findByPath( env.params.curpath );
            debugger`;
       };
@@ -104,12 +105,12 @@ scr: screen {
                 render-params object=@fobj;
                 fobj: deploy input=(@cb->modelData | get_param name="body");
                 install_explorer_feature dat=@fobj;
-              }
-            }
+              };
+            };
             
-         }   
+         };   
 
-        }
+        };
       };
 
     };
@@ -216,7 +217,46 @@ register_feature name="obj_titles" code=`
             sprite.textHeight = env.params.obj_title_size || 12;
             sprite.position.z=10;
             return sprite;
-            }
+          }
+          if (node.isparam) {
+
+              let preview = "-";
+              //////////// очень временно и экспериментально.
+              // experiment
+
+/*
+              if (node.name) {
+                node.refobj ||= env.findByPath( node.object_path );
+                // закешируем
+                let refobj = node.refobj;
+                //var refobj = env.findByPath( node.object_path );
+                //console.log("nodelabel called");
+                var val = refobj ? refobj.getParam( node.name ) : "refobj is null";
+                if (!refobj) {
+                  //debugger;
+                  refobj = env.findByPath( node.object_path );
+                }
+
+                // todo: добавить тут наш превьювер строчек
+
+                if (typeof(val) != "undefined" && val.toString)
+                  preview = val.toString ? val.toString().slice(0,80) : val;
+                else
+                  preview = val;
+              };
+*/              
+
+            //const sprite = new SpriteText( node.name + "=" + preview);
+            const sprite = new SpriteText( node.name );
+
+            sprite.material.depthWrite = false; // make sprite background transparent
+            sprite.color = tri2hex([0,0.7,0]); //node.color; //  || 'white'
+            //sprite.color = tri2hex(env.params.obj_title_color || [1,1,1]); //node.color; //  || 'white'
+            //sprite.color = 'white';
+            sprite.textHeight = env.params.obj_title_size/2 || 6;
+            sprite.position.z=10;
+            return sprite;            
+          }
       });
   })
 
@@ -379,20 +419,21 @@ register_feature name="struc_z_golova_naverhu" code=`
 //////////////////// добавка про фильтрацию по имени
 
 register_feature name="feat_filter" {
-  st:
+  st: criteria-string="lib3d-visual"
     {{
-      pattern: param_string value="** lib3d-visual";
+      x-param-string name="criteria-string";
     }}
-  generator-features={ graph_filter pattern=@st->pattern; }
+  generator-features={ graph_filter criteria-string=@st->criteria-string; }
   ;
 };
 
 load files="set-params";
 
 register_feature name="graph_filter" {
-  root: set_params input=@selected->output {
-    selected: find-objects pattern=@root->pattern 
-    | console_log text="FILTERED GRAPH OBJECTS";
+  root: x-set-params input=@selected->output {
+    selected: 
+      find-objects-by-crit input=@root->criteria-string
+      | console_log_input "FILTERED GRAPH OBJECTS";
   };
 };
 
