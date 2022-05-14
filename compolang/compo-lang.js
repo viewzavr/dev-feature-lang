@@ -114,6 +114,11 @@ function parsed2dump( vz, parsed, base_url ) {
 }
 
 var compolang_modules = {};
+var loaded_things = {};
+// временный хак - пока с неймспейсами пакетов не наладилось
+// будем хранить загруженное и даже по нему отсекаться
+// и таким образом register-feature один раз у нас сработает.
+
 // короче решено все делать через load и пусть она разбирается что там.
 // а то уже взрыв мозга, что загружать, package или combolang.
 export function load(env,opts) 
@@ -169,11 +174,16 @@ export function load(env,opts)
      else
       file = env.compute_path( file );
 
+     if (loaded_things[ file ]) {
+        //console.log("returning existing promis for file",file)
+        return loaded_things[ file ];
+     };    
+
      let new_base_url = env.vz.getDir( file );
      //console.log("load: loading",file)
 
      // будем возвращать промису когда там все загрузится
-     return new Promise( (resolve,reject) => {
+     let prom = new Promise( (resolve,reject) => {
 
        fetch( file ).then( (res) => res.text() ).then( (txt) => {
          // нужна sub-env для отслеживания base-url
@@ -181,6 +191,8 @@ export function load(env,opts)
          subenv.feature("simple-lang");
          subenv.addLabel("source_file", file );
          //subenv.setParam("source_file", file );
+
+         //console.log("interpreting file", file )
          let p1 = subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url, diag_file: file } );
 
          // было
@@ -192,6 +204,16 @@ export function load(env,opts)
        });
 
      });
+
+/*
+     if (loaded_things[ file ]) {
+       debugger;
+     }
+*/     
+
+     //console.log("returning new promis for file",file)
+     loaded_things[ file ] = prom;
+     return prom;
   }
 }
 
@@ -1007,6 +1029,9 @@ export function repeater( env, fopts, envopts ) {
 
      //////////// вот здесь момент создания.
      // и вопрос - надо добавить или убавить. именно на этот вопрос надо отвечать.
+
+     if (env.params.always_recreate)
+        decrease_state_to( 0 );
     
      // у нас есть уже состояние - что то создано, на что то поданы заявки
      // и нам надо сообразно актуализироваться в связи с вновь поступившим заказом.
@@ -1049,13 +1074,13 @@ export function repeater( env, fopts, envopts ) {
 
               let element = model[i];
               child_env.setParam("input",element);
-              child_env.setParam("inputData",element);
-              child_env.setParam("inputIndex",i);
+              //child_env.setParam("inputData",element);
+              //child_env.setParam("inputIndex",i);
               // короче плохо input - там может быть штука со своим input...
               // поэтом лучше другое имя, хотя бы inputData
 
               child_env.setParam("modelData",element);
-              child_env.setParam("modelIndex",i);
+              //child_env.setParam("modelIndex",i);
 
               env.emit("item-created", child_env);
            });        
@@ -1089,6 +1114,7 @@ export function repeater( env, fopts, envopts ) {
               let element = model[i];
               child_env.setParam("input",element);
               child_env.setParam("modelData",element);
+              //child_env.setParam("inputIndex",i);
        }
   }
 
@@ -2279,6 +2305,10 @@ export function insert_children( env )
      let ii=0;
      for (let tenv of to_deploy_to) {
       for (let edump of features_list) {
+          if (!edump) {
+            console.warn("insert_children: empty feature in list",features_list, env.getPath())
+            continue; // бывает пустое присылают..
+          }
 
           edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
           
@@ -2290,7 +2320,6 @@ export function insert_children( env )
        }
       ii++;
      };
-  
 
      Promise.all(parr).then( (values) => {
        env.emit("after_deploy",values);
