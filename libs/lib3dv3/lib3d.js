@@ -61,7 +61,7 @@ export function render3d( env ) {
     if (!env.renderer) return; // нечего рисовать то
 
     var cam = env.params.camera;
-    if (cam.params) 
+    if (cam?.params) 
         cam = cam.params.output; // случай когда камеру залинковали на объект
     // т.е render3d camera=@somecam
 
@@ -90,6 +90,9 @@ export function render3d( env ) {
     // если делаем на каждом такте то ном, однако..
     cam.aspect = installed_w / installed_h;
     cam.updateProjectionMatrix();  
+
+    // хак временных (хыхы)
+    // update_scene();
 
     env.renderer.render( env.scene, cam );
   }
