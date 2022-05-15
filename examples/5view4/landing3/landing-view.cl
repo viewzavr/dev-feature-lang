@@ -45,8 +45,8 @@ feature "landing-view"
     // фича синхронизации.. может быть ее стоит по ифу сделать
     // или в универсальные блоки вытащить
     @aview->subprocesses | insert_children {
-      link from="@aview->time_index" to=".->external_time_index" tied_to_parent=true;
-      link to="@aview->time_index" from=".->time_index" tied_to_parent=true;
+      link from="@aview->time_index" to=".->external_time_index" tied_to_parent=true manual_mode=true;
+      link to="@aview->time_index" from=".->time_index" tied_to_parent=true manual_mode=true;
       };
     
   };
@@ -159,14 +159,14 @@ feature "landing-view-base"
 
 	timeparams: {
     link from="@timeparams->time_index" to="@view->time_index";
-    link to="@timeparams->time_index" from="@view->external_time_index";
+    link to="@timeparams->time_index" from="@view->external_time_index" manual_mode=true;
     
 
 	  time_index: param_slider
 	           min=0 
 	           max=(@internal_columns_dat->output | get "length" | @.->input - 1)
 	           step=1 
-	           value=@timeparams->time
+	           value=@time->index
 	           ;
 
 	      time: param_combo 
