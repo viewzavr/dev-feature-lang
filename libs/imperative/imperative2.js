@@ -171,7 +171,7 @@ export function i_call_js( env )
 
 };
 
-// вызывает функцию, указанную в первом аргументе
+// вызывает i-функцию, указанную в первом аргументе
 // кстати вот интересно.. процесс не вызывает, процесс генерирует функцию, которая есть
 // вызов другой функции, вот в чем прикол то. ну и еще локальные аргументы процесса бы учеть
 // которые в env заданы.
@@ -411,5 +411,32 @@ export function i_more( env ) {
 
 }
 
+export function i_emit( env ) {
+  env.feature("i_call_js");
+  env.setParam("code",f);
+  function f( event_name,...args ) {
+    let tgt = env.params.input;
+    if (!Array.isArray(tgt)) tgt=[tgt];
+    for (let r of tgt) {
+      if (r.emit) {
+        r.emit( event_name, ...args );
+      }
+    }
+  }
 
+};
 
+export function i_set_param( env ) {
+  env.feature("i_call_js");
+  env.setParam("code",f);
+  function f( name,value ) {
+    let tgt = env.params.input;
+    if (!Array.isArray(tgt)) tgt=[tgt];
+    for (let r of tgt) {
+      if (r.setParam) {
+        r.setParam( event_name, value, env.params.manual );
+      };
+    }
+  }
+
+};

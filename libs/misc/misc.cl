@@ -4,7 +4,7 @@ code="
   env.on('appendChild',(c) => {
     cnt++;
     if (cnt > 1 
-        && c.ns.name !== 'arg_link_to' // тупняк конечно - чтобы разрешить условия вида if @alfa
+        && c.ns.name.indexOf('arg_link_to')<0 // тупняк конечно - чтобы разрешить условия вида if @alfa
         )
       console.warn('if: extra children found!',c.getPath());
   });
@@ -12,7 +12,8 @@ code="
 {
   i: 
     {
-    generate
+      //insert input=@i->..
+      insert_siblings_to_parent
        list=(eval @i->0 @i->then @i->else allow_undefined=true
              code="(cond,t,e) => {
                return cond ? t : e

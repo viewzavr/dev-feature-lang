@@ -262,6 +262,7 @@ register_feature name="combobox" {
 
 	   function recompute_index() {
 	   	  let index = (main.params.values || []).indexOf( main.params.value );
+	   	  console.log("recompute_index called, values are",main.params.values,main.params.value,index)
 	      main.setParam("index",index);
 	      setup_index();
 	   }

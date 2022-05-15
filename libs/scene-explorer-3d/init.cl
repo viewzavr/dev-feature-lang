@@ -419,22 +419,31 @@ register_feature name="struc_z_golova_naverhu" code=`
 //////////////////// добавка про фильтрацию по имени
 
 register_feature name="feat_filter" {
-  st: criteria-string="lib3d-visual"
+  st: criteria-string="screen22"
     {{
       x-param-string name="criteria-string";
     }}
-  generator-features={ graph_filter criteria-string=@st->criteria-string; }
+  generator-features={ 
+    graph_filter criteria-string=@st->criteria-string; 
+  }
   ;
 };
 
-load files="set-params";
+load "set-params";
 
 register_feature name="graph_filter" {
-  root: x-set-params input=@selected->output {
-    selected: 
-      find-objects-by-crit input=@root->criteria-string
-      | console_log_input "FILTERED GRAPH OBJECTS";
-  };
+  root:
+    if @scr->visible then={
+       x-set-params 
+         input=(find-objects-by-crit 
+                   input=@root->criteria-string
+                | console_log_input "FILTERED GRAPH OBJECTS"
+                );
+    } else={
+      
+      x-set-params input=[];
+    };
+  ;
 };
 
 //////////////////// скрыть отладчик

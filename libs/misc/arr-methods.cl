@@ -9,6 +9,7 @@ register_feature name="arr_filter_by_features"
 {
   arr_filter code="(val,index) => {
      //let features = env.params.features.split(' ');
+     
      return val.is_feature_applied( env.params.features );
   }";
 };

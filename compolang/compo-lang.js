@@ -470,8 +470,8 @@ export function register_feature( env, envopts ) {
             //console.warn("compolang feature: skipping 2nd and rest elem",edump);
             
             edump.lexicalParent = tenv;
-            if (tenv.feature_of_env) {              
-              res = env.vz.importAsParametrizedFeature( rec, tenv.feature_of_env );
+            if (tenv.hosted) {              
+              res = env.vz.importAsParametrizedFeature( rec, tenv.host );
             }
             else {
               res = tenv.vz.createSyncFromDump( edump,null,tenv.ns.parent );
@@ -555,6 +555,20 @@ export function base_url_tracing( env, opts )
     return file;
   }
 }
+
+/*
+export function path_to_param_value( env )
+{
+   env.addParamRef("input");
+}   
+
+feature "link" {
+  l: {
+    v1: path_to_param_value input=@l->from;
+    set_param path=@l->to value=@v1->output;
+  }
+}
+*/
 
 //////////////////////////////////////////
 // устанавливает параметр при вызове команды apply
@@ -2025,7 +2039,7 @@ export function insert( env )
   let unsub = env.onvalue("input",(i) => {
     unsub();
 
-    if (i.feature_of_env) {
+    if (i.hosted) {
        //env.setParam("input",i );
        env.feature("insert_features");
      }
@@ -2057,12 +2071,12 @@ export function insert( env )
 
 // работает как insert но на родителя / аттачед окружение.
 // т.е. делает как бы для дедушки/бабушки.
-export function generate( env )
+export function insert_siblings_to_parent( env )
 {
- let exam_obj = env.ns.parent || env.feature_of_env;
+ let exam_obj = env.ns.parent || env.host;
 
- if (exam_obj.feature_of_env) {
-    env.setParam("input",exam_obj.feature_of_env);
+ if (exam_obj.hosted) {
+    env.setParam("input",exam_obj.host);
     env.feature("insert_features");
  }
  else {
@@ -2075,8 +2089,8 @@ export function insert_here( env )
 {
  let exam_obj = env;
 
- if (exam_obj.feature_of_env) {
-    env.setParam("input",exam_obj.feature_of_env);
+ if (exam_obj.hosted) {
+    env.setParam("input",exam_obj.host);
     env.feature("insert_features");
  }
  else {
@@ -2260,7 +2274,9 @@ export function insert_children( env )
 
   env.setParam("use_children",true);
 
-  env.createLinkTo( {param:"input",from:"~->0",soft:true });
+  env.feature( "param_alias");
+  env.addParamAlias( "input", 0 );
+  //env.createLinkTo( {param:"input",from:"~->0",soft:true });
 
   env.restoreChildrenFromDump = (dump, ismanual) => {
     children = dump.children;
