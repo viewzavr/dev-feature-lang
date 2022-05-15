@@ -3,8 +3,6 @@
 // причем это часть вида отображения, хоть и существенная. потому что потом мы их комплексируем всяко.
 // ну ладно главное нАчать
 
-load "../lib/ban-deleted4.cl";
-
 feature "landing-file" {
   view: visual_process title="Файл с данными ракеты" visible=true 
     output=@loaded_data->output
