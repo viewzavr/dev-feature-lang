@@ -269,6 +269,7 @@ feature "landing-view-base"
     // по идее это далее не надо - можно просто массивы наружу выдавать
 
     //insert_children input=@scene list=@view->scene3d_items;
+    //insert_children input=@scene list=@view->scene3d_items active=(is_default @scene) manual=true;
     insert_default_children input=@scene list=@view->scene3d_items;
 
     scene: node3d visible=@view->visible

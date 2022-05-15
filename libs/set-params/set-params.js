@@ -98,7 +98,7 @@ export function param_subchannels(env)
      let notified = {};
      for (let c of env.$subchannels) {
         for (let q of Object.keys(c.params)) {
-           orig_setParam( q, c.params[q] ); // тут правда manual собъется мб, ну ладно пока
+           orig_setParam( q, c.params[q], env.getParamManualFlag(q) );
            notified[q] = true;
         }
      }

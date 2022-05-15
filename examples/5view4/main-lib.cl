@@ -37,6 +37,21 @@ feature "insert_default_children" code=`
 
 `;
 
+feature "is_default" code=`
+  env.feature( "param_alias");
+  env.addParamAlias( "input", 0 );
+  env.onvalues(["input"],(input) => {
+     vzPlayer.getRoot().onvalue("dump_loaded",(dl) => {
+        //console.log("see input and list, and dump-loaded is true",input.params.manual_restore)
+        if (input.params.manual_restore) {
+           //console.log("not doing job - there is data from dump")
+        }
+        else env.setParam("output",true);
+     });
+  });
+
+`;
+
 /*
 recv @/ "dump-loaded" -> send @insert_children active=true
 ||

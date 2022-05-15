@@ -2273,6 +2273,7 @@ export function insert_children( env )
   var created_envs = [];
 
   env.setParam("use_children",true);
+  env.setParam("active",true);
 
   env.feature( "param_alias");
   env.addParamAlias( "input", 0 );
@@ -2284,9 +2285,11 @@ export function insert_children( env )
     return Promise.resolve("success");
   }
   
-  env.onvalues_any(["input","list"],perform);
+  env.onvalues_any(["input","list","active"],perform);
 
   function perform() {
+    if (!env.params.active) return;
+
     let input = env.params.input || [];
     if (!Array.isArray(input)) input=[input]; // допускаем что не список а 1 штука
     let features = env.params.list;
@@ -2325,10 +2328,17 @@ export function insert_children( env )
             continue; // бывает пустое присылают..
           }
 
+          if (env.params.manual) {
+            edump.manual = true;
+            edump.params.manual_features = Object.keys( edump.features ).filter( (f) => f != "base_url_tracing");
+          }
+
           edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
-          var p = env.vz.createSyncFromDump( edump,null,tenv );
+          var p = env.vz.createSyncFromDump( edump,null,tenv, edump.$name, env.params.manual );
           p.then( (child_env) => {
              created_envs.push( child_env );
+
+             if (env.params.manual) child_env.manuallyInserted = true;
           });
           parr.push(p);
        }
