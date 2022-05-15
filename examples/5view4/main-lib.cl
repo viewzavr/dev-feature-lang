@@ -122,7 +122,7 @@ feature "show_sources_params"
             x-set-params visible=@cbv->value ;
             x-on "show-settings" {
               lambda @extra_settings_panel code="(panel,obj,settings) => {
-                 // console.log('got x-on show-settings',obj,settings)
+                 console.log('got x-on show-settings',obj,settings)
                  // todo это поведение панели уже..
                  // да и вообще надо замаршрузизировать да и все будет.. в панель прям
                  // а там типа событие или тоже команда

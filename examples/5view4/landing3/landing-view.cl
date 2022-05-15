@@ -65,6 +65,7 @@ feature "landing-view-1" {
              data_adjust="curtime";
 
         // вроде как не нужны - смотрелкой добавляются.. axes;
+        axes;
         pole;
         kvadrat;
         // Иван сказал не надо столбик - есть уже оси известных размеров.
@@ -83,6 +84,7 @@ feature "landing-view-2" {
 
         // вроде как не нужны - смотрелкой добавляются.. axes;
         setka;
+        axes;
 	  }
 	  scene2d_items={
 	  	selectedvars;
@@ -324,7 +326,10 @@ models: feature {
 };
 
 feature "axes"  {
-       main: axes_box size=100 staticvis; 
+       //main: axes_box size=100 staticvis; 
+       // таким образом тут используется визуальный процесс
+       // но пока ему нужна метка staticvis..
+       axes-view size=100 staticvis;
 };
 
 feature "pole" {
