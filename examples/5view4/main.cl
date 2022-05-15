@@ -128,25 +128,21 @@ project: active_view_index=1
   //processes=(get-children-arr input=@project | arr_filter_by_features features="visual-process")
   processes=(find-objects-bf features="visual-process" root=@project | sort_by_priority)
 {
-  lf: landing-file;
-  lv: landing-view;
-  a1: axes-view size=100;
-  a2: axes-view title="Оси координат 2";
 
-  v0: the-view-mix3d title="Данные" 
-      sources_str="@lf"
-  {
-  };
+  insert_default_children input=@project list={
+    lf: landing-file;
+    lv: landing-view;
+    a1: axes-view size=100;
+    a2: axes-view title="Оси координат 2";
 
-  v1: the-view-mix3d title="Общий вид" 
-      sources_str="@lv/lv1 ,@a1";
-  {
-    
-  };
+    v0: the-view-mix3d title="Данные" 
+        sources_str="@lf";
 
-  v2: the-view-mix3d title="Вид на ракету" 
-      sources_str="@lv/lv2,@a2";
-  {
+    v1: the-view-mix3d title="Общий вид" 
+        sources_str="@lv/lv1 ,@a1";
+
+    v2: the-view-mix3d title="Вид на ракету" 
+        sources_str="@lv/lv2,@a2";
   };
 
   /*
@@ -343,8 +339,9 @@ feature "render_project" {
             input=@rend->active_view 
             {
 
-              row {
-                object_change_type input=@co->input
+              column {
+                object_change_type text="Способ отображения:"
+                   input=@co->input
                    types=(@co->input | get_param "sibling_types" )
                    titles=(@co->input | get_param "sibling_titles");
               };

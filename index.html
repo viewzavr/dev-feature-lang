@@ -132,9 +132,12 @@
           //console.log("done catched",res)
 
           obj.delayed( () => {
-            vzPlayer.loadFromHash();
-            console.log("restored");
-            vzPlayer.startSavingToHash();
+            console.log("global: issuing load from hash");
+            vzPlayer.loadFromHash().then( () => {
+              console.log("restored. emitting global dump-loaded");
+              vzPlayer.getRoot().emit("dump-loaded");
+              vzPlayer.startSavingToHash();
+            })
           },2)(); // все ссылки отработают (им нужен 1 такт)
           // но хотя и это спорно
           

@@ -185,7 +185,7 @@ export function render_gltf( obj ) {
 
       obj.doload( loader, src ).then( function( gltf ) {
           if (gltf.scene) gltf.scene.$viewzavr_parent_obj = obj;
-          console.log( "loaded gltf",gltf );
+          //console.log( "loaded gltf",gltf );
           clear();
 
           obj.gltf = gltf;

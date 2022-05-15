@@ -1,3 +1,76 @@
+
+// input - куды
+// list - чиво
+feature "insert_default_children" code=`
+
+  console.log("insert_default_children welcome screen",env.getPath())
+
+  let manual_restore = false;
+
+  env.onvalue("input",(inp) => {
+    console.log("input detected, waiting it's manual-restore event",env.getPath(),"input=",inp.getPath())
+    inp.once("manual-restore",() => {
+      console.log("input manual-restore event detected",env.getPath())
+      manual_restore = true;
+      // это летит когда объект вызывают restore from dump типа из конфига...
+    })
+  });
+
+  let performed = false;
+
+  vzPlayer.getRoot().once("dump-loaded",() => {
+    console.log("i see window dump loaded event",env.getPath());
+    if (manual_restore) {
+      // ниче не делаем
+      console.log("i see manual restore performed, doing nothing",env.getPath());
+    }
+    else {
+      // ну таки да - надо действовать
+      console.log("i see manual restore not performed, waiting for input and list",env.params.list,env.params.input, env.getPath(), env);
+      env.onvalues( ["input","list"], (input,list) => {
+        console.log("doing job",list,env.getPath());
+        for (let edump of list) {
+          edump.manual = true;
+          edump.params.manual_features = Object.keys( edump.features ).filter( (f) => f != "base_url_tracing");
+          console.log("next child",edump,env.getPath());
+          var p = env.vz.createSyncFromDump( edump,null,input,edump.$name,true );
+          p.then( (child_env) => {
+             child_env.manuallyInserted = true;
+             console.log("created child. dump is",child_env.dump(),env.getPath());
+             console.log("emitting local dump-loaded");
+             vzPlayer.getRoot().emit("dump-loaded");
+          });
+          
+       };
+       });      
+        //let edump = { children: env.params.list || [], manual: true }
+        //console.log("i see manual restore not performed, doing job",edump);
+        //env.vz.createSyncFromDump( edump,env.params.input,null,null,true );
+    }
+  })
+
+`;
+
+/*
+recv @/ "dump-loaded" -> send @insert_children active=true
+||
+recv @.. "restoring" -> stop;
+*/
+
+/*
+feature "user_template" {
+  q: {
+    x-modify input=@/ {
+      x-on "dump-loaded" {
+        i-call-js ""
+        i-insert-children
+      }
+    }
+    insert_children input=@q->input list=@q->list active=false manual=true;
+  };
+}
+*/
+
 // вход - scene3d, camera, scene2d (надписи)
 // можно переделать будет на раздельное питание
 feature "show_3d_scene" {

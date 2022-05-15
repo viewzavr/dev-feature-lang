@@ -49,7 +49,7 @@ feature "sort_by_priority"
             q.setParam('block_priority', qprev.params.block_priority+1,true);
          qprev = q;   
        }
-       console.log('after cure, arr is ',env.params.input);
+       //console.log('after cure, arr is ',env.params.input);
        return env.params.input.sort( (a,b) => {
         function getpri(q) { 
             return q.params.block_priority;
@@ -97,14 +97,14 @@ feature "button_add_object" {
 // titles - список названий
 feature "object_change_type"
 {
-   cot: {};
+   cot: text="Образ: " {};
 
-   text "Образ: ";
+   text @cot->text;
 
    combobox values=@cot->types 
             titles=@cot->titles 
             value=(detect_type @cot->input @.->values)
-            style="width: 120px;" {{ console_log_params "cb-f-change-type" }}
+            style="width: 120px;"
            {{ on "user_changed_value" {
               lambda @co->input code=`(obj,v) => {
                 // вот мы спотыкаемся - что это, начальное значение или управление пользователем
@@ -221,11 +221,11 @@ detect_type: feature {
     if (obj && types) {
       for (let f of types)
         if (obj.$features_applied[f]) {
-          console.log('detect-type',f,obj);
+          //console.log('detect-type',f,obj);
           return f;
         };
     };
-    console.log('detect-type failed',obj);
+    //console.log('detect-type failed',obj);
   }";
 
 };

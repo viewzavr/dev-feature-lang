@@ -2326,7 +2326,6 @@ export function insert_children( env )
           }
 
           edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
-          
           var p = env.vz.createSyncFromDump( edump,null,tenv );
           p.then( (child_env) => {
              created_envs.push( child_env );

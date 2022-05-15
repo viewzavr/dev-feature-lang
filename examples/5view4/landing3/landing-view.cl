@@ -268,8 +268,10 @@ feature "landing-view-base"
 
     // по идее это далее не надо - можно просто массивы наружу выдавать
 
-    insert_children input=@scene list=@view->scene3d_items;
-    scene: node3d visible=@view->visible {{ skip_deleted_children }}
+    //insert_children input=@scene list=@view->scene3d_items;
+    insert_default_children input=@scene list=@view->scene3d_items;
+
+    scene: node3d visible=@view->visible
     {
         // вообще может оказаться что это будет отдельный визуальный процесс - "антураж"
   	};
@@ -277,7 +279,7 @@ feature "landing-view-base"
     // ну вот... как бы это.. а мы бы хотели...
 
     insert_children input=@screen_space list=@view->scene2d_items;
-    screen_space: dom visible=@view->visible {{ skip_deleted_children }}
+    screen_space: dom visible=@view->visible
     {
     };
 
@@ -498,6 +500,8 @@ datavis: feature {
          value=10;
 
     pipe: pipe input=@rt->df {
+        // todo - воткнуть как-то по умолчанию curtime что ли.. 
+        // короче  до моделей долетают данные которые фильтры еще не успели активироваться
         if (@rt->data_adjust == "curtime") then={
           df_slice start=@rt->time_index count=1         
         };
