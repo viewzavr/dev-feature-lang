@@ -127,7 +127,7 @@ project: active_view_index=1
   views=(find-objects-bf features="the-view" root=@project | sort_by_priority)
   
   //processes=(get-children-arr input=@project | arr_filter_by_features features="visual-process")
-  processes=(find-objects-bf features="visual-process" root=@project | sort_by_priority)
+  processes=(find-objects-bf features="visual-process" root=@project recursive=false | sort_by_priority)
 {
 
   insert_default_children input=@project list={
