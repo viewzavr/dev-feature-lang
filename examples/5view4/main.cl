@@ -79,8 +79,8 @@ feature "the_view"
     x-param-option name="title" option="manual" value=true;
     x-param-option name="sources_str" option="manual" value=true;
   }}
-  sibling_types=["the-view-mix3d","the-view-row"] 
-  sibling_titles=["Одна сцена","Слева на право"]
+  sibling_types=["the-view-mix3d","the-view-row", "the-view-small-big"] 
+  sibling_titles=["Одна сцена","Слева на право", "Окно в окне"]
   sources=(find-objects-by-pathes input=@tv->sources_str root=@tv->project)
   project=@..
   {
@@ -93,6 +93,7 @@ feature "the_view_mix3d" {
         camera=@cam
         show_view={ show_visual_tab_mix3d input=@tv; }
         scene3d=(@tv->sources | map_geta "scene3d")
+        scene2d=(@tv->sources | map_geta "scene2d")
         {
           cam: camera3d pos=[-400,350,350] center=[0,0,0];
           // вот бы метод getCameraFor(i).. т.е. такое вычисление по запросу..
@@ -106,6 +107,18 @@ feature "the_view_row"
     camera=@cam 
     {
       cam: camera3d pos=[-400,350,350] center=[0,0,0];
+    };
+};
+
+feature "the_view_small_big"
+{
+  tv: the-view 
+    show_view={ show_visual_tab_small_big input=@tv; }
+    camera=@cam 
+    camera2=@cam2 
+    {
+      cam: camera3d pos=[-400,350,350] center=[0,0,0];
+      cam2: camera3d pos=[-400,350,350] center=[0,0,0];
     };
 };
 
@@ -216,6 +229,36 @@ feature "show_visual_tab_row" {
             scene3d=(@src->input | geta "scene3d") 
             scene2d=(@src->input | geta "scene2d")
             camera=(@svr->input | geta "camera") 
+            style="width:100%; height:100%;";
+        };
+      };
+    };
+
+   }; // domgroup
+
+}; // show vis tab
+
+feature "show_visual_tab_small_big" {
+   svsm: dom_group
+   {
+
+    show_sources_params input=@svsm->input;
+
+    show_3d_scene 
+       scene3d=(@svsm->input | geta "sources" 0 "scene3d") 
+       scene2d=(@svsm->input | geta "sources" 0 "scene2d")
+       camera=(@svsm->input | geta "camera") 
+       style_k="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-3";
+
+    rrviews: row style="position: absolute; bottom: 30px; right: 30px; height: 30%; z-index:-2;
+        justify-content: flex-end; gap: 1em;" 
+    {
+      repa: repeater input=(@svsm->input | geta "sources" "slice" 1) {
+        src: dom style="flex: 0 0 350px;" {
+          show_3d_scene 
+            scene3d=(@src->input | geta "scene3d") 
+            scene2d=(@src->input | geta "scene2d")
+            camera=(@svsm->input | geta "camera2") 
             style="width:100%; height:100%;";
         };
       };
