@@ -238,6 +238,8 @@ feature "show_visual_tab_row" {
 
 }; // show vis tab
 
+// todo: по клику на окно увеличить размер / и обратно
+// понять как визпроцессу повлиять на камеру (типа вид на объект ближе к)
 feature "show_visual_tab_small_big" {
    svsm: dom_group
    {
