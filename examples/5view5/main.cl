@@ -76,7 +76,8 @@ feature "visual_process" {
     output=@~->scene3d; // это сделано чтобы визпроцесс можно было как элемент сцены использовать
 };
 
-feature "top_visual_process";
+feature "top_visual_process" {
+};
 
 feature "pause_input" code=`
   env.feature("delayed");

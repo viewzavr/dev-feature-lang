@@ -38,9 +38,19 @@ feature "landing-view"
     visible=true 
     scene1=@lv1 
     scene2=@lv2
-    subprocesses=(@aview | get_children_arr | arr_filter_by_features features="landing-view-base" )
     top_visual_process
     // todo: scenes-info
+    subprocesses=(@aview | get_children_arr | arr_filter_by_features features="visual_process" )
+    gui={
+      render_layers_inner title="Подпроцессы" expanded=true
+           root=@aview
+           items=[ { "title":"Подпроцессы", 
+                     "find":"visual_process",
+                     "add":"landing-view-base",
+                     "add_to": "@aview->."
+                   } ];
+   }                   
+
   {
     lv1: landing-view-1;
     lv2: landing-view-2;
