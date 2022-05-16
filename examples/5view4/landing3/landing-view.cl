@@ -102,7 +102,7 @@ feature "landing-view-base"
   //time_index=@timeparams->time_index
 
   scene3d=@scene->output
-  scene2d=@screen_space->output
+  scene2d=@screen_space
 
   //route "set_time_index" to=@timeparams;
   //{{ x-add-cmd name="set_time_index" code=(i-set-param target="@timeparams->time_index"}
@@ -281,7 +281,9 @@ feature "landing-view-base"
 
     // ну вот... как бы это.. а мы бы хотели...
 
+
     insert_children input=@screen_space list=@view->scene2d_items;
+    // это у нас место куда будут добавляться объекты пользователем
     screen_space: dom visible=@view->visible
     {
     };

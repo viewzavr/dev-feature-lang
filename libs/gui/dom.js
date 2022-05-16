@@ -494,8 +494,12 @@ export function dom_group( env ) {
        );
 
       let input = env.params.input;
+      if (!input) return acc;
+
       if (input && !Array.isArray(input))      
         input = [input];
+
+      input = input.flat();
 
 //        console.warn("dom_group: you passed input that is not array! Use `list` to create array.", 
             //env.getPath(),
@@ -516,6 +520,7 @@ export function dom_group( env ) {
             }            
 
             let od = c.params.output;
+            
             if (typeof(od) === "function") od = od();
             if (Array.isArray(od)) od.forEach( (el) => acc.push(el) )
               else acc.push( od );
