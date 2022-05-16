@@ -75,28 +75,30 @@ feature "user_template" {
 // вход - scene3d, camera, scene2d (надписи)
 // можно переделать будет на раздельное питание
 feature "show_3d_scene" {
-    scene_3d_view: 
-    view3d style="width:100px;";
-    {
-      r1: render3d 
+  scene_3d_view: dom {
+
+    v3d: view3d style="width:100%; height:100%;";
+
+    r1: render3d 
           bgcolor=[0.1,0.2,0.3]
-          target=@scene_3d_view //{{ skip_deleted_children }}
+          target=@v3d //{{ skip_deleted_children }}
           input=@scene_3d_view->scene3d // кстати идея так-то сделать аналог и для 2д - до-бирать детей отсель
           camera=@scene_3d_view->camera
       {
           //camera3d pos=[-400,350,350] center=[0,0,0];
 
           orbit_control;
-      };
+      };    
 
-      extra_screen_things: 
+    extra_screen_things: 
       column style="padding-left:2em; min-width: 80vw; 
          position:absolute; bottom: 1em; left: 1em;" {
          dom_group 
-           input=(@scene_3d_view->scene2d);
+           input=(list @scene_3d_view->scene2d);
       };
 
-    };
+  };
+
 };
 
 // рисует боковушку - параметры визпроцессов...
@@ -157,4 +159,49 @@ feature "show_sources_params"
     }; // extra_settings_panel_outer
 
     }; // row    
+};
+
+// подфункция реакции на чекбокс view_settings_dialog
+// идея вынести это в метод вьюшки. типа вкл-выкл процесс.
+feature "toggle_visprocess_view_assoc2" {
+i-call-js 
+  code="(cobj,val) => { // cobj объект чекбокса, val значение
+    let view = env.params.view; // вид the_view
+    //let view = cobj.params.view;
+    console.log({view,cobj,val});
+    view.params.sources ||= [];
+    view.params.sources_str ||= '';
+    if (val) { // надо включить
+      let curind = view.params.sources.indexOf( env.params.process );
+      if (curind < 0) {
+        let add = '@' + env.params.process.getPathRelative( view.params.project );
+        console.log('adding',add);
+        let filtered = view.params.sources_str.split(',').filter( (v) => v.length>0)
+        let nv = filtered.concat([add]).join(',');
+        console.log('nv',nv)
+        
+        view.setParam( 'sources_str', nv, true);
+      }
+        // видимо придется как-то к кодам каким-то прибегнуть..
+        // или к порядковым номерам, или к путям.. (массив objref тут так-то)
+    }
+    else
+    {
+        // надо выключить
+      let curind = view.params.sources.indexOf( env.params.process );
+      //debugger;
+      if (curind >= 0) {
+        //obj.params.sources.splice( curind,1 );
+        //obj.signalParam( 'sources' );
+        let arr = view.params.sources_str.split(',').map( x => x.trim());
+        arr = [...new Set(arr)]; // унекальнозть
+        let p = '@' + env.params.process.getPathRelative( view.params.project );
+        let curind_in_str = arr.indexOf(p);
+        if (curind_in_str >= 0) {
+          arr.splice( curind_in_str,1 );
+          view.setParam( 'sources_str', arr.join(','), true)
+        };
+      }
+    };
+  };";
 };

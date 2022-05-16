@@ -3,6 +3,8 @@
 // причем это часть вида отображения, хоть и существенная. потому что потом мы их комплексируем всяко.
 // ну ладно главное нАчать
 
+load "../universal/universal-vp.cl";
+
 feature "landing-file" {
   view: visual_process title="Файл с данными ракеты" visible=true 
     output=@loaded_data->output

@@ -216,7 +216,7 @@ rl_root:
 
     /// параметры объекта   
 
-     co: column plashka style_r="position:relative;"  
+     co: column plashka style_r="position:relative; overflow: auto;"  
             input=(@objects_list->output | get index=@cbsel->index)
       {
         row {

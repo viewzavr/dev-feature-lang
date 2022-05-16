@@ -493,9 +493,16 @@ export function dom_group( env ) {
           }
        );
 
-      
-      if (Array.isArray(env.params.input)) 
-      for (let c of env.params.input)
+      let input = env.params.input;
+      if (input && !Array.isArray(input))      
+        input = [input];
+
+//        console.warn("dom_group: you passed input that is not array! Use `list` to create array.", 
+            //env.getPath(),
+            //env.params.input)
+
+      if (Array.isArray(input)) 
+      for (let c of input)
           {
             if (!c) continue;
 

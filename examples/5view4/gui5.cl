@@ -80,7 +80,7 @@ feature "button_add_object" {
                  let s = env.params.newf;
                  args[0].setParam("manual_features",s,true)
                  
-                 console.log("created",args[0])
+                 //console.log("created",args[0])
              `
           }};
      };    
@@ -187,7 +187,7 @@ rl_root:
 
     /// параметры объекта   
 
-     co: column plashka style_r="position:relative;"  
+     co: column plashka style_r="position:relative; overflow: auto;"  
             input=(@objects_list->output | get index=@cbsel->index)
       {
         row {

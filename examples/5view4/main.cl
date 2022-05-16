@@ -1,61 +1,11 @@
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d gui5.cl new-modifiers imperative";
 load "main-lib.cl";
-load "landing3/landing-view.cl landing/test.cl universal/universal-vp.cl"; // отдельный вопрос
-
-feature "setup_view" {
-  column {
-    button "Настройки"
-  };
-};
-
-// подфункция реакции на чекбокс view_settings_dialog
-// идея вынести это в метод вьюшки. типа вкл-выкл процесс.
-feature "toggle_visprocess_view_assoc2" {
-i-call-js 
-  code="(cobj,val) => { // cobj объект чекбокса, val значение
-    let view = env.params.view; // вид the_view
-    //let view = cobj.params.view;
-    console.log({view,cobj,val});
-    view.params.sources ||= [];
-    view.params.sources_str ||= '';
-    if (val) { // надо включить
-      let curind = view.params.sources.indexOf( env.params.process );
-      if (curind < 0) {
-        let add = '@' + env.params.process.getPathRelative( view.params.project );
-        console.log('adding',add);
-        let filtered = view.params.sources_str.split(',').filter( (v) => v.length>0)
-        let nv = filtered.concat([add]).join(',');
-        console.log('nv',nv)
-        
-        view.setParam( 'sources_str', nv, true);
-      }
-        // видимо придется как-то к кодам каким-то прибегнуть..
-        // или к порядковым номерам, или к путям.. (массив objref тут так-то)
-    }
-    else
-    {
-        // надо выключить
-      let curind = view.params.sources.indexOf( env.params.process );
-      //debugger;
-      if (curind >= 0) {
-        //obj.params.sources.splice( curind,1 );
-        //obj.signalParam( 'sources' );
-        let arr = view.params.sources_str.split(',').map( x => x.trim());
-        arr = [...new Set(arr)]; // унекальнозть
-        let p = '@' + env.params.process.getPathRelative( view.params.project );
-        let curind_in_str = arr.indexOf(p);
-        if (curind_in_str >= 0) {
-          arr.splice( curind_in_str,1 );
-          view.setParam( 'sources_str', arr.join(','), true)
-        };
-      }
-    };
-  };";
-};
+load "landing3/landing-view.cl universal/universal-vp.cl"; // отдельный вопрос
 
 feature "the_view" 
 {
   tv: 
+  title="Новый экран"
   gui={ 
     render-params @tv; 
     //console_log "tv is " @tv "view procs are" (@tv | geta "sources" | map_geta "getPath");
@@ -123,7 +73,7 @@ feature "the_view_small_big"
 };
 
 feature "visual_process" {
-    output=@~->scene3d;
+    output=@~->scene3d; // это сделано чтобы визпроцесс можно было как элемент сцены использовать
 };
 
 feature "pause_input" code=`
@@ -223,7 +173,7 @@ feature "show_visual_tab_row" {
     rrviews: row style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2;
         justify-content: center;" 
     {
-      repa: repeater input=(@svr->input | geta "sources") {
+      repa: repeater input=(@svr->input | geta "sources"){
         src: dom style="flex: 1 1 0;" {
           show_3d_scene 
             scene3d=(@src->input | geta "scene3d") 
@@ -427,6 +377,11 @@ feature "render_project" {
                 show_visual_tab input=(@rend->project | get_param "views" | get 2);
                 show_visual_tab input=(@rend->project | get_param "views" | get 3);
                 show_visual_tab input=(@rend->project | get_param "views" | get 4);
+                show_visual_tab input=(@rend->project | get_param "views" | get 5); // так то.. так то.. показывай просто текущий, согласно project[index].. но параметры сохраняй...
+                show_visual_tab input=(@rend->project | get_param "views" | get 6);
+                show_visual_tab input=(@rend->project | get_param "views" | get 7);
+                show_visual_tab input=(@rend->project | get_param "views" | get 8);
+                show_visual_tab input=(@rend->project | get_param "views" | get 9);                
               }
               {{ one-of-keep-state; one_of_all_dump; }}
               ;
