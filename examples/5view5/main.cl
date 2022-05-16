@@ -76,6 +76,8 @@ feature "visual_process" {
     output=@~->scene3d; // это сделано чтобы визпроцесс можно было как элемент сцены использовать
 };
 
+feature "top_visual_process";
+
 feature "pause_input" code=`
   env.feature("delayed");
   let pass = env.delayed( () => {
@@ -91,6 +93,7 @@ project: active_view_index=1
   
   //processes=(get-children-arr input=@project | arr_filter_by_features features="visual-process")
   processes=(find-objects-bf features="visual-process" root=@project recursive=false | sort_by_priority)
+  top_processes=(find-objects-bf features="top-visual-process" root=@project recursive=false | sort_by_priority)
 {
 
   insert_default_children input=@project list={
@@ -320,7 +323,7 @@ feature "render_project" {
                style_qq="margin-bottom:15px;" {{ hilite_selected }}
                 ;
 
-       right_col: 
+       right_col: project=@rend->project
        column style="padding-left:2em; min-width: 80px; 
        position:absolute; right: 1em; top: 1em;" 
        render_project_right_col

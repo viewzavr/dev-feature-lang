@@ -18,18 +18,12 @@ insert_children { manage_visual_processes; };
 
 // вход - project - визпроект
 feature "manage_visual_processes" {
-	vp:
+	vp: project=@..->project
 	collapsible "Визуальные процессы" {
-		text 555;
 
-	    @vp->project | geta "processes" | repeater
+	    @vp->project | geta "top_processes" | repeater
 	    {
 	       edit_visprocess;
-	       button text=(@i->input | geta "title") 
-	             value=(@qq->tv | geta "sources" | arr_contains @i->input)
-	          {{ x-on "user-changed" {
-	              toggle_visprocess_view_assoc2 process=@i->input view=@qq->tv;
-	          } }};
 	    };
 
 
@@ -37,7 +31,7 @@ feature "manage_visual_processes" {
 };
 
 feature "edit_visprocess" {
-	qq: collapsible text=(@i->input | geta "title")  {
+	qq: collapsible text=(@qq->input | geta "title")  {
 		insert_siblings list=(@qq->input | get_param name="gui");
 	};
 };

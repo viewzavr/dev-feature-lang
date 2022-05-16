@@ -39,6 +39,7 @@ feature "landing-view"
     scene1=@lv1 
     scene2=@lv2
     subprocesses=(@aview | get_children_arr | arr_filter_by_features features="landing-view-base" )
+    top_visual_process
     // todo: scenes-info
   {
     lv1: landing-view-1;
