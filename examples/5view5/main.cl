@@ -1,5 +1,5 @@
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d gui5.cl new-modifiers imperative";
-load "main-lib.cl";
+load "main-lib.cl plugins.cl";
 load "landing3/landing-view.cl universal/universal-vp.cl"; // отдельный вопрос
 
 feature "the_view" 
@@ -303,15 +303,12 @@ feature "view_settings_dialog" {
 };
 */
 
-/* не ну это интрига. говорить - инсерт чилдрен таба из его гуи.. хм..
-feature "oneview" {
-  ov: gui={
-    
-  }
-}
-*/
+//global_modifiers: render_project_right_col={};
+// render_project_right_col_modifier: x-modify {};
 
 //lv1: landing-view-1;
+
+feature "render_project_right_col";
 
 feature "render_project" {
    rend: column padding="1em" project=@.->0 active_view_index=0 
@@ -325,7 +322,11 @@ feature "render_project" {
 
        right_col: 
        column style="padding-left:2em; min-width: 80px; 
-       position:absolute; right: 1em; top: 1em;" {
+       position:absolute; right: 1em; top: 1em;" 
+       render_project_right_col
+       //{{ x-modify list=@render_project_right_col_modifier }}
+
+       {
          button "Настройка соответствий" {
             view_settings_dialog project=@rend->project;
          };
@@ -363,11 +364,13 @@ feature "render_project" {
                      "add_to": "@rend->project"
                    } ];
 */                   
-         };          
+         };
 
        button_add_object "Добавить экран" add_to=@rend->project add_type="the-view-mix3d";  
 
        }; // column справа
+
+       
 
        of: one_of 
               index=@ssr->index
@@ -385,6 +388,7 @@ feature "render_project" {
               }
               {{ one-of-keep-state; one_of_all_dump; }}
               ;
+
 
    };  
 }

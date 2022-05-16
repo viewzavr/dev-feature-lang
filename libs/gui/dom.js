@@ -499,6 +499,8 @@ export function dom_group( env ) {
       if (input && !Array.isArray(input))      
         input = [input];
 
+      // ну типа дорого.. но посмотрим..
+      // ладно пусть пока будет
       input = input.flat();
 
 //        console.warn("dom_group: you passed input that is not array! Use `list` to create array.", 
