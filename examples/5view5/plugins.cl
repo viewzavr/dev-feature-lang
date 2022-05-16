@@ -21,12 +21,19 @@ feature "manage_visual_processes" {
 	vp: project=@..->project
 	collapsible "Визуальные процессы" {
 
+      render_layers_inner title="Процессы" expanded=true
+           root=@vp->project
+           items=[ { "title":"Процессы", 
+                     "find":"top_visual_process",
+                     "add":"landing-view",
+                     "add_to": "@vp->project"
+                   } ];		
+		/*
 	    @vp->project | geta "top_processes" | repeater
 	    {
 	       edit_visprocess;
 	    };
-
-
+	    */
 	};
 };
 

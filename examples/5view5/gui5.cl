@@ -80,7 +80,7 @@ feature "button_add_object" {
                  let s = env.params.newf;
                  args[0].setParam("manual_features",s,true)
                  
-                 //console.log("created",args[0])
+                 console.log("created",args[0])
              `
           }};
      };    
@@ -139,7 +139,7 @@ feature "object_change_type"
 };
 
 // рисует набор кнопочек для управления объектами сцены
-/*
+/* root - сцена где искать объекты
    пример
     render_layers 
          title="Визуальные объекты" 
@@ -175,7 +175,7 @@ rl_root:
      find-objects-bf (@rl_root->items | get @s->index | get "find") 
                      root=@rl_root->root
                      recursive=false
-     | sort_by_priority;
+     | sort_by_priority | console_log_input "ZZZ";
      ;
 
      /// выбор объекта
