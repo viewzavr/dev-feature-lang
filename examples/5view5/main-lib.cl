@@ -37,6 +37,7 @@ feature "insert_default_children" code=`
 
 `;
 
+// это вычисление поля active для обычного insert_children
 feature "is_default" code=`
   env.feature( "param_alias");
   env.addParamAlias( "input", 0 );

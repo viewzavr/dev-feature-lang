@@ -59,7 +59,8 @@ feature "sort_by_priority"
        }";    
 };
 
-// add_to add_type
+// add_to 
+// add_type
 feature "button_add_object" {
   bt_root: button "Добавить" margin="0.5em" {
         

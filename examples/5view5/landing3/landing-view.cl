@@ -34,13 +34,14 @@ feature "landing-file" {
 
 feature "landing-view" 
 {
-  aview: title="Возвращение"  // visual_process вроде как не надо
+  aview: title="Задача приземления ракеты"  // visual_process вроде как не надо
     visible=true 
     scene1=@lv1 
     scene2=@lv2
     top_visual_process
     // todo: scenes-info
-    subprocesses=(@aview | get_children_arr | arr_filter_by_features features="visual_process" )
+    subprocesses=(@aview | get_children_arr | console_log_input "subprocesses! cc"  | arr_filter_by_features features="visual_process" )
+    {{ x-param-string name="title" }}
     gui={
       render_layers_inner title="Подпроцессы" expanded=true
            root=@aview
@@ -49,7 +50,13 @@ feature "landing-view"
                      "add":"landing-view-base",
                      "add_to": "@aview->."
                    } ];
-   }                   
+   }
+
+   gui3={
+     //button "Добавить подпроцесс";
+     button_add_object "Добавить подпроцесс" add_to=@aview add_type="landing-view-base";
+     render-params @aview;
+   }
 
   {
     lv1: landing-view-1;
@@ -114,6 +121,9 @@ feature "landing-view-base"
 
   scene3d=@scene->output
   scene2d=@screen_space
+
+  gui3={ render-params @view }
+  {{ x-param-string name="title" }}
 
   //route "set_time_index" to=@timeparams;
   //{{ x-add-cmd name="set_time_index" code=(i-set-param target="@timeparams->time_index"}

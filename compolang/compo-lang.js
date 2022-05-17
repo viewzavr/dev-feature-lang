@@ -71,6 +71,7 @@ export function compalang(env)
 }
 
 // преобразовать результат парсинга во вьюзавр-дамп
+// результат пишется обратно в аргумент parsed
 function parsed2dump( vz, parsed, base_url ) {
 /* они почти похожи.
    надо обработать массив link - привести к объектам
@@ -102,16 +103,30 @@ function parsed2dump( vz, parsed, base_url ) {
     parsed2dump( vz, cc, base_url );
   }
   for (let pv of (Object.values(parsed.params) || [])) {
+     // преобразуем очередной параметр если он окружение
      if (Array.isArray(pv) && pv.length > 0 && pv[0].this_is_env) {
         for (let penv of pv)
            parsed2dump( vz, penv, base_url );
      }
   }
+
+  // F-POSITIONAL-ENVS
+  if (parsed.positional_params_count == 1
+      && parsed.named_params_count == null
+      && Object.keys( parsed.features ).length == 0
+      )
+  {
+     parsed.features[ "is_positional_env" ] = true;
+  }
+
   parsed.forcecreate = true;
   parsed.features[ "base_url_tracing" ] = {params: {base_url}};
+
   //feature("base_url_tracing",{base_url});
   return parsed;
 }
+
+export function is_positional_env( env ) {};
 
 var compolang_modules = {};
 var loaded_things = {};
@@ -1034,7 +1049,7 @@ export function repeater( env, fopts, envopts ) {
 
      let target_parent = env.ns.parent;
      // особый случай - когда репитер сидит в пайпе
-     if (target_parent.is_feature_applied("pipe"))
+     if (target_parent && target_parent.is_feature_applied("pipe"))
         target_parent = target_parent.ns.parent;
 
      if (env.params.target_parent) 
@@ -1102,6 +1117,22 @@ export function repeater( env, fopts, envopts ) {
 
      let envs_promises  = current_state.map( s => s.promise );
      Promise.all( envs_promises ).then( (envs) => {
+        ///env.setParam( "output", envs );
+        /* памятник попытке внедрить очередную сложность. правильное решение - вынести это
+           во вне тем более у нас уже еесть repeater .. | map_get "repeater_output" например.
+        let acc = [];
+        for (let e of envs) {
+           if (e.params.repeater_output) {
+             if (Array.isArray(e.params.repeater_output))
+               acc = acc.concat( e.params.repeater_output );
+             else acc.push( e.params.repeater_output );
+
+             let u = e.trackParam("repeater_output",publish_repeater_output);
+           }
+           else
+             acc.push( e );
+        }
+        */
         env.setParam( "output", envs );
      })
      
@@ -2641,8 +2672,7 @@ export function get_children_arr(env) {
     }
 
     unsub = senv.on("childrenChanged",() => {
-      
-      env.setParam("output", senv.ns.children );
+      env.setParam("output", [...senv.ns.children] );
     });
     
     env.setParam("output", senv.ns.children );

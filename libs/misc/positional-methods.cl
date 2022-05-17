@@ -2,6 +2,8 @@
 
 
 // странно что join работает с позиционными аргументами а не list например
+// join соединяет позиционные аргументы, считая их массивами, 
+// и соединяет эти массивы в СТРОКУ
 register_feature name="join" code=`
   env.on("param_changed",(name) => {
     if (name == "output") return;
@@ -40,6 +42,27 @@ register_feature name="list" code=`
       acc.push( env.params[ i ] );
 
     env.setParam("output",acc );
+  };
+  
+  compute();
+`;
+
+// concat соединяет массивы в 1 массив, поданный на вход
+// ну и в качестве удобняшки если что-то не массив то оно делает его массивом
+// в результате concat ведет себя еще и как list
+register_feature name="concat" code=`
+  env.on("param_changed",(name) => {
+    if (name == "output") return;
+    compute();
+  });
+  
+  function compute() {
+
+    let count = env.params.args_count;
+    let arr = [];
+    for (let i=0; i<count; i++)
+      arr = arr.concat( Array.isArray( env.params[i] ) ? env.params[i] : [ env.params[i] ] );
+    env.setParam("output",arr );
   };
   
   compute();

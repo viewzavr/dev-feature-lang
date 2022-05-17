@@ -75,6 +75,10 @@ export function map_geta( env )
       return;
     }
 
+    if (env.params.args_count != 1) {
+      console.warn("geta: params count is not 1", env.getPath(), env);
+    }
+
     output=[];
     output.length = input_arr.length;
 

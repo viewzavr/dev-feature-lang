@@ -369,6 +369,12 @@ function peg$parse(input, options) {
           }
           
         }
+        else
+        if (m.param) {
+           // пощетаем именованные тоже
+           env.named_params_count ||= 0;
+           env.named_params_count++;  
+        }
 
         if (m.feature)                                  // фича
           env.features[ m.name ] = m.params;
