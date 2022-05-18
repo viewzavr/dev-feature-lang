@@ -54,6 +54,8 @@ feature "the_view_row"
 {
   tv: the-view 
     show_view={ show_visual_tab_row input=@tv; }
+    scene3d=(@tv->sources | map_geta "scene3d" | arr_compact | console_log_input "CCC1")
+    scene2d=(@tv->sources | map_geta "scene2d")
     camera=@cam 
     {
       cam: camera3d pos=[-400,350,350] center=[0,0,0];
@@ -64,6 +66,8 @@ feature "the_view_small_big"
 {
   tv: the-view 
     show_view={ show_visual_tab_small_big input=@tv; }
+    scene3d=(@tv->sources | map_geta "scene3d" | arr_compact | console_log_input "CCC2")
+    scene2d=(@tv->sources | map_geta "scene2d")
     camera=@cam 
     camera2=@cam2 
     {
@@ -159,12 +163,21 @@ feature "show_visual_tab_mix3d" {
    svt: dom_group 
    {
     show_sources_params input=@svt->input;
-    show_3d_scene 
-       scene3d=(@svt->input | geta "scene3d") 
-       scene2d=(@svt->input | geta "scene2d")
-       camera=(@svt->input | geta "camera") 
-       style_k="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2";
-    ;
+
+    dom style_k="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2"
+    { // комбинатор-оверлей
+
+      show_3d_scene 
+         scene3d=(@svt->input | geta "scene3d") 
+         camera=(@svt->input | geta "camera") 
+      ;
+
+      extra_screen_things: 
+        column style="padding-left:2em; min-width: 80%; position:absolute; bottom: 1em; left: 1em;" {
+           dom_group input=(@svt->input | geta "scene2d");
+        };
+    };
+
    }; // domgroup
 }; // show vis tab
 
@@ -177,15 +190,19 @@ feature "show_visual_tab_row" {
     rrviews: row style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2;
         justify-content: center;"
     {
-      repa: repeater input=(@svr->input | geta "sources"){
+      repa: repeater input=(@svr->input | geta "scene3d") {
         src: dom style="flex: 1 1 0;" {
-          show_3d_scene 
-            scene3d=(@src->input | geta "scene3d") 
-            scene2d=(@src->input | geta "scene2d")
+          show_3d_scene
+            scene3d=@src->input
             camera=(@svr->input | geta "camera") 
             style="width:100%; height:100%;";
         };
       };
+
+      extra_screen_things: 
+        column style="padding-left:2em; min-width: 80%; position:absolute; bottom: 1em; left: 1em;" {
+           dom_group input=(@svr->input | geta "scene2d");
+        };
     };
 
    }; // domgroup
@@ -201,24 +218,27 @@ feature "show_visual_tab_small_big" {
     show_sources_params input=@svsm->input;
 
     show_3d_scene 
-       scene3d=(@svsm->input | geta "sources" 0 "scene3d") 
-       scene2d=(@svsm->input | geta "sources" 0 "scene2d")
+       scene3d=(@svsm->input | geta "scene3d" 0) 
        camera=(@svsm->input | geta "camera") 
        style_k="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-3";
 
     rrviews: row style="position: absolute; bottom: 30px; right: 30px; height: 30%; z-index:-2;
         justify-content: flex-end; gap: 1em;" 
     {
-      repa: repeater input=(@svsm->input | geta "sources" "slice" 1) {
+      repa: repeater input=(@svsm->input | geta "scene3d" "slice" 1) {
         src: dom style="flex: 0 0 350px;" {
           show_3d_scene 
-            scene3d=(@src->input | geta "scene3d") 
-            scene2d=(@src->input | geta "scene2d")
+            scene3d=@src->input 
             camera=(@svsm->input | geta "camera2") 
-            style="width:100%; height:100%;";
+            ;
         };
       };
     };
+
+   extra_screen_things: 
+      column style="padding-left:2em; min-width: 80%; position:absolute; bottom: 1em; left: 1em;" {
+         dom_group input=(@svsm->input | geta "scene2d");
+      };
 
    }; // domgroup
 

@@ -76,30 +76,23 @@ feature "user_template" {
 // вход - scene3d, camera, scene2d (надписи)
 // можно переделать будет на раздельное питание
 feature "show_3d_scene" {
-  scene_3d_view: dom {
-
-    v3d: view3d style="width:100%; height:100%;";
-
-    r1: render3d 
+  scene_3d_view: 
+    view3d style="width:100%; height:100%;" {
+    
+    // если вытащить его в хвост фичи (замкнуть view3d) то оно перестает видеть scene_3d_View почему-то
+    r1: render3d
           bgcolor=[0.1,0.2,0.3]
-          target=@v3d //{{ skip_deleted_children }}
+          target=@scene_3d_view
           input=@scene_3d_view->scene3d // кстати идея так-то сделать аналог и для 2д - до-бирать детей отсель
           camera=@scene_3d_view->camera
+          //{{ console_log_params "UUU" }}
       {
           //camera3d pos=[-400,350,350] center=[0,0,0];
 
           orbit_control;
-      };    
-
-    extra_screen_things: 
-      column style="padding-left:2em; min-width: 80vw; 
-         position:absolute; bottom: 1em; left: 1em;" {
-         dom_group 
-           input=(list @scene_3d_view->scene2d);
       };
-
-  };
-
+   };      
+   
 };
 
 // рисует боковушку - параметры визпроцессов...

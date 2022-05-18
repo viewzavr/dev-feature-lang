@@ -62,8 +62,12 @@ feature "landing-view"
     lv1: landing-view-1;
     lv2: landing-view-2;
 
+    lv_t_cur: landing-view-base title="Вывод T" scene2d_items={ curtime; };
+    lv_t_select: landing-view-base title="Вывод переменных" scene2d_items={ selectedvars; };
+
     // фича синхронизации.. может быть ее стоит по ифу сделать
     // или в универсальные блоки вытащить
+
     @aview->subprocesses | insert_children {
       link from="@aview->time_index" to=".->external_time_index" tied_to_parent=true manual_mode=true;
       link to="@aview->time_index" from=".->time_index" tied_to_parent=true manual_mode=true;
@@ -119,7 +123,8 @@ feature "landing-view-base"
 
   //time_index=@timeparams->time_index
 
-  scene3d=@scene->output
+  scene3d=( if ( > @scene->object3d_count 0) then={@scene->output} )
+  //scene3d=@scene2->output
   scene2d=@screen_space
 
   gui3={ render-params @view }
@@ -290,12 +295,14 @@ feature "landing-view-base"
     };
 
     // по идее это далее не надо - можно просто массивы наружу выдавать
+    // но нет надо, визуальный редактор занимается тем что потом добавляет доп объекты
+    // именно вот в эти объекты-контейнеры (scene и проч)
 
     //insert_children input=@scene list=@view->scene3d_items;
     //insert_children input=@scene list=@view->scene3d_items active=(is_default @scene) manual=true;
     insert_default_children input=@scene list=@view->scene3d_items;
 
-    scene: node3d visible=@view->visible
+    scene: node3d visible=@view->visible force_dump=true
     {
         // вообще может оказаться что это будет отдельный визуальный процесс - "антураж"
   	};
@@ -303,9 +310,9 @@ feature "landing-view-base"
     // ну вот... как бы это.. а мы бы хотели...
 
 
-    insert_children input=@screen_space list=@view->scene2d_items;
+    insert_children input=@screen_space list=@view->scene2d_items active=(is_default @screen_space);
     // это у нас место куда будут добавляться объекты пользователем
-    screen_space: dom visible=@view->visible
+    screen_space: dom visible=@view->visible force_dump=true
     {
     };
 

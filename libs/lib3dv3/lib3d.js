@@ -185,6 +185,7 @@ export function node3d( env, opts={} ) {
       object3d.add( o );
     }
 
+    env.setParam("object3d_count",object3d.children.length);
   }
 
   env.addCmd("rescan_children_for_3d",rescan);
