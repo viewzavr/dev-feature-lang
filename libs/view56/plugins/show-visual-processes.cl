@@ -22,7 +22,8 @@ insert_children { manage_visual_processes; };
 feature "manage_visual_processes" {
 	vp: project=@..->project
     	collapsible "Визуальные процессы" {
-        render_process_hierarchy objects=(@vp->project | geta "top_processes");
+        render_process_hierarchy objects=(@vp->project | geta "processes");
+        //render_process_hierarchy objects=(@vp->project | geta "top_processes");
      	};
 };
 
@@ -45,11 +46,13 @@ feature "render_process_hierarchy" {
 
      /// верхний и след уровни...
 
+/*
      objects_list0: (eval @rh->objects code="(objects) => {
      	  return objects.map( o => {
      	  	 return { id: o.$vz_unique_id, title: o.params.title } 
      	  } )
      }");
+     */
 
      objects_list: (@rh->objects | repeater target_parent=@~ { 
      	 q: repeater_output=(concat @l1 @l2) {
@@ -65,7 +68,7 @@ feature "render_process_hierarchy" {
      	          ;
      	        });
      	  };
-        } | map_geta "repeater_output" | geta "flat");
+        } | map_geta "repeater_output" | geta "flat" | arr_compact);
 
      cbsel: combobox style="margin: 5px;" dom_size=10
        values=(@objects_list | map_geta "id")

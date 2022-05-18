@@ -112,7 +112,7 @@ feature "landing-view-2" {
         axes;
 	  }
 	  scene2d_items={
-	  	//selectedvars;
+	  	selectedvars;
 	  }
 	  ;
 };
@@ -121,7 +121,7 @@ feature "landing-view-base"
 {
 
   view: visual_process title="Возвращение" visible=true 
-  
+
   //time_index=@timeparams->time_index
 
   scene3d=( if ( > @scene->object3d_count 0) then={@scene->output} )
@@ -130,8 +130,6 @@ feature "landing-view-base"
 
   gui3={ render-params @view }
   {{ x-param-string name="title" }}
-
-  {{ x-param-option "scene2d_items" "internal" true }}
 
   //route "set_time_index" to=@timeparams;
   //{{ x-add-cmd name="set_time_index" code=(i-set-param target="@timeparams->time_index"}

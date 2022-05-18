@@ -7,15 +7,7 @@ project: the_project active_view_index=1
 
   insert_default_children input=@project list={
     lf: landing-file;
-
-    lv1: landing-view-1;
-    lv2: landing-view-2;
-
-    lv_t_cur: landing-view-base title="Вывод T" scene2d_items={ curtime; };
-
-    lv_t_select: landing-view-base title="Вывод переменных" scene2d_items={ selectedvars; };
-
-    // lv: landing-view;
+    lv: landing-view;
     //a1: axes-view size=100;
     //a2: axes-view title="Оси координат 2";
 
