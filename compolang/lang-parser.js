@@ -384,20 +384,28 @@ function peg$parse(input, options) {
         else
         if (m.param && m.value.env_expression) {        // выражение вида a=(b)
           // преобразуем здесь параметр-выражение в суб-фичи
-          // нам проще работать пока с одним окружением а не с массивом
-          let expr_env = m.value.env_expression[0];
+          // причем нам надо работать уметь и с массивом (если там формула)
+          /* не прокатит работать только с 1 окружением т.к. там может быть if который жаждет порождать под-окружения, которые уже будут следующими и должны учитываться в computer-логике
+          if (m.value.env_expression.length == 1) {
+            let expr_env = m.value.env_expression[0];
+            // todo needLexicalParent ????????????
+            expr_env.$name = `expr_env_${expr_env_counter++}`; // скорее всего не прокатит
+            env.features_list = (env.features_list || []).concat( expr_env );
+            expr_env.links[ `output_link_${linkcounter++}` ] = { from: "~->output", to: ".->"+m.name }  
+          }  
+          else
+          {  // массив
+          */
 
-          // todo needLexicalParent ????????????
+            let newname = `expr_comp_${expr_env_counter++}`; // скорее всего не прокатит
+            var comp_env = new_env( newname );
+            comp_env.features["computer"] = true;
+            append_children_envs( comp_env, m.value.env_expression );
+            comp_env.links[ `output_link_${linkcounter++}` ] = { from: "~->output", to: ".->"+m.name };
 
-          expr_env.$name = `expr_env_${expr_env_counter++}`; // скорее всего не прокатит
-
-          env.features_list = (env.features_list || []).concat( expr_env );
-
-          expr_env.links[ `output_link_${linkcounter++}` ] = { from: "~->output", to: ".->"+m.name }  
-
-          //let from = "@~:${expr_env.$name}->output"; // ссылка обращение к своей суб-фиче
-          //env.links[ `link_${linkcounter++}` ] = { from: from, to: m.name }
-          // но быть может стоит просто наружу это вытащить в форме env.param_expressions и там уже разбираться..
+            env.features_list ||= [];
+            env.features_list.push( comp_env );
+          //}
         }
         else
         if (m.param && m.value.param_value_env_list) { // выражение вида a={b}

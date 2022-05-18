@@ -117,6 +117,7 @@ function parsed2dump( vz, parsed, base_url ) {
       )
   {
      parsed.features[ "is_positional_env" ] = true;
+     parsed.links[ "p_link_for_output"] = { from: ".->0", to: ".->output" };
   }
 
   parsed.forcecreate = true;
@@ -364,6 +365,40 @@ export function pipe(env)
    }
 }
 
+// потребность: удобный метод построения вычисления
+// computer { c1; c2; c3; }
+// такого что результат computer->output это есть c3->output
+// на это идет завязка из pegjs
+export function computer(env) 
+{
+  let unsub=()=>{};
+  function unsub_and_forget() { unsub();unsub = ()=>{}; }
+  function set_unsub( v ) { unsub = v };
+
+  function create_monitoring() {
+    unsub_and_forget();
+    let c = env.ns.children[ env.ns.children.length - 1 ];
+    if (!c) return;
+    // а вот выясняется что фичи то еще и не назначены..
+    let output_name = "output";
+    //let output_name = c.is_feature_applied("is-positional-env") ? 0 : "output";
+    //console.log(c.getPath(),JSON.stringify(c.$features_applied),output_name,c)
+    //let output_name = "output";
+
+    set_unsub( c.trackParam(output_name,(v) => {
+      env.setParam("output",v);
+    }) );
+    env.setParam("output", c.params[output_name] );
+  };
+  env.on("remove",unsub_and_forget);
+
+  create_monitoring();
+  env.on('appendChild', create_monitoring ); 
+  // вот тут мб делейед подошло бы а то она тыркаться будет каждый раз
+  // но ладно пока @todo @optimize
+}
+
+
 // добавляет фичу в цепочку активации фич
 // пример: append_feature "rect" "rounded red"
 // и значит когда создается объект rect к нему цепляются фичи rounded и red
@@ -477,11 +512,20 @@ export function register_feature( env, envopts ) {
           edump.keepExistingParams = true;
 
           let res;
-          if (first) {
+          if (first) { // это код для целевого окружения где примененена фича
             first = false;
             res = tenv.restoreFromDump( edump );
           }
           else {
+            // а последующие вещи - это доп дети сиблинги для целевого окружения
+            // таков алгоритм работы feature в компаланге..
+            // (типа как будто мы генерируем новое, не привязанное к созданному окружению)
+            // идея - собирать их в проперте что ли в какой-то (но опять же много фич много пропертей..)
+            // идея - может быть это лишнее, и его стоит куда-то переместить, более явно обозначить
+            // потому что глядишь на фичу и не понимаешь что вот это - не будет частью фичи
+            // а лишь порождается ею.
+            // к тому же у нас есть insert_siblings_to_parent
+
             //console.warn("compolang feature: skipping 2nd and rest elem",edump);
             
             edump.lexicalParent = tenv;
@@ -2102,6 +2146,7 @@ export function insert( env )
 
 // работает как insert но на родителя / аттачед окружение.
 // т.е. делает как бы для дедушки/бабушки.
+// это получается потипу генератора
 export function insert_siblings_to_parent( env )
 {
  let exam_obj = env.ns.parent || env.host;
