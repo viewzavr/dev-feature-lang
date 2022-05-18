@@ -7,7 +7,7 @@
 feature "include_gui";
 
 register_feature name="axes_box" {
-  root: node3d
+  root: node3d {{ console_log_params }}
   
     // пришлось это из КСКВ-проекта сюда перетащить..
     // потому что так-то и метки include_gui из этой же оперы
@@ -45,8 +45,8 @@ register_feature name="axes_box" {
 // рисует три линии осей координат
 // вход size
 register_feature name="axes_lines" {
-  lines
-    positions=(compute_output s=@.->size code=`
+  l: lines
+    positions=(compute_output s=@l->size code=`
     let s = env.params.s;
     if (!isFinite(s)) return [];
     return [0,0,0, 0,0,s,
@@ -61,7 +61,7 @@ register_feature name="axes_lines" {
 register_feature name="axes_titles" {
   t: text3d
     lines=(eval @t->names code=`(str) => str.split(/\s+/)`)
-    positions=(eval @.->s code=`(s) => {
+    positions=(eval @t->s code=`(s) => {
     if (!isFinite(s)) return [];
     return [ 0,0,s,
              0,s,0,

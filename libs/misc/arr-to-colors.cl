@@ -86,7 +86,7 @@ register_feature name="df_to_colors" {
 register_feature name="arr_to_colors" {
   {
     norm: normalize_array input=@..->input;
-    arr_to_colors_10 input=@norm-.output;
+    arr_to_colors_10 input=@norm->output;
   }
 };
 */
