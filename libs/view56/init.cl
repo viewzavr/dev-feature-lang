@@ -1,36 +1,7 @@
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d new-modifiers imperative";
 load "main-lib.cl plugins.cl gui5.cl";
 
-//////////////////////////////////////////////////////// главное окно программы
-
-screen1: screen auto-activate  {
-  render_project @project active_view_index=1;
-};
-
-debugger-screen-r;
-
 ///////////////////////////////////////////// проект
-
-project: the_project active_view_index=1 
-{
-
-  insert_default_children input=@project list={
-    lf: landing-file;
-    lv: landing-view;
-    //a1: axes-view size=100;
-    //a2: axes-view title="Оси координат 2";
-
-    v0: the-view-mix3d title="Данные" 
-        sources_str="@lf";
-
-    v1: the-view-mix3d title="Общий вид" 
-        sources_str="@lv/lv1";
-
-    v2: the-view-mix3d title="Вид на ракету" 
-        sources_str="@lv/lv2";
-  };
-
-};
 
 feature "the_project" {
   project:
@@ -138,55 +109,13 @@ feature "render_project" {
                 ;
 
        right_col: 
-       project=@rend->project
-       column style="padding-left:2em; min-width: 80px; 
-       position:absolute; right: 1em; top: 1em;" 
-       render_project_right_col
-       //{{ x-modify list=@render_project_right_col_modifier }}
-
-       {
-        
-         collapsible "Настройка экрана" {
-
-           co: column plashka style_r="position:relative;"
-            input=@rend->active_view 
-            {
-
-              column {
-                object_change_type text="Способ отображения:"
-                   input=@co->input
-                   types=(@co->input | get_param "sibling_types" )
-                   titles=(@co->input | get_param "sibling_titles");
-              };
-
-              column {
-                insert_siblings list=(@co->input | get_param name="gui");
-              };
-
-              button "Удалить экран" //style="position:absolute; top:0px; right:0px;" 
-              {
-                lambda @co->input code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
-              };
-           };
-
-           
-
-/*
-           render_layers_inner title="Виды" expanded=true
-           root=@rend->project
-           items=[ { "title":"Виды", 
-                     "find":"the-view",
-                     "add":"the-view",
-                     "add_to": "@rend->project"
-                   } ];
-*/                   
-         };
-
-       button_add_object "Добавить экран" add_to=@rend->project add_type="the-view-mix3d";  
-
-       }; // column справа
-
        
+       column render_project_right_col 
+         style="padding-left:2em; min-width: 80px; position:absolute; right: 1em; top: 1em; gap: 0.2em;" 
+         project=@rend->project
+         //{{ x-modify list=@render_project_right_col_modifier }}
+        {
+        }; // column справа
 
        of: one_of 
               index=@ssr->index
