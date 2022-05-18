@@ -9,9 +9,14 @@ feature "insert_default_children" code=`
   //console.log("insert_default_children welcome screen",env.getPath())
 
   env.onvalues(["input","list"],(input,list) => {
+     // также надо для целевого контейнера ставить force_dump=true
+     input.setParam( "force_dump", true ); // это на будущее, шоб он уж точно попадал в дамп
+     // а без этого его могут пропустить из дампирования и мы будем думать что там ничего нет
+     // а там может быть есть - просто пользователь все решил вычистить (так бывает как выяснилось)
+
      vzPlayer.getRoot().onvalue("dump_loaded",(dl) => {
-        //console.log("see input and list, and dump-loaded is true",input.params.manual_restore)
-        if (input.params.manual_restore) {
+        //console.log("see input and list, and dump-loaded is true",input.params.manual_restore_performed)
+        if (input.params.manual_restore_performed) {
            //console.log("not doing job - there is data from dump")
         }
         else perform( input, list );
@@ -38,13 +43,14 @@ feature "insert_default_children" code=`
 `;
 
 // это вычисление поля active для обычного insert_children
+// также надо для целевого контейнера ставить force_dump=true
 feature "is_default" code=`
   env.feature( "param_alias");
   env.addParamAlias( "input", 0 );
   env.onvalues(["input"],(input) => {
      vzPlayer.getRoot().onvalue("dump_loaded",(dl) => {
-        //console.log("see input and list, and dump-loaded is true",input.params.manual_restore)
-        if (input.params.manual_restore) {
+        //console.log("see input and list, and dump-loaded is true",input.params.manual_restore_performed)
+        if (input.params.manual_restore_performed) {
            //console.log("not doing job - there is data from dump")
         }
         else env.setParam("output",true);

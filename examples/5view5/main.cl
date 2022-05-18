@@ -54,7 +54,7 @@ feature "the_view_row"
 {
   tv: the-view 
     show_view={ show_visual_tab_row input=@tv; }
-    scene3d=(@tv->sources | map_geta "scene3d" | arr_compact | console_log_input "CCC1")
+    scene3d=(@tv->sources | map_geta "scene3d" | arr_compact)
     scene2d=(@tv->sources | map_geta "scene2d")
     camera=@cam 
     {
@@ -66,7 +66,7 @@ feature "the_view_small_big"
 {
   tv: the-view 
     show_view={ show_visual_tab_small_big input=@tv; }
-    scene3d=(@tv->sources | map_geta "scene3d" | arr_compact | console_log_input "CCC2")
+    scene3d=(@tv->sources | map_geta "scene3d" | arr_compact)
     scene2d=(@tv->sources | map_geta "scene2d")
     camera=@cam 
     camera2=@cam2 
@@ -344,7 +344,8 @@ feature "render_project" {
                style_qq="margin-bottom:15px;" {{ hilite_selected }}
                 ;
 
-       right_col: project=@rend->project
+       right_col: 
+       project=@rend->project {{ console_log_params "OOOOOOOOOO"}}
        column style="padding-left:2em; min-width: 80px; 
        position:absolute; right: 1em; top: 1em;" 
        render_project_right_col

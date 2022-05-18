@@ -239,7 +239,7 @@ register_feature name="obj_titles" code=`
 
                 // todo: добавить тут наш превьювер строчек
 
-                if (typeof(val) != "undefined" && val.toString)
+                if (val != null && val.toString)
                   preview = val.toString ? val.toString().slice(0,80) : val;
                 else
                   preview = val;
@@ -311,7 +311,7 @@ register_feature name="params_preview_values" code='
 
             // todo: добавить тут наш превьювер строчек
 
-            if (typeof(val) != "undefined" && val.toString)
+            if (val != null && val.toString)
               preview = val.toString ? val.toString().slice(0,80) : val;
             else
               preview = val;

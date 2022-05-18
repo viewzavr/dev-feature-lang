@@ -21,16 +21,14 @@ insert_children { manage_visual_processes; };
 // вход - project - визпроект
 feature "manage_visual_processes" {
 	vp: project=@..->project
-	collapsible "Визуальные процессы" {
-
-	  render_process_hierarchy objects=(@vp->project | geta "top_processes");
-
-	};
+    	collapsible "Визуальные процессы" {
+        render_process_hierarchy objects=(@vp->project | geta "top_processes");
+     	};
 };
 
 feature "render_process_hierarchy" {
 
-    rh: objects=[] 
+    rh: objects=[] // список объектов верхних процессов
 
     column text=@.->title
     style="min-width:250px" 
@@ -53,14 +51,14 @@ feature "render_process_hierarchy" {
      	  } )
      }");
 
-     objects_list: (@rh->objects | repeater { 
+     objects_list: (@rh->objects | repeater target_parent=@~ { 
      	 q: repeater_output=(concat @l1 @l2) {
-     		l1: id=(@q->input | geta "$vz_unique_id")
+     		  l1: id=(@q->input | geta "$vz_unique_id")
      	        title=(@q->input | geta "title")
      	        obj=@q->input
      	         ;
 
-     	    l2: (@q->input | geta "subprocesses" | repeater {
+     	    l2: (@q->input | geta "subprocesses" | repeater target_parent=@~ {
        	          qq: id=(@qq->input | geta "$vz_unique_id")
      	          title=(join "  - " (@qq->input | geta "title"))
      	          obj=@qq->input

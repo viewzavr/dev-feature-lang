@@ -383,8 +383,22 @@ export function computer(env)
 
   function create_monitoring() {
     unsub_and_forget();
-    let c = env.ns.children[ env.ns.children.length - 1 ];
+    if (env.ns.children.length == 0) return;
+
+    let i = env.ns.children.length - 1;
+    let c;
+    
+    while (i >= 0) {
+      c = env.ns.children[ i ];
+      if (c.is_link) {
+        c = null;
+        i--; 
+        continue;
+      }
+      break;
+    }
     if (!c) return;
+
     // а вот выясняется что фичи то еще и не назначены..
     let output_name = "output";
     //let output_name = c.is_feature_applied("is-positional-env") ? 0 : "output";
@@ -395,11 +409,24 @@ export function computer(env)
       env.setParam("output",v);
     }) );
     env.setParam("output", c.params[output_name] );
+
+    //console.log("used ",c)
+    
+    /*
+    c.on("feature-applied-link",() => {
+      console.log('link detected',c)
+    })
+    */
+    
   };
   env.on("remove",unsub_and_forget);
 
-  create_monitoring();
-  env.on('appendChild', create_monitoring ); 
+  env.feature("delayed");
+  let create_monitoring_d = env.delayed(create_monitoring);
+  create_monitoring_d();
+  env.on('appendChild', create_monitoring_d ); 
+  env.on('forgetChild', create_monitoring_d );
+
   // вот тут мб делейед подошло бы а то она тыркаться будет каждый раз
   // но ладно пока @todo @optimize
 }
