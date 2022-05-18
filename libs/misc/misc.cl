@@ -183,3 +183,13 @@ register_feature name="monitor_all_params" {
     }
   `;
 };
+
+
+feature "pause_input" code=`
+  env.feature("delayed");
+  let pass = env.delayed( () => {
+    env.setParam("output", env.params.input);
+  },1000/30);
+
+  env.onvalue("input",pass);
+`;
