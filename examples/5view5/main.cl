@@ -345,7 +345,7 @@ feature "render_project" {
                 ;
 
        right_col: 
-       project=@rend->project {{ console_log_params "OOOOOOOOOO"}}
+       project=@rend->project
        column style="padding-left:2em; min-width: 80px; 
        position:absolute; right: 1em; top: 1em;" 
        render_project_right_col

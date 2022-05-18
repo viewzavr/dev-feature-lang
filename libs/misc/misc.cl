@@ -21,6 +21,27 @@ code="
     };
 };
 
+/*
+feature "timeout_insert_siblings" code=`
+  env.onvalue( 0, (tm) => {
+    env.feature("timeout");
+    env.timeout( () => {
+      env.setParam("active",true);
+    }, tm );
+`
+{
+  insert_siblings active=false;
+};
+*/
+
+feature "timeout" code=`
+  env.onvalue( 0, (tm) => {
+    env.feature("delayed");
+    env.timeout( () => {
+      env.setParam("output",true);
+    }, tm );
+  })`;
+
 register_feature name="get_query_param" code=`
     function getParameterByName(name) {
       name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -101,6 +122,9 @@ register_feature name="download_file_to_user" {
 // вход: input - массив объектов
 //       params - массив имен параметров. 
 
+// таким образом происходит продвижение по пайп-цепочке при изменении указанных параметров 
+// в каком-нибудь из input-объектов
+
 // пример: find-objects ... | monitor-params params=["alfa","beta"] | console_log;
 
 register_feature name="monitor_params" {
@@ -113,6 +137,9 @@ register_feature name="monitor_params" {
 
     env.onvalues(["input","params"],(arr,params) => {
       unsub_func();
+      //if (!arr) return;
+      //if (!Array.isArray(arr)) arr = [arr];
+
       for (let cenv of arr) {
         let cunsub = cenv.onvalues( params, sig_d );
         unsub_arr.push( cunsub );
@@ -123,6 +150,8 @@ register_feature name="monitor_params" {
     env.on("remove",unsub_func);
 
     function sig() {
+      //let arr = env.params.input;
+      //if (Array.isArray( env.params.input ))
       env.setParam("output", env.params.input.slice() );
     }
   `;
@@ -154,43 +183,3 @@ register_feature name="monitor_all_params" {
     }
   `;
 };
-
-// timeout 
-// паузит передачу input на заданное время 
-// если происходит дополнительное изменение input, то таймер рестартует
-// таким образом для частых изменений input вообще никогда не пройдет output
-
-// это кстати все начинает напоминать rxjs
-// только там промежуточные вещи съедаются, а у нас хранятся...
-
-register_feature name="timeout" code=`
-
-  let t;
-  env.feature("timers");
-  env.onvalue("input",(i) => {
-     if (t) t(); // очистим
-
-     t = env.setTimeout( () => {
-        env.setParam("output", env.params.input );
-        t = null;
-     }, env.params.ms || 1000 );
-  });
-
-  /*
-
-  env.feature("delayed");
-
-  let tpass = env.delayed( pass );
-
-  env.onvalue("input",tpass);
-
-  env.onvalue("ms",(ms) => {
-    debugger;
-    tpass = env.delayed( pass, ms );
-  })
-
-  function pass() {
-     env.setParam("output", env.params.input );
-  }
-  */
-`;

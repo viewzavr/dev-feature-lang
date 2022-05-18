@@ -40,7 +40,7 @@ feature "landing-view"
     scene2=@lv2
     top_visual_process
     // todo: scenes-info
-    subprocesses=(@aview | get_children_arr | console_log_input "subprocesses! cc"  | arr_filter_by_features features="visual_process" )
+    subprocesses=(@aview | get_children_arr | arr_filter_by_features features="visual_process" )
     {{ x-param-string name="title" }}
     gui={
       render_layers_inner title="Подпроцессы" expanded=true
@@ -275,6 +275,7 @@ feature "landing-view-base"
     */
 
     dat: output=@compute_pipe->output;
+
 	  dat_cur_time_orig: @loaded_data->output | df_slice start=@timeparams->time_index count=1; 	              
     // dat_cur_time_orig - по идее рисовалки текста сами себе могли бы выдирать данные
     // но да ладно уж
@@ -340,6 +341,8 @@ ptstr: feature {
 models: feature {
     root: node3d datavis gui={ render-params input=@root  }
           {
+            //monitor_params input=(list @root) params=["input"] | debugger "input of models changed";
+
             param_slider name="radius" min=1 max=10 value=3;
             param_color  name="hilight_color" value=[0,0,0];
             param_label  name="count" value=(@rep->input | get name="length");
@@ -535,15 +538,20 @@ datavis: feature {
          option="priority"
          value=10;
 
-    pipe: pipe input=@rt->df {
+    pipe: pipe /*input=@rt->df*/ {
         // todo - воткнуть как-то по умолчанию curtime что ли.. 
         // короче  до моделей долетают данные которые фильтры еще не успели активироваться
         if (@rt->data_adjust == "curtime") then={
-          df_slice start=@rt->time_index count=1         
+          df_slice start=@rt->time_index count=1;         
         };
         if (@rt->data_adjust == "prorej") then={
           df_skip_every count=@rt->step_N;
         };
+    };
+
+
+    if (timeout 15) then={ //qqq
+      x-modify input=@pipe { x-set-params input=@rt->df; };
     };
 
     x-param-slider name="step_N" min=1 max=100;

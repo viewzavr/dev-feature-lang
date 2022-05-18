@@ -2397,8 +2397,6 @@ export function insert_children( env )
   env.onvalues_any(["input","list","active"],perform);
 
   function perform() {
-    if (!env.params.active) return;
-
     let input = env.params.input || [];
     if (!Array.isArray(input)) input=[input]; // допускаем что не список а 1 штука
     let features = env.params.list;
@@ -2416,6 +2414,8 @@ export function insert_children( env )
      // ну тут поомтимизировать наверное можно, но пока тупо все давайте очищать
      close_envs();
      //debugger;
+
+     if (!env.params.active) return;
 
      if (!features_list) return;
 
