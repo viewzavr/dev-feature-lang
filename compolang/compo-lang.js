@@ -36,7 +36,7 @@ export function simple_lang(env)
   env.compalang = env.parseSimpleLang;
 }
 
-// объект для парсинга в дамп
+// объект для парсинга строки в дамп
 export function compalang(env) 
 {
   env.onvalue("input",(code) => {
