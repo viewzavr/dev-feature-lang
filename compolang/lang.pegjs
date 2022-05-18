@@ -205,6 +205,7 @@ one_env
         // преобразуем здесь параметр-выражение в суб-фичи
         // причем нам надо работать уметь и с массивом (если там формула)
         /* не прокатит работать только с 1 окружением т.к. там может быть if который жаждет порождать под-окружения, которые уже будут следующими и должны учитываться в computer-логике
+        
         if (m.value.env_expression.length == 1) {
           let expr_env = m.value.env_expression[0];
           // todo needLexicalParent ????????????
@@ -215,6 +216,8 @@ one_env
         else
         {  // массив
         */
+
+          //  F-PARAM-EXPRESSION-COMPUTE
 
           let newname = `expr_comp_${expr_env_counter++}`; // скорее всего не прокатит
           var comp_env = new_env( newname );

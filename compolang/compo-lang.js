@@ -117,6 +117,11 @@ function parsed2dump( vz, parsed, base_url ) {
       )
   {
      parsed.features[ "is_positional_env" ] = true;
+     // выяснилось что удобно таки сделать ссылку на output
+     // потому что в computer например - надо в наборе детей собирать output последнего
+     // а там фичи еще не назначены и короче даже не выяснить кто он там..
+     // хотя можно было бы так-то и ловить событие... что фича назначилась
+     // ну да ладно, пока так, там посмотрим. @maybe @optimize убрать ссылки эти
      parsed.links[ "p_link_for_output"] = { from: ".->0", to: ".->output" };
   }
 
@@ -369,6 +374,7 @@ export function pipe(env)
 // computer { c1; c2; c3; }
 // такого что результат computer->output это есть c3->output
 // на это идет завязка из pegjs
+// F-PARAM-EXPRESSION-COMPUTE
 export function computer(env) 
 {
   let unsub=()=>{};
