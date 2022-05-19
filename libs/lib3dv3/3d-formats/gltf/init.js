@@ -232,3 +232,5 @@ export function render_gltf( obj ) {
       
     return obj;
 } // addGltf
+
+

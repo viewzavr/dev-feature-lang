@@ -334,6 +334,39 @@ export function mesh_df_input( env ) {
   });
 }
 
+export function models_gltf( obj ) {
+  obj.feature("render_gltf");
+  obj.feature("models_df_input");  
+};
+
+export function models_df_input( env ) {
+  env.onvalue("input",(df) => {
+    //console.log("gonna paint df=",df);
+    var dat = df;
+    if (dat.XYZ || dat.positions)
+      env.setParam("positions", dat.XYZ || dat.positions );
+    else
+      env.setParam("positions", utils.combine( [ dat.X, dat.Y, dat.Z ] ) );
+
+    if (dat.rotations)
+      env.setParam("positions", dat.rotations );
+    else
+      if (dat.RX)
+      env.setParam("rotations", utils.combine( [ dat.RX, dat.RY, dat.RZ ] ) );    
+
+    if (dat.colors)
+      env.setParam("colors", dat.colors );
+    else
+    if (dat.R && dat.G && dat.B)
+      env.setParam("colors", utils.combine( [ dat.R, dat.G, dat.B ] ) );
+
+    env.setParam("radiuses", dat.RADIUS || [] );
+    env.setParam("count",env.params.positions.length / 3);
+    env.signal("changed");
+  });
+}
+
+
 /////////////////////////// рисователь нормалей
 import { VertexNormalsHelper } from './three.js/examples/jsm/helpers/VertexNormalsHelper.js';
 /*
@@ -415,3 +448,4 @@ export function render_normals( env ) {
     helper.update(); // получается у нас двойной пересчет...
   });
 }
+
