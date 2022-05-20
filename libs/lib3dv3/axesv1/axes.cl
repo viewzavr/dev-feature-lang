@@ -7,7 +7,7 @@
 feature "include_gui";
 
 register_feature name="axes_box" {
-  root: node3d {{ console_log_params }}
+  root: node3d
   
     // пришлось это из КСКВ-проекта сюда перетащить..
     // потому что так-то и метки include_gui из этой же оперы
