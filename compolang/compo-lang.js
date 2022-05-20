@@ -2797,3 +2797,149 @@ export function pass_input(env){
     env.setParam("output",i);
   })
 };
+
+
+// операция компоновки объектов (процессов)
+// compose_input - список объектов для операции
+/*
+входы:
+- с одинаковыми именами объединяются т.е. то что идет на вход - рассылается обоим
+- с разными именами - поступают тому чье имя.
+выходы:
+- с одинаковыми именами - объединяются в вектор
+- с разными именами (уник) - продолжают быть собой
+
+ реализация: 
+  * по факту у нас нет входов выходов а только наметки..
+  * не страшно выглядит если мы будем просто все входящие параметры широковещать обоим да и все
+    если будет внутри объект реагировать ну ок, если нет - то и ладно
+
+*/
+export function compose_p(env) {
+  let uu = create_unsub_list(env);
+  let input = [];
+
+  let compose_input_name = "input";
+  // засада если это input то мы тем input не раскинем...
+  // но предполагаю что compose_p инпут нужен будет чаще
+  // а если тем надо будет, ну сделаем им __input передачу
+  // ну или parallel я еще хотел сделать..
+  // короче дилемма
+
+/*
+  if (env.params.use_children) {
+    input = env.ns.children;
+    env.on("childrenChanged",())
+  }
+*/  
+  
+  // входы - широковещаем
+  env.on("param_changed",pass_broadcast_input);
+
+  function pass_broadcast_input( p,v ) {
+     if (p == compose_input_name) return;
+     // таким образом то что мы выдали на gather_output - здесь отсечется.
+     if (env.getParamOption( p,"isoutput") ) return;
+
+     for (let c of input) {
+        c.setParamOption( p,"isinput", true );
+        c.setParam( p,v );
+     };    
+  }
+
+  // собираем выходы
+  env.onvalue( compose_input_name, (inp) => {
+    start_gathering_output( inp )
+    /*
+    if (env.params.use_children)
+       inp = env.ns.children;
+     else
+       inp = env.params.input;
+    // вот мы и приехали в ситуацию когда чилдрены должны быть чистыми
+    // и причем неясно по какому признаку - они и не дом и не...
+    // но ссылок, репитеров, инсерт-чилрденов, ифов нам тут не надо.. 
+
+    короче отложим это пока
+    */
+  });
+
+  function start_gathering_output(inp) {
+    uu.unsubscribe();
+
+    if (!Array.isArray(inp)) {
+      input = [];
+      console.warn("compose: input is not array", inp, env.getPath(), env);
+      return;
+    }
+    inp = inp.filter(n => n);
+
+    if (inp.length == 0)
+      console.warn("compose_p: input len is 0");
+
+    input = inp;
+
+    // зададим текущие входы
+    for (let p of env.getParamsNames()) {
+      pass_broadcast_input( p, env.getParam(p) );
+    }
+
+    for (let c of input)
+    {
+      // будем ждать сигналов от процесса для передачи на общий выход
+      uu.subscribe( c.on("param_changed", gather_output ));
+      // разошлем текущие значения на выходы
+      for (let p of c.getParamsNames())  // todo optimize дублирование
+        gather_output( p, c.getParam(p) );
+    }
+  }
+
+  function gather_output(name,value) {
+     //.. выходной параметр объекта поменялся..
+     
+     let count = 0;
+     for (let c of input) {
+       if (c.hasParam( name )) { 
+          if (c.getParamOption( name,"isinput" )) {
+            //console.log("compose:")
+            // быстро выяснено что это был входной параметр - отсекаем
+            return;
+          }
+          if (c.getParamOption( name,"manual" )) {
+            return;
+          }
+          count++;
+          if (count > 1) break;
+       }
+     };
+     
+     let acc;
+     if (count > 1) // режим сборки в массив
+     {
+        acc = input.map( (c) => c.getParam(name));
+     }
+     else
+     { // обычный режим
+        acc = value;
+     }
+     env.setParamOption( name, "isoutput", true );
+     env.setParam( name, acc );
+  }; // gather_output
+
+}
+
+function create_unsub_list(env)
+{
+  let unsub_arr = [];
+  
+  unsub_arr.unsubscribe = () => {
+    unsub_arr.map( f => f() );
+    unsub_arr.length = 0;
+  }
+  unsub_arr.subscribe = (f) => {
+    unsub_arr.push( f );
+  }
+
+  env.on("remove",unsub_arr.unsubscribe)
+
+  return unsub_arr;
+}
