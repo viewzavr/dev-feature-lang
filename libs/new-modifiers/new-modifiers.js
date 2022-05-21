@@ -184,6 +184,7 @@ export function x_on( env  )
       //console.log("on: subscribing to event" , name, obj.getPath() )
       u1 = obj.on( name ,(...args) => {
         //console.log("on: passing event" , name )
+
         let fargs = [ obj ].concat( args );
         // получается крышеснос
         // мб там как-то на this повлиять и пусть в нем будет obj и пр
@@ -192,6 +193,9 @@ export function x_on( env  )
         // а то там мало ли объектов
 
         // но это абсолютнейший крышеснос, неявное появление параметра. надо что-то с этим делать
+
+        // update: подтверждаю, полнейший крышеснос, абсолютный.
+        // надо как-то переходить на ключи видимо
 
         /* не работает
         if (name == "remove") {

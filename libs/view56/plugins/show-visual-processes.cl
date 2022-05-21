@@ -36,7 +36,7 @@ feature "render_process_hierarchy" {
     style_h = "max-height:80vh;"
     {
 
-    	button "Добавить";
+    	// button "Добавить";
      //link to="@ba->add_to" from=(@rl_root->items | get @s->index | get "add_to");
      //ba: button_add_object 
      //      add_type=(@rl_root->items | get @s->index | get "add");

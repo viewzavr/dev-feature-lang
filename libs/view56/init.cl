@@ -7,6 +7,7 @@ feature "the_project" {
   project:
   //views=(get-children-arr input=@project | pause_input | arr_filter_by_features features="the-view")
   views=(find-objects-bf features="the-view" root=@project | sort_by_priority)
+  //active_view=(@project->views | geta @ssr->index)
   
   //processes=(get-children-arr input=@project | arr_filter_by_features features="visual-process")
   processes=(find-objects-bf features="visual-process" root=@project recursive=false | sort_by_priority)
@@ -16,9 +17,11 @@ feature "the_project" {
 
 ///////////////////////////////////////////// экраны и процессы
 
+// тпу таблица типов экранов
 feature "the_view_types";
 the_view_types_inst: the_view_types;
 
+// project ему выставляется
 feature "the_view" 
 {
   tv: 
@@ -54,14 +57,40 @@ feature "the_view"
   //sibling_titles=["Одна сцена","Слева на право", "Окно в окне"]
   sibling_types=(@the_view_types_inst | get_children_arr | map_geta "value")
   sibling_titles=(@the_view_types_inst | get_children_arr | map_geta "title")
-  ;
   
+
+  // todo добавить методы "подключить процесс"
+  // мысли - похоже процесс это просто процесс а в какой экран идет это уже параметр ассоциации...
+  // которую не вполне ясно как пока идентифицировать..
+
+  {{ x-add-cmd name="append_process" code=(i-call-js view=@tv code=`(val) => {
+      let view = env.params.view;
+      view.params.sources ||= [];
+      view.params.sources_str ||= '';
+      if (!val) return;
+      
+      let curind = view.params.sources.indexOf( val );
+      if (curind >= 0) return;
+
+      let project = view.params.project;
+      let add = '@' + val.getPathRelative( project );
+      
+      let filtered = view.params.sources_str.split(',').filter( (v) => v.length>0)
+      let nv = filtered.concat([add]).join(',');
+      view.setParam( 'sources_str', nv, true);
+    }`);
+  }}
+
+  ;
 };
 
 feature "visual_process" {
     title="Визуальный процесс"
     visible=true
-    output=@~->scene3d; // это сделано чтобы визпроцесс можно было как элемент сцены использовать
+    output=@~->scene3d
+
+    {{ x-param-string name="title" }}
+    ; // это сделано чтобы визпроцесс можно было как элемент сцены использовать
 };
 
 feature "top_visual_process" {
@@ -101,8 +130,9 @@ feature "show_visual_tab" {
 feature "render_project_right_col";
 
 feature "render_project" {
-   rend: column padding="1em" project=@.->0 active_view_index=0 
-            active_view=(@rend->project|geta "views"|geta @ssr->index){
+   rend: column padding="1em" project=@.->0 
+            active_view_index=0 
+            active_view=(@rend->project|geta "views"|geta @ssr->index) {
 
        ssr: switch_selector_row 
                index=@rend->active_view_index
@@ -115,6 +145,9 @@ feature "render_project" {
        column render_project_right_col 
          style="padding-left:2em; min-width: 80px; position:absolute; right: 1em; top: 1em; gap: 0.2em;" 
          project=@rend->project
+         //render_project=@rend
+         active_view=@rend->active_view
+         //render_project=@rend
          //{{ x-modify list=@render_project_right_col_modifier }}
         {
         }; // column справа

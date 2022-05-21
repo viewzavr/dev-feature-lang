@@ -59,6 +59,27 @@ feature "sort_by_priority"
        }";    
 };
 
+feature "created_mark_manual" {
+  onevent name="created" 
+     code=`
+         args[0].manuallyInserted=true;  
+     `;
+  ;    
+};
+
+// curview параметр обязательный, процесс приезжает в аргументе
+feature "created_add_to_current_view" {
+  x-on "created" 
+     code=`
+         
+         let item = args[1];
+         env.params.curview.append_process( item );
+         //let project = args[0].ns.parent;
+         //args[0].manuallyInserted=true;
+     `;
+  ;    
+};
+
 // add_to 
 // add_type
 feature "button_add_object" {
@@ -69,6 +90,7 @@ feature "button_add_object" {
         cre: creator input={}
           {{ onevent name="created" 
              newf=@bt_root->add_type
+             btroot=@bt_root
              code=`
                  args[0].manuallyInserted=true;
 
@@ -78,10 +100,13 @@ feature "button_add_object" {
                  //args[0].manual_feature( "linestr" );
                  //args[0].setParamManualFlag("manual_features");
                  //let s = "linestr";
+
                  let s = env.params.newf;
                  args[0].setParam("manual_features",s,true)
                  
-                 console.log("created",args[0])
+                 //console.log("created",args[0])
+
+                 env.params.btroot.emit("created", args[0] );
              `
           }};
      };    
