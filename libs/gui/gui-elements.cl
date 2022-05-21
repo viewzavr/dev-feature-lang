@@ -537,7 +537,8 @@ register_feature name="switch_selector" {
 
 // но с другой стороны тут еще стили особые появятся, поэтому ладно уж
 register_feature name="switch_selector_row" {
-	root: row index=0 gap="0.2em" generated_items=@rep->output {
+	root: row index=0 gap="0.2em" generated_items=@rep->output 
+	{
 		rep: repeater input=@root->items {
 			 button text=@.->input
 			 {

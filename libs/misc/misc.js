@@ -5,6 +5,8 @@ export function setup(vz, m) {
 export function apply_by_hotkey(env) {
 
  env.feature("func");
+ env.feature("param-alias");
+ env.addParamAlias("hotkey",0);
 
  var unsub = () => {};
  env.onvalue( "hotkey",(key) => {

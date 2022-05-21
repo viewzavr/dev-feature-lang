@@ -132,7 +132,17 @@ feature "render_project_right_col";
 feature "render_project" {
    rend: column padding="1em" project=@.->0 
             active_view_index=0 
-            active_view=(@rend->project|geta "views"|geta @ssr->index) {
+            active_view=(@rend->project|geta "views"|geta @ssr->index) 
+
+            {{ x-add-cmd name="goto_next_view" code=(i-call-js ssr=@ssr code=`(val) => {
+              let ssr = env.params.ssr;
+              let len = ssr.params?.items?.length || 0;
+              if (len > 0)
+                 ssr.setParam( "index", (ssr.params.index+1) % len );
+            }`);
+            }}
+
+            {
 
        ssr: switch_selector_row 
                index=@rend->active_view_index
