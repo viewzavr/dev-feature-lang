@@ -26,7 +26,6 @@ export function set_params( env )
 // новый модификатор
 export function x_set_params( env )
 {
-
   let detach = {};
 
   env.on("attach",(obj) => {
@@ -37,12 +36,14 @@ export function x_set_params( env )
       let channel = obj.create_subchannel();
 
       env.on('param_changed',(name,value) => { // todo optimize
-         channel.setParam( name, value ); 
+         if (name !== "__manual")
+            channel.setParam( name, value, env.params.__manual ); 
       });
       
       for (let c of env.getParamsNames()) {
          //console.log("setting param ",c)
-         channel.setParam( c, env.getParam(c));
+         if (c !== "__manual")
+            channel.setParam( c, env.getParam(c), env.params.__manual );
       }
 
       let unsub = () => { if (!channel.removed) channel.remove(); }

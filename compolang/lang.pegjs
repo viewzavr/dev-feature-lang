@@ -236,6 +236,7 @@ one_env
          //env.env_list_params[ m.name ] = m.value.param_value_env_list;
          let v = m.value.param_value_env_list;
          v.needLexicalParent=true;
+         v.this_is_env_list = true;
          env.params[ m.name ] = v;
       }
       else

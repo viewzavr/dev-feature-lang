@@ -6,10 +6,46 @@ project: the_project active_view_index=1
 {
 
   insert_default_children input=@project list={
+
     lf: landing-file;
 
-    lv1: landing-view-1;
-    lv2: landing-view-2;
+//  попробуем разабстрагировать, мб временно..
+//    lv1: landing-view-1;
+//    /lv2: landing-view-2;
+
+    lv1: landing-view-base title="Приземление, общий вид"
+    scene3d_items={
+        linestr 
+             data_adjust="traj";
+
+        ptstr radius=2 
+             data_adjust="traj";
+
+        models 
+             data_adjust="curtime";
+
+        axes;
+        pole;
+        kvadrat;
+    };
+
+    lv2: 
+    landing-view-base title="Приземление, вид на объект"
+    file_params_modifiers={
+      xx: x-set-params project_x=true project_y=true project_z=true scale_y=false;
+    }
+    scene3d_items={
+        models 
+             data_adjust="curtime";
+
+        // вроде как не нужны - смотрелкой добавляются.. axes;
+        setka;
+        axes;
+    }
+    scene2d_items={
+      //selectedvars;
+    }
+    ;    
 
     lv_t_cur: landing-view-base title="Вывод T" scene2d_items={ curtime; };
 
@@ -23,10 +59,10 @@ project: the_project active_view_index=1
         sources_str="@lf";
 
     v1: the-view-mix3d title="Общий вид" 
-        sources_str="@lv/lv1";
+        sources_str="@lv1";
 
     v2: the-view-mix3d title="Вид на ракету" 
-        sources_str="@lv/lv2";
+        sources_str="@lv2";
   };
 
 };
