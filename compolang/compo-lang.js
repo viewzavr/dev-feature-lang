@@ -636,6 +636,13 @@ function add_dir_if( path, dir ) {
   return dir + path;
 }
 
+export function resolve_url( env ) {
+  env.onvalue(0,(v) => {
+    let r = env.compute_path(v);
+    env.setParam("output",r);
+  })
+}
+
 export function base_url_tracing( env, opts ) 
 {
   env.$base_url = opts.base_url;
