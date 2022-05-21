@@ -6,8 +6,38 @@
 // load "view56";
 // load "view56/vp/universal-vp.cl"; todo
 
+find-objects-bf features="render_project_right_col" recursive=false 
+|
+insert_children { manage_landing; };
+
+feature "manage_landing" {
+  ma: 
+      project=@..->project
+      curview=@..->active_view
+
+  collapsible "Проект Landing" {
+    column plashka {
+      text "Добавить:";
+      button_add_object "Новые данные" 
+         add_to=@ma->project 
+         add_type="landing-file"
+         {{
+           created_add_to_current_view curview=@ma->curview;
+         }};
+      button_add_object "Новый образ" 
+         add_to=@ma->project 
+         add_type="landing-view-base"
+         {{
+           created_add_to_current_view curview=@ma->curview;
+         }};         
+    };
+  };
+};
+
 feature "landing-file" {
-  view: visual_process title="Файл с данными ракеты" visible=true 
+  view: visual_process 
+    title="Файл с данными ракеты" 
+    visible=true 
     output=@loaded_data->output
 
   gui={
@@ -15,11 +45,14 @@ feature "landing-file" {
         text "Укажите текстовый файл с данными";
         render-params  input=@fileparams;
     };
-  } 
+  }
+  gui3={
+    render-params @view;
+  }
   {
     fileparams: {
       //f1_info: param_label "Укажите текстовый файл с данными";
-      f1:  param_file value="https://viewlang.ru/assets/other/landing/2021-10-phase.txt";
+      f1:  param_file value=(resolve_url "../2021-10-phase.txt");
       lines_loaded: param_label (@loaded_data->output | get name="length");
 
       loaded_data: load-file file=@fileparams->f1
@@ -120,7 +153,7 @@ feature "landing-view-2" {
 feature "landing-view-base" 
 {
 
-  view: visual_process title="Возвращение" visible=true 
+  view: visual_process title="Проект Landing" visible=true 
   
   //time_index=@timeparams->time_index
 
@@ -353,7 +386,7 @@ models: feature {
             @root->input | df_slice count=100 | df_to_rows | rep: repeater {
               gltf:
                 render_gltf
-                src="https://viewlang.ru/assets/models/Lake_IV_Heavy.glb" 
+                src=(resolve_url "../Lake_IV_Heavy.glb")
                 positions=(@gltf->input | df_combine columns=["X","Y","Z"])
                 rotations=(@gltf->input | df_combine columns=["RX","RY","RZ"])
                 
