@@ -41,7 +41,7 @@ feature "astra-vis-1" {
 	gui3={
 		render-params @avp;
 	}
-	current_file="http://127.0.0.1:8080/public_local/data/gout_000.dat"
+	current_file="http://127.0.0.1:8080/public_local/data2/gout_001.csv"
 	{{ x-param-file name="current_file"; }}
 
 	lines_loaded=(@loaded_data->output | geta "length")
@@ -49,7 +49,8 @@ feature "astra-vis-1" {
 
 	scene3d=@scene->output
 	{
-      	loaded_data: load-file file=@avp->current_file | joinlines "X Y Z" @.->input | parse_csv separator="\s+";
+//      	loaded_data: load-file file=@avp->current_file | joinlines "X Y Z" @.->input | parse_csv separator="\s+";
+      	loaded_data: load-file file=@avp->current_file | parse_csv separator=",";
 
 		scene: node3d visible=@avp->visible force_dump=true
 		{
