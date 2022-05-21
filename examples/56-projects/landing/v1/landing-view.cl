@@ -1,6 +1,3 @@
-apply_by_hotkey "c" {
-  console_log_apply "test";
-};
 
 // визуальный процесс "Возвращение"
 // надо с терминами разобраться. это даж не визуальный процесс а процесс вида отображения.
@@ -33,7 +30,19 @@ feature "manage_landing" {
          add_type="landing-view-base"
          {{
            created_add_to_current_view curview=@ma->curview;
-         }};         
+         }};
+      button_add_object "Новый образ с траекторией" 
+         add_to=@ma->project 
+         add_type="landing-view-1"
+         {{
+           created_add_to_current_view curview=@ma->curview;
+         }};
+      button_add_object "Новый образ с ракетой в центре" 
+         add_to=@ma->project 
+         add_type="landing-view-2"
+         {{
+           created_add_to_current_view curview=@ma->curview;
+         }};
     };
   };
 };

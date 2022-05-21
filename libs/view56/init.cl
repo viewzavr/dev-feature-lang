@@ -63,6 +63,7 @@ feature "the_view"
   // мысли - похоже процесс это просто процесс а в какой экран идет это уже параметр ассоциации...
   // которую не вполне ясно как пока идентифицировать..
 
+  {{ x-param-option name="append_process" option="visible" value=false }}
   {{ x-add-cmd name="append_process" code=(i-call-js view=@tv code=`(val) => {
       let view = env.params.view;
       view.params.sources ||= [];
