@@ -1,5 +1,5 @@
 phase_yScaled2.csv
 node_modules
 *.csv
-
+public_local
 package-lock.json

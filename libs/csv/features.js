@@ -10,6 +10,7 @@ export function parse_csv( env ) {
   //var empty_df = df.create();
   env.addText("input");
   env.addString("separator",",");
+  //env.addString("columns");
 
   env.onvalues(["input","separator"],(text,sep) => {
     var df = CSV( text,sep );

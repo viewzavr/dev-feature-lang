@@ -93,6 +93,26 @@ feature "x-param-string" {
   ";
 };
 
+feature "x-param-label" {
+  r: x-patch-r @r->name
+  code="(name,obj) => {
+    
+    if (!name) return;
+    obj.addLabel( name, undefined );
+  }
+  ";
+};
+
+feature "x-param-file" {
+  r: x-patch-r @r->name
+  code="(name,obj) => {
+    
+    if (!name) return;
+    obj.addFile( name, undefined );
+  }
+  ";
+};
+
 /*
     x-param-slider name="test" max=200;
     x-on "param_test_changed" code=`(a,b,c) => console.log('sl changed',a,b,c)`;

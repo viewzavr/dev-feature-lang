@@ -59,6 +59,8 @@ feature "the_view"
 };
 
 feature "visual_process" {
+    title="Визуальный процесс"
+    visible=true
     output=@~->scene3d; // это сделано чтобы визпроцесс можно было как элемент сцены использовать
 };
 
