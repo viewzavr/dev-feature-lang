@@ -139,9 +139,12 @@ feature "object_change_type"
 
                 let dump = obj.dump();
 
+                let origparent = obj.ns.parent;
+                obj.remove();
+
                 //console.log("dump is",dump)
 
-                let newobj = obj.vz.createObj({parent: obj.ns.parent});
+                let newobj = obj.vz.createObj({parent: origparent});
                 newobj.manual_feature( v );
                 newobj.manuallyInserted=true;
 
@@ -155,7 +158,7 @@ feature "object_change_type"
                   newobj.restoreFromDump( dump, true );
                 }
 
-                obj.remove();
+                
 
                 }`;
 
