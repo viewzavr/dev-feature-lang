@@ -16,5 +16,6 @@ load "plugins/rotate-views.cl";
 // решатели задач визуализации
 
 load "vp/universal-vp.cl";
+load "vp/axes-vp.cl";
 
 // load "solvers/landing/landing-view.cl";

@@ -47,8 +47,11 @@ feature "manage_landing" {
   };
 };
 
+// маркер поставщика данных df
+feature "df56";
+
 feature "landing-file" {
-  view: visual_process 
+  view: visual_process df56
     title="Файл с данными ракеты" 
     visible=true 
     output=@loaded_data->output
@@ -258,7 +261,7 @@ feature "landing-view-base"
 
 	fileparams: scale_y=true y_scale_coef=50
   {{
-        datafiles: find-objects-bf features="landing-file" | arr_map code="(v) => v.getPath()+'->output'";
+        datafiles: find-objects-bf features="visual-file" | arr_map code="(v) => v.getPath()+'->output'";
 
         x-modify {
           insert_children input=@.. list=@view->file_params_modifiers;
@@ -290,7 +293,8 @@ feature "landing-view-base"
 	data_compute:
 	{
 
-	  internal_columns_dat: @loaded_data->output | df_set X="->x[м]" Y="->y[м]" Z="->z[м]" T="->t[c]"
+	  internal_columns_dat: @loaded_data->output 
+                | df_set X="->x[м]" Y="->y[м]" Z="->z[м]" T="->t[c]"
 	                RX="->theta[град]" RY="->psi[град]" RZ="->gamma[град]"
 	              | df_div column="RX" coef=57.7
 	              | df_div column="RY" coef=57.7
@@ -325,7 +329,7 @@ feature "landing-view-base"
 
     dat: output=@compute_pipe->output;
 
-	  dat_cur_time_orig: @loaded_data->output | df_slice start=@timeparams->time_index count=1; 	              
+	  dat_cur_time_orig: @loaded_data->output | df_slice start=@timeparams->time_index count=1;
     // dat_cur_time_orig - по идее рисовалки текста сами себе могли бы выдирать данные
     // но да ладно уж
 	};
@@ -367,7 +371,6 @@ feature "landing-view-base"
     };
 
   };
-	
 
 };
 
@@ -587,7 +590,7 @@ datavis: feature {
          option="priority"
          value=10;
 
-    pipe: pipe /*input=@rt->df*/ {
+    pipe: pipe /*input=@rt->df*/ df56 {
         // todo - воткнуть как-то по умолчанию curtime что ли.. 
         // короче  до моделей долетают данные которые фильтры еще не успели активироваться
         if (@rt->data_adjust == "curtime") then={

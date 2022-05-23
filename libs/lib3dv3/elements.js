@@ -287,8 +287,10 @@ export function lines_df_input( env ) {
 
     if (dat.XYZ || dat.positions)
       env.setParam("positions", dat.XYZ || dat.positions );  
+    else if (dat.X2 && dat.Y2 && dat.Z2)
+      env.setParam("positions", utils.combine( [ dat.X, dat.Y, dat.Z, dat.X2, dat.Y2, dat.Z2 ] ) )
     else
-      env.setParam("positions", utils.combine( [ dat.X, dat.Y, dat.Z, dat.X2, dat.Y2, dat.Z2 ] ) );
+      env.setParam("positions", utils.combine( [ dat.X, dat.Y, dat.Z ] ) )
 
     if (dat.colors)
       env.setParam("colors", dat.colors );

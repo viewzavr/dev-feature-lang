@@ -110,3 +110,50 @@ export function df_to_rows( env ) {
     env.setParam("output",res);
   });
 }
+
+// вход массив df-ов
+// выход df в котором строки df-ов поочередно заполнены значениями из списка исходных df
+export function df_interleave( env ) {
+  env.onvalues(["input"],(value) => {
+    if (!Array.isArray(value))
+    {
+      env.setParam("output",[]);
+      return;
+    }
+
+    value = value.filter( n => n != null);
+
+    let df1 = value[0];
+    if (!df.is_df(df1))
+      {
+      env.setParam("output",[]);
+      return;
+    }
+
+    let has_column = {};
+    for (let j=1; j<value.length; j++) {
+      has_column[j] = {};
+      for (let q of value[j].get_column_names())
+        has_column[j][q] = true;
+    }
+
+    let res = df.create();
+    for (let name of df1.get_column_names()) 
+    {
+      let acc = [];
+      let col = df1[name];
+      for (let i=0; i<col.length; i++) {
+        acc.push( col[i] );
+        for (let j=1; j<value.length; j++) {
+          if (has_column[ j ][name]) {
+            let v = value[j][name][i];
+            acc.push( v );
+          }  
+        }
+      }
+      res.add_column( name, acc );
+    };
+    
+    env.setParam("output",res);
+  });
+}
