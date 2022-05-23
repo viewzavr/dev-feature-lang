@@ -92,21 +92,27 @@ feature "universal_vp"
                      "add_to": "@scene->."
                    },
 
-                   {"title":"Вычисления",
-                    "find":"ecompute",
-                    "add":"ecompute1",
-                    "add_to": "@ecomputescene->."
-                   },
-
                    {"title":"Текстовые написи",
                     "find":"escreenvis",
                     "add":"eh2",
                     "add_to":"@screen_space->."
                    },
 
+                   {"title":"Вычисления",
+                    "find":"ecompute",
+                    "add":"ecompute1",
+                    "add_to": "@ecomputescene->."
+                   },
+
                    {"title":"Файлы данных",
                     "find":"linesetc-file",
                     "add":"linesetc-file",
+                    "add_to": "@ecomputescene->."
+                   },
+
+                   {"title":"Синхронизация",
+                    "find":"esync",
+                    "add":"esync1",
                     "add_to": "@ecomputescene->."
                    }
                  ]
@@ -126,7 +132,7 @@ feature "universal_vp"
   
   {
 
-    ecomputescene: force_dump=true;
+    ecomputescene: force_dump=true project=@view->project;
 
     scene: node3d visible=@view->visible force_dump=true
     {
@@ -317,3 +323,37 @@ ecompute_param: feature {
       link from=@ep->input_link to="@ep->output";
     };
 };
+
+
+esync: feature {
+	sibling_types=["esync1"] 
+    sibling_titles=["Синхронизировать все процессы"];
+};
+
+esync1: feature {
+	es1: 
+	esync project=@..->project
+	gui={
+		render-params @es1;
+	}
+	{{
+		x-param-string name="synced_param_name";
+		x-param-label name="synced_param_value";
+		x-param-label name="processes-found";
+	}}
+	processes-found=(@synced_processes | geta "length");
+	{
+	  synced_processes: (find-objects-bf features="visual-process" root=@es1->project);
+
+      @synced_processes | insert_children {
+        link from="@es1->synced_param_value" 
+             to=(join ".->" @es1->synced_param_name) 
+                 tied_to_parent=true manual_mode=true;
+
+        link to="@es1->synced_param_value"
+             from=(join ".->" @es1->synced_param_name)
+                 tied_to_parent=true manual_mode=true;
+      };
+
+	};
+};	

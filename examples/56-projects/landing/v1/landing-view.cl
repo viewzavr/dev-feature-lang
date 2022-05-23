@@ -19,13 +19,13 @@ feature "manage_landing" {
   collapsible "Проект Landing" {
     column plashka {
       text "Добавить:";
-      button_add_object "Новые данные" 
+      button_add_object "Новый файл данных" 
          add_to=@ma->project 
          add_type="landing-file"
          {{
            created_add_to_current_view curview=@ma->curview;
          }};
-      button_add_object "Новый образ" 
+      button_add_object "Новый образ с нуля" 
          add_to=@ma->project 
          add_type="landing-view-base"
          {{
@@ -241,7 +241,8 @@ feature "landing-view-base"
 
 	timeparams: {
     link from="@timeparams->time_index" to="@view->time_index";
-    link to="@timeparams->time_index" from="@view->external_time_index" manual_mode=true;
+    link to="@timeparams->time_index" from="@view->time_index" manual_mode=true;
+    //link to="@timeparams->time_index" from="@view->external_time_index" manual_mode=true;
     
 
 	  time_index: param_slider
