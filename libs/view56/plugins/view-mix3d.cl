@@ -17,7 +17,7 @@ feature "the_view_mix3d" {
 feature "show_visual_tab_mix3d" {
    svt: dom_group 
    {
-    show_sources_params input=@svt->input;
+    show_sources_params input=(@svt->input | geta "sources");
 
     dom style_k="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2"
     { // комбинатор-оверлей

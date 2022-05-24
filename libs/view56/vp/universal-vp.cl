@@ -7,27 +7,49 @@ feature "manage_universal_vp" {
       project=@..->project
       curview=@..->active_view
 
-  collapsible "Произвольная графика" {
+  collapsible "Произвольные узлы" {
     column plashka {
       text "Добавить:";
-      button_add_object "Добавить визуальный образ" 
+      button_add_object "Добавить 3d образ" 
          add_to=@ma->project 
-         add_type="universal_vp"
+         add_type="elinestr"
          {{
            created_add_to_current_view curview=@ma->curview;
          }};
+
       button_add_object "Добавить вычисление" 
          add_to=@ma->project 
-         add_type="linesetc_compute"
+         add_type="ecompute1"
          {{
            created_add_to_current_view curview=@ma->curview;
-         }};         
+         }};
+
+      button_add_object "Добавить синхронизацию" 
+         add_to=@ma->project 
+         add_type="esync1"
+         {{
+           created_add_to_current_view curview=@ma->curview;
+         }};
+
       button_add_object "Добавить файл" 
          add_to=@ma->project 
          add_type="linesetc_file"
          {{
            created_add_to_current_view curview=@ma->curview;
          }};
+      button_add_object "Добавить группу" 
+         add_to=@ma->project 
+         add_type="group-vp"
+         {{
+           created_add_to_current_view curview=@ma->curview;
+         }};
+
+	  button_add_object "Добавить совмещенный узел" 
+         add_to=@ma->project 
+         add_type="universal_vp"
+         {{
+           created_add_to_current_view curview=@ma->curview;
+         }};         
 
     };
   };
@@ -73,7 +95,7 @@ feature "linesetc-file" {
 
 feature "universal_vp" 
 {
-  view: visual_process title="Образ" visible=true 
+  view: visual_process title="Совмещённый" visible=true 
   
   //time_index=@timeparams->time_index
 
@@ -176,8 +198,8 @@ emodels: feature {
         };
 };
 
-feature "mesh" {
-        main: mesh _gui={ render-params input=@main; } datavis2
+feature "emesh" {
+        main: mesh edatavis _gui={ render-params input=@main; }
        ;
 };
 
@@ -201,6 +223,7 @@ feature "etext" {
 edatavis: feature {
   rt: 
     input=@data56->output
+    visual_process
     gui={
       render-params @fileparams;
       render-params @rt;
@@ -266,12 +289,15 @@ efile: feature {
 };
 
 ecompute: feature {
+	title="Вычисление"
+	visual_process
 	sibling_types=["ecompute1"] 
     sibling_titles=["Смешать построчно"];
 };
 
 ecompute1: feature {
 	ec1: ecompute df56
+
 	gui={
 		text "Массив 1";
 		render-params @p1;
@@ -326,15 +352,21 @@ ecompute_param: feature {
 
 
 esync: feature {
+	visual_process
 	sibling_types=["esync1"] 
-    sibling_titles=["Синхронизировать все процессы"];
+    sibling_titles=["Синхронизировать все процессы"]
+    title="Синхронизация"
+    ;
 };
 
 esync1: feature {
 	es1: 
 	esync project=@..->project
+
 	gui={
-		render-params @es1;
+		column plashka {
+		  render-params @es1;
+	    };
 	}
 	{{
 		x-param-string name="synced_param_name";

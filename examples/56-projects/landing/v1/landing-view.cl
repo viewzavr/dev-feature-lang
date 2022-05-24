@@ -262,7 +262,7 @@ feature "landing-view-base"
 
 	fileparams: scale_y=true y_scale_coef=50
   {{
-        datafiles: find-objects-bf features="visual-file" | arr_map code="(v) => v.getPath()+'->output'";
+        datafiles: find-objects-bf features="landing-file" | arr_map code="(v) => v.getPath()+'->output'";
 
         x-modify {
           insert_children input=@.. list=@view->file_params_modifiers;

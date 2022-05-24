@@ -865,7 +865,8 @@ export function call_cmd( env )
 {
   env.addObjectRef("target");
 
-   env.addCmd( "apply",(...args) => {
+
+  env.addCmd( "apply",(...args) => {
 
       if (!env.params.target) {
         console.error("call_cmd: target not specified", env.getPath());
@@ -878,7 +879,9 @@ export function call_cmd( env )
 
       env.params.target.callCmd( env.params.name, ...args );
 
-   } )
+   } );
+
+  env.setParam("output", env.apply);
 }
 
 // вызывает функцию или команду name у объекта target

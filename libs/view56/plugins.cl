@@ -17,5 +17,6 @@ load "plugins/rotate-views.cl";
 
 load "vp/universal-vp.cl";
 load "vp/axes-vp.cl";
+load "vp/group-vp.cl";
 
 // load "solvers/landing/landing-view.cl";

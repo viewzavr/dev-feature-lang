@@ -101,11 +101,12 @@ feature "show_3d_scene" {
 };
 
 // рисует боковушку - параметры визпроцессов...
+// input - список процессов
 feature "show_sources_params"
 {
   sv: row {
     svlist: column {
-      repeater input=(@sv->input | geta "sources") {
+      repeater input=@sv->input {
         mm: 
          row {
         //dom tag="fieldset" style="border-radius: 5px; padding: 2px; margin: 2px;" {

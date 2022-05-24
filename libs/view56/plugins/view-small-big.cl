@@ -22,7 +22,7 @@ feature "show_visual_tab_small_big" {
    svsm: dom_group
    {
 
-    show_sources_params input=@svsm->input;
+    show_sources_params input=(@svsm->input| geta "sources");
 
     show_3d_scene 
        scene3d=(@svsm->input | geta "scene3d" 0) 
