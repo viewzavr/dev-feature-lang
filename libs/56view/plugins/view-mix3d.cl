@@ -11,7 +11,7 @@ feature "the_view_mix3d" {
         {
           cam: camera3d pos=[-400,350,350] center=[0,0,0];
           insert_features input=@cam list=@tv->camera_modifiers;
-          
+
           ////@cam | x-modify { insert list=@tv->camera_modifiers;
           // вот бы метод getCameraFor(i).. т.е. такое вычисление по запросу..
         };
@@ -19,13 +19,14 @@ feature "the_view_mix3d" {
 
 feature "show_visual_tab_mix3d" {
    svt: dom_group 
+     screenshot_dom = @s3d->dom
    {
     show_sources_params input=(@svt->input | geta "sources");
 
     dom style_k="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2"
     { // комбинатор-оверлей
 
-      show_3d_scene 
+      s3d: show_3d_scene 
          scene3d=(@svt->input | geta "scene3d") 
          camera=(@svt->input | geta "camera") 
       ;

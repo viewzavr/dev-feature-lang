@@ -16,6 +16,7 @@ feature "the_view_row"
 
 feature "show_visual_tab_row" {
    svr: dom_group
+      screenshot_dom = @rrviews->dom
    {
 
     show_sources_params input=(@svr->input | geta "sources");

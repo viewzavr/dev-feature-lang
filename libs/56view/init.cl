@@ -113,7 +113,9 @@ feature "top_visual_process" {
 // имеет записи gui, scene2d, scene3d
 
 feature "show_visual_tab" {
-  sv: dom_group {
+  sv: dom_group 
+        screenshot_dom=(@ic->output | geta 0 | geta "screenshot_dom") 
+  {
     ic: insert_children input=@sv list=(@sv->input | get_param "show_view");
   };
 };
@@ -158,6 +160,7 @@ feature "render_project" {
          project=@rend->project
          //render_project=@rend
          active_view=@rend->active_view
+         active_view_tab=@of->output
          //render_project=@rend
          //{{ x-modify list=@render_project_right_col_modifier }}
         {

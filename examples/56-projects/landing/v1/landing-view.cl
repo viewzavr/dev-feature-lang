@@ -68,7 +68,8 @@ feature "landing-file" {
   {
     fileparams: {
       //f1_info: param_label "Укажите текстовый файл с данными";
-      f1:  param_file value=(resolve_url "../2021-10-phase.txt");
+      //f1:  param_file value=(resolve_url "../2021-10-phase.txt");
+      f1:  param_file value="https://viewlang.ru/assets/other/landing/2021-10-phase.txt";
       lines_loaded: param_label (@loaded_data->output | get name="length");
 
       loaded_data: load-file file=@fileparams->f1
@@ -239,7 +240,7 @@ feature "landing-view-base"
 
   {
 
-	timeparams: {
+	timeparams: time_index=0 {
     link from="@timeparams->time_index" to="@view->time_index";
     link to="@timeparams->time_index" from="@view->time_index" manual_mode=true;
     //link to="@timeparams->time_index" from="@view->external_time_index" manual_mode=true;
@@ -403,7 +404,8 @@ models: feature {
             @root->input | df_slice count=100 | df_to_rows | rep: repeater {
               gltf:
                 render_gltf
-                src=(resolve_url "../Lake_IV_Heavy.glb")
+                //src=(resolve_url "../Lake_IV_Heavy.glb")
+                src="https://viewlang.ru/assets/models/Lake_IV_Heavy.glb" 
                 positions=(@gltf->input | df_combine columns=["X","Y","Z"])
                 rotations=(@gltf->input | df_combine columns=["RX","RY","RZ"])
                 
