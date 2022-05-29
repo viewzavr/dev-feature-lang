@@ -638,6 +638,15 @@ function add_dir_if( path, dir ) {
 
 export function resolve_url( env ) {
   env.onvalue(0,(v) => {
+    // вот вечный вопрос.. что делать с единицами и с массивами..
+    // в js у нас удобно - есть map. но в процессах такого нет и не будет 
+    // в случае обработки обычных данных - их слишком много, и иметь процесс на каждый элемент
+    // это дорого..
+    if (Array.isArray(v)) {
+      let r = v.map( p => env.compute_path(p) )
+      env.setParam("output",r);
+      return;  
+    }
     let r = env.compute_path(v);
     env.setParam("output",r);
   })

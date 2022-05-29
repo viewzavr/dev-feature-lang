@@ -15,6 +15,9 @@ register_feature name="df_get"
   // не надо - onvalues итак уже delayed
   env.onvalues(["input","column"],process);
 
+  env.feature("param-alias");
+  env.addParamAlias( "column",0 );
+
   function process(df,column) {
     if (!df || !df.isDataFrame) {
       env.setParam("output",[]);
