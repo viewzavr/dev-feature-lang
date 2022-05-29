@@ -1,5 +1,5 @@
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d new-modifiers imperative";
-load "view56";
+load "56view";
 load "astra-view.cl";
 
 project: the_project active_view_index=1 
@@ -10,7 +10,9 @@ project: the_project active_view_index=1
     //axes-view;
 
     v1: the-view-mix3d title="Общий вид" 
-        sources_str="@av1";
+        sources_str="@av1"
+        camera_modifiers={ x-set-params pos=[0,-4,1] center=[0,0,0] }
+        ;
 
   };
 

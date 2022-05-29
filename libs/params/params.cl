@@ -74,11 +74,12 @@ feature "x-param-checkbox" {
 */
 
 feature "x-param-slider" {
-  r: x-patch-r @r->name @r->min @r->max @r->step
-  code="(name,min,max,step,obj) => {
+  r: x-patch-r @r->name @r->min @r->max @r->step @r->sliding sliding=true
+  code="(name,min,max,step,sliding, obj) => {
 
     if (!name) return;
     obj.addSlider( name, undefined, min, max, step );
+    obj.setParamOption( name, 'sliding', sliding );
   }
   ";
 };

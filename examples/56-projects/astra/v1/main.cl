@@ -1,5 +1,5 @@
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d new-modifiers imperative";
-load "view56";
+load "56view";
 load "astra-view.cl";
 
 project: the_project active_view_index=1 

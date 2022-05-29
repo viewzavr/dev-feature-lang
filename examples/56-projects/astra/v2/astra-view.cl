@@ -14,7 +14,7 @@ feature "manage_astra" {
 		column plashka {
 			text "Добавить:";
 			button_add_object "Просмотр Astra" 
-			   add_to=@ma->project 
+			   add_to=@ma->project
 			   add_type="astra-vis-1"
 			   {{
 			   	 created_add_to_current_view curview=@ma->curview;
@@ -45,9 +45,10 @@ feature "astra-vis-1" {
 	scene3d=@scene->output
 	{
 
-		astradata:  qqq
+		astradata:  N=0
+		  {{ x-param-slider name="N" sliding=false min=0 max=((@listing->output | geta "length") - 1) }}
+
 		  listing_file="http://127.0.0.1:8080/public_local/data2/data.csv"
-		  {{ x-param-slider name="N" min=0 max=(@listing->output | geta "length") }}
 
 			current_file=( join "http://127.0.0.1:8080/public_local/data2/" (@listing->output | geta @astradata->N) )
 			//current_file="http://127.0.0.1:8080/public_local/data2/gout_001.csv"

@@ -337,19 +337,28 @@ register_feature name="render-param-slider" {
   rps: column {
     text text=@..->name;
     row {
-      slider manual=false {
+      slider manual=false 
+      {
         link from=@../../..->param_path to=".->value" tied_to_parent=true;
         link to=@../../..->param_path from=".->value" tied_to_parent=true 
           soft_mode=true manual_mode=true;
           
         //link from=@..->param_path->min to="..->min";
-        compute obj=@../../..->object name=@../../..->name gui=@../../..->gui code=`
+        compute obj=@rps->obj name=@rps->name gui=@rps->gui code=`
           var sl = env.ns.parent;
           if (env.params.gui) {
             sl.setParam("min", env.params.gui.min );
             //console.log("render-params: setting slider max",env.params.gui.max,"for",env.params.name,env.getPath() )
             sl.setParam("max", env.params.gui.max );
             sl.setParam("step", env.params.gui.step );
+            
+
+            if (env.params.obj) {
+              
+              if (env.params.obj.getParamOption( env.params.name,"sliding") == false)
+                sl.setParam("sliding",false );
+              else sl.setParam("sliding",true );
+            };
             
             //console.log("calling refresh_slider_pos",env.params.gui)
             //sl.callCmd("refresh_slider_pos");
