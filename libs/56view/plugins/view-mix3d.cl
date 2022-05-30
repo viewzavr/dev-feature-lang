@@ -19,11 +19,11 @@ feature "the_view_mix3d" {
 
 feature "show_visual_tab_mix3d" {
    svt: dom_group 
-     screenshot_dom = @s3d->dom
+     screenshot_dom = @kover->dom
    {
     show_sources_params input=(@svt->input | geta "sources");
 
-    dom style_k="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2"
+    kover: dom style_k="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2"
     { // комбинатор-оверлей
 
       s3d: show_3d_scene 

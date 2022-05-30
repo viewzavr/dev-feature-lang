@@ -29,6 +29,8 @@ feature "animations_panel" {
    };
 };
 
+load "./html2canvas.js";
+
 // input - дом элемент
 feature "movie_recorder" {
   q:
@@ -42,9 +44,6 @@ feature "movie_recorder" {
   }`);
 
   x-add-cmd name="grab-screen" code=(i-call-js @q @q->input code=`(env, dom_input) => {
-    //console.log( dom_input )
-    var img = dom_input.toDataURL("image/png");
-
     console.image = function(url, size = 100) {
   var image = new Image();
   image.onload = function() {
@@ -59,11 +58,27 @@ feature "movie_recorder" {
   image.src = url;
 };
     // http://html2canvas.hertzen.com/
-    console.image(img,10)
+
+    html2canvas( dom_input ).then( canvas => {
+       var img = canvas.toDataURL("image/png"); 
+       console.image(img,10);
+        let recorderWindow = env.getParam("wnd");
+        let subcounter = 0;
+        if (recorderWindow)
+            recorderWindow.postMessage( {cmd:"append",args:[img],ack:subcounter},"*");
+    })
+
+    /*
+
+    //console.log( dom_input )
+    //var img = dom_input.toDataURL("image/png");
+
+    console.image(img,10);
     let recorderWindow = env.getParam("wnd");
     let subcounter = 0;
     if (recorderWindow)
         recorderWindow.postMessage( {cmd:"append",args:[img],ack:subcounter},"*");
+    */
   }`);
 
   }}
