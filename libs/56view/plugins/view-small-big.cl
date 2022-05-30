@@ -19,10 +19,15 @@ feature "the_view_small_big"
 // todo: по клику на окно увеличить размер / и обратно
 // понять как визпроцессу повлиять на камеру (типа вид на объект ближе к)
 feature "show_visual_tab_small_big" {
-   svsm: dom_group
+   svsm: dom_group 
+    screenshot_dom = @kover->dom
    {
 
     show_sources_params input=(@svsm->input| geta "sources");
+
+    // введен только ради деланья скриншотов
+    kover: dom style_k="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2"
+    { // комбинатор-оверлей
 
     show_3d_scene 
        scene3d=(@svsm->input | geta "scene3d" 0) 
@@ -46,6 +51,8 @@ feature "show_visual_tab_small_big" {
       column style="padding-left:2em; min-width: 80%; position:absolute; bottom: 1em; left: 1em;" {
          dom_group input=(@svsm->input | geta "scene2d");
       };
+
+    }; // kover
 
    }; // domgroup
 
