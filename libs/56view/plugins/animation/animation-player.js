@@ -27,6 +27,25 @@ export function animation_player( obj, opts )
   obj.addFloat( "delay",2 );
   obj.addLabel("cycle");
 
+  obj.addSlider("progress",0,0,100,1);
+  let itsme_c = false;
+  obj.trackParam("progress",(v) => {
+     if (itsme_c) return;
+    let nv = obj.params.min + (obj.params.max - obj.params.min) * v / 100.0;
+    //obj.setParam("value", nv );
+    var [tobj,tparam] = obj.params.parameter.split("->");
+    tobj = root.findByPath( tobj );
+    if (!tobj) return;
+
+    tobj.setParam( tparam, nv );
+
+  });
+  /*
+  obj.addFloat("value");
+  obj.trackParam("value",(v) => {
+
+  });
+  */
   
   //obj.addCmd("stop",() => obj.setParam("enabled",false));
   obj.addCmd("play",() => obj.setParam("enabled", true, true ));
@@ -105,6 +124,7 @@ export function animation_player( obj, opts )
     if (!isFinite(value)) value = obj.params.start_value;
 
     var nv = value + parseFloat( obj.params.step );
+
     if (nv > obj.params.max) {
        obj.setParam("cycle", (obj.params.cycle || 0) + 1);
        if (obj.params.cycle == 1) obj.emit("first-cycle-finish");
@@ -114,13 +134,19 @@ export function animation_player( obj, opts )
        obj.setParam("cycle", (obj.params.cycle || 0) + 1);
        if (obj.params.cycle == 1) obj.emit("first-cycle-finish");
        nv = obj.params.max;
-    }   
+    }
 
     if (need_restart) { 
         need_restart=false; 
         nv = obj.params.start_value; 
         obj.setParam("cycle",0);
-    }
+    };
+
+    itsme_c = true;
+    let diff = (obj.params.max - obj.params.min);
+    if (Math.abs(diff) > 0.000001)
+      obj.setParam("progress", 100 * (nv-obj.params.min) / diff );
+    itsme_c = false;
 
     tobj.setParam( tparam, nv );
 
