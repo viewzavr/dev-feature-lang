@@ -266,7 +266,7 @@ register_feature name="render-param-float" {
          soft_mode=true; // пустышки не передаем
 
       dom_event name="change" code=`
-        env.params.object.setParam("value",env.params.object.dom.value,true);
+        env.params.object.setParam("value",parseFloat( env.params.object.dom.value ),true);
       `;
     };
   };

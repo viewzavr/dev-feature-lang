@@ -52,6 +52,14 @@ export function animation_player( obj, opts )
   obj.addCmd("pause",() => obj.setParam("enabled", false, true ));
   obj.addCmd("restart",() => { obj.setParam("enabled",true, true); need_restart = true; });
 
+  // вопрос это тут надо делать или где
+  obj.setParamOption("play","visible",false);
+  obj.setParamOption("pause","visible",false);
+  obj.setParamOption("restart","visible",false);
+  obj.setParamOption("rescan-parameter","visible",false);
+  obj.setParamOption("update min-max","visible",false);
+  obj.setParamOption("status-parameter","visible",false);
+
 /*
   obj.addCmd("start",() => { obj.setParam("enabled",true); need_restart = true; });
   obj.addCmd("stop",() => obj.setParam("enabled",false));
