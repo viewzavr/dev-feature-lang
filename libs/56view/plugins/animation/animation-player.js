@@ -1,4 +1,5 @@
 // todo parameter animation - правильное название
+// min, max заменить на from, to..
 
 export default function setup( vz, m ) {
   vz.register_feature( "animation-player", animation_player );
@@ -9,8 +10,12 @@ export default function setup( vz, m ) {
 export function animation_player( obj, opts ) 
 {
   var root = obj.findRoot();
-  obj.feature("enabled");
-  obj.setParam("enabled",false);
+  
+  //obj.feature("enabled");
+  obj.addCheckbox( "playing",false );
+  //obj.setParam("enabled",false);
+  obj.addSlider("progress",0,0,100,1);
+
   //obj.setParamOption("enabled","visible",false);
 
   //obj.addCombo( "parameter",0,["a","b","c"] );
@@ -20,14 +25,13 @@ export function animation_player( obj, opts )
   }, root )
   //obj.setParamOption("parameter","title","Choose parameter")
   obj.addCmd("update min-max",updateminmax);
-  obj.addFloat( "start_value",0 );
+  //obj.addFloat( "start_value",0 );
   obj.addFloat( "min",0 );
   obj.addFloat( "max",1 );
   obj.addFloat( "step",1 );
   obj.addFloat( "delay",2 );
   obj.addLabel("cycle");
 
-  obj.addSlider("progress",0,0,100,1);
   let itsme_c = false;
   obj.trackParam("progress",(v) => {
      if (itsme_c) return;
@@ -48,9 +52,9 @@ export function animation_player( obj, opts )
   */
   
   //obj.addCmd("stop",() => obj.setParam("enabled",false));
-  obj.addCmd("play",() => obj.setParam("enabled", true, true ));
-  obj.addCmd("pause",() => obj.setParam("enabled", false, true ));
-  obj.addCmd("restart",() => { obj.setParam("enabled",true, true); need_restart = true; });
+  obj.addCmd("play",() => obj.setParam("playing", true, true ));
+  obj.addCmd("pause",() => obj.setParam("playing", false, true ));
+  obj.addCmd("restart",() => { obj.setParam("playing",true, true); need_restart = true; });
 
   // вопрос это тут надо делать или где
   obj.setParamOption("play","visible",false);
@@ -94,7 +98,6 @@ export function animation_player( obj, opts )
       obj.setParam( "min", g.min || 0,true );
       obj.setParam( "max", g.max || 1,true );
       obj.setParam( "step", g.step || 1,true );
-      obj.setParam( "start_value", obj.params.min,true );
       //obj.setParam( "start_value", tobj.getParam(tparam),true );
     }
 
@@ -105,7 +108,7 @@ export function animation_player( obj, opts )
 */    
  }
 
- obj.trackParam("enabled",(v) => {
+ obj.trackParam("playing",(v) => {
     if (v) {
        obj.setParam("cycle",0);
     }
@@ -115,7 +118,7 @@ export function animation_player( obj, opts )
  var counter = 0;
  var need_restart = true;
  function animframe() {
-    if (!obj.params.enabled) return;
+    if (!obj.params.playing) return;
     window.requestAnimationFrame( animframe );
 
     // если грузим файлы - надо подождать.
@@ -129,7 +132,7 @@ export function animation_player( obj, opts )
     if (!tobj) return;
 
     var value = tobj.getParam( tparam );
-    if (!isFinite(value)) value = obj.params.start_value;
+    if (!isFinite(value)) value = obj.params.min;
 
     var nv = value + parseFloat( obj.params.step );
 
@@ -146,7 +149,7 @@ export function animation_player( obj, opts )
 
     if (need_restart) { 
         need_restart=false; 
-        nv = obj.params.start_value; 
+        nv = obj.params.min; 
         obj.setParam("cycle",0);
     };
 
@@ -162,6 +165,6 @@ export function animation_player( obj, opts )
  }
 
   obj.on("remove",() => {
-    obj.setParam("enabled",false);
+    obj.setParam("playing",false);
   })
 }

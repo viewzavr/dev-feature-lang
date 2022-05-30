@@ -29,7 +29,7 @@ feature "animations_panel" {
 
      if (@cb->value) then={
        // вроде как не надо? но очищать как очередь..
-       render-params @mv;
+       // render-params @mv;
 
        mv: movie_recorder input=(@apan->active_view_tab | geta "screenshot_dom");
 
