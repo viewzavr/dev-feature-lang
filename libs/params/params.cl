@@ -19,7 +19,7 @@ feature "x-add-cmd" {
   // но опять же а как репитер тут сделаешь? ведь тогда апутупом будет репитер.. ну и ладно..
 
   r: x-patch-r @r->name @r->code
-    code="(name,fn, obj) => {
+    code="(name,fn,obj) => {
       if (name) {
         obj.addCmd( name, fn, true );
       }

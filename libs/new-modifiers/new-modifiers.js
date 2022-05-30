@@ -281,6 +281,7 @@ export function x_patch( env  )
 export function x_patch_r( env  )
 {
   env.feature("lambda");
+  //env.feature("m-apply");
 
   // 1. дадим поменяться нескольким параметрам
   // 2. если идет remove-процесс то наше param-changed по идее не сработает (его удалят на delayed)

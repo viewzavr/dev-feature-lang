@@ -58,7 +58,7 @@ feature "movie_recorder"
 {
   q:
   {{
-  x-add-cmd name="open-window" code=(i-call-js @q code=`(env) => {
+  x-add-cmd "open-window" (m-js `(env) => {
     let erecorderWindow = env.getParam("wnd");
     if (erecorderWindow) {
        if (erecorderWindow.closed) 
@@ -103,7 +103,7 @@ feature "movie_recorder"
         if (event.source === recorderWindow && event.data.cmd == "append") //  && ack == ackSent
           env.setParam("waiting",false);
     }
-  }`);
+  }` @q);
 
   x-add-cmd name="make-screen-shot" code=(i-call-js @q @q->input code=`(env, dom_input) => {
     console.image = function(url, size = 100) {

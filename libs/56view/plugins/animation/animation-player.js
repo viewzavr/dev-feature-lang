@@ -35,11 +35,17 @@ export function animation_player( obj, opts )
   let itsme_c = false;
   obj.trackParam("progress",(v) => {
      if (itsme_c) return;
+
+     // todo идея сделать просто min max параметра значение
     let nv = obj.params.min + (obj.params.max - obj.params.min) * v / 100.0;
     //obj.setParam("value", nv );
     var [tobj,tparam] = obj.params.parameter.split("->");
     tobj = root.findByPath( tobj );
     if (!tobj) return;
+
+    var g = tobj.getGui(tparam);
+    if (["slider","combo"].indexOf(g.type) >= 0) 
+      nv = Math.floor( nv );
 
     tobj.setParam( tparam, nv );
 
