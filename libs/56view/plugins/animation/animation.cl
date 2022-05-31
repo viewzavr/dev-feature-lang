@@ -58,8 +58,9 @@ feature "movie_recorder"
 {
   q:
   {{
-  x-add-cmd "open-window" (m-js `(env) => {
-    let erecorderWindow = env.getParam("wnd");
+  x-add-cmd "open-window" (m-js q=@q `() => {
+    let q = env.params.q;
+    let erecorderWindow = q.getParam("wnd");
     if (erecorderWindow) {
        if (erecorderWindow.closed) 
        {
@@ -77,14 +78,14 @@ feature "movie_recorder"
     recorderWindow.opener = null;
     recorderWindow.document.location = "https://pavelvasev.github.io/simple_movie_maker/";
 
-    env.setParam("wnd",recorderWindow);
+    q.setParam("wnd",recorderWindow);
 
     window.addEventListener("message", receiveMessageAck, false);
 
     // не шибко то это работает на кросс-орижин
     recorderWindow.addEventListener("beforeunload", onClose, false);
 
-    env.on("remove",unsub);
+    q.on("remove",unsub);
 
     function unsub() {
       window.removeEventListener( "message", receiveMessageAck );
@@ -93,7 +94,7 @@ feature "movie_recorder"
 
     function onClose() {
       console.log("close handler")
-      env.setParam("wnd",null);
+      q.setParam("wnd",null);
       unsub();
     }
       
@@ -101,7 +102,7 @@ feature "movie_recorder"
         var ack = event.data.ack;
         var cmd = event.data.cmd;
         if (event.source === recorderWindow && event.data.cmd == "append") //  && ack == ackSent
-          env.setParam("waiting",false);
+          q.setParam("waiting",false);
     }
   }` @q);
 

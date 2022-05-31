@@ -76,6 +76,7 @@ export function m_eval( env ) {
 // процесс, возвращающий функцию. код написан на языке js
 
 // m_js 'name-or-code'
+// из идей - приделать сюда тоже позиционную передачу аргументов..
 
 export function m_js( env ) {
   env.onvalue( 0, (code) => {
