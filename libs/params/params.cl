@@ -94,6 +94,16 @@ feature "x-param-string" {
   ";
 };
 
+feature "x-param-text" {
+  r: x-patch-r @r->name
+  code="(name,obj) => {
+    
+    if (!name) return;
+    obj.addText( name, undefined );
+  }
+  ";
+};
+
 feature "x-param-label" {
   r: x-patch-r @r->name
   code="(name,obj) => {
@@ -126,6 +136,24 @@ feature "x-param-option" {
       obj.setParamOption( name, option, val );
   }";
 };
+
+feature "get-param-option" code=`
+  function pass_option( obj, paramname, optionname ) {
+    let v = obj.getParamOption( paramname, optionname );
+    env.setParam('output',v);
+  }
+
+  let unsub = () => {};
+  env.onvalues([0,1,2],(obj,paramname,optionname) => {
+     unsub();
+     pass_option(obj,paramname,optionname);
+     unsub = env.trackParamOption( paramname, optionname,() => {
+        pass_option(obj,paramname,optionname);
+     });
+  });
+
+  env.on("remove",unsub);
+`;
 
 //////////////////////////////////////////////////////////
 

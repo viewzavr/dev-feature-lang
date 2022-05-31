@@ -476,40 +476,65 @@ add_sib_item @screenvis "selectedvars" "Переменные по выбору";
 feature "selectedvars" {
   sv: screenvis       
         dom 
-        style="color: white; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-                   min-width: 300px; font-size: larger"
+        style="color: white; display: flex; flex-direction: row; gap: 1em;
+                   min-width: 300px; font-size: larger;"
         innerHTML=@qq->output 
         gui={ render-params input=@selected; } 
         {
 
           selected: gui_title="Выбрать" 
+             //columns=(@sv->df | geta "colnames" | arr_join with=",")
+             columns="время,t[c]
+место,x[м],y[м],z[м],
+ускорение, Vx[м/с],Vy[м/с],Vz[м/с], Vx1[м/с],Vy1[м/с],Vz1[м/с],
+omega_x1[град/с],omega_y1[град/с],omega_z1[град/с],q0[ед.],q1[ед.],q2[ед.],q3[ед.],
+theta[град],psi[град],gamma[град],
+delta1[град],delta2[град],delta3[град],delat4[град]"
+
              {{ 
-             x-on name="param_changed" cmd="@qq->recompute";
-             x-on name="gui-added" cmd="@qq->recompute";
+               x-param-text name="columns";
+               x-param-option name="columns" option="hint" 
+                 value=(+ "Укажите данные для вывода на экран. 
+                 Одна строка = одна колонка. В строке разделитель запятая, а # - символ комментария. 
+                 Доступные имена колонок: <br/><br/><span style='background: #9cb6e7;'>" (@sv->df | geta "colnames" | arr_join with=", ") "</span>");
+               //x-param-label name="columns_info" value=(@sv->df | geta "colnames");
+
+               x-on name="param_changed" cmd="@qq->recompute";
+               x-on name="gui-added" cmd="@qq->recompute";
              }}
           {
 
-              @sv->df | get name="colnames" | repeater 
-              {
-                param_checkbox name=@.->input value=true;
-              };
-
-              qq: eval @sv->df @selected code="(df,selected) => {
-               let str='';
+              qq: eval @sv->df @selected->columns code="(df,selected) => {
                df ||= {};
                if (!selected) return '';
+
+               let str = ``;
                
-               for (let n of (df.colnames || [])) {
-                 let f = selected.getParam( n );
-                 if (!f) continue;
-                 let val = df[n][0];
-                 if (isFinite(val)) {
-                     val = val.toFixed(3);
-                     str += `<span>${n}=${val}</span>`;
-                 }    
-               }
+               selected.split('\n').forEach( line => {
+                  str += `<div style='display: flex; flex-direction: column;'>`;
+                  line = line.split('#')[0].trim();
+
+                  line.split(',').forEach( item => {
+                     let rec = item.trim();
+                     if (rec.length == 0) return;
+
+                     if (df[rec]) {
+                        let val = df[rec][0];
+                        if (isFinite(val)) {
+                          val = val.toFixed(3);
+                          str += `<span>${rec}=${val}</span>`;
+                        }    
+                     } else
+                     {
+                        str += `<span>${rec}</span>`;  
+                     } 
+                  });
+
+                  str = str + '</div>';
+               })
+
                return str;
-               }";
+               }"; // qq eval
 
               
           };
