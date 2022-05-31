@@ -27,7 +27,7 @@ register_feature name="axes_box" {
     axes_lines color=@root->color? size=@root->size include_gui;
 
     //text3d_one color=[ 0.2, 0.2, 0.2 ] text=@ds->output;
-    axes_titles color=@root->color? s=@root->size size=1 include_gui;
+    axes_titles color=@root->color? s=@root->size size=(@root->size / 10) include_gui;
 
     // хорошее место чтобы воткнуть модификатор аргумент, todo
     // в т.ч. названия осей (через модификатор!)

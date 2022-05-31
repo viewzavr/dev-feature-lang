@@ -89,7 +89,6 @@ register_feature name="+" code=`
   
   compute();
 `;
-// но вообще + и join это какие-то совместные вещи.. я к тому что вроде как + может выполнять join функцию.. но тогда без with..
 
 register_feature name="-" code=`
 
@@ -104,6 +103,44 @@ register_feature name="-" code=`
     let acc = env.params[0];
     for (let i=1; i<count; i++)
       acc = acc - env.params[ i ];
+    env.setParam("output",acc );
+  };
+  
+  compute();
+`;
+
+// но вообще + и join это какие-то совместные вещи.. я к тому что вроде как + может выполнять join функцию.. но тогда без with..
+
+feature "*" code=`
+
+  env.on("param_changed",(name) => {
+    if (name == "output") return;
+    compute();
+  });
+  
+  function compute() {
+    let count = env.params.args_count;
+    let acc = env.params[0];
+    for (let i=1; i<count; i++)
+      acc = acc * env.params[ i ];
+    env.setParam("output",acc );
+  };
+  
+  compute();
+`;
+
+feature "/" code=`
+
+  env.on("param_changed",(name) => {
+    if (name == "output") return;
+    compute();
+  });
+  
+  function compute() {
+    let count = env.params.args_count;
+    let acc = env.params[0];
+    for (let i=1; i<count; i++)
+      acc = acc / env.params[ i ];
     env.setParam("output",acc );
   };
   
