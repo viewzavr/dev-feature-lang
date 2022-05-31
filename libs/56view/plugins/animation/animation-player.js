@@ -32,6 +32,9 @@ export function animation_player( obj, opts )
   obj.addFloat( "delay",2 );
   obj.addLabel("cycle");
 
+  obj.setParamOption( "playing", "priority",110);
+  obj.setParamOption( "progress", "priority",105);
+
   let itsme_c = false;
   obj.trackParam("progress",(v) => {
      if (itsme_c) return;

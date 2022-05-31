@@ -114,6 +114,7 @@ feature "show_sources_params"
             style="min-width:250px;" padding="2px"
             style_h = "max-height:80vh;"
             body_features={ set_params style_h="max-height: inherit; overflow-y: auto;"}          
+            expanded=(@mm->input_index == 0)
           {
              insert_children input=@.. list=(@mm->input | get_param "gui");
              // вот мы вставили гуи

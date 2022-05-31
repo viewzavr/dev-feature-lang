@@ -20,10 +20,10 @@ project: the_project active_view_index=1
         sources_str="@lf";
 
     v1: the-view-mix3d title="Общий вид" 
-        sources_str="@lv1";
+        sources_str="@lv1,@lv_t_cur";
 
     v2: the-view-mix3d title="Вид на ракету" 
-        sources_str="@lv2";
+        sources_str="@lv2,@lv_t_select";
   };
 
 };
