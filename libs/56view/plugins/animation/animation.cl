@@ -12,7 +12,9 @@ feature "manage_animation" {
 	vp: project=@..->project
       active_view_tab=@..->active_view_tab
     	collapsible "Анимация" {
-        animations_panel objects=(@vp->project | geta "processes") active_view_tab=@vp->active_view_tab;
+        animations_panel objects=(@vp->project | geta "processes") 
+                         active_view_tab=@vp->active_view_tab
+                         project=@vp->project;
      	};
 };
 
@@ -23,7 +25,10 @@ feature "animations_panel" {
    {
      render-params @ap;
 
-     ap: animation-player;
+     ap: animation-player 
+            parameter=(@apan->project | geta "default_animation_parameter")
+            search_root=@apan->project;
+            ;
 
      cb: checkbox text="Запись мультика" value=false;
 
