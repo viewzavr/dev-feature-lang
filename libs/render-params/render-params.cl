@@ -228,20 +228,23 @@ register_feature name="render-param-string" {
 register_feature name="render-param-text" {
   pf: param_field {
 
-      link from=@pf->param_path to="@ta->dom_value" tied_to_parent=true;
+      link from=@pf->param_path to="@ta->dom_obj_value" tied_to_parent=true;
       link to=@pf->param_path from=".->value" tied_to_parent=true 
         soft_mode=true manual_mode=true;
 
     button text="Редактировать" {
       dlg: dialog {
         column {
-          text text="Content";
-          ta: dom tag="textarea" style="width: 70vh; height: 30vh";
-          button text="Enter" cmd="@commit->apply";
+          text text="Введите текст"; // todo hints
+          ta: dom tag="textarea" style="width: 70vh; height: 30vh;" 
+                  ;
+          button text="ВВОД" cmd="@commit->apply";
+
+          text style="max-width:70vh;"
+               (get_param_option @pf->obj @pf->name "hint");
 
           commit: func pf=@pf ta=@ta dlg=@dlg code=`
               let v = env.params.ta?.dom?.value;
-              debugger;
               env.params.pf.setParam("value", v )
               env.params.dlg.close();
           `;

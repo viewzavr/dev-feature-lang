@@ -1,5 +1,7 @@
 // todo parameter animation - правильное название
 // min, max заменить на from, to..
+// сейчас сделано что при изменении gui целевого параметра меняется min,max
+// возможно их стоит вынести на кнопку
 
 export default function setup( vz, m ) {
   vz.register_feature( "animation-player", animation_player );
@@ -10,7 +12,8 @@ export default function setup( vz, m ) {
 export function animation_player( obj, opts ) 
 {
   var root = obj.findRoot();
-  
+  let unsub = () => {};
+
   //obj.feature("enabled");
   obj.addCheckbox( "playing",false );
   //obj.setParam("enabled",false);
@@ -21,8 +24,11 @@ export function animation_player( obj, opts )
   //obj.addCombo( "parameter",0,["a","b","c"] );
   obj.addParamRef( "parameter","", crit, (param_path) => {
     // здесь param_path это строковая ссылка
-    updateminmax();
+    // updateminmax();
   }, root )
+
+  obj.onvalue("parameter",updateminmax);
+
   //obj.setParamOption("parameter","title","Choose parameter")
   obj.addCmd("update min-max",updateminmax);
   //obj.addFloat( "start_value",0 );
@@ -31,6 +37,11 @@ export function animation_player( obj, opts )
   obj.addFloat( "step",1 );
   obj.addFloat( "delay",2 );
   obj.addLabel("cycle");
+
+  obj.setParamOption( "playing", "priority",110);
+  obj.setParamOption( "progress", "priority",105);
+
+  obj.onvalue("search_root",(v) => obj.setParamOption("parameter","search_root",v));
 
   let itsme_c = false;
   obj.trackParam("progress",(v) => {
@@ -93,7 +104,12 @@ export function animation_player( obj, opts )
   }
 
   var updateminmax_pending = false;
+  
+
+  obj.on("remove",unsub);
+
   function updateminmax() {
+    unsub(); unsub = () => {};
     if (!obj.params.parameter) return;
     var [tobj,tparam] = obj.params.parameter.split("->");
     tobj = root.findByPath( tobj );
@@ -106,6 +122,8 @@ export function animation_player( obj, opts )
       obj.setParam( "step", g.step || 1,true );
       //obj.setParam( "start_value", tobj.getParam(tparam),true );
     }
+
+    unsub = tobj.on("gui-changed-"+tparam,updateminmax);
 
 /*
     obj.setParam( "min", tobj.getParamOption( tparam,"min") || 0 );

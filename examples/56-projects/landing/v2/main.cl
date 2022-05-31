@@ -2,7 +2,7 @@ load "lib3dv3 csv params io gui render-params df scene-explorer-3d new-modifiers
 load "56view";
 load "landing-view.cl";
 
-project: the_project active_view_index=1 
+project: the_project active_view_index=1 default_animation_parameter="project/lv1/timeparams->time_index"
 {
 
   insert_default_children input=@project list={

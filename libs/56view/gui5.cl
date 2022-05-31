@@ -127,7 +127,8 @@ feature "object_change_type"
 
    text @cot->text;
 
-   cbb: combobox values=@cot->types 
+   cbb: combobox 
+            values=@cot->types 
             titles=@cot->titles 
             value=(detect_type @cot->input @cbb->values)
             style="width: 120px;"
@@ -204,7 +205,7 @@ rl_root:
      find-objects-bf (@rl_root->items | get @s->index | get "find") 
                      root=@rl_root->root
                      recursive=false
-     | sort_by_priority | console_log_input "ZZZ";
+     | sort_by_priority;
      ;
 
      /// выбор объекта
@@ -221,8 +222,11 @@ rl_root:
       {
         row {
           object_change_type input=@co->input
-            types=(@co->input | get_param "sibling_types" )
-            titles=(@co->input | get_param "sibling_titles");
+            types=(@co->input  | geta  "sibling_types" )            
+            titles=(@co->input | geta "sibling_titles")
+            //types=(@co->input  | geta  "items" | geta (i_call_js code="Object.keys"))
+            //titles=(@co->input  | geta  "items" | geta (i_call_js code="Object.values"))
+            ;
         };
 
         column {
@@ -240,6 +244,21 @@ rl_root:
   };   
 
 };
+
+
+// добавляет запись в таблицу типов
+// todo сделать проще, просто @some->items | geta "push" {record};
+feature "add_sib_item" code=`
+  env.onvalues([0,1,2],(tgt,code,title)=> {
+    let nv = (tgt.params.sibling_types || []).concat([code]);
+    let nv2 = (tgt.params.sibling_titles || []).concat([title]);
+    tgt.setParam("sibling_types",nv);
+    tgt.setParam("sibling_titles",nv2);
+    // может быть еще уж добавлять append-feature
+    // env.vz.register_feature_append( code,tgt.params.name );
+    // todo подумать не запутает ли это нас
+  })
+`;
     
 
 // по объекту выдает его первичный тип (находя его в массиве types)
