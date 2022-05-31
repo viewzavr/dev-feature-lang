@@ -83,50 +83,6 @@ feature "landing-file" {
   }
 };
 
-feature "landing-view" 
-{
-  aview: title="Задача приземления ракеты"  // visual_process вроде как не надо
-    visible=true 
-    scene1=@lv1 
-    scene2=@lv2
-    top_visual_process
-    // todo: scenes-info
-    subprocesses=(@aview | get_children_arr | arr_filter_by_features features="visual_process" )
-    {{ x-param-string name="title" }}
-    gui={
-      render_layers_inner title="Подпроцессы" expanded=true
-           root=@aview
-           items=[ { "title":"Подпроцессы", 
-                     "find":"visual_process",
-                     "add":"landing-view-base",
-                     "add_to": "@aview->."
-                   } ];
-   }
-
-   gui3={
-     //button "Добавить подпроцесс";
-     button_add_object "Добавить подпроцесс" add_to=@aview add_type="landing-view-base";
-     render-params @aview;
-   }
-
-  {
-    lv1: landing-view-1;
-    lv2: landing-view-2;
-
-    lv_t_cur: landing-view-base title="Вывод T" scene2d_items={ curtime; };
-    lv_t_select: landing-view-base title="Вывод переменных" scene2d_items={ selectedvars; };
-
-    // фича синхронизации.. может быть ее стоит по ифу сделать
-    // или в универсальные блоки вытащить
-
-    @aview->subprocesses | insert_children {
-      link from="@aview->time_index" to=".->external_time_index" tied_to_parent=true manual_mode=true;
-      link to="@aview->time_index" from=".->time_index" tied_to_parent=true manual_mode=true;
-      };
-    
-  };
-};  
-
 feature "landing-view-1" {
 	landing-view-base title="Приземление, общий вид"
 	  scene3d_items={
@@ -371,31 +327,28 @@ feature "landing-view-base"
 ///////////////////////////
 /////////////////////////// наполнение
 
-feature "add_item" code=`
-  env.onvalues([0,1,2],(tgt,code,title)=> {
-    let nv = (tgt.params.sibling_types || []).concat([code]);
-    let nv2 = (tgt.params.sibling_titles || []).concat([title]);
-    tgt.setParam("sibling_types",nv);
-    tgt.setParam("sibling_titles",nv2);
-  })
-`;
-
 linestr: feature {
-  main: linestrips datavis 
+  main: linestrips datavis
      gui={ 
        render-params input=@main;
       };
 };
-add_item @datavis "linestr" "Линии";
+
+add_sib_item @datavis "linestr" "Линии";
+
+// @datavis->items | arr_push {"linestr":"Линии"};
+// @datavis->items | arr_eval "push" {"line"}
+// eval_this @datavis->items "push" {"linestr":"Линии"};
+// @datavis->items | geta "push" {"linestr":"Линии"};
 
 ptstr: feature {
-  main: points datavis gui={ render-params input=@main };
+  main: points gui={ render-params input=@main } datavis;
 };
-add_item @datavis "ptstr" "Точки";
+add_sib_item @datavis "ptstr" "Точки";
     
     // вход input это dataframe
 models: feature {
-    root: node3d datavis gui={ render-params input=@root  }
+    root: node3d gui={ render-params input=@root } datavis
           {
             //monitor_params input=(list @root) params=["input"] | debugger "input of models changed";
 
@@ -416,9 +369,9 @@ models: feature {
             };
         };
 };
-add_item @datavis "models" "Модели";
+add_sib_item @datavis "models" "Модели";
 
-add_item @staticvis "axes" "Оси";
+add_sib_item @staticvis "axes" "Оси";
 feature "axes"  {
        //main: axes_box size=100 staticvis; 
        // таким образом тут используется визуальный процесс
@@ -426,7 +379,7 @@ feature "axes"  {
        axes-view size=100 staticvis;
 };
 
-add_item @staticvis "pole" "Земля";
+add_sib_item @staticvis "pole" "Земля";
 feature "pole" {
         main: mesh gui={ render-params input=@main; } staticvis
           positions=[
@@ -437,7 +390,7 @@ feature "pole" {
         ;
 };
 
-add_item @staticvis "setka" "Сетка";
+add_sib_item @staticvis "setka" "Сетка";
 feature "setka" {
         main: lines gui={ render-params input=@main; } staticvis
           color=[0.7, 0.7, 0.8]
@@ -459,7 +412,7 @@ feature "setka" {
         ;
 };
 
-add_item @staticvis "kvadrat" "Квадрат";
+add_sib_item @staticvis "kvadrat" "Квадрат";
 feature "kvadrat" {
         main: mesh gui={ render-params input=@main; } staticvis
           positions=[
@@ -470,7 +423,7 @@ feature "kvadrat" {
         ; // todo: polygon offset modifier
     };
 
-add_item @staticvis "stolbik" "Масштабный столбик";
+add_sib_item @staticvis "stolbik" "Масштабный столбик";
 feature "stolbik" {
       main: 
         lines gui={ render-params input=@main; } staticvis
@@ -489,14 +442,14 @@ feature "stolbik" {
 // 
 
 // параметр: time
-add_item @screenvis "curtime" "Текущее время"; 
+add_sib_item @screenvis "curtime" "Текущее время"; 
 feature "curtime" {
   sv: screenvis dom tag="h2" style="color: white; margin: 0;"
         innerText=(eval @sv->time code="(t) => 'T='+(t || 0).toFixed(3)");
 };
 
 // параметр: df - датафрейм для вывода данных. выводится 1я строка.
-add_item @screenvis "allvars" "Все переменные";
+add_sib_item @screenvis "allvars" "Все переменные";
 feature "allvars" {
   sv: screenvis 
         dom style="color: white; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -519,7 +472,7 @@ feature "allvars" {
 };
 
 // параметр: df - датафрейм для вывода данных. выводится 1я строка.
-add_item @screenvis "selectedvars" "Переменные по выбору";
+add_sib_item @screenvis "selectedvars" "Переменные по выбору";
 feature "selectedvars" {
   sv: screenvis       
         dom 
