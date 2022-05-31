@@ -10,6 +10,7 @@ project: the_project active_view_index=1
     lf: landing-file;
     lv1: landing-view-1;
     lv2: landing-view-2;
+
     sync_time: esync1 synced_param_name="time_index";
 
     lv_t_cur: landing-view-base title="Вывод T" scene2d_items={ curtime; };
@@ -24,6 +25,11 @@ project: the_project active_view_index=1
 
     v2: the-view-mix3d title="Вид на ракету" 
         sources_str="@lv2,@lv_t_select";
+
+    @v2->camera | console_log_input | x-modify { 
+      x-set-params center=[0,0,0] pos=[101.97743440722813, 111.82726702985235, 155.1388566634926]; 
+    };
+        
   };
 
 };
