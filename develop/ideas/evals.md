@@ -12,6 +12,8 @@ call
 call-cmd
 func
 eval
+lambda
 
 i-call-cmd
 i-call-js
+i-lambda

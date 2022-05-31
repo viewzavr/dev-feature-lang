@@ -342,9 +342,66 @@ add_sib_item @datavis "linestr" "Линии";
 // @datavis->items | geta "push" {"linestr":"Линии"};
 
 ptstr: feature {
-  main: points gui={ render-params input=@main } datavis;
+  main: points datavis 
+   gui={ render-params input=@main; manage_addons input=@main channel="addons"; } 
+   //addons={ effect3d_additive }
+   addons=(@xxx | get_children_arr)
+   {{ xxx: x-modify {
+       effect3d_additive; 
+     }; 
+   }}
+   {
+     //insert_features input=@main list
+   }
+  ;
 };
 add_sib_item @datavis "ptstr" "Точки";
+
+// визуальное управление добавками (фичьями)
+// операции: добавить, удалить, ммм... поменять тип?
+// input, channel
+feature "manage_addons" {
+  ma: collapsible "Добавки" {
+    column {
+      (@ma->input | geta @ma->channel) | repeater {
+        q: collapsible (@q->input | geta "ns" "name") {
+          render-params @q->input;
+        }
+      };
+    };
+  };
+};
+
+feature "effect3d_additive" {
+  x-patch-r code=`(tenv) => {
+    tenv.onvalue('material',(m)=> {
+      //m.blending = additive ? THREE.AdditiveBlending : THREE.NormalBlending;
+      m.blending = THREE.AdditiveBlending;
+      return () => {
+        m.blending = THREE.NormalBlending;
+      };
+    });
+  }
+  `
+  ;
+};
+
+feature "effect3d_opacity" {
+  x-patch-r code=`(tenv) => {
+    tenv.onvalue('material',(m)=> {
+      //m.blending = additive ? THREE.AdditiveBlending : THREE.NormalBlending;
+      m.transparent = true;
+      m.opacity = env.params.value;
+      return () => {
+        m.transparent = false;
+      };
+    });
+  }
+  ` 
+    {{ x-param-slider name="value" min=0 max=1 step=0.01; }}
+    value=1
+  ;
+};
     
     // вход input это dataframe
 models: feature {
