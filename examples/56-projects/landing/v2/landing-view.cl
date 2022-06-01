@@ -344,11 +344,11 @@ add_sib_item @datavis "linestr" "Линии";
 ptstr: feature {
   main: points datavis 
    gui={ render-params input=@main; manage_addons input=@main container=@xxx; } 
-   //addons={ effect3d_additive }
-   addons=(@xxx | get_children_arr)
+   // addons={ effect3d_additive }
+   // addons=(@xxx | get_children_arr)
    {{
-     xxx: { effect3d_additive; }; 
-     x-modify-list input=@main list=(@xxx | get_children_arr | filter_geta "active" );
+     xxx: {};
+     x-modify-list input=@main list=(@xxx | get_children_arr | filter_geta "visible" );
    }}
    {
      //insert_features input=@main list
@@ -362,11 +362,17 @@ add_sib_item @datavis "ptstr" "Точки";
 // input, channel
 feature "manage_addons" {
   ma: collapsible "Добавки" {
-    render_layers_inner "Добавки"
+    ba: button_add_object add_to=@ma->container
+                          add_type="effect3d_blank";
+
+    show_addons input=(@ma->container | get_children_arr);
+
+    /*
+    render_layers_inner2 "Добавки"
          root=@ma->container
-         items=[ {"title":"Эффекты отображения", "find":"geffect3d","add":"effect3d_blank","add_to":"@ma->container"}
-               ]
+         items=[ {"title":"Эффекты отображения", "find":"geffect3d","add":"effect3d_blank","add_to":"@ma->container"}]
          ;
+    */     
   };
 };
 
@@ -376,7 +382,7 @@ geffect3d: feature {
       title=(compute_title key=(detect_type @ef @ef->sibling_types) 
                          types=@ef->sibling_types 
                          titles=@ef->sibling_titles)
-  {{ x-param-checkbox "active" }}
+  {{ x-param-checkbox "visible" }}
   active=true
   ;
 };
@@ -672,7 +678,7 @@ datavis: feature {
     };
 
 
-    if (timeout 15) then={ //qqq
+    if (timeout 15) then={
       x-modify input=@pipe { x-set-params input=@rt->df; };
     };
 

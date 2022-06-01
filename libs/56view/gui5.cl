@@ -179,8 +179,9 @@ feature "object_change_type"
                  {"title":"Текст","find":"guiblock screenvis","add":"select-t"}
                ];
 
-   заметки
-    sibling_titles sibling_types - внедрены в. мб вынести            
+   при этом у объектов должны быть параметры
+    sibling_titles sibling_types - используется для смены типа объекта
+    gui - используется для рендеринга визуального интерфейса
 */
 
 
@@ -246,6 +247,8 @@ rl_root:
   };   
 
 };
+
+
 
 
 // добавляет запись в таблицу типов

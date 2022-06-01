@@ -343,6 +343,7 @@ function peg$parse(input, options) {
       var linkcounter = 0;
       for (let m of env_modifiers) {
         if (m.positional_param) { // F_POSITIONAL_PARAMS
+
           env.positional_params_count ||= 0;
           env.positional_params_count++;
           env.params[ "args_count" ] = env.positional_params_count;
@@ -365,7 +366,15 @@ function peg$parse(input, options) {
             // а это вроде как не то что нам надо
             if (m.value && Object.keys( m.value ).length === 0 
                 && Object.getPrototypeOf(m.value) === Object.prototype)
-               continue;
+            {
+              // эти штуки тоже надо откатить ... но опять же.. это нам сыграет злую шутку
+              // когда мы захотим параметры пустые делать позиционные т.е. alfa 1 2 3 {};
+              if (m == env_modifiers[ env_modifiers.length-1]) {
+                env.positional_params_count--;
+                env.params[ "args_count" ] = env.positional_params_count;
+              }  
+              continue;
+            }    
           }
           
         }

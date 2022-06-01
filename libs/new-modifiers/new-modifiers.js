@@ -393,6 +393,7 @@ export function x_patch_r( env  )
        let obj = rec.obj;
        env.callCmd("apply",obj, rec.unsub );
        // да хрен с ним, не будем менять пока unsub..
+       // но вообще это на туду что надо бы
     }
   });
 
