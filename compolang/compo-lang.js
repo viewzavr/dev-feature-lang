@@ -576,6 +576,7 @@ export function register_feature( env, envopts ) {
           // todo тут надо scope env делать и детям назначать, или вроде того
           // но пока обойдемся так
           tenv.$env_extra_names ||= {};
+          //console.log("adding extra-name",cname)
           tenv.$env_extra_names[ cname ] = true;
          }; 
             
@@ -2096,71 +2097,6 @@ export function deploy_many_to( env, opts )
      });
  }
  env.on("remove",close_envs)
-}
-
-//////////////////////////////////////// deploy_features
-/*
-  Внедряет фичи в режиме под-окружений в указанный список объектов.
-  Если список объектов меняется, ситуация синхронизируется.
-
-  input - список окружений куда внедрить
-  feautures - список фич
-*/
-
-export function deploy_features___deprecated( env )
-{
-  
-  env.onvalues(["input","features"],(input,features) => {
-     input ||= [];
-     if (!Array.isArray(input)) input=[input]; // допускаем что не список а 1 штука
-     dodeploy( input, features );
-
-     env.setParam("output",input); // доп-фича - пропускать дальше данные
-  });
-
-  function dodeploy( objects_arr, features_list ) {
-     // ну тут поомтимизировать наверное можно, но пока тупо все давайте очищать
-     close_envs();
-     //debugger;
-
-     if (!features_list) return;
-
-     if (!Array.isArray(features_list)) {
-      console.error("deploy_features: features_list is not array!");
-
-      return;
-     }
-
-     let to_deploy_to = objects_arr;
-
-     let ii=0;
-     for (let tenv of to_deploy_to) {
-      for (let rec of features_list) {
-        //console.log("deploy_features is deploying",rec,"to",tenv.getPath())
-        let new_feature_env = env.vz.importAsParametrizedFeature( rec, tenv );
-        new_feature_env.setParam( "objectIndex",ii);
-        created_envs.push( new_feature_env );
-
-        // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
-        // todo тут надо scope env делать и детям назначать, или вроде того
-        // но пока обойдемся так
-        new_feature_env.$env_extra_names ||= {};
-        new_feature_env.$env_extra_names[ new_feature_env.$feature_name ] = true;
-      };
-      ii++;
-     };
-  }
-
- var created_envs = [];
- function close_envs() {
-   for (let old_env of created_envs) {
-     old_env.remove();
-   }
-   created_envs = [];
- }
-
- env.on("remove",close_envs)
-
 }
 
 // эксперимент

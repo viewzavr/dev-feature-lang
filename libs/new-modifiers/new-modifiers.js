@@ -343,6 +343,7 @@ export function x_patch_r( env  )
   });
 
   env.on("detach",(obj) => {
+    console.log("detach called x-patch-r")
     let rec = attached_list[ obj.$vz_unique_id ];
     let f = rec ? rec.unsub : undefined;
     if (f) {

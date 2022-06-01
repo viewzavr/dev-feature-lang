@@ -213,12 +213,14 @@ rl_root:
      cbsel: combobox style="margin: 5px;" dom_size=5 
        values=(@objects_list->output | arr_map code="(elem) => elem.$vz_unique_id")
        titles=(@objects_list->output | map_param "title")
+       visible=( (@cbsel->values |geta "length") > 0)
        ;
 
     /// параметры объекта   
 
      co: column plashka style_r="position:relative; overflow: auto;"  
             input=(@objects_list->output | get index=@cbsel->index)
+            visible=(@co->input)
       {
         row {
           object_change_type input=@co->input
@@ -273,7 +275,7 @@ detect_type: feature {
           return f;
         };
     };
-    //console.log('detect-type failed',obj);
+    console.log('detect-type failed',obj);
   }";
 
 };
