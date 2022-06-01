@@ -1,21 +1,22 @@
 register_feature name="collapsible" {
   cola: 
-  column text=@.->0 //button_type=["button"]
+  column text=@.->0 expanded=false
+  //button_type=["button"]
   {
     shadow_dom {
       //btn: manual_features=@cola->button_type text=@../..->text cmd="@pcol->trigger_visible";
       btn: button text=@../..->text cmd="@pcol->trigger_visible";
 
       pcol: 
-      column visible=@cola->expanded {{ use_dom_children from=@../..; }};
+      column visible=@cola->expanded? {{ use_dom_children from=@../..; }};
       // сохраняет состояние развернутости колонки в collapsible-е
       // без этого сохранения не получится т.к. содержимое колонки 
       // не проходит dump по причине что shadow_dom вычеркнул себя из списка детей.
       // возможно это стоит и полечить.
       link from="@pcol->visible" to="@cola->expanded" manual_mode=true;
 
-      insert_features input=@btn  list=@cola->button_features;
-      insert_features input=@pcol list=@cola->body_features;
+      insert_features input=@btn  list=@cola->button_features?;
+      insert_features input=@pcol list=@cola->body_features?;
 
     };
 
@@ -130,7 +131,7 @@ feature "object_change_type"
    cbb: combobox 
             values=@cot->types 
             titles=@cot->titles 
-            value=(detect_type @cot->input @cbb->values)
+            value=(detect_type @cot->input? @cbb->values)
             style="width: 120px;"
            {{ on "user_changed_value" {
               lambda @co->input code=`(obj,v) => {
@@ -220,7 +221,7 @@ rl_root:
     /// параметры объекта   
 
      co: column plashka style_r="position:relative; overflow: auto;"  
-            input=(@objects_list->output | get index=@cbsel->index)
+            input=(@objects_list->output | get index=@cbsel->index?)
             visible=(@co->input)
       {
         row {
@@ -273,12 +274,14 @@ detect_type: feature {
     //console.log('detect_type:',obj,types)
     if (obj && types) {
       for (let f of types)
-        if (obj.$features_applied[f]) {
+        //if (obj.$features_applied[f]) 
+        if (obj.is_feature_applied(f)) 
+        { 
           //console.log('detect-type',f,obj);
           return f;
         };
     };
-    console.log('detect-type failed',obj);
+    console.log('detect-type failed',obj,types);
   }";
 
 };

@@ -88,7 +88,7 @@ feature "the_view"
 feature "visual_process" {
     title="Визуальный процесс"
     visible=true
-    output=@~->scene3d
+    output=@~->scene3d?
 
     {{ x-param-string name="title" }}
     ; // это сделано чтобы визпроцесс можно было как элемент сцены использовать

@@ -8,7 +8,7 @@ register_feature name="button" {
 
 
 register_feature name="text" {
-	dom tag="span" innerHTML=@.->text text=@.->0 {};
+	dom tag="span" innerHTML=@.->text? text=@.->0? {};
 };
 
 //
@@ -61,7 +61,7 @@ register_feature name="checkbox" {
 				env.params.object.ns.parent.emit("user-changed",v);
 			`;
 		};
-		text text=@..->text;
+		text text=@..->text?;
 	};
 };
 
@@ -72,7 +72,7 @@ register_feature name="checkbox" {
      value - выбираемое значение
 */
 register_feature name="input_float" {
-	dom tag="input" dom_obj_value=@.->value {
+	dom tag="input" dom_obj_value=@.->value? {
 		dom_event name="change" code=`
 				var v = parseFloat( env.params.object.dom.value );
 				env.params.object.setParam("value",v);;

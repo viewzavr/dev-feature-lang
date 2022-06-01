@@ -31,7 +31,7 @@ feature "render_process_hierarchy" {
 
     rh: objects=[] // список объектов верхних процессов
 
-    column text=@.->title
+    column //text=@.->title?
     style="min-width:250px;" plashka
     style_h = "max-height:80vh;"
     {
@@ -55,7 +55,7 @@ feature "render_process_hierarchy" {
      */
 
      objects_list: (@rh->objects | repeater target_parent=@~ { 
-     	 q: repeater_output=(concat @l1 @l2) {
+     	 q: repeater_output=(concat @l1 @l2?) {
      		  l1: id=(@q->input | geta "$vz_unique_id")
      	        title=(@q->input | geta "title")
      	        obj=@q->input
@@ -77,7 +77,7 @@ feature "render_process_hierarchy" {
 
     /// параметры объекта
 
-     selected_object: (@objects_list | geta @cbsel->index | geta "obj");
+     selected_object: (@objects_list | geta @cbsel->index? | geta "obj");
 
      co: column plashka style_r="position:relative; overflow: auto;"  
             input=@selected_object

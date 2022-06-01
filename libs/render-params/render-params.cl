@@ -118,17 +118,17 @@ feature "params-hide" {
 };
 
 register_feature name="render-params" {
-  rp: column gap="0.1em" object=@.->input input=@.->0 
+  rp: column gap="0.1em" object=@.->input? input=@.->0? 
   {
 
-    link to=".->object" from=@..->object_path tied_to_parent=true soft_mode=true; // тут надо maybe что там объект и тогда норм будет..
+    link to=".->object" from=@..->object_path? tied_to_parent=true soft_mode=true; // тут надо maybe что там объект и тогда норм будет..
 
     // а кстати классно было бы cmd="(** file_uploads)->recompute"
     // connection object=@..->object event_name="gui-added" cmd="@getparamnames->recompute";
 
-    insert_children @extra_filters list=@rp->filters;
+    insert_children @extra_filters list=@rp->filters?;
 
-    @rp->object | get-params-names | extra_filters: pipe
+    @rp->object? | get-params-names | extra_filters: pipe
     | repeater {
       column {
         //text text=@..->modelData;
@@ -369,8 +369,8 @@ register_feature name="render-param-slider" {
         `;
       };
       if2: input_float style="width:30px;" {
-        link from=@../../..->param_path to=".->value" tied_to_parent=true;
-        link to=  @../../..->param_path from=".->value" tied_to_parent=true;
+        link from=@../../..->param_path to=".->value" tied_to_parent=true soft_mode=true;
+        link to=  @../../..->param_path from=".->value" tied_to_parent=true soft_mode=true;
       };
       // console_log text="IF2 value=" input=@if2->value;
 

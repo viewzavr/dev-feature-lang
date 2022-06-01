@@ -213,7 +213,7 @@ feature "landing-view-base"
         datafiles: find-objects-bf features="landing-file" | arr_map code="(v) => v.getPath()+'->output'";
 
         x-modify {
-          insert_children input=@.. list=@view->file_params_modifiers;
+          insert_children input=@.. list=@view->file_params_modifiers?;
         };
 
         x-param-combo
@@ -235,7 +235,7 @@ feature "landing-view-base"
     }}
   {
 	  loaded_data: ;
-    link from=@fileparams->input_link to="@loaded_data->output";
+    link from=@fileparams->input_link? to="@loaded_data->output";
 	};
 
 
@@ -303,7 +303,7 @@ feature "landing-view-base"
 
     //insert_children input=@scene list=@view->scene3d_items;
     //insert_children input=@scene list=@view->scene3d_items active=(is_default @scene) manual=true;
-    insert_default_children input=@scene list=@view->scene3d_items;
+    insert_default_children input=@scene list=@view->scene3d_items?;
 
     scene: node3d visible=@view->visible force_dump=true
     {
@@ -313,7 +313,7 @@ feature "landing-view-base"
     // ну вот... как бы это.. а мы бы хотели...
 
 
-    insert_children input=@screen_space list=@view->scene2d_items active=(is_default @screen_space);
+    insert_children input=@screen_space list=@view->scene2d_items? active=(is_default @screen_space);
     // это у нас место куда будут добавляться объекты пользователем
     screen_space: dom visible=@view->visible force_dump=true
     {
@@ -438,7 +438,7 @@ models: feature {
 
             param_slider name="radius" min=1 max=10 value=3;
             param_color  name="hilight_color" value=[0,0,0];
-            param_label  name="count" value=(@rep->input | get name="length");
+            param_label  name="count" value=(@rep->input? | get name="length");
 
             @root->input | df_slice count=100 | df_to_rows | rep: repeater {
               gltf:

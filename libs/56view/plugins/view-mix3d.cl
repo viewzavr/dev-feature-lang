@@ -10,7 +10,7 @@ feature "the_view_mix3d" {
         scene2d=(@tv->sources | map_geta "scene2d")
         {
           cam: camera3d pos=[-400,350,350] center=[0,0,0];
-          insert_features input=@cam list=@tv->camera_modifiers;
+          insert_features input=@cam list=@tv->camera_modifiers?;
 
           ////@cam | x-modify { insert list=@tv->camera_modifiers;
           // вот бы метод getCameraFor(i).. т.е. такое вычисление по запросу..

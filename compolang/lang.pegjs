@@ -110,7 +110,7 @@ positional_attr
   }
   
 link_assignment
-  = name:attr_name ws "=" ws linkvalue:link soft_flag:("?")? {
+  = name:attr_name ws "=" ws linkvalue:link soft_flag:("?")? { 
     //var linkrecordname = `link_${Object.keys(current_env.links).length}`;
     //while (current_env.links[ linkrecordname ]) linkrecordname = linkrecordname + "x";
     //current_env.links[linkrecordname] = { to: `.->${name}`, from: linkvalue.value };
@@ -173,6 +173,7 @@ one_env
           m.link = true;
           m.from = m.value.value;
           m.to = "~->" + (env.positional_params_count-1).toString();
+          m.soft_mode = m.value.soft_flag;
           // todo зарефакторить это а то дублирование с link_assignment
         }
         else
@@ -365,6 +366,7 @@ link
     return { link: true, value: path + "->." }
   }
 
+
 // ----- 3. Values -----
 
 // приходится ввести positional_value чтобы не брать значений вида {....} потому что это у нас чилдрен
@@ -377,7 +379,10 @@ positional_value
   / array
   / number
   / string
-  / link
+  / linkvalue:link soft_flag:("?")? {
+    linkvalue.soft_flag = soft_flag;
+    return linkvalue;
+  }
   / "(" ws env_list:env_list ws ")" {
     // attr expression
     return { env_expression: env_list }

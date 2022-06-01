@@ -70,14 +70,14 @@ scr: screen {
     cols: two_side_columns {
 
       column gap="0.5em" padding="0.5em" margin="1em" style="background: rgba( 255 255 255 / 25% ); color: white;" {
-        text (join "showing items: " (@sgraph->output | geta "nodes" | geta "length"));
+        text (join "showing items: " (@sgraph->output? | geta "nodes" | geta "length"));
         dom tag="h3" innerText="Selected object" style="margin:0;";
         text "path:";
-        text @explr->current_object_path style="max-width:250px";;
+        text @explr->current_object_path? style="max-width:250px";;
         text "params:";
-        render-params object_path=@explr->current_object_path;
+        render-params object_path=@explr->current_object_path?;
 
-        button "js debugger" curpath=@explr->current_object_path code=`
+        button "js debugger" curpath=@explr->current_object_path? code=`
            let obj = env.findByPath( env.params.curpath );
            debugger`;
       };
@@ -128,7 +128,7 @@ scr: screen {
 
     explr: scene_explorer_3d
               target=@graph_dom 
-              input=@sgraph->output
+              input=@sgraph->output?
               /////////struc_z_golova_naverhu
               curvature1
               //objects_big
@@ -534,7 +534,7 @@ register_feature name="feat_link_particle" {
     {{
       color: param_color value=[1,1,1];
     }}
-  explorer-features={ link_particle color=@st->color graph=@.->graph recent_seconds=10; }
+  explorer-features={ link_particle color=@st->color graph=@.->graph? recent_seconds=10; }
   ;
 };
 
@@ -609,7 +609,7 @@ register_feature name="feat_nodechange_hilite" {
     {{
       color: param_color value=[1,1,1];
     }}
-  explorer-features={ nodechange_hilite color=@st->color graph=@.->graph recent_seconds=10; }
+  explorer-features={ nodechange_hilite color=@st->color graph=@.->graph? recent_seconds=10; }
   ;
 };
 

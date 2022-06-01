@@ -361,7 +361,7 @@ esync: feature {
 
 esync1: feature {
 	es1: 
-	esync project=@..->project
+	esync project=@..
 
 	gui={
 		column plashka {

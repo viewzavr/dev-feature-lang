@@ -122,7 +122,8 @@ function parsed2dump( vz, parsed, base_url ) {
      // а там фичи еще не назначены и короче даже не выяснить кто он там..
      // хотя можно было бы так-то и ловить событие... что фича назначилась
      // ну да ладно, пока так, там посмотрим. @maybe @optimize убрать ссылки эти
-     parsed.links[ "p_link_for_output"] = { from: ".->0", to: ".->output" };
+     parsed.links[ "p_link_for_output"] = { from: ".->0", to: ".->output", soft_mode: true };
+     // soft-mode тут спорно конечно, но..
   }
 
   parsed.forcecreate = true;
@@ -346,15 +347,17 @@ export function pipe(env)
          // пропускаем ссылки.. вообще странное решение конечно.. сделать ссылки объектами
          // и потом об них спотыкаться
          if (cprev) {
-           c.linkParam("input",`../${cprev.ns.name}->output`); // вообще странно все это
+           let k = c.linkParam("input",`../${cprev.ns.name}->output`,true); // вообще странно все это
+           //created_links.push( k );
+           // оно там само внутрях удаляет..
          }
          cprev = c;
       }
       // output последнего ставим как output всей цепочки
       if (cprev)
-          created_links.push( env.linkParam("output",`${cprev.ns.name}->output`) );
+          created_links.push( env.linkParam("output",`${cprev.ns.name}->output`,true) );
       else
-          created_links.push( env.linkParam("output",`~->input`) ); // по умолчанию выход из пайпы пусть будет и входом?
+          created_links.push( env.linkParam("output",`~->input`,true) ); // по умолчанию выход из пайпы пусть будет и входом?
           //created_links.push( env.linkParam("output",`.->input`) ); // по умолчанию выход из пайпы пусть будет и входом?
           
       // input первому ставим на инпут пайпы
@@ -363,7 +366,7 @@ export function pipe(env)
           //if (!cfirst.hasLinksToParam("input") && !cfirst.hasParam("input"))
           // заменяем наличие параметра на наличие непустого значения параметра
           if (!cfirst.hasLinksToParam("input") && !cfirst.getParam("input"))
-            created_links.push( cfirst.linkParam("input",`..->input`) );
+            created_links.push( cfirst.linkParam("input",`..->input`,true) );
       }
 
       pipe_is_generating_links = false;

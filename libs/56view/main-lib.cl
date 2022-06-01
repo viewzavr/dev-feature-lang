@@ -151,9 +151,9 @@ feature "show_sources_params"
       extra_settings_panel: 
       column // style="position:absolute; top: 1em; right: 1em;" 
       {
-         insert_children input=@.. list=@extra_settings_panel->list;
+         insert_children input=@.. list=@extra_settings_panel->list?;
       };
-      button "&lt;" style_h="height:1.5em;" visible=(eval @extra_settings_panel->list code="(list) => list && list.length>0") 
+      button "&lt;" style_h="height:1.5em;" visible=(eval @extra_settings_panel->list? code="(list) => list && list.length>0") 
       {
          setter target="@extra_settings_panel->list" value=[];
       };

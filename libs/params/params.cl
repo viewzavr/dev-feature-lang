@@ -1,7 +1,7 @@
 load "new-modifiers";
 
 feature "x-param-combo" {
-  r: x-patch-r @r->name @r->titles @r->values 
+  r: x-patch-r @r->name @r->titles? @r->values
   code="(name,titles,values,obj) => {
     if (name && values)
       obj.addComboValue( name, undefined, values );
@@ -52,7 +52,7 @@ feature "x-param-checkbox" {
 
 /* наша попытка работать с род. окружением
 feature "x-param-checkbox" {
-  r: x-modify name=@~->0 value=@~->1
+  r: x-modify name=@~->0 value=@~->1?
   {
     x-patch-r @r->name @r->value 
     code="(name,val,obj) => {
@@ -74,7 +74,7 @@ feature "x-param-checkbox" {
 */
 
 feature "x-param-slider" {
-  r: x-patch-r @r->name @r->min @r->max @r->step @r->sliding sliding=true
+  r: x-patch-r @r->name @r->min? @r->max? @r->step? @r->sliding? sliding=true
   code="(name,min,max,step,sliding, obj) => {
 
     if (!name) return;

@@ -14,7 +14,7 @@ code="
     {
       //insert input=@i->..
       insert_siblings_to_parent
-       list=(eval @i->0 @i->then @i->else allow_undefined=true
+       list=(eval @i->0? @i->then @i->else? allow_undefined=true
              code="(cond,t,e) => {
                return cond ? t : e
              };");
