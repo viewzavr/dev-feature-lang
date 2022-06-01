@@ -36,6 +36,12 @@ export function geta( env ) {
   // но есть проблема - надо упаковывать в 1 штучку всегда, а не то что при условии "если это не массив"
 }
 
+export function filter_geta( env ) {
+  env.filter_mode=true;
+  env.feature( "map_geta"); // типа там с 1 штучкой тоже работать умеют
+  // но есть проблема - надо упаковывать в 1 штучку всегда, а не то что при условии "если это не массив"
+}
+
 export function map_geta( env )
 {
 
@@ -116,7 +122,10 @@ export function map_geta( env )
     //env.signalParam("output");
     // типа так оно не отразит что поменялось
 
-    env.setParam("output",[...output]);
+    if (env.filter_mode)
+      env.setParam("output",output.filter( n => n) );
+    else    
+      env.setParam("output",[...output]);
   });
 
   function process1( input, unsub_struc, index ) {
@@ -128,7 +137,12 @@ export function map_geta( env )
         return;
       }
 
-      output[index] = res;
+      // режим фильтра.. сообразно там у нас предикат...
+      if (env.filter_mode)
+        output[index] = res ? input : null;
+      else
+        output[index] = res;
+
       schedule_update_output();
     },unsub_struc );
   }
@@ -155,7 +169,6 @@ export function map_geta( env )
       return cb(input);
 
     let name = params[ current_arg_pos ];
-
     
     if (input.trackParam) {
       // это у нас объект и сообразно там все может быть
@@ -197,6 +210,8 @@ export function map_geta( env )
 
     // финт
     if (typeof(name) === "function") {
+      // передали функцию в аргументе - вычисляем ее от 1 одного аргумента (входа) и едем дальше
+      // применять операцию к ее результату.. тут может быть стоит запихать сюда аргументы
       let res = name( input );
       go_next_level( res, params, current_arg_pos,cb,unsub_struc, () => {} );
       return;
@@ -208,6 +223,7 @@ export function map_geta( env )
     
     if (typeof(nv) === "function") // решил сделать вызов функций. те.. это уже не get у меня а send по сути то
     {
+       // передали в аргументе имя функции объекта? вызываем ее со всеми оставшимися аргументами
        let restargs = [];
        for (let i=current_arg_pos+1; i<params.args_count; i++)
           restargs.push( params[i] );

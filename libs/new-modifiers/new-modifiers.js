@@ -85,6 +85,7 @@ export function x_modify( env )
       }
     }
 
+    // отключение модификации у объектов которые исчезли из input
     for (let k of Object.keys( modified_objs )) {
       if (modified_objs[k].iter < iter) {
         let obj = modified_objs[k].obj;
@@ -161,6 +162,80 @@ export function x_modify( env )
 
 }
 
+export function x_modify_list( env ) 
+{
+
+  env.feature("pass_input"); // ну так по приколу - чтобы писать x-modify | x-modify | ...
+
+  let modified_objs = {}; // todo: set
+
+  function getobjid(obj) {
+    if (!obj.$vz_unique_id)
+        obj.feature("vzf_object_uniq_ids");
+    return obj.$vz_unique_id;
+  }
+
+  // input - приаттачить всем объектам из input
+  //         если уже ранее что-то аттачили, то раз-аттачить у объектов которые были в input и их в input не стало.
+
+  // алгоритм
+  // 1 всех кого еще не посылали - послать аттач
+  // 2 тех кого посылали и нет в списке - послать детач
+  let iter = 0;
+  env.onvalues(["input","list"],(i,list) => {
+    iter++;
+
+    if (!Array.isArray(i)) i = [i];
+
+    for (let obj of i) {
+      let id = getobjid( obj );
+
+      if (modified_objs[id]) {
+         modified_objs[id].iter = iter;
+      }
+      else
+      {
+        modified_objs[id] = {iter:iter, obj:obj, modifications: {}};
+      }
+      let existing_modifications = modified_objs[id].modifications;
+      
+      for (let c of list) {
+        let modifier_id = getobjid( c );
+        if (existing_modifications[modifier_id]) {
+            existing_modifications[modifier_id].iter = iter;
+            continue;
+        }
+        c.emit("attach",obj);
+        let detach_code = () => { 
+            c.emit("detach",obj);
+        }
+        existing_modifications[modifier_id] = { iter: iter, detach_code: detach_code };
+      }
+
+      // уберем модификации которые больше не активны для данного объекта
+      for (let kc of Object.keys( existing_modifications )) {
+        if (existing_modifications[kc].iter < iter) {
+          existing_modifications[kc].detach_code();
+          delete existing_modifications[kc];
+        }
+      }
+    }
+
+    // отключение модификации у объектов которые исчезли из input
+    for (let k of Object.keys( modified_objs )) {
+      if (modified_objs[k].iter < iter) {
+        let obj = modified_objs[k].obj;
+        let applied_modifications = modified_objs[k].modifications;
+        delete modified_objs[k];
+        applied_modifications.map( f => f.detach_code() );
+      };
+    };
+  
+  });
+
+  env.on("remove",() => env.setParam( "input",[] )); // посмотрим хватит не хватит
+}
+
 export function x_on( env  )
 {
   //env.feature("lambda");
@@ -219,7 +294,6 @@ export function x_on( env  )
      };
 
      return detach[ obj.$vz_unique_id ] 
-
   });
 
   env.on("detach",(obj) => {
@@ -258,8 +332,7 @@ export function x_patch( env  )
        delete detach[ obj.$vz_unique_id ];
     }
 
-    return unsub; 
-
+    return detach[ obj.$vz_unique_id ]; 
   });
 
   env.on("detach",(obj) => {
@@ -276,12 +349,36 @@ export function x_patch( env  )
 
 }
 
+// модификатор модификатора..?
+// замысел был что сделать индивидуальную нахлобучку модификатору
+// и типа применение модификатора только если выполнено условие
+/*
+export function x_active( env ) {
+  env.addCheckbox("active",true);
+
+  let attached_objects_list = {};
+
+  env.on("attach",(obj) => {
+
+  });
+
+  env.on("detach",(obj) => {
+  });
+
+  apply => pass-apply... а ведь он многократный...
+
+}
+*/
+
 
 // reactive - перевызывает код при изменении аргументов
 export function x_patch_r( env  )
 {
   env.feature("lambda");
-  //env.feature("m-apply");
+  env.setParamOption("apply","visible",false);
+
+  // env.addCheckbox("active",true);
+  // env.feature("m-apply");
 
   // 1. дадим поменяться нескольким параметрам
   // 2. если идет remove-процесс то наше param-changed по идее не сработает (его удалят на delayed)
@@ -338,12 +435,15 @@ export function x_patch_r( env  )
     }
 */    
 
-    return unsub; 
+    return () => {
+       unsub();
+       delete attached_list[ obj.$vz_unique_id ];
+    };
 
   });
 
   env.on("detach",(obj) => {
-    console.log("detach called x-patch-r")
+    
     let rec = attached_list[ obj.$vz_unique_id ];
     let f = rec ? rec.unsub : undefined;
     if (f) {

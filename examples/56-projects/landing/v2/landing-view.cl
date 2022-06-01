@@ -347,13 +347,11 @@ ptstr: feature {
    //addons={ effect3d_additive }
    addons=(@xxx | get_children_arr)
    {{
-     xxx: x-modify {
-       effect3d_additive; 
-     }; 
+     xxx: { effect3d_additive; }; 
+     x-modify-list input=@main list=(@xxx | get_children_arr | filter_geta "active" );
    }}
    {
      //insert_features input=@main list
-     
    }
   ;
 };
@@ -378,6 +376,8 @@ geffect3d: feature {
       title=(compute_title key=(detect_type @ef @ef->sibling_types) 
                          types=@ef->sibling_types 
                          titles=@ef->sibling_titles)
+  {{ x-param-checkbox "active" }}
+  active=true
   ;
 };
 
@@ -389,40 +389,38 @@ feature "effect3d_blank" {
 
 add_sib_item @geffect3d "effect3d-additive" "Аддитивный рендеринг";
 feature "effect3d_additive" {
-  geffect3d x-patch-r code=`(tenv) => {
-    console.log("blending: activated for tenv",tenv)
+  ea: geffect3d gui={render-params @ea; }
+  x-patch-r code=`(tenv) => {
     tenv.onvalue('material',(m)=> {
       //m.blending = additive ? THREE.AdditiveBlending : THREE.NormalBlending;
       m.blending = THREE.AdditiveBlending;
-      //console.log("blending: setted to additive")
     });
     return () => {
-        //console.log("blending: returned to normal")
         if (tenv.params.material)
             tenv.params.material.blending = THREE.NormalBlending;
     };    
-  }
+  }  
   `
   ;
 };
 
 add_sib_item @geffect3d "effect3d-opacity" "Прозрачность";
 feature "effect3d_opacity" {
-  eo: x-patch-r code=`(tenv) => {
-    tenv.onvalue('material',(m)=> {
-      //m.blending = additive ? THREE.AdditiveBlending : THREE.NormalBlending;
-      m.transparent = true;
-      m.opacity = env.params.value;
-    });
-    return () => {
-        m.transparent = false;
-      };    
-  }
-  ` 
+  eo: geffect3d
     {{ x-param-slider name="value" min=0 max=1 step=0.01; }}
     value=1
-    geffect3d
-    gui={render-params @eo}
+    gui={render-params @eo; }
+    x-patch-r code=`(tenv) => {
+          tenv.onvalue('material',(m)=> {
+            m.transparent = true;
+              m.opacity = env.params.value;
+            });
+            return () => {
+                if (tenv.params.material)
+                  tenv.params.material.transparent = false;
+            };
+          }
+    `;
   ;
 };
     
