@@ -3,10 +3,11 @@
 feature "editable-addons" {
    addons_container=@xxx
    {{
-     xxx: {};
      x-modify-list input=@main list=(@xxx | get_children_arr | filter_geta "visible" );
    }}
-   ;
+   {
+     xxx: {}; // целенаправленно в children ибо оно сохранится в dump
+   };
 };
 
 geffect3d: feature {

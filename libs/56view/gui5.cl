@@ -105,7 +105,7 @@ feature "button_add_object" {
                  let s = env.params.newf;
                  args[0].setParam("manual_features",s,true)
                  
-                 //console.log("created",args[0])
+                 console.log("created",args[0])
 
                  env.params.btroot.emit("created", args[0] );
              `
