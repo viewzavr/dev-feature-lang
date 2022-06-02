@@ -90,6 +90,12 @@ feature "show_addons"
             x-modify input=@amm->input {
               x-set-params visible=@acbv->value ;
             };
+
+            button "x" //style="position:absolute; top:0px; right:0px;" 
+	        {
+	          lambda @amm->input code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
+	        };
+
          };
          insert_children input=@.. list=(@amm->input | get_param "gui");
         }; 
@@ -170,7 +176,8 @@ feature "manage_addons" {
   {
    button "Добавки" //cmd="@addons_dialog->show"
    {
-     setter target="@addons_dialog->container" value=( @ma->input | geta "addons_container");
+     //setter target="@addons_dialog->container" value=( @ma->input | geta "addons_container");
+     setter target="@addons_dialog->input" value=@ma->input;
      call target="@addons_dialog" name="show";
    };
   };  
@@ -178,12 +185,32 @@ feature "manage_addons" {
 
 addons_dialog: dialog style="position:absolute; width: 80vw; bottom: 0px; top: initial;"
   //visible=false
+  input=(@objects_list->output | geta @cbsel->index)
 {
-       text "добавки";
-       ba: button_add_object add_to=@addons_dialog->container?
-                             add_type="effect3d_additive";
+	   column {
+	   
+	   objects_list: find-objects-bf "editable-addons";
+	   //combobox
+	   row {
+	       cbsel: combobox style="margin: 5px;" //dom_size=5 
+	         values=(@objects_list->output | arr_map code="(elem) => elem.$vz_unique_id")
+	         titles=(@objects_list->output | map_param "title")
+	         ;	   
 
-       show_addons input=(@addons_dialog->container? | get_children_arr);
+	       //text "добавки";
+	       ba: button_add_object add_to=(@addons_dialog->input? | geta "addons_container")
+	                             add_type="effect3d_additive"
+	                             text="Добавить добавку"
+	                             ;
+
+       };
+       //show_addons input=@addons_dialog->input? container=(@addons_dialog->input? | geta "addons_container" | get_children_arr);
+       row {
+       	 render-params @addons_dialog->input;
+       	 
+         show_addons input=(@addons_dialog->input? | geta "addons_container" | get_children_arr | sort_by_priority);
+        };
+       };
   
 };
 
