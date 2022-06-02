@@ -134,10 +134,10 @@ feature "object_change_type"
             value=(detect_type @cot->input? @cbb->values)
             style="width: 120px;"
            {{ on "user_changed_value" {
-              lambda @co->input code=`(obj,v) => {
+              lambda @cot->input code=`(obj,v) => {
                 // вот мы спотыкаемся - что это, начальное значение или управление пользователем
 
-                //console.log("existing obj",obj,"creating new obj type",v);
+                console.log("existing obj",obj,"creating new obj type",v);
 
                 let dump = obj.dump();
 
@@ -235,6 +235,10 @@ rl_root:
 
         column {
           insert_children input=@.. list=(@co->input | get_param name="gui");
+        };
+
+        if (has_feature input=@co->input name="editable-addons") then={
+          manage_addons input=@co->input;
         };
 
         button "x" style="position:absolute; top:0px; right:0px;" 

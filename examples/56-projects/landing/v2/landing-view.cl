@@ -343,47 +343,34 @@ add_sib_item @datavis "linestr" "Линии";
 
 ptstr: feature {
   main: points datavis 
-   gui={ render-params input=@main; manage_addons input=@main container=@xxx; } 
-   // addons={ effect3d_additive }
-   // addons=(@xxx | get_children_arr)
-   {{
-     xxx: {};
-     x-modify-list input=@main list=(@xxx | get_children_arr | filter_geta "visible" );
-   }}
-   {
-     //insert_features input=@main list
-   }
+   gui={ 
+     render-params input=@main; 
+     //manage_addons input=@main container=@xxx; 
+   } 
   ;
 };
 add_sib_item @datavis "ptstr" "Точки";
 
-// визуальное управление добавками (фичьями)
-// операции: добавить, удалить, ммм... поменять тип?
-// input, channel
-feature "manage_addons" {
-  ma: collapsible "Добавки" {
-    ba: button_add_object add_to=@ma->container
-                          add_type="effect3d_blank";
+////////////////////////////////////////
 
-    show_addons input=(@ma->container | get_children_arr);
-
-    /*
-    render_layers_inner2 "Добавки"
-         root=@ma->container
-         items=[ {"title":"Эффекты отображения", "find":"geffect3d","add":"effect3d_blank","add_to":"@ma->container"}]
-         ;
-    */     
-  };
+feature "editable-addons" {
+   addons_container=@xxx
+   {{
+     xxx: {};
+     x-modify-list input=@main list=(@xxx | get_children_arr | filter_geta "visible" );
+   }}
+   ;
 };
 
 geffect3d: feature {
   ef: sibling_titles=@geffect3d->sibling_titles
       sibling_types=@geffect3d->sibling_types
+
       title=(compute_title key=(detect_type @ef @ef->sibling_types) 
                          types=@ef->sibling_types 
                          titles=@ef->sibling_titles)
-  {{ x-param-checkbox "visible" }}
-  active=true
+  {{ x-param-checkbox "visible"; x-param-option "visible" "visible" false; }}
+  visible=true
   ;
 };
 
@@ -654,6 +641,7 @@ datavis: feature {
                          titles=@rt->sibling_titles)
           )
     step_N=25
+    editable-addons    
   {{
 
     da: x-param-combo
@@ -697,6 +685,7 @@ staticvis: feature {
       title=(compute_title key=(detect_type @rt @rt->sibling_types) 
                          types=@rt->sibling_types 
                          titles=@rt->sibling_titles)
+      editable-addons
       ;
 };
 
