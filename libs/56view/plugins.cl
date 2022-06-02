@@ -23,3 +23,7 @@ load "vp/axes-vp.cl";
 load "vp/group-vp.cl";
 
 // load "solvers/landing/landing-view.cl";
+
+//////////////////////////////
+// добавки
+load "addons/addons.cl";
