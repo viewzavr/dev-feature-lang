@@ -13,6 +13,7 @@ load "plugins/view-small-big.cl";
 load "plugins/rotate-views.cl";
 
 load "plugins/animation/animation.cl";
+// load "plugins/global-addons-editor.cl";
 
 //////////////////////////////
 // решатели задач визуализации
