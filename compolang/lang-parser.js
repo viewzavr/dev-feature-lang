@@ -224,7 +224,7 @@ function peg$parse(input, options) {
 
   var peg$r0 = /^[ \t\n\r]/;
   var peg$r1 = /^[a-zA-Z\u0430-\u044F\u0410-\u042F0-9_\-.]/;
-  var peg$r2 = /^[a-zA-Z\u0430-\u044F\u0410-\u042F0-9_\-.+\-\/*<>[\]=&]/;
+  var peg$r2 = /^[a-zA-Z\u0430-\u044F\u0410-\u042F0-9_\-.+\-\/*<>[\]=&!]/;
   var peg$r3 = /^[|]/;
   var peg$r4 = /^[a-zA-Z\u0430-\u044F\u0410-\u042F0-9_]/;
   var peg$r5 = /^[.\/~]/;
@@ -249,7 +249,7 @@ function peg$parse(input, options) {
   var peg$e10 = peg$literalExpectation("{{", false);
   var peg$e11 = peg$literalExpectation("}}", false);
   var peg$e12 = peg$classExpectation([["a", "z"], ["A", "Z"], ["\u0430", "\u044F"], ["\u0410", "\u042F"], ["0", "9"], "_", "-", "."], false, false);
-  var peg$e13 = peg$classExpectation([["a", "z"], ["A", "Z"], ["\u0430", "\u044F"], ["\u0410", "\u042F"], ["0", "9"], "_", "-", ".", "+", "-", "/", "*", "<", ">", "[", "]", "=", "&"], false, false);
+  var peg$e13 = peg$classExpectation([["a", "z"], ["A", "Z"], ["\u0430", "\u044F"], ["\u0410", "\u042F"], ["0", "9"], "_", "-", ".", "+", "-", "/", "*", "<", ">", "[", "]", "=", "&", "!"], false, false);
   var peg$e14 = peg$classExpectation(["|"], false, false);
   var peg$e15 = peg$classExpectation([["a", "z"], ["A", "Z"], ["\u0430", "\u044F"], ["\u0410", "\u042F"], ["0", "9"], "_"], false, false);
   var peg$e16 = peg$classExpectation([".", "/", "~"], false, false);

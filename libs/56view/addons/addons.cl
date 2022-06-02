@@ -49,17 +49,24 @@ feature "effect3d_additive" {
 add_sib_item @geffect3d "effect3d-opacity" "Прозрачность";
 feature "effect3d_opacity" {
   eo: geffect3d
-    {{ x-param-slider name="value" min=0 max=1 step=0.01; }}
-    value=1
+    {{ x-param-slider name="opacity" min=0 max=1 step=0.01; }}
+    {{ x-param-slider name="alfa_test" min=0 max=1 step=0.01; }}
+    alfa_test=0.5
+    opacity=1.0
     gui={render-params @eo; }
     x-patch-r code=`(tenv) => {
           tenv.onvalue('material',(m)=> {
-            m.transparent = true;
-              m.opacity = env.params.value;
+              m.transparent = true;
+              m.opacity = env.params.opacity;
+
+              m.alphaTest = env.params.alfa_test;
+              m.needsUpdate = true;
             });
             return () => {
-                if (tenv.params.material)
+                if (tenv.params.material) {
                   tenv.params.material.transparent = false;
+                  tenv.params.material.alphaTest = 1.0;
+                }
             };
           }
     `;
@@ -114,5 +121,16 @@ feature "effect3d_pos" {
             };
           }
     `;
+  ;
+};
+
+add_sib_item @geffect3d "effect3d-sprite" "Вид точек";
+feature "effect3d_sprite" {
+  eoa: geffect3d
+    {{ x-param-combo name="sprite" values=["","spark1.png","ball.png","circle.png","disc.png","particle.png","particleA.png","snowflake1.png","snowflake3.png"]; }}
+    gui={render-params @eoa; }
+    x-modify {
+      x-set-params texture_url=(if (@eoa->sprite != "") then={resolve_url (+ "sprites/" @eoa->sprite)});
+    }  
   ;
 };

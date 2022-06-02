@@ -227,7 +227,7 @@ export function x_modify_list( env )
         let obj = modified_objs[k].obj;
         let applied_modifications = modified_objs[k].modifications;
         delete modified_objs[k];
-        applied_modifications.map( f => f.detach_code() );
+        Object.values( applied_modifications || {}).map( f => f.detach_code() );
       };
     };
   
@@ -393,7 +393,7 @@ export function x_patch_r( env  )
        let obj = rec.obj;
        env.callCmd("apply",obj, rec.unsub );
        // да хрен с ним, не будем менять пока unsub..
-       // но вообще это на туду что надо бы
+       // но вообще это на туду что надо быть
     }
   });
 

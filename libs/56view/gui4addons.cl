@@ -56,7 +56,7 @@ feature "manage_addons" {
 feature "addons_area" {
   aa: column {
 	ba: button_add_object add_to=(@aa->input? | geta "addons_container")
-	                      add_type="effect3d_additive"
+	                      add_type="effect3d_blank"
 	                      text="+"
 	                      ;
 
@@ -66,16 +66,16 @@ feature "addons_area" {
 
 addons_dialog: dialog style="position:absolute; width: 80vw; bottom: 0px; top: initial;"
   //visible=false
-  input=(@objects_list->output | geta @cbsel->index?)
+  input=(@objects_list2->output | geta @cbsel->index?)
 {
 	   column {
 	   
-	   objects_list: find-objects-bf "editable-addons";
+	   objects_list2: find-objects-bf "editable-addons";
 	   //combobox
 	   row {
 	       cbsel: combobox style="margin: 5px;" //dom_size=5 
-	         values=(@objects_list->output | arr_map code="(elem) => elem.$vz_unique_id")
-	         titles=(@objects_list->output | map_param "title")
+	         values=(@objects_list2->output | arr_map code="(elem) => elem.$vz_unique_id")
+	         titles=(@objects_list2->output | map_param "title")
 	         ;	   
 
 	       //text "добавки";
@@ -98,7 +98,7 @@ addons_dialog: dialog style="position:absolute; width: 80vw; bottom: 0px; top: i
 feature "manage_addons2" {
   ma: collapsible "Добавки" {
     ba: button_add_object add_to=@ma->container
-                          add_type="effect3d_additive";
+                          add_type="effect3d_blank";
 
     show_addons input=(@ma->container | get_children_arr);
 

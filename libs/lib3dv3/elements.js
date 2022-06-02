@@ -112,7 +112,7 @@ export function lines( env ) {
 ////////////////////////////////////
 export function points( env ) {
   var geometry = new THREE.BufferGeometry();
-  var material = new THREE.PointsMaterial( {} );
+  var material = new THREE.PointsMaterial( {alphaTest: 0.5} );
   var sceneObject = new THREE.Points( geometry, material );
 
   env.setParam("output",sceneObject );
@@ -161,6 +161,25 @@ export function points( env ) {
   // + затем создать отдельную raw-points без этого
 
   env.setParam("material",material);  
+
+  ///////////// вообще не обязательно тут это иметь.. ну ладно...
+  env.trackParam("texture_url",(textureUrl) => {
+    console.log("new textureUrl",textureUrl)
+    var loader = new THREE.TextureLoader();
+    // loader.setCrossOrigin( undefined );
+    if (textureUrl)
+      env.setParam("texture",loader.load( textureUrl ) );
+    else
+      env.setParam("texture",null );
+  });
+  
+  env.onvalues_any( ["material","texture"],(m,t) => {
+    console.log("mmm",m,t)
+    if (m?.map !== t) {
+      m.map = t;
+      m.needsUpdate = true;
+    };
+  })
 
   env.feature("node3d",{object3d: sceneObject});
 }

@@ -169,6 +169,10 @@ register_feature name="==" {
   eval code="(a,b) => a == b";
 };
 
+register_feature name="!=" {
+  eval code="(a,b) => a != b";
+};
+
 // todo тут надо проверять все аргументы а не только 2
 register_feature name="||" {
   eval code="(a,b) => a || b";

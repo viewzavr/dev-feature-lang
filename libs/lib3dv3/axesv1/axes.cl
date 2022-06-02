@@ -63,9 +63,9 @@ register_feature name="axes_titles" {
     lines=(eval @t->names code=`(str) => str.split(/\s+/)`)
     positions=(eval @t->s code=`(s) => {
     if (!isFinite(s)) return [];
-    return [ 0,0,s,
+    return [ s,0,0,
              0,s,0,
-             s,0,0
+             0,0,s
      ]
     }`;)
     {
