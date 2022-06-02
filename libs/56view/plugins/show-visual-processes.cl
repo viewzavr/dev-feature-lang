@@ -21,8 +21,12 @@ insert_children { manage_visual_processes; };
 // вход - project - визпроект
 feature "manage_visual_processes" {
 	vp: project=@..->project
+      active_view = @..->active_view
     	collapsible "Визуальные процессы" {
-        render_process_hierarchy objects=(@vp->project | geta "processes");
+        render_process_hierarchy objects=(@vp->project | geta "processes")
+           active_view=@vp->active_view
+        ;
+                  
         //render_process_hierarchy objects=(@vp->project | geta "top_processes");
      	};
 };
@@ -34,6 +38,7 @@ feature "render_process_hierarchy" {
     column //text=@.->title?
     style="min-width:250px;" plashka
     style_h = "max-height:80vh;"
+    
     {
 
     	// button "Добавить";
@@ -84,6 +89,16 @@ feature "render_process_hierarchy" {
       {
         column {
           insert_children input=@.. list=(@co->input | geta "gui3");
+        };
+        button "Клонировать" {
+          m_apply "(obj,curview,cbsel) => {
+             let n = obj.clone();
+             n.then(nobj => {
+              curview.append_process( nobj );
+              console.log('cloned to',nobj);
+              cbsel.setParam( 'index', cbsel.params.values.length-1 );
+             })
+          }" @co->input @rh->active_view @cbsel;
         };
 
         button "x" style="position:absolute; top:0px; right:0px;" 

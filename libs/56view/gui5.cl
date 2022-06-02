@@ -72,7 +72,6 @@ feature "created_mark_manual" {
 feature "created_add_to_current_view" {
   x-on "created" 
      code=`
-         
          let item = args[1];
          env.params.curview.append_process( item );
          //let project = args[0].ns.parent;

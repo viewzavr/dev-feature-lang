@@ -124,6 +124,17 @@ feature "x-param-file" {
   ";
 };
 
+// кстати идея мб неск параметров? x-param-float names=....;
+feature "x-param-float" {
+  r: x-patch-r @r->name
+  code="(name,obj) => {
+    
+    if (!name) return;
+    obj.addFloat( name, undefined );
+  }
+  ";
+};
+
 /*
     x-param-slider name="test" max=200;
     x-on "param_test_changed" code=`(a,b,c) => console.log('sl changed',a,b,c)`;
