@@ -3427,7 +3427,8 @@ function peg$parse(input, options) {
       var new_env = { features: {}, params: {}, children: {}, links: {} };
       new_env.$base_url = base_url;
       new_env.this_is_env = true;
-      if (!name) name="item";
+      if (!name) { name="item"; //new_env.is_autonamed=true; 
+      }
       new_env.$name = name;
       return new_env;
     }
@@ -3437,7 +3438,9 @@ function peg$parse(input, options) {
           || (e.features_list || []).length > 0
           || Object.keys(e.params).length > 0
           || Object.keys(e.children).length > 0
-          || Object.keys(e.links).length > 0;
+          || Object.keys(e.links).length > 0
+          ;
+          //|| !e.is_autonamed;
      
      //if (!res) console.log("ENV NOT REAL",e.$name)
      return res;
