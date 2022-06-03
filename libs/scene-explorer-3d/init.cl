@@ -100,7 +100,7 @@ scr: screen {
                     value2=false
                     value=(@cb->modelData | get_param name="init_on");
                     //value=(@cb->modelData | get param="init_on");
-            if @cbb->value then={
+            if @cbb->value? then={
               column {
                 render-params object=@fobj;
                 fobj: deploy input=(@cb->modelData | get_param name="body");

@@ -128,6 +128,7 @@ add_sib_item @geffect3d "effect3d-sprite" "Вид точек";
 feature "effect3d_sprite" {
   eoa: geffect3d
     {{ x-param-combo name="sprite" values=["","spark1.png","ball.png","circle.png","disc.png","particle.png","particleA.png","snowflake1.png","snowflake3.png"]; }}
+    sprite="ball.png"
     gui={render-params @eoa; }
     x-modify {
       x-set-params texture_url=(if (@eoa->sprite != "") then={resolve_url (+ "sprites/" @eoa->sprite)});

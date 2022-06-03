@@ -164,7 +164,7 @@ export function points( env ) {
 
   ///////////// вообще не обязательно тут это иметь.. ну ладно...
   env.trackParam("texture_url",(textureUrl) => {
-    console.log("new textureUrl",textureUrl)
+    //console.log("new textureUrl",textureUrl)
     var loader = new THREE.TextureLoader();
     // loader.setCrossOrigin( undefined );
     if (textureUrl)
@@ -174,7 +174,7 @@ export function points( env ) {
   });
   
   env.onvalues_any( ["material","texture"],(m,t) => {
-    console.log("mmm",m,t)
+    //console.log("mmm",m,t)
     if (m?.map !== t) {
       m.map = t;
       m.needsUpdate = true;

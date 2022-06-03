@@ -85,7 +85,7 @@ feature "created_add_to_current_view" {
 feature "button_add_object" {
   bt_root: button "Добавить" margin="0.5em" {
         
-        link from="@bt_root->add_to" to="@cre->target";
+        link from="@bt_root->add_to" to="@cre->target" soft_mode=true;
 
         cre: creator input={}
           {{ onevent name="created" 
@@ -128,12 +128,12 @@ feature "object_change_type"
    text @cot->text;
 
    cbb: combobox 
-            values=@cot->types 
-            titles=@cot->titles 
-            value=(detect_type @cot->input? @cbb->values)
+            values=@cot->types?
+            titles=@cot->titles?
+            value=(detect_type @cot->input? @cbb->values?)
             style="width: 120px;"
            {{ on "user_changed_value" {
-              lambda @cot->input code=`(obj,v) => {
+              lambda @cot->input? code=`(obj,v) => {
                 // вот мы спотыкаемся - что это, начальное значение или управление пользователем
 
                 console.log("existing obj",obj,"creating new obj type",v);
@@ -221,28 +221,28 @@ rl_root:
 
      co: column plashka style_r="position:relative; overflow: auto;"  
             input=(@objects_list->output | get index=@cbsel->index?)
-            visible=(@co->input)
+            visible=(@co->input?)
       {
         row {
-          object_change_type input=@co->input
-            types=(@co->input  | geta  "sibling_types" )            
-            titles=(@co->input | geta "sibling_titles")
+          object_change_type input=@co->input?
+            types=(@co->input?  | geta  "sibling_types" )            
+            titles=(@co->input? | geta "sibling_titles")
             //types=(@co->input  | geta  "items" | geta (i_call_js code="Object.keys"))
             //titles=(@co->input  | geta  "items" | geta (i_call_js code="Object.values"))
             ;
         };
 
         column {
-          insert_children input=@.. list=(@co->input | get_param name="gui");
+          insert_children input=@.. list=(@co->input? | get_param name="gui");
         };
 
-        if (has_feature input=@co->input name="editable-addons") then={
-          manage_addons input=@co->input;
+        if (has_feature input=@co->input? name="editable-addons") then={
+          manage_addons input=@co->input?;
         };
 
         button "x" style="position:absolute; top:0px; right:0px;" 
         {
-          lambda @co->input code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
+          lambda @co->input? code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
         };
 
      };
@@ -251,7 +251,6 @@ rl_root:
   };   
 
 };
-
 
 
 

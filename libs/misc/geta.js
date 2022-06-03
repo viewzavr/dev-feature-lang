@@ -58,7 +58,17 @@ export function map_geta( env )
     unsub_all();
 
     if (input_arr == null) { // вроде как норм вариант проверять и на ундефинет
-      env.setParam( "output",env.single_geta_mode ? null : [] );
+      //console.log("geta setting output null...",env.getPath())
+      if (env.single_geta_mode) {
+        if (env.params.output) // но только если там что-то было.. а если ничего не было то пока ничего и не пишем.. ибо мы еще не отработали
+            env.setParam( "output",null ); 
+      }
+      else
+      {
+        // ну тут может стоит проверку на то что и так выдаем [] поставить
+        env.setParam( "output",[] );
+      }
+      
       return;
     }
 

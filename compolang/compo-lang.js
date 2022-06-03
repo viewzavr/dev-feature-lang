@@ -411,7 +411,8 @@ export function computer(env)
     set_unsub( c.trackParam(output_name,(v) => {
       env.setParam("output",v);
     }) );
-    env.setParam("output", c.params[output_name] );
+    if (c.params[output_name]) // этот иф дает такое поведение что если результата вычисления нет то его и у выражения нет
+        env.setParam("output", c.params[output_name] );
 
     //console.log("used ",c)
     

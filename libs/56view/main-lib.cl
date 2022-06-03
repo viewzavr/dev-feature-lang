@@ -120,9 +120,9 @@ feature "show_sources_params"
              // вот мы вставили гуи
           };
 
-          cbv: checkbox value=(@mm->input | get_param "visible");
+          cbv: checkbox value=(@mm->input | geta "visible");
           x-modify input=@mm->input {
-            x-set-params visible=@cbv->value ;
+            x-set-params visible=@cbv->value? __manual=true;
             x-on "show-settings" {
               lambda @extra_settings_panel code="(panel,obj,settings) => {
                  //console.log('got x-on show-settings',obj,settings)

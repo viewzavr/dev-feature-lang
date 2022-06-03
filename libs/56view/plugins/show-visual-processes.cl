@@ -85,10 +85,10 @@ feature "render_process_hierarchy" {
      selected_object: (@objects_list | geta @cbsel->index? | geta "obj");
 
      co: column plashka style_r="position:relative; overflow: auto;"  
-            input=@selected_object
+            input=@selected_object?
       {
         column {
-          insert_children input=@.. list=(@co->input | geta "gui3");
+          insert_children input=@.. list=(@co->input? | geta "gui3");
         };
         button "Клонировать" {
           m_apply "(obj,curview,cbsel) => {
@@ -98,12 +98,12 @@ feature "render_process_hierarchy" {
               console.log('cloned to',nobj);
               cbsel.setParam( 'index', cbsel.params.values.length-1 );
              })
-          }" @co->input @rh->active_view @cbsel;
+          }" @co->input? @rh->active_view @cbsel;
         };
 
         button "x" style="position:absolute; top:0px; right:0px;" 
         {
-          lambda @co->input code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
+          lambda @co->input? code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
         };
 
      };

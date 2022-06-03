@@ -236,7 +236,8 @@ one_env
           var comp_env = new_env( newname );
           comp_env.features["computer"] = true;
           append_children_envs( comp_env, m.value.env_expression );
-          comp_env.links[ `output_link_${linkcounter++}` ] = { from: "~->output", to: ".->"+m.name };
+          comp_env.links[ `output_link_${linkcounter++}` ] = { from: "~->output", to: ".->"+m.name, soft_mode: true };
+          // soft-mode, пробуем что если пока нет результатов счета то и вывода не будет
 
           env.features_list ||= [];
           env.features_list.push( comp_env );

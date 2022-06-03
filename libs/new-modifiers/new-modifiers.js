@@ -77,9 +77,11 @@ export function x_modify( env )
          continue;
       }
 
-      modified_objs[id] = {iter:iter, obj:obj};
+      modified_objs[id] = {iter:iter, obj:obj, modifications: {}};
+      let modifs = modified_objs[id].modifications;
       
       for (let c of env.ns.getChildren()) {
+        modifs[ getobjid(c) ] = true;
         //console.log("x-modify .input sending attach to children",c.getPath())
         c.emit("attach",obj);
       }
@@ -122,9 +124,12 @@ export function x_modify( env )
         modified_objs[ getobjid( obj ) ] = {obj:obj};
 
     //console.log("x-modify forwarding attach to children",env.getPath())
-    
+
+    let r = modified_objs[ getobjid( obj ) ];
+    r.modifications ||= {};
     for (let c of env.ns.getChildren()) {
         //console.log(c.getPath())
+        r.modifications[ getobjid(c) ] = true;
         c.emit("attach",obj);
     }
   })
@@ -147,9 +152,12 @@ export function x_modify( env )
     // надо задержку - там фича еще недоделанная может быть, а уже appendChild вызвали..
     env.timeout( () => {
       // и важно, если итерация сменилась - значит инпут сработал и нам уже реагировать не надо здесь
-      if (iter_a != iter) return;
+      // if (iter_a != iter) return;
       for (let k of Object.keys( modified_objs )) {
-        c.emit("attach",modified_objs[k].obj);
+        if (!modified_objs[k].modifications[ getobjid(c)]) {
+            modified_objs[k].modifications[ getobjid(c)] = true;  
+            c.emit("attach",modified_objs[k].obj);
+        }
       }
     },1 );
   });

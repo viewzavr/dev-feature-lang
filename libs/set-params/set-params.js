@@ -46,7 +46,7 @@ export function x_set_params( env )
             channel.setParam( c, env.getParam(c), env.params.__manual );
       }
 
-      let unsub = () => { if (!channel.removed) channel.remove(); }
+      let unsub = () => { if (!channel.removed) channel.remove( ! env.params.__manual ); }
       env.on("remove", unsub ); // todo optimize
       detach[ obj.$vz_unique_id ] = unsub;
 
@@ -73,10 +73,14 @@ export function param_subchannels(env)
     env.$subchannels.push( res );
 
     // m.addTreeToObj(obj, "ns");
-    res.remove = () => {
+    res.remove = (restore_values_to_original=true) => {
        let i = env.$subchannels.indexOf( res );
        if (i >= 0)
            env.$subchannels.splice( i, 1 );
+
+       if (!restore_values_to_original) // особый случай. если у нас ручное управление то отменять не надо. да уж.
+           return; // ну либо отдельный флаг надо будет сделать
+
        let notified = env.update_params_from_subchannels();
 
        // ну и еще для кучи для теста разошлем информацию что поменялось то, что ушло

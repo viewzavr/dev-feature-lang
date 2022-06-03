@@ -135,8 +135,8 @@
           obj.delayed( () => {
             //console.log("global: issuing load from hash");
             vzPlayer.loadFromHash().then( () => {
-              //console.log("restored. emitting global dump-loaded");
-              //vzPlayer.getRoot().emit("dump-loaded");
+              // console.log("restored. emitting global dump-loaded");
+              // vzPlayer.getRoot().emit("dump-loaded");
               vzPlayer.getRoot().setParam("dump_loaded",true);
               vzPlayer.startSavingToHash();
             })
