@@ -9,6 +9,8 @@ export default function setup( vz, m ) {
   vz.register_feature( "animation-player-priority", ()=>{} );
 }
 
+import * as DP from "../../../../viewzavr-system-a/lib/viewzavr-core/extend/delayed-pool.js";
+
 export function animation_player( obj, opts ) 
 {
   var root = obj.findRoot();
@@ -129,7 +131,7 @@ export function animation_player( obj, opts )
     obj.setParam( "min", tobj.getParamOption( tparam,"min") || 0 );
     obj.setParam( "max", tobj.getParamOption( tparam,"max") || 1 );
     obj.setParam( "step", tobj.getParamOption( tparam,"step") || 1 );
-*/    
+*/
  }
 
  obj.trackParam("playing",(v) => {
@@ -146,7 +148,21 @@ export function animation_player( obj, opts )
     window.requestAnimationFrame( animframe );
 
     // если грузим файлы - надо подождать.
-    if (qmlEngine.rootObject.propertyComputationPending > 0) return;
+    //if (qmlEngine.rootObject.propertyComputationPending > 0) return;
+    //let root = env.findRoot();
+    //if (root)
+    //console.log(DP.qnext.length,obj.params.step_allowed);
+
+    if (obj.params.step_allowed == false) {
+     // console.log("step is not allowed")
+      return;
+    }
+
+    if (DP.qnext.length > 0) {
+     // console.log( "DP.qnext.length is",DP.qnext.length);
+      return;
+    }
+
 
     counter++;
     if (obj.params.delay > 0 && counter % obj.params.delay !== 0) return;

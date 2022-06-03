@@ -27,7 +27,9 @@ feature "animations_panel" {
 
      ap: animation-player 
             parameter=(@apan->project | geta "default_animation_parameter")
-            search_root=@apan->project;
+            search_root=@apan->project
+            step_allowed=(( (@/->loading_files or [] ) | geta "length") == 0)
+            afiles=@/->loading_files
             ;
 
      cb: checkbox text="Запись мультика" value=false;

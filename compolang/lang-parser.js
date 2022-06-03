@@ -350,7 +350,7 @@ function peg$parse(input, options) {
 
           //console.log("PPF",m)
 
-          if (m.value.link === true) {
+          if (m.value?.link === true) {
             m.link = true;
             m.from = m.value.value;
             m.to = "~->" + (env.positional_params_count-1).toString();
@@ -392,7 +392,7 @@ function peg$parse(input, options) {
           env.features_list = (env.features_list || []).concat( m.feature_list );
         }
         else
-        if (m.param && m.value.env_expression) {        // выражение вида a=(b)
+        if (m.param && m.value?.env_expression) {        // выражение вида a=(b)
           // преобразуем здесь параметр-выражение в суб-фичи
           // причем нам надо работать уметь и с массивом (если там формула)
           /* не прокатит работать только с 1 окружением т.к. там может быть if который жаждет порождать под-окружения, которые уже будут следующими и должны учитываться в computer-логике
@@ -422,7 +422,7 @@ function peg$parse(input, options) {
           //}
         }
         else
-        if (m.param && m.value.param_value_env_list) { // выражение вида a={b}
+        if (m.param && m.value?.param_value_env_list) { // выражение вида a={b}
            //env.env_list_params ||= {};
            //debugger;
            //env.env_list_params[ m.name ] = m.value.param_value_env_list;

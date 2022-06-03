@@ -12,10 +12,15 @@ export function load_file( env ) {
     // возможно стоит compute_path внедрить в load_file
     file = env.compute_path( file );
 
+    let root = env.findRoot();
+    root.setParam( "loading_files", (root.params.loading_files || []).concat( file ) );
+
     env.loadFile( file,(text) => {
+      root.setParam( "loading_files",root.params.loading_files.filter( f => f != file) );
       console.log("load-file: file",file," loaded, text len is ",text.length);
       env.setParam("output",text );
     },(err) => {
+      root.setParam( "loading_files",root.params.loading_files.filter( f => f != file) );
       console.error("load-file: file",file," load error",err);
       env.setParam("output","" );
     });
