@@ -36,7 +36,7 @@ feature "show_addons"
 // input, channel
 
 feature "manage_addons" {
-  ma: dom_group 
+  ma: dom_group input=@.->0?
   {
   	/*
    button "Добавки" //cmd="@addons_dialog->show"

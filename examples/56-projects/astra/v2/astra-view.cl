@@ -31,12 +31,44 @@ feature "manage_astra" {
 	};
 };
 
+register_feature name="render-guis-a" {
+  rep: repeater opened=true {
+    das1: column {
+            button text=@btntitle->output cmd="@pcol->trigger_visible" 
+             {{ deploy input=@rep->button_features? }};
+
+          pcol: column visible=false { /* @../../..->opened */
+            render-params object=@das1->modelData;
+            btntitle: compute_output object=@../..->modelData code=`
+              return env.params.object?.params.gui_title || env.params.object?.ns.name;
+            `;
+            manage_addons @das1->input;
+          }
+          
+        };
+    };
+};
+
 feature "astra-vis-1" {
 	avp: visual_process
 	title="Визуализация звёзд"
 	gui={
-		render-params @astradata;
-		find-objects-bf "lib3d_visual" root=@scene | render-guis;
+		render-params @astradata plashka;
+		//find-objects-by-crit "visual_process" root=@scene recursive=false | render-guis-a;
+		ko: column plashka {
+			show_sources_params input=(find-objects-by-crit "visual-process" root=@scene include_root=false recursive=false)
+			;
+
+			/*
+			
+			|
+			repeater {
+				k: { 
+					 insert_children input=@ko list=(@k->input | geta "gui");
+				};
+			};
+			*/
+	  };
 	}
 	gui3={
 		render-params @avp;
@@ -66,13 +98,17 @@ feature "astra-vis-1" {
 
 		scene: node3d visible=@avp->visible force_dump=true
 		{
-		   // вообще может оказаться что это будет отдельный визуальный процесс - "антураж"
-		   ab: axes_box size=10;
 
 		   // 218 201 93
-		   @loaded_data->output | pts: points radius=0.02 color=[0.85, 0.78, 0.36];
+		   @loaded_data->output | pts: points title="Точки" visual-process editable-addons 
+		     radius=0.02 color=[0.85, 0.78, 0.36] 
+		     gui={ render-params @pts; manage-addons @pts; };
 
 		   //console_log "positions are" @pts->positions;
+
+		   // вообще может оказаться что это будет отдельный визуальный процесс - "антураж"
+		   ab: axes_view size=1;
+
 		};
 	};
 };

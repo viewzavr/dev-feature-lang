@@ -136,7 +136,7 @@ feature "object_change_type"
               lambda @cot->input? code=`(obj,v) => {
                 // вот мы спотыкаемся - что это, начальное значение или управление пользователем
 
-                console.log("existing obj",obj,"creating new obj type",v);
+                //console.log("existing obj",obj,"creating new obj type",v);
 
                 let dump = obj.dump();
 
@@ -157,6 +157,7 @@ feature "object_change_type"
                   dump.manual = true;
                   //console.log("restoring dump",dump);
                   newobj.restoreFromDump( dump, true );
+                  console.log("created obj", newobj)
                 }
 
                 

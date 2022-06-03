@@ -1,9 +1,9 @@
 // метка для объектов для которых добавить визуальное управление добавками
 
 feature "editable-addons" {
-   addons_container=@xxx
+   eathing: addons_container=@xxx
    {{
-     x-modify-list input=@main list=(@xxx | get_children_arr | filter_geta "visible" );
+     x-modify-list input=@eathing list=(@xxx | get_children_arr | filter_geta "visible");
    }}
    {
      xxx: {}; // целенаправленно в children ибо оно сохранится в dump
@@ -22,6 +22,7 @@ geffect3d: feature {
   ;
 };
 
+
 add_sib_item @geffect3d "effect3d-blank" "-";
 
 feature "effect3d_blank" {
@@ -30,9 +31,12 @@ feature "effect3d_blank" {
 
 add_sib_item @geffect3d "effect3d-additive" "Аддитивный рендеринг";
 feature "effect3d_additive" {
-  ea: geffect3d gui={render-params @ea; }
+  ea: geffect3d 
+    gui={render-params @ea; }
   x-patch-r code=`(tenv) => {
+    console.log("additive, tenv",tenv)
     tenv.onvalue('material',(m)=> {
+      console.log("additive, tenv mat",tenv,m)
       //m.blending = additive ? THREE.AdditiveBlending : THREE.NormalBlending;
       m.blending = THREE.AdditiveBlending;
       //m.blending = THREE.MultiplyBlending;
@@ -78,18 +82,24 @@ feature "effect3d_zbuffer" {
   eo: geffect3d
     {{ x-param-checkbox name="depth_test"; }}
     {{ x-param-checkbox name="depth_write"; }}
+    {{ x-param-checkbox name="size_attenuation"}}
     depth_test=true
     depth_write=true
+    size_attenuation=true
     gui={render-params @eo; }
     x-patch-r code=`(tenv) => {
           tenv.onvalue('material',(m)=> {
               m.depthTest = env.params.depth_test;
               m.depthWrite = env.params.depth_write;
+              m.sizeAttenuation=env.params.size_attenuation;
+              m.needsUpdate=true;
             });
             return () => {
                 if (tenv.params.material) {
                   tenv.params.material.depthTest = true;
                   tenv.params.material.depthWrite = true;
+                  tenv.params.material.sizeAttenuation=true;
+                  tenv.params.material.needsUpdate=true;
                 }
             };
           }

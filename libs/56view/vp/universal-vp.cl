@@ -2,6 +2,17 @@ find-objects-bf features="render_project_right_col" recursive=false
 |
 insert_children { manage_universal_vp; };
 
+feature "compute_title" {
+  r: output=@q->output {
+    q: eval @r->key @r->types @r->titles code="(t,a,b) =>
+       {
+          
+          let ind = a.indexOf(t); 
+          return b[ind];
+       }";
+  };
+};
+
 feature "manage_universal_vp" {
   ma: 
       project=@..->project
