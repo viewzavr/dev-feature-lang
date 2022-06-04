@@ -105,17 +105,26 @@ export function animation_player( obj, opts )
     return acc;
   }
 
-  var updateminmax_pending = false;
-  
 
   obj.on("remove",unsub);
+
+  obj.feature("delayed")
+  let updminmax_delayed = obj.delayed( updateminmax, 30);
+  // так тоже работает
+  //var updateminmax_pending = false;
+  /*
+  obj.timeout( () => {
+    if (updateminmax_pending) updateminmax();
+  },60);
+  */
+
 
   function updateminmax() {
     unsub(); unsub = () => {};
     if (!obj.params.parameter) return;
     var [tobj,tparam] = obj.params.parameter.split("->");
     tobj = root.findByPath( tobj );
-    if (!tobj) { updateminmax_pending = true; return; }
+    if (!tobj) { updminmax_delayed(); return; }
 
     var g = tobj.getGui( tparam );
     if (g) {
@@ -153,10 +162,13 @@ export function animation_player( obj, opts )
     //if (root)
     //console.log(DP.qnext.length,obj.params.step_allowed);
 
-    if (obj.params.step_allowed == false) {
+    if ((root.params.loading_files || []).length > 0) return;
+    // типа решил ладно уж тут в коде пусть все будет чем в 5 местах
+    /*if (obj.params.step_allowed == false) {
      // console.log("step is not allowed")
       return;
     }
+    */
 
     if (DP.qnext.length > 0) {
      // console.log( "DP.qnext.length is",DP.qnext.length);

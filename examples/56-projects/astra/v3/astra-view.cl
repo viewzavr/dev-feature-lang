@@ -107,6 +107,7 @@ feature "astra-vis-1" {
 		     gui={ render-params @pts; manage-addons @pts; };
 
 		   insert_default_children input=@pts->addons_container list={
+		   	 // F-PIXEL-PRESET
 		   	 effect3d_sprite sprite="disc.png";
 		   	 effect3d_additive;
 		   	 effect3d_zbuffer depth_test=false;

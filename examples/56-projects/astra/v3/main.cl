@@ -2,7 +2,7 @@ load "lib3dv3 csv params io gui render-params df scene-explorer-3d new-modifiers
 load "56view";
 load "astra-view.cl";
 
-project: the_project active_view_index=1 
+project: the_project active_view_index=1 default_animation_parameter="project/av1/astradata->N"
 {
 
   insert_default_children input=@project list={
