@@ -271,6 +271,7 @@ export function camera3d( env ) {
   // гуи
   env.addArray( "pos", [], 3 );
   env.addArray( "center", [], 3 );  
+  env.addSlider("theta",0,-180,180,0.1);
 
   env.onvalue( "pos", (v) => {
     //console.log("onval pos",v)
@@ -346,11 +347,27 @@ export function orbit_control( env ) {
         }  
         // вроде как pos ставить не надо т.к. оно и так из камеры его берет
       })
+      c.vrungel_camera_env.onvalue("theta",(t) => {
+         //cc.spherical.theta = 2*Math.PI / 360;
+         ///debugger;
+         //cc.setAzimuthalAngle( 2*Math.PI / 360 )
+         //if (t >= 0)
+         let eps = 0.000001; // 0.5 * 2 * Math.PI / 360;
+         let nv = 2*Math.PI *t / 360;
+         if (Math.abs( cc.getAzimuthalAngle() - nv) > eps)
+            cc.manualTheta = nv;
+
+         cc.update();
+      })
     }
 
+    let flag=false;
     cc.addEventListener( 'change', function() {
-        if (c.vrungel_camera_env)
+
+        if (c.vrungel_camera_env) {
           c.vrungel_camera_env.external_set( c.position, cc.target );
+          c.vrungel_camera_env.setParam("theta", ( cc.getAzimuthalAngle() * 360 / (2*Math.PI)));
+        }
           // так-то можно и аргумент - камеру )))
         //console.log( "oc changbed",c);
         //c.setParam

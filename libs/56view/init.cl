@@ -159,7 +159,8 @@ feature "render_project" {
        right_col: 
        
        column render_project_right_col 
-         style="padding-left:2em; min-width: 80px; position:absolute; right: 1em; top: 1em; gap: 0.2em;" 
+         style="padding-left:2em; min-width: 80px; position:absolute; right: 1em; top: 1em; gap: 0.2em;"
+         style_fit_h="max-height: 80vh; overflow-y: auto" 
          project=@rend->project
          //render_project=@rend
          active_view=@rend->active_view

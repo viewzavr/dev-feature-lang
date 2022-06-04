@@ -113,6 +113,11 @@ class OrbitControls extends EventDispatcher {
 			return spherical.theta;
 
 		};
+		this.setAzimuthalAngle = function (v) {
+
+			spherical.theta=v;
+
+		};		
 
 		this.getDistance = function () {
 
@@ -193,6 +198,12 @@ class OrbitControls extends EventDispatcher {
 					spherical.phi += sphericalDelta.phi;
 
 				}
+
+	if (typeof(scope.manualTheta) !== "undefined")  {
+		spherical.theta = scope.manualTheta;
+		scope.manualTheta = undefined;
+	}
+
 
 				// restrict theta to be between desired limits
 
