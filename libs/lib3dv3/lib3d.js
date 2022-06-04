@@ -49,7 +49,7 @@ export function render3d( env ) {
       if (env.renderer) env.renderer.dispose();
 
       env.renderer = new THREE.WebGLRenderer( {canvas: dom, preserveDrawingBuffer   : true}); // alpha: true
-      env.setParam("renderer",renderer);
+      env.setParam("renderer",env.renderer);
       //animate(); -- вынесено наружу, всегда рисуем
   });
   env.on("remove",() => {

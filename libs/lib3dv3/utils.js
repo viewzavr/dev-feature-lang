@@ -1,3 +1,5 @@
+import * as THREE from './three.js/build/three.module.js';
+
 var cache = {};
 
 export function clearCache() {

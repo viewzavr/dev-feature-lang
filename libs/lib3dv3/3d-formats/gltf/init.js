@@ -1,6 +1,7 @@
 import setup_anim from "./animations-interface.js";
 import setup_caching from "./caching.js";
 import * as utils from "./threejs-utils.js";
+import * as THREE from '../../three.js/build/three.module.js';
 
 export function setup( vz,m ) {
   vz.register_feature_set( m )

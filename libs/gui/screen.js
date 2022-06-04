@@ -27,6 +27,9 @@ addStyle(`[hidden] {
 
 .vz-screen {
   pointer-events: none !important;
+  display: block;
+  width: 100%; height: 100%;
+  position: absolute;
 }
 
 .vz-screen > * {
@@ -53,7 +56,6 @@ addStyle(`[hidden] {
   pointer-events: all !important;
 }
 */
-
 
 function addStyle( styles ) {
   var styleSheet = document.createElement("style");
@@ -90,12 +92,14 @@ export function screen( obj, opts )
     obj.addCmd("activate",() => {
       //console.log("ACTIVATE CALLED");
       //qmlEngine.rootObject.setActiveScreen( obj );
-      vzPlayer.feature("screens-api");
-      vzPlayer.activateScreen( obj );
-      vzPlayer.setParam("active_screen",obj,true);
+      //vzPlayer.feature("screens-api");
+      //vzPlayer.activateScreen( obj );
+      //vzPlayer.setParam("active_screen",obj,true);
+      obj.setParam("visible",true);
     });
 
-    qmlEngine.rootObject.dom.appendChild( dom );
+    //qmlEngine.rootObject.dom.appendChild( dom );
+    document.body.appendChild( dom );
 
     //console.log("screen is emitting");
     obj.emit("screen-created");

@@ -13,7 +13,7 @@ feature "insert_default_children" code=`
      // а без этого его могут пропустить из дампирования и мы будем думать что там ничего нет
      // а там может быть есть - просто пользователь все решил вычистить (так бывает как выяснилось)
 
-     vzPlayer.getRoot().onvalue("dump_loaded",(dl) => {
+     vzPlayer.onvalue("dump_loaded",(dl) => {
         //console.log("see input and list, and dump-loaded is true",input.params.manual_restore_performed)
         if (input.params.manual_restore_performed) {
            //console.log("not doing job - there is data from dump")
@@ -47,7 +47,7 @@ feature "is_default" code=`
   env.feature( "param_alias");
   env.addParamAlias( "input", 0 );
   env.onvalues(["input"],(input) => {
-     vzPlayer.getRoot().onvalue("dump_loaded",(dl) => {
+     vzPlayer.onvalue("dump_loaded",(dl) => {
         //console.log("see input and list, and dump-loaded is true",input.params.manual_restore_performed)
         if (input.params.manual_restore_performed) {
            //console.log("not doing job - there is data from dump")

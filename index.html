@@ -1,27 +1,10 @@
 <!DOCTYPE html>
 <html>
-  <script src="./viewzavr-system-a/lib/viewlang/code/depends/jquery-2.1.4.js"></script>
-
-  <script src="./viewzavr-system-a/lib/viewlang/code//depends/qmlweb/src/parser.js"></script>
-  <script src="./viewzavr-system-a/lib/viewlang/code//depends/qmlweb/src/process.js"></script>
-  <script src="./viewzavr-system-a/lib/viewlang/code//depends/qmlweb/src/import.js"></script>
-  <script src="./viewzavr-system-a/lib/viewlang/code//depends/qmlweb/src/qtcore.js"></script>
-
-  <script src="./viewzavr-system-a/lib/viewlang/code//base.js"></script>
 <head>
 </head>
 <body>
-  <div id="qmlSpace">
-      target space for qml...
-  </div>
-  
 
   <style>
-  #qmlSpace {
-    width: 100vw !important;
-    bottom: 0px !important;
-    z-index: 10000;
-  }
   .viewlang-canvas {
     width: 100%; height: 100%;
     margin: 0; padding: 0; display: block; left: 0px; top: 0px; position: absolute;
@@ -29,20 +12,21 @@
   body { margin: 0; }
   </style>
 
-  <script src="./viewzavr-system-a/lib/viewlang/code//threejs_driver/init.js"></script>
 <!--
+  <script src="./viewzavr-system-a/lib/viewlang/code//threejs_driver/init.js"></script>
   <script src="//unpkg.com/3d-force-graph@1.70.5/dist/3d-force-graph.js"></script>
--->  
+
   <script src="libs/scene-explorer-3d/3d-force-graph.js"></script>
   <script src="libs/scene-explorer-3d/three-spritetext.js"></script>
+-->    
 
   <script type="module">
 
     ///////////////////////////// qmlweb and viewlang (required for viewzavr-system-a implementation)
     
-    import * as Viewlang from "./viewzavr-system-a/lib/viewlang/code/embed2/init.js"
-    window.qmlEngine = new QMLEngine( document.getElementById( "qmlSpace" ) );
-    Viewlang.setup_qmlweb( qmlEngine );
+//    import * as Viewlang from "./viewzavr-system-a/lib/viewlang/code/embed2/init.js"
+//    window.qmlEngine = new QMLEngine( document.getElementById( "qmlSpace" ) );
+//    Viewlang.setup_qmlweb( qmlEngine );
     
     ///////////////////////////// viewzavr
     
@@ -52,33 +36,43 @@
     // window.vz = vz;
     
     //////////////////////////// player
-    
+
+/*    
     import * as Player from "./viewzavr-system-a/player/init.js";
-    var vzPlayer = Player.create( vz, qmlEngine );
+    var vzPlayer = Player.create( vz );
     window.vzPlayer = vzPlayer;
+*/    
     // vzPlayer.feature("switch_to_editor_kbd switch_to_editor_link");
     
     //////////////////////////// graphical api
-    import * as VisAPI from "./viewzavr-system-a/graphical-api/init.js";
-    VisAPI.setup( vz );
+    //import * as VisAPI from "./viewzavr-system-a/graphical-api/init.js";
+    //VisAPI.setup( vz );
 
     //////////////////////////// feature lang
     import * as compomachine from "./compolang/machine.js";
     compomachine.setup( vz, compomachine );
+
+    import * as packages_api from "./player-stuff/packages-api.js";
+    packages_api.setup( vz, packages_api );
+    import * as save_state_to_window_hash from "./player-stuff/window-hash-p.js";
+    save_state_to_window_hash.setup( vz, save_state_to_window_hash );
+    import * as timers from "./player-stuff/timers.js";
+    timers.setup( vz, timers );    
     
-    var q = vzPlayer.loadEmptyScene();
-    var file = getParameterByName("src") || (vz.getDir( import.meta.url ) + "code.txt" );
-    var filedir = vz.getDir( file );
+    //var q = vzPlayer.loadEmptyScene();
     
     //var obj = vz.createObjByType( "compolang_machine", {parent:vzPlayer.getRoot()})
     //var obj = vz.createObj( {parent:vzPlayer.getRoot(),features:"compolang_machine",name:"compolang_machine"})
     //var obj = vzPlayer.getRoot().create_obj({},{features:"compolang_machine",name:"compolang_machine"})
     //var obj = vzPlayer.getRoot().env({features:"compolang_machine",name:"compolang_machine"})
-    var obj = vzPlayer.getRoot();
-    obj.feature("compolang_machine");
+    //var obj = vzPlayer.getRoot();
+    var vzPlayer = vz.createObj();
+    window.vzPlayer = vzPlayer;
+    
+    vzPlayer.feature("packages_load packages_table save_state_to_window_hash");
 
     var htmldir = vz.getDir(import.meta.url)  
-    vzPlayer.loadPackage( htmldir + "./viewzavr-system-a/features/list.txt" ).then( () => {
+//    vzPlayer.loadPackage( htmldir + "./viewzavr-system-a/features/list.txt" ).then( () => {
 
     //vzPlayer.feature("switch_to_editor_kbd switch_to_editor_link");
     
@@ -110,7 +104,27 @@
     vzPlayer.register_compalang( "scene-explorer-3d",(htmldir + "./libs/scene-explorer-3d/init.cl"));
     vzPlayer.register_compalang( "56view",(htmldir + "./libs/56view/init.cl"));
 
+
+    ////////////////////////////
+   function getParameterByName(name) 
+   {
+      name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+      var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+          results = regex.exec(location.search);
+      
+      return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
+    };
+
+    var file = getParameterByName("src") || (vz.getDir( import.meta.url ) + "code.txt" );
+    var filedir = vz.getDir( file );
+    //console.log( file,filedir)
+    //debugger;
+
     fetch( file ).then( (res) => res.text() ).then( (txt) => {
+        //console.log(txt)
+        let obj = vz.createObj();
+        window.vzRoot = obj; // ну это нам для консоли
+        obj.feature("compolang_machine");
         obj.setParam("base_url",filedir);
         obj.setParam("diag_file", file );
         obj.setParam("text",txt);
@@ -134,11 +148,12 @@
 
           obj.delayed( () => {
             //console.log("global: issuing load from hash");
-            vzPlayer.loadFromHash().then( () => {
+            vzPlayer.loadFromHash(obj).then( () => {
               // console.log("restored. emitting global dump-loaded");
               // vzPlayer.getRoot().emit("dump-loaded");
-              vzPlayer.getRoot().setParam("dump_loaded",true);
-              vzPlayer.startSavingToHash();
+              //vzPlayer.getRoot().setParam("dump_loaded",true);
+              vzPlayer.setParam( "dump_loaded",true );
+              vzPlayer.startSavingToHash(obj);
             })
           },2)(); // все ссылки отработают (им нужен 1 такт)
           // но хотя и это спорно
@@ -147,7 +162,7 @@
 
     });
 
-    });
+    //});
 
   </script>
 

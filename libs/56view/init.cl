@@ -116,7 +116,8 @@ feature "show_visual_tab" {
   sv: dom_group 
         screenshot_dom=(@ic->output | geta 0 | geta "screenshot_dom") 
   {
-    ic: insert_children input=@sv list=(@sv->input | get_param "show_view");
+    ic: insert_children input=@sv list=(@sv->input | get_param "show_view")
+    ;
   };
 };
 
@@ -150,6 +151,7 @@ feature "render_project" {
        ssr: switch_selector_row 
                index=@rend->active_view_index
                items=(@rend->project | get_param "views" | sort_by_priority | map_param "title")
+
                style_qq="margin-bottom:15px;" {{ hilite_selected }}
                 ;
 

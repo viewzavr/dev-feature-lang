@@ -29,19 +29,36 @@ feature "effect3d_blank" {
   geffect3d;
 };
 
+feature "import_js" code=`
+  env.onvalue(0,(path) => {
+    import(path).then( res => {
+      env.setParam("output",res);
+    })
+  });
+`;
+
 add_sib_item @geffect3d "effect3d-additive" "Аддитивный рендеринг";
-feature "effect3d_additive" {
+feature "effect3d_additive" 
+  //{{ import "" "THREE"; }}
+  //{{ load THREE="../../../lib3d/three.js/build/three.module.js" }}
+{
   ea: geffect3d 
     gui={render-params @ea; }
-  x-patch-r code=`(tenv) => {
-    console.log("additive, tenv",tenv)
+  x-patch-r THREE=(import_js "../../../libs/lib3dv3/three.js/build/three.module.js")
+    code=`(tenv) => {
+      //console.log("additive, tenv",tenv,env)
+      let THREE=env.params.THREE;
+      if (!THREE) return;
+    
     tenv.onvalue('material',(m)=> {
-      console.log("additive, tenv mat",tenv,m)
-      //m.blending = additive ? THREE.AdditiveBlending : THREE.NormalBlending;
+      //console.log("additive, tenv mat",tenv,m)
+      //m.blending = additive ? env.THREE.AdditiveBlending : THREE.NormalBlending;
       m.blending = THREE.AdditiveBlending;
       //m.blending = THREE.MultiplyBlending;
     });
     return () => {
+        //let THREE=env.params.THREE;
+        //if (!THREE) return;      
         if (tenv.params.material)
             tenv.params.material.blending = THREE.NormalBlending;
     };

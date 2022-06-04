@@ -399,7 +399,9 @@ export function x_patch_r( env  )
   let recall_attached = env.delayed( () => {
     for (let rec of Object.values( attached_list )) {
        let obj = rec.obj;
-       env.callCmd("apply",obj, rec.unsub );
+       if (rec.unsub) rec.unsub();
+       rec.unsub = env.callCmd("apply",obj );
+
        // да хрен с ним, не будем менять пока unsub..
        // но вообще это на туду что надо быть
     }
