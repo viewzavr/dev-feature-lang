@@ -100,10 +100,18 @@ feature "astra-vis-1" {
 		{
 
 		   // 218 201 93
-		   @loaded_data->output | 
-		     pts: points title="Точки" visual-process editable-addons 
+		   @loaded_data->output | pts: points title="Точки" visual-process editable-addons 
 		     radius=0.02 color=[0.85, 0.78, 0.36] 
+		     {{ x-param-slider name="radius" min=0.01 max=0.25 step=0.01 }}
+		     // слайдер сделан специально чтобы не указать слишком больших значений
 		     gui={ render-params @pts; manage-addons @pts; };
+
+		   insert_default_children input=@pts->addons_container list={
+		   	 effect3d_sprite sprite="disc.png";
+		   	 effect3d_additive;
+		   	 effect3d_zbuffer depth_test=false;
+		   	 effect3d-opacity opacity=0.25 alfa_test=0;
+		   };
 
 		   //console_log "positions are" @pts->positions;
 
