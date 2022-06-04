@@ -91,10 +91,12 @@ feature "astra-vis-1" {
 		{
 			listing: load-file file=@astradata->listing_file | parse_csv | df-get "FILE_points_astra";
 			//loaded_data: load-file file=@astradata->current_file | parse_csv;
-			loaded_data: load-file file=@astradata->current_file | parse_csv;
+			loaded_data: load-file file=@astradata->current_file | parse_csv 
+			  | df_set Y="->Z" Z="->Y";
+			//loaded_data: load-file file=@avp->current_file | joinlines "X Y Z" @.->input | parse_csv separator="\s+";
     };
 
-//      	loaded_data: load-file file=@avp->current_file | joinlines "X Y Z" @.->input | parse_csv separator="\s+";
+   	
 
 		scene: node3d visible=@avp->visible force_dump=true
 		{

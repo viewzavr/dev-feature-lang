@@ -1,6 +1,7 @@
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d new-modifiers imperative";
 load "56view";
 load "astra-view.cl";
+//load "rotate-camera-z-plugin.cl";
 
 project: the_project 
   active_view_index=1 
@@ -12,9 +13,8 @@ project: the_project
 
     v1: the-view-mix3d title="Общий вид" 
         sources_str="@av1"
-        camera_modifiers={ x-set-params pos=[0,-4,1] center=[0,0,0] }
+        camera_modifiers={ x-set-params pos=[0,1.7724860904458464,1.8847246126475379] center=[0,0,0] }
         ;
-
   };
 
 };

@@ -12,7 +12,11 @@ feature "the_project" {
   //processes=(get-children-arr input=@project | arr_filter_by_features features="visual-process")
   processes=(find-objects-bf features="visual-process" root=@project recursive=false | sort_by_priority)
   top_processes=(find-objects-bf features="top-visual-process" root=@project recursive=false | sort_by_priority)
+
+  //{{ @project->processes | x-modify { x-set-params project=@project } }}
+
   ;
+
 };
 
 ///////////////////////////////////////////// экраны и процессы
@@ -90,6 +94,7 @@ feature "visual_process" {
     title="Визуальный процесс"
     visible=true
     output=@~->scene3d?
+    //project=""
 
     {{ x-param-string name="title" }}
     ; // это сделано чтобы визпроцесс можно было как элемент сцены использовать

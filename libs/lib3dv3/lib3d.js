@@ -275,13 +275,18 @@ export function camera3d( env ) {
 
   env.onvalue( "pos", (v) => {
     //console.log("onval pos",v)
-    if (v !== a1)
+    if (v !== a1) {
       cam.position.set( v[0],v[1],v[2] );
+      //cam.lookAt( new THREE.Vector3( 0,0,0 ) );
+      //cam.updateProjectionMatrix(); 
+    }
   })
   env.onvalue( "center", (v) => {
     //console.log("onval center",v)
-    if (v !== a2)
+    if (v !== a2) {
        cam.lookAt( new THREE.Vector3( v[0],v[1],v[2] ) );
+       //cam.updateProjectionMatrix();
+     }
   })
 
   // todo переделать это просто под установку, я думаю
@@ -338,15 +343,18 @@ export function orbit_control( env ) {
     // криво косо но пока так
     if (c.vrungel_camera_env) {
       c.vrungel_camera_env.onvalues(["pos","center"],(p,c) => {
+
         // защита от зацикливания
         let eps = 0.0001;
         if (Math.abs( c[0] - cc.target.x) > eps || Math.abs( c[1] - cc.target.y ) > eps || Math.abs( c[2] - cc.target.z ) > eps )
         { 
+          console.log("uopdating orbit target",c)
           cc.target.set( c[0], c[1], c[2] );
           cc.update();
-        }  
+        }
         // вроде как pos ставить не надо т.к. оно и так из камеры его берет
       })
+
       c.vrungel_camera_env.onvalue("theta",(t) => {
          //cc.spherical.theta = 2*Math.PI / 360;
          ///debugger;

@@ -24,6 +24,7 @@ export function set_params( env )
 }
 
 // новый модификатор
+// x_set_params a=5 b=c;
 export function x_set_params( env )
 {
   let detach = {};
