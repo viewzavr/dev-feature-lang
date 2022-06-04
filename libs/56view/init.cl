@@ -42,6 +42,7 @@ feature "the_view"
           } }};
     };
 
+    insert-children input=@.. list=@tv->gui2;
   }
   {{
     x-param-string name="title";

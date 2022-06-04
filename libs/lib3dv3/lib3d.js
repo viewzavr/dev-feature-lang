@@ -285,27 +285,22 @@ export function camera3d( env ) {
 
   // todo переделать это просто под установку, я думаю
   // Бог уж с ней с камерой.
-  
+
+  env.addCmd("reset",() => {
+    env.setParam( "pos",[0,0,10]);
+    env.setParam( "center",[0,0,0]); // look_at?
+  })
+
+  env.setParamOption("external_set","visible",false);
   env.addCmd("external_set",(position,target) => {
 
-    env.setParam( "pos", [position.x,position.y,position.z],true );
+      env.setParam( "pos", [position.x,position.y,position.z],true );
     //env.setParamManualFlag("pos",ismanual);
     //if (target) { // плохонько но пока сойдет
       env.setParam( "center", [target.x,target.y,target.z],true );
       //env.setParamManualFlag("center",ismanual);
     //}
   });
-  /*
-  env.addCmd("load_from_threejs",(ismanual,target) => {
-
-    env.setParam( "pos", [cam.position.x,cam.position.y,cam.position.z],true );
-    //env.setParamManualFlag("pos",ismanual);
-    if (target) { // плохонько но пока сойдет
-      env.setParam( "center", [target.x,target.y,target.z],true );
-      //env.setParamManualFlag("center",ismanual);
-    }
-  });
-  */
 
   env.setParam("output",cam );
 }

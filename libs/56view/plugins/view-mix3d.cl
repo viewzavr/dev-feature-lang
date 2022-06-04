@@ -8,6 +8,10 @@ feature "the_view_mix3d" {
         show_view={ show_visual_tab_mix3d input=@tv; }
         scene3d=(@tv->sources | map_geta "scene3d")
         scene2d=(@tv->sources | map_geta "scene2d")
+        gui2={
+          text "Камера";
+          render-params @cam;
+        }
         {
           cam: camera3d pos=[-400,350,350] center=[0,0,0];
           insert_features input=@cam list=@tv->camera_modifiers?;

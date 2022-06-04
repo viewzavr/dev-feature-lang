@@ -224,6 +224,37 @@ register_feature name="render-param-string" {
   };
 };
 
+register_feature name="render-param-array" {
+  pf: param_field {
+
+      link from=@pf->param_path to="@pf->value" tied_to_parent=true;
+      link to=@pf->param_path from=".->value" tied_to_parent=true 
+        soft_mode=true manual_mode=true;
+
+    button text="Редактировать" {
+      dlg: dialog {
+        column {
+          text text="Введите массив"; // todo hints
+          ta: dom tag="textarea" style="width: 70vh; height: 30vh;" 
+                dom_obj_value=(m_eval "(txt) => txt.join(' ')" @pf->value)
+                  ;
+          button text="ВВОД" cmd="@commit->apply";
+
+          text style="max-width:70vh;"
+               (get_param_option @pf->obj @pf->name "hint");
+
+          commit: func pf=@pf ta=@ta dlg=@dlg code=`
+              let v = env.params.ta?.dom?.value;
+              let arr = v.split(/[ ,]+/).map(parseFloat);
+              env.params.pf.setParam("value", arr )
+              env.params.dlg.close();
+          `;
+        }
+      }
+    }
+  }
+};
+
 
 register_feature name="render-param-text" {
   pf: param_field {
