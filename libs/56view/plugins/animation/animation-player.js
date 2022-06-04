@@ -9,7 +9,7 @@ export default function setup( vz, m ) {
   vz.register_feature( "animation-player-priority", ()=>{} );
 }
 
-import * as DP from "../../../../viewzavr-system-a/lib/viewzavr-core/extend/delayed-pool.js";
+import * as DP from "../../../../viewzavr-core/extend/delayed-pool.js";
 
 export function animation_player( obj, opts ) 
 {
