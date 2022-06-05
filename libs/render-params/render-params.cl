@@ -424,7 +424,7 @@ register_feature name="render-param-combovalue"
 {
   param_field {
 
-    combobox {
+    combobox style_h="max-width: 160px;" {
       link from=@../..->param_path to=".->value" tied_to_parent=true;
       link to=@../..->param_path from=".->value" tied_to_parent=true 
         soft_mode=true manual_mode=true;
@@ -433,6 +433,10 @@ register_feature name="render-param-combovalue"
         
         if (env.params.obj && env.params.name) {
           var values = env.params.obj.getParamOption( env.params.name,"values" ) || [];
+
+          if (values.bind) {
+            values=values();
+          }  
 
           if (!env.ns.parent)
             debugger; // чтото странное
@@ -443,6 +447,8 @@ register_feature name="render-param-combovalue"
           // должен вести себя как объект, тогда можно к нему залинковаться..
 
           var titles = env.params.obj.getParamOption( env.params.name,"titles" );
+          if (titles.bind) titles=titles();
+          
           env.ns.parent.setParam("titles",titles);
         }
       `;
