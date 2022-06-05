@@ -153,7 +153,12 @@ feature "show_sources_params"
       {
          insert_children input=@.. list=@extra_settings_panel->list?;
       };
-      button "&lt;" style_h="height:1.5em;" visible=(eval @extra_settings_panel->list? code="(list) => list && list.length>0") 
+      button "&lt;" style_h="height:1.5em;" 
+        visible=(m_eval "(list) => {
+            return list && list.length>0 ? true: false;}" 
+            @extra_settings_panel->list? allow_undefined=true) ;
+        
+        
       {
          setter target="@extra_settings_panel->list" value=[];
       };

@@ -1,0 +1,41 @@
+на параметрах плохо делать синхронизацию.
+лучше уж на событиях.
+
+а то путаница неимоверная возникает - который раз с этим бьюсь. и всегда догадка - сработает или нет.
+
+вот этот код не работал
+
+cola: 
+  column text=@.->0 expanded=false
+  //button_type=["button"]
+  {
+    shadow_dom {
+      //btn: manual_features=@cola->button_type text=@../..->text cmd="@pcol->trigger_visible";
+      btn: button text=@../..->text cmd="@pcol->trigger_visible";
+
+      pcol: 
+      column visible=@cola->expanded? {{ use_dom_children from=@../..; }};
+      link from="@pcol->visible" to="@cola->expanded" manual_mode=true;
+    }
+    ююю
+  }  
+  
+а вот этот понятен и работает:
+
+  column text=@.->0 expanded=false
+  //button_type=["button"]
+  {
+    shadow_dom {
+      btn: button text=@../..->text {
+        m_apply "(env) => env.setParam('expanded', !env.params.expanded, true)" @cola;
+      };
+
+      pcol: 
+      column visible=@cola->expanded? {{ use_dom_children from=@../..; }};
+
+      insert_features input=@btn  list=@cola->button_features?;
+      insert_features input=@pcol list=@cola->body_features?;
+
+    };
+
+  };

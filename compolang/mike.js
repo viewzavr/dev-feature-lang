@@ -75,8 +75,8 @@ export function m_eval( env ) {
 
   env.addCmd("recompute",eval_delayed);
 
-  //var eval_delayed2 = env.delayed( evl,2 )
-  //eval_delayed2();
+  var eval_delayed2 = env.delayed( evl,2 )
+  eval_delayed2();
 };
 
 //////////////////////////////////////////////////

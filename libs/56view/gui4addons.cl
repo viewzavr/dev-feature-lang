@@ -124,7 +124,9 @@ feature "manage_addons3" {
       {
          insert_children input=@.. list=@extra_settings_panel2->list?;
       };
-      button "&lt;" style_h="height:1.5em;" visible=(eval @extra_settings_panel->list? code="(list) => list && list.length>0") 
+      button "&lt;" 
+        style_h="height:1.5em;" 
+        visible=(eval @extra_settings_panel2->list? code="(list) => list && list.length>0") 
       {
          setter target="@extra_settings_panel2->list" value=[];
       };

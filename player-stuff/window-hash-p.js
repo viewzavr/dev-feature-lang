@@ -62,7 +62,7 @@ player.saveToHash = function( obj ) {
   var q = read_from_hash();
   q[ name ] = obj.dump();
   write_to_hash( q );
-  console.log("saved to hash");
+  console.log("saved to hash",q);
 }
 
 function findRoot( obj ) {
@@ -103,7 +103,8 @@ player.loadFromHash = function( aname, targetobj ) {
         targetobj = player.root;
         console.error( "restoreFromHash: reading deprecated thing vz.root!" );
       }
-      // console.log("restoring",q)
+      console.log("restoring",JSON.stringify(q))
+      
       return vz.createSyncFromDump( q[name], targetobj, undefined, undefined, true );
     }
     return new Promise( (resolv, reject) => {

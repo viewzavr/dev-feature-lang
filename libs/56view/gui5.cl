@@ -4,16 +4,12 @@ register_feature name="collapsible" {
   //button_type=["button"]
   {
     shadow_dom {
-      //btn: manual_features=@cola->button_type text=@../..->text cmd="@pcol->trigger_visible";
-      btn: button text=@../..->text cmd="@pcol->trigger_visible";
+      btn: button text=@../..->text {
+        m_apply "(env) => env.setParam('expanded', !env.params.expanded, true)" @cola;
+      };  
 
       pcol: 
       column visible=@cola->expanded? {{ use_dom_children from=@../..; }};
-      // сохраняет состояние развернутости колонки в collapsible-е
-      // без этого сохранения не получится т.к. содержимое колонки 
-      // не проходит dump по причине что shadow_dom вычеркнул себя из списка детей.
-      // возможно это стоит и полечить.
-      link from="@pcol->visible" to="@cola->expanded" manual_mode=true;
 
       insert_features input=@btn  list=@cola->button_features?;
       insert_features input=@pcol list=@cola->body_features?;
@@ -377,26 +373,50 @@ feature "one_of_keep_state" {
          if (!oneof) return;
          let oparams = oneof.params.objects_params || [];
          let dump = oparams[ index ];
+         console.log("oneof: dump is",dump,oneof.params.objects_params)
          if (dump) {
              dump.manual = true;
 
              env.feature("delayed");
              env.delayed( () => {
+                console.log("oneof:restoring tab 2",dump)
                 obj.restoreFromDump( dump, true );
-             }, 2) (); // типа пусть репитер отработает.. если там внутрях есть..  
+             }, 15) (); // типа пусть репитер отработает.. если там внутрях есть..  
 
-             //console.log("restoring tab",dump)
-             //obj.restoreFromDump( dump, true );
-
-             /* 
-             env.feature("delayed");
-             let q = env.delayed( () => obj.restoreFromDump( dump, true ), 5);
-             //obj.restoreFromDump( dump, true );
-             q();
-             */
          }
        }`;
      };
+
+    // выяснилась доп-история что на старте программы объект уже может быть создан
+    // и нам надо это отловить..
+    x-patch {
+      lambda code=`(env) => {
+
+        env.restoreFromDump = function ( edump, manualParamsMode ) {
+          
+          if (env.params.output) { 
+             let obj = env.params.output;
+             let oparams = edump.params.objects_params || [];
+             if (oparams) {
+               let dump = oparams[ env.params.index ];
+               console.log("oneof: using extra dump",edump)
+               if (dump) {
+                   dump.manual = true;
+                   //debugger;
+                   env.feature('delayed');
+                   env.delayed( () => {
+                      console.log("oneof:restoring tab",dump,obj)
+                      obj.restoreFromDump( dump, true );
+                    }, 15) (); // типа пусть репитер отработает.. если там внутрях есть..  
+                   
+               }
+             }
+          }   
+          return env.vz.restoreObjFromDump( edump, env, manualParamsMode );
+        }         
+       }`;
+    };
+
   };
 };
 
@@ -412,9 +432,11 @@ feature "one_of_all_dump" {
       lambda code=`(env) => {
          let origdump = env.dump;
          env.dump = () => {
+           
            env.emit( "save_state");
            return origdump();
          }
+
        }`;
     };
 
@@ -423,14 +445,16 @@ feature "one_of_all_dump" {
          if (!oneof) return;
          let obj = oneof.params.output;
          let index = oneof.params.index;
+         
          if (obj && index >= 0) {
            let dump = obj.dump(true);
            let oparams = oneof.params.objects_params || [];
            oparams[ index ] = dump;
+
            oneof.setParam("objects_params", oparams, true );
          }  
        }`;
-     };    
+     };
 
      x-on "create_obj" {
        lambda code=`(oneof, obj, index) => {

@@ -5,10 +5,6 @@
   ну и рисователь - и того и сего
   плюс идея перейти на df - там у нас и парсер будет и.
 
-  * перейти на df
-    - arr хранится в df
-    - парсинг df-средствами
-
 */
 
 feature "camera-fly-vp" {
@@ -56,7 +52,7 @@ feature "camera-fly" {
       	let cla = tenv.params.input_look_at;
       	if (cla.split) cla = cla.split(/[\s,]+/);
 
-      	var str = "100," + cp.map( v => v.toString() ).join(",") + "," + cla.map( v => v.toString() ).join(",");
+      	var str = "100 " + cp.map( v => v.toString() ).join(" ") + " " + cla.map( v => v.toString() ).join(" ");
 
         tenv.setParam( "trajectory", tenv.params.trajectory + "\n" + str, true );
         // шоб не прыгало

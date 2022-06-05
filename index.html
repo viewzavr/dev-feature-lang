@@ -143,8 +143,8 @@
         // но вообще надо нормальный метод с промисом. 
         // потому что нам и отработать надо 1 раз всего..
 
-        obj.on("done",(res) => {
-          //console.log("done catched",res)
+        obj.on("machine_done",(res) => {
+          console.log("done catched",res)
 
           obj.delayed( () => {
             //console.log("global: issuing load from hash");

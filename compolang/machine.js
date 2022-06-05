@@ -32,7 +32,7 @@ export function compolang_machine(obj) {
     let res = obj.parseSimpleLang( obj.params.text, {base_url: obj.params.base_url, diag_file: obj.params.diag_file } );
 
     Promise.resolve(res).then( (res) => {
-      obj.emit("done",res);
+      obj.emit("machine_done",res);
     });  
   }
   // вот вопрос. если мы устанавливаем эти вещи, как нам узнать, что это выполнено?
