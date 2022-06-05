@@ -101,7 +101,7 @@ feature "find-objects-by-crit" {
 			q:  {
 				splitted: eval @q->input code="(str) => str.split(/\s+/)";
 				//console_log "splitted test" @splitted->output (@splitted->output | geta 0);
-				i: if ( (@splitted->output | geta 0 0) == "@") then={
+				i: if ( (@splitted->output | geta 0 | geta 0) == "@") then={
 					  //console_log "then inside --";
 					  // then первый аргумент путь
 						// вариант @путь-до-корня фича1 фича 2

@@ -21,6 +21,7 @@ feature "the_view_mix3d" {
         };
 };
 
+// input = объект экрана (view)
 feature "show_visual_tab_mix3d" {
    svt: dom_group 
      screenshot_dom = @kover->dom
@@ -39,6 +40,10 @@ feature "show_visual_tab_mix3d" {
         column style="padding-left:2em; min-width: 80%; position:absolute; bottom: 1em; left: 1em;" {
            dom_group input=(@svt->input | geta "scene2d");
         };
+    };
+
+    x-modify input=(@svt->input | geta "sources") {
+      x-set-params current_view=@svt->input;
     };
 
    }; // domgroup

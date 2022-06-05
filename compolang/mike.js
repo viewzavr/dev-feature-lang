@@ -11,13 +11,20 @@ export function m_eval( env ) {
 
   //console.error("compolang eval init",env.getPath())
 
+    env.feature("delayed");
+    let warn_code_not_found = env.delayed( () => {
+        console.warn("m_eval: code not specified",env.getPath(),env );
+    },20);  
+
   function evl() {
 
     if (!func) update_code();
     if (!func) {
-      console.error("compolang eval: code not specified",env.getPath())
+      warn_code_not_found();
       return;
     }
+    warn_code_not_found.stop();
+
 
     let args = [];
 
@@ -68,8 +75,8 @@ export function m_eval( env ) {
 
   env.addCmd("recompute",eval_delayed);
 
-  var eval_delayed2 = env.delayed( evl,2 )
-  eval_delayed2();
+  //var eval_delayed2 = env.delayed( evl,2 )
+  //eval_delayed2();
 };
 
 //////////////////////////////////////////////////
