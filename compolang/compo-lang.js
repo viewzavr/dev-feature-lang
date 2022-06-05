@@ -133,6 +133,23 @@ function parsed2dump( vz, parsed, base_url ) {
   return parsed;
 }
 
+// испортирование js-модуля
+// пример: threejs=import_js("....путь....")
+
+// todo мб это как-то совместить с load можно..
+// сейчас лоад может загружать js файл но дальше 
+// 1 он пытается его вызвать setup
+// 2 и если там export-ы то они никуда не присваиваются..
+// todo прикрутить сюда таблицы из пакетов чтоб загружать не просто прямым путям
+
+export function import_js(env) {
+  env.onvalue(0,(path) => {
+    import(path).then( res => {
+      env.setParam("output",res);
+    })
+  });
+};
+
 export function is_positional_env( env ) {};
 
 var compolang_modules = {};

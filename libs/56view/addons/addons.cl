@@ -29,13 +29,6 @@ feature "effect3d_blank" {
   geffect3d;
 };
 
-feature "import_js" code=`
-  env.onvalue(0,(path) => {
-    import(path).then( res => {
-      env.setParam("output",res);
-    })
-  });
-`;
 
 add_sib_item @geffect3d "effect3d-additive" "Аддитивный рендеринг";
 feature "effect3d_additive" 
