@@ -39,6 +39,13 @@ function loadFileBinary( file_or_path, handler, errhandler ) {
 }
 
 function loadFileBase( file_or_path, istext, handler, errhandler ) {
+    if (file_or_path instanceof FileSystemFileHandle) {
+        file_or_path.getFile().then( file => {
+            loadFileBase( file, istext, handler, errhandler );
+        })
+        return;
+    }
+
     if (file_or_path instanceof File) {
         // http://www.html5rocks.com/en/tutorials/file/dndfiles/
         setFileProgress( file_or_path.name,"loading");

@@ -13,7 +13,7 @@ feature "manage_astra" {
 	collapsible "Проект Astra" {
 		column plashka {
 			text "Добавить:";
-			button_add_object "Просмотр Astra" 
+			button_add_object "Визуализация звёзд" 
 			   add_to=@ma->project
 			   add_type="astra-vis-1"
 			   {{
@@ -30,7 +30,7 @@ feature "manage_astra" {
 
 			/*
 			на пути к добавлению произвольных цепочек
-			button "Добавить просмотр Astra" {
+			button "Добавить визуализацию звезд" {
 				creator target=@ma->project input={ astra-vis-1; } 
 				 {{ created_mark_manual }};
 			};
@@ -57,62 +57,215 @@ register_feature name="render-guis-a" {
     };
 };
 
+feature "astra-source" {
+  qqe: visual_process df56 title="Загрузка звёзд"
+    output=( geta input=(list @adir @ainet) @qqe->index | geta "output")
+    	{{ console_log_params }}
+    index=1 	
+    gui={
+    	sa: switch_selector_row index=1
+    	  items=["Папка","Сеть"] {{ hilite_selected }} 
+    	  style_ee="padding-top:5px; padding-bottom: 3px;";
+
+    	x-modify input=@qqe {
+    		x-set-params index=@sa->index;
+    	};
+
+    	//insert_children input=@.. list=(list @adir @ainet)  
+
+    	oof: show_one index=@sa->index {
+    		column {
+    			insert_children input=@.. list=@adir->gui;
+    		};
+    		column {
+    			insert_children input=@.. list=@ainet->gui;
+    		};
+    	} {{ one-of-keep-state; one_of_all_dump; }};
+
+
+    } 
+    {
+    	adir:  astra-source-dir;
+      ainet: astra-source-inet;
+    };
+	  //astra-source-dir;
+};
+
+feature "astra-source-inet" {
+	avp: visual_process df56
+	title="Загрузка звёзд из Интернета"
+	gui={
+		render-params @astradata plashka;
+	}
+	gui3={
+		render-params @avp;
+	}
+	output=@loaded_data->output
+	{
+		astradata:  N=0
+		  //listing_file="http://127.0.0.1:8080/public_local/data2/data.csv"
+		  listing_file="https://viewlang.ru/assets/astra/data/list.txt"
+		  {{ x-param-slider name="N" sliding=false min=0 max=((@listing->output | geta "length") - 1) }}
+
+			current_file=( join "http://127.0.0.1:8080/public_local/data/" (@listing->output | geta @astradata->N) )
+			//current_file="http://127.0.0.1:8080/public_local/data2/gout_001.csv"
+			{{ x-param-string name="listing_file"; }}
+
+			lines_loaded=(@loaded_data->output | geta "length")
+			
+			{{ x-param-string name="current_file"}}
+			{{ x-param-option name="current_file" option="readonly" value=true }}
+			{{ x-param-label name="lines_loaded"}}
+		{
+			listing: load-file file=@astradata->listing_file | m_eval "(txt) => txt.split('\n')" @.->input;
+			loaded_data: load-file file=@astradata->current_file 
+         | m_eval "() => 'X Z Y\n' + env.params.input" // F-CHANGE-DATA-AXES
+			   | parse_csv separator="\s+";
+    };
+
+	};
+};
+
+
+
+feature "astra-source-dir" {
+	avp: visual_process df56
+	title="Загрузка звёзд из папки"
+	gui={
+		
+		column plashka {
+		button "Выбрать папку" {
+			m_apply `(tenv) => {
+			  window.showDirectoryPicker({id:'astradata',startIn:'documents'}).then( (p) => {
+			  	console.log('got',p, p.entries());
+			  	follow( p.entries(),(res) => {
+			  		//console.log("thus res is",res);
+			  		let sorted = res.sort( (a,b) => {
+			  			if (a[0] < b[0]) return -1;
+			  			if (a[0] > b[0]) return 1;
+			  			return 0;
+			  		})
+			  		
+			  		let myfiles = sorted.filter( s => s[0].match(/\.dat/i))
+			  		console.log(myfiles);
+			  		tenv.setParam("files",myfiles);
+			  	} );
+
+			  	function follow( iterator,cbfinish,acc=[] ) {
+						iterator.next().then( res => {
+			  			//console.log( res );
+			  			if (res.done) {
+			  				return cbfinish( acc );
+			  			}
+			  			if (res && res.value) {
+			  				acc.push( res.value );
+			  				return follow( iterator,cbfinish,acc )
+			  			}
+			  		});
+			  	}
+			  	
+			  })
+			}` @astradata;
+		}; // button
+
+		render-params @astradata plashka;
+
+	  }; // col
+	}
+	gui3={
+		render-params @avp;
+	}
+	output=@loaded_data->output
+	{
+		astradata:  N=0
+		  
+		  current_file=(@astradata->files | geta @astradata->N | geta 1)
+		  current_file_name=(@astradata->files | geta @astradata->N | geta 0)
+
+			lines_loaded=(@loaded_data->output | geta "length")
+			files_loaded=(@astradata->files | geta "length")
+			
+			{{ x-param-label name="files_loaded"}}
+
+			{{ x-param-slider name="N" sliding=false min=0 max=((@astradata->files | geta "length") - 1) }}
+			{{ x-param-label name="current_file_name"}}
+			{{ x-param-label name="lines_loaded"}}
+		{
+			loaded_data: load-file file=@astradata->current_file 
+         | m_eval "() => 'X Z Y\n' + env.params.input"
+			   | parse_csv separator="\s+";
+
+			 //  | df_set Y="->Z" Z="->Y"; // F-CHANGE-DATA-AXES
+			//loaded_data: load-file file=@avp->current_file | joinlines "X Y Z" @.->input 
+			   //| parse_csv separator="\s+";
+    };
+
+	};
+};
+
+// объект который дает диалог пользвоателю а в output выдает найденный dataframe отмеченный меткой df56
+feature "find-data-source" {
+   findsource: data_length=(@findsource->output | geta "length")
+	    input_link=(@datafiles->output | geta 0)
+      {{
+          datafiles: find-objects-bf features="df56" | arr_map code="(v) => v.getPath()+'->output'";
+
+          x-param-combo
+           name="input_link" 
+           values=@datafiles->output {{ console_log_params }}
+
+           ;
+
+          x-param-option
+           name="input_link"
+           option="priority"
+           value=10;
+
+           x-param-option
+           name="data_length"
+           option="priority"
+           value=12;
+
+          x-param-label name="data_length";
+	     
+      }}
+    {
+      link from=@findsource->input_link to="@findsource->output";
+    };
+};
+
 feature "astra-vis-1" {
 	avp: visual_process
 	title="Визуализация звёзд"
 	gui={
-		render-params @astradata plashka;
+		
 		//find-objects-by-crit "visual_process" root=@scene recursive=false | render-guis-a;
 		ko: column plashka {
+
+			collapsible "Источник данных" {
+  		  render-params @astradata;
+	    };
+
 			show_sources_params 
 			  input=(find-objects-by-crit "visual-process" root=@scene include_root=false recursive=false)
 			  auto_expand_first=false
 			;
-
-			/*
-			
-			|
-			repeater {
-				k: { 
-					 insert_children input=@ko list=(@k->input | geta "gui");
-				};
-			};
-			*/
 	  };
 	}
 	gui3={
 		render-params @avp;
 	}
-
 	scene3d=@scene->output
+
 	{
 
-		astradata:  N=0
-		  {{ x-param-slider name="N" sliding=false min=0 max=((@listing->output | geta "length") - 1) }}
-
-		  listing_file="http://127.0.0.1:8080/public_local/data2/data.csv"
-
-			current_file=( join "http://127.0.0.1:8080/public_local/data2/" (@listing->output | geta @astradata->N) )
-			//current_file="http://127.0.0.1:8080/public_local/data2/gout_001.csv"
-			{{ x-param-file name="current_file"; }}
-
-			lines_loaded=(@loaded_data->output | geta "length")
-			{{ x-param-label name="lines_loaded"}}
-		{
-			listing: load-file file=@astradata->listing_file | parse_csv | df-get "FILE_points_astra";
-			//loaded_data: load-file file=@astradata->current_file | parse_csv;
-			loaded_data: load-file file=@astradata->current_file | parse_csv 
-			  | df_set Y="->Z" Z="->Y"; // F-CHANGE-DATA-AXES
-			//loaded_data: load-file file=@avp->current_file | joinlines "X Y Z" @.->input | parse_csv separator="\s+";
-    };
-
-   	
+		astradata: find-data-source;
 
 		scene: node3d visible=@avp->visible force_dump=true
 		{
 
 		   // 218 201 93
-		   @loaded_data->output | pts: points title="Точки" visual-process editable-addons 
+		   @astradata->output | pts: points title="Точки" visual-process editable-addons 
 		     radius=0.02 color=[0.85, 0.78, 0.36] 
 		     {{ x-param-slider name="radius" min=0.01 max=0.25 step=0.01 }}
 		     // слайдер сделан специально чтобы не указать слишком больших значений

@@ -74,6 +74,8 @@ feature "manage_universal_vp" {
   };
 };
 
+feature "df56";
+
 feature "linesetc-file" {
   view: visual_process df56
     title="Файл" 

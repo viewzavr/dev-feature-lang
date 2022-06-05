@@ -485,7 +485,7 @@ register_feature name="tab" {
 ////////////// новые табы
 
 register_feature name="show_one" {
-	root: column index=0 {{ console_log_params }} {
+	root: column index=0 {
 
 		js code=`
 		  let s = env.ns.parent;
@@ -499,6 +499,7 @@ register_feature name="show_one" {
 					  // неправильно это усе.. надо генераторы делать но еще надо и js этот убирать отсель
 					  // то ли в субфичи его загонять то ли в eval превращать а его делать тоже особым/в альт дерево загоняемым
 					  if (c.is_feature_applied("link") || c.is_feature_applied("repeater") || c.is_feature_applied("js")) continue;
+					  // todo тут наоборот надо проверять что оно dom..
 					  let v = (i == index);
 						c.setParam("visible", v)
 						i++;

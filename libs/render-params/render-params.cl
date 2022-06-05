@@ -448,7 +448,7 @@ register_feature name="render-param-combovalue"
 
           if (values?.bind) {
             values=values();
-          }  
+          }
 
           if (!env.ns.parent)
             debugger; // чтото странное
