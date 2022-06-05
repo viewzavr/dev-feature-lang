@@ -61,6 +61,13 @@ export function lines( env ) {
   var material = new THREE.LineBasicMaterial( {} );
   var sceneObject = new THREE.LineSegments( geometry, material );
 
+/*
+  env.trackParamOption( "visible","manual",(vvv) => {
+    console.log(env);
+    debugger;
+  })
+*/  
+
   env.setParam("output",sceneObject );
   // ну да, это правильно, писать в output
   // потому что pipe-ы вытаскивают именно output

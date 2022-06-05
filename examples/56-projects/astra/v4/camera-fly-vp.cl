@@ -5,9 +5,12 @@
   ну и рисователь - и того и сего
   плюс идея перейти на df - там у нас и парсер будет и.
 
-  * перейти на df
+  * перейти на df - done
     - arr хранится в df
     - парсинг df-средствами
+
+  * drag drop точек
+    https://stackoverflow.com/questions/49318245/threejs-drag-points
 
 */
 
@@ -27,8 +30,9 @@ feature "camera-fly-vp" {
 	{
 		scene: node3d {
 			liness: linestrips input=@te->output color=[0,1,0];
-			text3d input=(@te->output | df_set TEXT="pt") size=0.05 visible=@liness->visible;
-		};	
+			//get_param_option @liness/lines-env
+			text3d input=(@te->output | df_set TEXT="->TIME_DELTA" | console_log_input) size=0.05 visible=@liness->visible;
+		};
 
 		te: trajectory_editor 
 		      {{ x-set-params 

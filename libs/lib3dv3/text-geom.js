@@ -139,7 +139,7 @@ export function text3d( env ) {
     // а сам меш можно создавать сразу же
 
     // https://threejs.org/examples/#webgl_geometry_text
-    var geometry = new TextGeometry( text, {
+    var geometry = new TextGeometry( text ? text.toString() : "", {
           font: font,
           size: size,
           height: size/2,

@@ -20,6 +20,14 @@ feature "manage_astra" {
 			   	 created_add_to_current_view curview=@ma->curview;
 			   }};
 
+			button_add_object "Полёт камеры" 
+			   add_to=@ma->project
+			   add_type="camera-fly-vp"
+			   {{
+			   	 created_add_to_current_view curview=@ma->curview;
+			   }};   
+			
+
 			/*
 			на пути к добавлению произвольных цепочек
 			button "Добавить просмотр Astra" {

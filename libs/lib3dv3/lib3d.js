@@ -350,7 +350,7 @@ export function orbit_control( env ) {
         let eps = 0.0001;
         if (Math.abs( c[0] - cc.target.x) > eps || Math.abs( c[1] - cc.target.y ) > eps || Math.abs( c[2] - cc.target.z ) > eps )
         { 
-          console.log("uopdating orbit target",c)
+          //console.log("uopdating orbit target",c)
           cc.target.set( c[0], c[1], c[2] );
           cc.update();
         }
