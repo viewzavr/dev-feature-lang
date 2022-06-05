@@ -21,6 +21,14 @@ feature "manage_universal_vp" {
   collapsible "Произвольные узлы" {
     column plashka {
       text "Добавить:";
+
+      button_add_object "Добавить полет камеры" 
+         add_to=@ma->project 
+         add_type="camera-fly-vp"
+         {{
+           created_add_to_current_view curview=@ma->curview;
+         }};      
+      
       button_add_object "Добавить 3d образ" 
          add_to=@ma->project 
          add_type="elinestr"

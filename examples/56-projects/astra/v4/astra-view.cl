@@ -64,7 +64,9 @@ feature "astra-vis-1" {
 		render-params @astradata plashka;
 		//find-objects-by-crit "visual_process" root=@scene recursive=false | render-guis-a;
 		ko: column plashka {
-			show_sources_params input=(find-objects-by-crit "visual-process" root=@scene include_root=false recursive=false)
+			show_sources_params 
+			  input=(find-objects-by-crit "visual-process" root=@scene include_root=false recursive=false)
+			  auto_expand_first=false
 			;
 
 			/*

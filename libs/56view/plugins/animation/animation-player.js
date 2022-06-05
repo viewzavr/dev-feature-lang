@@ -79,7 +79,7 @@ export function animation_player( obj, opts )
   obj.setParamOption("play","visible",false);
   obj.setParamOption("pause","visible",false);
   obj.setParamOption("restart","visible",false);
-  obj.setParamOption("rescan-parameter","visible",false);
+  //obj.setParamOption("rescan-parameter","visible",false);
   obj.setParamOption("update min-max","visible",false);
   obj.setParamOption("status-parameter","visible",false);
 

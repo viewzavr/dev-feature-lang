@@ -108,7 +108,7 @@ feature "astra-vis-1" {
 		   //console_log "positions are" @pts->positions;
 
 		   // вообще может оказаться что это будет отдельный визуальный процесс - "антураж"
-		   ab: axes_view size=1;
+		   ab: axes_view size=1 visible=false;
 
 		};
 	};

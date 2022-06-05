@@ -1,6 +1,6 @@
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d new-modifiers imperative";
 load "56view";
-load "astra-view.cl camera-fly-vp.cl";
+load "astra-view.cl";
 //load "rotate-camera-z-plugin.cl";
 
 project: the_project 

@@ -25,7 +25,8 @@ feature "camera-fly-vp" {
 		// avp filters={ params-hide list="title"; params-priority list="add-current";}
 	}
 	gui3={
-		render-params-list object=@avp;
+		//render-params-list object=@avp;
+		render-params @avp;
 	}
 	{
 		scene: node3d {
@@ -81,6 +82,8 @@ feature "trajectory_editor" {
       	if (cp.split) cp = cp.split(/[\s,]+/);
       	let cla = tenv.params.input_look_at;
       	if (cla.split) cla = cla.split(/[\s,]+/);
+      	if (cp.length < 3 || cla.length < 3) return;
+      	
       	var str = "100," + cp.map( v => v.toString() ).join(",") + "," + cla.map( v => v.toString() ).join(",");
 
         tenv.setParam( "trajectory", tenv.params.trajectory + "\n" + str, true );
@@ -98,6 +101,7 @@ feature "trajectory_editor" {
         	  tenv.params.default_trajectory, true );
             tenv.callCmd("add-current");
     	}` @avpc);    	
+    x-param-option name="restart" option="priority"	value=10; // подальше убрать ее
 
     x-param-text name="trajectory";
     
