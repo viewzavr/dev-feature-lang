@@ -420,6 +420,14 @@ register_feature name="param_field" {
   };
 };
 
+// F-PARAM-CUSTOM
+register_feature name="render-param-custom"
+{
+  pf: param_field {
+    insert_children input=@.. list=(get_param_option @pf->obj @pf->name "editor");
+  };
+};
+
 register_feature name="render-param-combovalue"
 {
   param_field {
@@ -434,7 +442,7 @@ register_feature name="render-param-combovalue"
         if (env.params.obj && env.params.name) {
           var values = env.params.obj.getParamOption( env.params.name,"values" ) || [];
 
-          if (values.bind) {
+          if (values?.bind) {
             values=values();
           }  
 
@@ -447,8 +455,8 @@ register_feature name="render-param-combovalue"
           // должен вести себя как объект, тогда можно к нему залинковаться..
 
           var titles = env.params.obj.getParamOption( env.params.name,"titles" );
-          if (titles.bind) titles=titles();
-          
+          if (titles?.bind) titles=titles();
+
           env.ns.parent.setParam("titles",titles);
         }
       `;

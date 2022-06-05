@@ -50,6 +50,18 @@ feature "x-param-checkbox" {
     ";  
 };
 
+// F-PARAM-CUSTOM
+feature "x-param-custom" {
+  r: x-patch-r @r->name @r->editor
+    code="(name,editor_code, obj) => {
+      if (name) {
+        obj.addGui( {name:name, type: "custom"} );
+        obj.setParamOption( name,"editor",editor_code );
+      }
+    }
+    ";  
+};
+
 /* наша попытка работать с род. окружением
 feature "x-param-checkbox" {
   r: x-modify name=@~->0 value=@~->1?
