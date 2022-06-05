@@ -31,6 +31,8 @@ export function m_eval( env ) {
     for (let i=1; i<env.params.args_count;i++) 
     {
       let v = env.params[i];
+      // надо не allow_undefined а allow_uncomputed.. а его проверять по hasParam
+      // todo
       if (!env.params.allow_undefined && typeof(v) == "undefined") { // ну пока так.. хотя странно все это..
         /// 
         return;

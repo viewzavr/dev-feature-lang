@@ -373,13 +373,13 @@ feature "one_of_keep_state" {
          if (!oneof) return;
          let oparams = oneof.params.objects_params || [];
          let dump = oparams[ index ];
-         console.log("oneof: dump is",dump,oneof.params.objects_params)
+         //console.log("oneof: dump is",dump,oneof.params.objects_params)
          if (dump) {
              dump.manual = true;
 
              env.feature("delayed");
              env.delayed( () => {
-                console.log("oneof:restoring tab 2",dump)
+                //console.log("oneof:restoring tab 2",dump)
                 obj.restoreFromDump( dump, true );
              }, 15) (); // типа пусть репитер отработает.. если там внутрях есть..  
 
@@ -399,13 +399,13 @@ feature "one_of_keep_state" {
              let oparams = edump.params.objects_params || [];
              if (oparams) {
                let dump = oparams[ env.params.index ];
-               console.log("oneof: using extra dump",edump)
+               //console.log("oneof: using extra dump",edump)
                if (dump) {
                    dump.manual = true;
                    //debugger;
                    env.feature('delayed');
                    env.delayed( () => {
-                      console.log("oneof:restoring tab",dump,obj)
+                      //console.log("oneof:restoring tab",dump,obj)
                       obj.restoreFromDump( dump, true );
                     }, 15) (); // типа пусть репитер отработает.. если там внутрях есть..  
                    

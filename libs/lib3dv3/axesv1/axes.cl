@@ -59,7 +59,7 @@ register_feature name="axes_lines" {
 // рисует подписи осям
 // вход: s - сдвиг
 register_feature name="axes_titles" {
-  t: text3d
+  t: text3d 
     lines=(eval @t->names code=`(str) => str.split(/\s+/)`)
     positions=(eval @t->s code=`(s) => {
     if (!isFinite(s)) return [];

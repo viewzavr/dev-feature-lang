@@ -30,7 +30,7 @@ export function linestrips( env ) {
   });
 
   env.trackParam("radius",(r) => {
-    console.log("r=",r)
+    //console.log("r=",r)
   })
 
 }
@@ -50,12 +50,13 @@ export function linestrips_to_lines( env ) {
       return
    };
 
-    var prevn;
+    var prevn = -1;
     var vals = {X:[],Y:[],Z:[],X2:[],Y2:[],Z2:[],R:[],G:[],B:[],R2:[],G2:[],B2:[]}
-    var Nvals = dat.N ? dat.N : [];
+    //var Nvals = dat.N ? dat.N : [];
+    var Nvals = dat.N;
     for (var i = 0; i<dat.length; i++)
     {
-      var n = Nvals[i];
+      var n = Nvals ? Nvals[i] : -1;
       if (n == prevn) {
         if (i > 0) { // todo optimize
           vals.X.push( dat.X[i-1] );

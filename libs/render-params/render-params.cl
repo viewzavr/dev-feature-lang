@@ -211,9 +211,9 @@ register_feature name="render-one-param-p" code='
 */
 
 register_feature name="render-param-string" {
-  column {
+  cos: column {
     text text=@..->name;
-    dom tag="input" {
+    dom tag="input" dom_obj_readOnly=(get_param_option @cos->obj @cos->name "readonly"){
       link from=@../..->param_path to=".->dom_value" tied_to_parent=true;
       link to=@../..->param_path from=".->value" tied_to_parent=true 
         soft_mode=true manual_mode=true;
@@ -236,7 +236,7 @@ register_feature name="render-param-array" {
         column {
           text text="Введите массив"; // todo hints
           ta: dom tag="textarea" style="width: 70vh; height: 30vh;" 
-                dom_obj_value=(m_eval "(txt) => txt.join(' ')" @pf->value)
+                dom_obj_value=(m_eval "(txt) => txt.join ? txt.join(' ') : txt.toString()" @pf->value)
                   ;
           button text="ВВОД" cmd="@commit->apply";
 
@@ -423,8 +423,12 @@ register_feature name="param_field" {
 // F-PARAM-CUSTOM
 register_feature name="render-param-custom"
 {
-  pf: param_field {
-    insert_children input=@.. list=(get_param_option @pf->obj @pf->name "editor");
+  pf: dom_group {
+    oo: insert_children input=@.. list=(get_param_option @pf->obj @pf->name "editor");
+
+    x-modify input=@oo->output {
+      x-set-params object=@pf->obj name=@pf->name;
+    };
   };
 };
 

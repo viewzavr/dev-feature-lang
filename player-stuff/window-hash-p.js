@@ -103,7 +103,7 @@ player.loadFromHash = function( aname, targetobj ) {
         targetobj = player.root;
         console.error( "restoreFromHash: reading deprecated thing vz.root!" );
       }
-      console.log("restoring",JSON.stringify(q))
+      //console.log("restoring",JSON.stringify(q))
       
       return vz.createSyncFromDump( q[name], targetobj, undefined, undefined, true );
     }

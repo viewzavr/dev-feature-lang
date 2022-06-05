@@ -56,6 +56,7 @@ feature "the_view"
   }}
   
   sources=(find-objects-by-pathes input=@tv->sources_str root=@tv->project)
+  visible_sources = (@tv->sources | filter_geta "visible")
   project=@..
 
   //sibling_types=["the-view-mix3d","the-view-row", "the-view-small-big"] 

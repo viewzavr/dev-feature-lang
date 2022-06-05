@@ -14,29 +14,20 @@
 feature "camera-fly-vp" {
 	avp: visual_process
 	title="Полет камеры"
-	scene3d=@scene->output
 	gui={
 		render-params @te plashka;
 		render-params @cc plashka;
-		render-params @liness plashka;
 		// avp filters={ params-hide list="title"; params-priority list="add-current";}
 	}
 	gui3={
 		render-params-list object=@avp;
 	}
 	{
-		scene: node3d {
-			liness: linestrips input=@te->output color=[0,1,0];
-			text3d input=(@te->output | df_set TEXT="pt") size=0.05 visible=@liness->visible;
-		};	
-
 		te: trajectory_editor 
-		      {{ x-set-params 
-		      	    input_position=(@avp->current_view | geta "camera" | geta "pos")
-		            input_look_at=(@avp->current_view | geta "camera" | geta "center")
-		      }}
+		      input_position=(@avp->current_view | geta "camera" | geta "pos")
+		      input_look_at=(@avp->current_view | geta "camera" | geta "center")
 		      ;
-		cc: camera_computer_splines input=@te->output 
+		cc: camera_computer input=@te->output 
 		      {{ x-set-params time=@te->recommended_time?; }}; // обновляем положение когда аппендят новую точку к траектории
 
 		    if (@avp->visible) then={
@@ -44,8 +35,6 @@ feature "camera-fly-vp" {
 			   	 	 x-set-params pos=@cc->output_position center=@cc->output_look_at;
 			   	 };
 			  };
-
-    
 	}
   ;
 	
@@ -66,9 +55,7 @@ feature "df_editor" {
 feature "trajectory_editor" {
   
 	avpc: 
-	{{
-
-	  //x-param-option name="add-current" option="priority" value=10;
+	{{ 
 	  
     x-add-cmd 
       name="add-current" 
@@ -119,9 +106,7 @@ feature "camera_computer" {
 	{{ 
     x-param-slider name="time" max=@avpco->trajectory_time_len;
     x-param-string name="output_position";
-    x-param-string name="output_look_at" ;
-    x-param-option name="output_position" option="readonly" value=true;
-    x-param-option name="output_look_at" option="readonly" value=true;
+    x-param-string name="output_look_at";
 	}}
 	time=0
 	trajectory_time_len=(m_eval (max_time) @avpco->input)
@@ -177,45 +162,4 @@ feature "max_time" {
     }
     return t;
   }`;
-};
-
-
-// вычислитель положения камеры сплайнами
-// параметры - 
-//  input - df с траекторией
-//  time - время
-//  output_position, output_look_at - выходное
-feature "camera_computer_splines" {
-	avpco: 
-	{{ 
-    x-param-slider name="time" max=@avpco->trajectory_time_len;
-    x-param-string name="output_position";
-    x-param-string name="output_look_at" ;
-    x-param-option name="output_position" option="readonly" value=true;
-    x-param-option name="output_look_at" option="readonly" value=true;
-	}}
-	time=0
-	trajectory_time_len=(m_eval (max_time) @avpco->input)
-	current_t=(m_eval @avpco->compute_current_t @avpco->input @avpco->time)
-
-	output_position=(compute_curve input=(df_combine input=@avpco->input columns=["X","Y","Z"]) t=@avpco->current_t )
-	output_look_at=(compute_curve input=(df_combine input=@avpco->input columns=["LOOKAT_X","LOOKAT_Y","LOOKAT_Z"]) t=@avpco->current_t )
-
-  // приведение time к отрезку 0..1
-  compute_current_t=(m_js `(res,time) => {
-  	let t = 0;
-  	let col = res["TIME_DELTA"];
-  	let w = 0;
-  	let ii = -1;
-    for (var i=1; i<col.length; i++) {
-      if (time >= t && time <= t+col[i]) {
-        w = (time - t) / col[i];
-        return w / (col.length-1) + (i-1) / (col.length-1);
-      }
-      t += col[i];
-    }
-    return 1;
-  }`)
-  ;
-	
 };

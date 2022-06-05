@@ -19,6 +19,7 @@ export function create() {
   df.get_column_names = get_column_names.bind( undefined, df );
   df.get_column = get_column.bind( undefined, df );
   df.get_length = get_length.bind( undefined, df );
+  df.get_rows = get_rows.bind( undefined, df );
 
   // аксессоры
 
@@ -178,4 +179,29 @@ export function slice( src, index0, index1 ) {
   });
 
   return r;
+}
+
+// конвертирует df в массив
+// вытаскивая из него указанную строчку
+export function get_rows( src, index, length_idea=1,columns=null ) {
+  let acc = [];
+  if (!columns) {
+    columns = get_column_names(src);
+    columns.forEach( function(name) {
+        let coldata = src[name];
+        acc.push( coldata[index] );
+    });  
+  }
+  else
+  {
+    columns.forEach( function(name) {
+        let coldata = src[name];
+        if (coldata)
+          acc.push( coldata[index] );
+        else
+          acc.push( undefined );
+    });
+  };
+
+  return acc;
 }

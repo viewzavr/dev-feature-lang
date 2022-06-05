@@ -6,8 +6,8 @@ feature "the_view_mix3d" {
   tv: the-view
         camera=@cam
         show_view={ show_visual_tab_mix3d input=@tv; }
-        scene3d=(@tv->sources | map_geta "scene3d")
-        scene2d=(@tv->sources | map_geta "scene2d")
+        scene3d=(@tv->visible_sources | map_geta "scene3d")
+        scene2d=(@tv->visible_sources | map_geta "scene2d")
         gui2={
           text "Камера";
           render-params @cam;
