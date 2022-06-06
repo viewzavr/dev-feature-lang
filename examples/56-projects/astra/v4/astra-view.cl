@@ -60,7 +60,8 @@ register_feature name="render-guis-a" {
 feature "astra-source" {
   qqe: visual_process df56 title="Загрузка звёзд"
     output=( geta input=(list @adir @ainet) @qqe->index | geta "output")
-    	{{ console_log_params }}
+    scene2d=( geta input=(list @adir @ainet) @qqe->index | geta "scene2d")
+    	
     index=1 	
     gui={
     	sa: switch_selector_row index=1
@@ -84,9 +85,11 @@ feature "astra-source" {
 
 
     } 
+    
     {
     	adir:  astra-source-dir;
       ainet: astra-source-inet;
+
     };
 	  //astra-source-dir;
 };
@@ -101,7 +104,12 @@ feature "astra-source-inet" {
 		render-params @avp;
 	}
 	output=@loaded_data->output
+	scene2d=@scene2d
 	{
+		scene2d: dom {
+  		text tag="h2" style="color:white;" (join (@listing->output | geta @astradata->N));
+		};
+
 		astradata:  N=0
 		  //listing_file="http://127.0.0.1:8080/public_local/data2/data.csv"
 		  listing_file="https://viewlang.ru/assets/astra/data/list.txt"
@@ -176,8 +184,13 @@ feature "astra-source-dir" {
 		render-params @avp;
 	}
 	output=@loaded_data->output
+	scene2d=@scene2d
 	{
-		astradata:  N=0
+		scene2d: dom {
+  		text tag="h2" style="color:white;" @astradata->current_file_name;
+		};
+
+		astradata:  N=0 files=[]
 		  
 		  current_file=(@astradata->files | geta @astradata->N | geta 1)
 		  current_file_name=(@astradata->files | geta @astradata->N | geta 0)
@@ -191,7 +204,7 @@ feature "astra-source-dir" {
 			{{ x-param-label name="current_file_name"}}
 			{{ x-param-label name="lines_loaded"}}
 		{
-			loaded_data: load-file file=@astradata->current_file 
+			loaded_data: load-file file=@astradata->current_file?
          | m_eval "() => 'X Z Y\n' + env.params.input"
 			   | parse_csv separator="\s+";
 

@@ -37,7 +37,7 @@ feature "effect3d_additive"
 {
   ea: geffect3d 
     gui={render-params @ea; }
-  x-patch-r THREE=(import_js "../../../libs/lib3dv3/three.js/build/three.module.js")
+  x-patch-r THREE=(import_js (resolve_url "../../../libs/lib3dv3/three.js/build/three.module.js"))
     code=`(tenv) => {
       //console.log("additive, tenv",tenv,env)
       let THREE=env.params.THREE;
