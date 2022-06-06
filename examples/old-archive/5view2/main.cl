@@ -10,6 +10,7 @@ feature "setup_view" {
 
 // подфункция реакции на чекбокс view_settings_dialog
 // идея вынести это в метод вьюшки. типа вкл-выкл процесс.
+// .view, .process
 feature "toggle_visprocess_view_assoc2" {
 i-call-js 
   code="(cobj,val) => { // cobj объект чекбокса, val значение

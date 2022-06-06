@@ -804,8 +804,14 @@ export function feature_func( env )
       if (env.params.code) {
         // кстати идея - а что если там сигнатуру подают то ее использовать?
         // т.е. если cmd="(obj,coef) => { ..... }"
-        var func = new Function( "env","args", env.params.code );
-        let r = func.call( null, env, args );
+        // todo optimize на каждом вызове компиляция...
+        var func;
+        if (typeof( env.params.code) == 'function')
+            func = env.params.code;
+        else  
+            func = new Function( "env","args", env.params.code );
+
+        let r = func.call( null, env, ...args );
         resarr.push(r);
         //eval( obj.params.code );
       }

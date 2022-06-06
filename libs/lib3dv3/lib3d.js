@@ -19,10 +19,12 @@ export function render3d( env ) {
   // хотя может он и рендерер должен выдавать.. (но он и выдает..)
 
   // todo ориентироваться на dom-размеры..
+  var default_camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000000 );
+  /*
   if (!env.params.camera) {
-    var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000000 );
-    env.setParam("camera",camera);    
+    env.setParam("camera",default_camera);
   }
+  */
 
   //env.setParamOption("camera","internal",true);
   //env.renderer;
@@ -63,6 +65,7 @@ export function render3d( env ) {
     var cam = env.params.camera;
     if (cam?.params) 
         cam = cam.params.output; // случай когда камеру залинковали на объект
+    if (!cam) cam=default_camera;
     // т.е render3d camera=@somecam
 
     // фича - управление размерами. Альтернативно можно сделать Resize Observer Api
@@ -92,7 +95,7 @@ export function render3d( env ) {
     cam.updateProjectionMatrix();  
 
     // хак временных (хыхы)
-    // update_scene();
+    update_scene();
 
     env.renderer.render( env.scene, cam );
   }
@@ -271,6 +274,7 @@ export function camera3d( env ) {
   // гуи
   env.addArray( "pos", [], 3 );
   env.addArray( "center", [], 3 );  
+  // env.addGui( {"type": "custom", "editor":"vector-editor"});
   env.addSlider("theta",0,-180,180,0.1);
 
   env.onvalue( "pos", (v) => {

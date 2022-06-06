@@ -28,6 +28,53 @@ feature "x-param-editable-combo" {
   };
 };
 
+feature "x-param-objref-2" {
+  xi: x-modify {
+  	x-param-custom
+  	 name=@xi->name
+     editor={
+  	 edt: variable_name=(+ @edt->name "_path")
+  	      combobox
+	        	value=(@edt->object | geta @edt->variable_name)
+	        	values=(@xi->values | map_geta (m_apply "(cam) => cam.getPath()"))
+	        	titles=(@xi->values | map_geta "title")
+	        	{{ x-on "user_changed_value" 
+                  code=(m_apply "(area,param_var, b,c,val) => {
+                       area.setParam(param_var,val,true);
+                       }" @edt->object @edt->variable_name);
+            }}
+	        ;
+     };
+     x-patch-r code=(m_apply "(name,obj) => {
+     	  obj.feature('find_track');
+     	  let pathname = name+'_path';
+     	  console.log('BAREA: gonna track name',pathname,' on obj',obj)
+     	  return obj.onvalue( pathname,(path) => {
+     	  	  console.log('BAREA: var changed',name,'on obj',obj)
+     	  		obj.findByPathTrack( obj.params[pathname],(found) => {
+     	  			console.log('BAREA: setting name',name,found)
+     	  			obj.setParam( name, found );
+     	  		} )
+     	  } );
+
+     }" @xi->name);
+
+     // x-set-param name=@xi->name value=(find-one-object input=?)
+
+/*
+     x-insert-children-list list=(m_eval "(name) => 
+     	  `link to=..->${name} from=.. tied_to_parent`
+     " | compalang)
+*/     
+
+/*
+     x-insert-children {
+        l: link to=(join "..->" @xi->name) from=(join "..->" @xi->name "_path") tied_to_parent=true;
+     };
+*/     
+  };
+};
+
 // вход: listing_file - путь к файлу листинга
 // выход: output - массив загруженных файлов из файла листинга
 // ну и 

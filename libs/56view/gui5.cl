@@ -88,7 +88,7 @@ feature "button_add_object" {
              newf=@bt_root->add_type
              btroot=@bt_root
              code=`
-                 args[0].manuallyInserted=true;
+                 args.manuallyInserted=true;
 
                  // сейчас мы через фичи инициализируем новые объекты через manual_features
                  // чтобы выбранный тип "сохранялся" в состоянии сцены.
@@ -98,11 +98,11 @@ feature "button_add_object" {
                  //let s = "linestr";
 
                  let s = env.params.newf;
-                 args[0].setParam("manual_features",s,true)
+                 args.setParam("manual_features",s,true)
                  
-                 console.log("created",args[0])
+                 console.log("created",args)
 
-                 env.params.btroot.emit("created", args[0] );
+                 env.params.btroot.emit("created", args );
              `
           }};
      };    
@@ -168,7 +168,7 @@ feature "object_change_type"
 // рисует набор кнопочек для управления объектами сцены
 /* root - сцена где искать объекты
    пример
-    render_layers 
+    render_layers_inner 
          title="Визуальные объекты" 
          root=@vroot
          items=[ {"title":"Объекты данных", find":"guiblock datavis","add":"linestr","add_to":"@some->path_param"},

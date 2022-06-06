@@ -111,86 +111,11 @@ feature "astra-source" {
 	  //astra-source-dir;
 };
 
-
-// выход: output -  список файлов, каждая запись это массив [имя, объект файла]
-feature "astra-source-inet" {
-	avp: visual_process
-	title="Загрузка из сети"
-	gui={
-		render-params @astradata;
-	}
-	gui3={
-		render-params @avp;
-	}
-	output=@result->output
-	{
-		astradata: 
-		  //listing_file="http://127.0.0.1:8080/public_local/data2/data.csv"
-		  listing_file="https://viewlang.ru/assets/astra/data/list.txt"
-		  listing_file_dir="https://viewlang.ru/assets/astra/data/"
-      {{ x-param-string name="listing_file"; }}
-      // {{ x-param-label name="listing_file_lines"; }}
-      // listing_file_lines=(@listing->output | geta "length")
-		{
-			listing: load-file file=@astradata->listing_file | m_eval "(txt) => txt.split('\n')" @.->input;
-			listing_resolved: @listing->output | map_geta (m_apply "(dir,item) => dir+item" @astradata->listing_file_dir);
-			result: m_eval "(arr1,arr2) => 
-				  arr1.map( (elem,index) => [ elem, arr2[index]])
-			" @listing->output @listing_resolved->output;
-    };
-
-	};
-};
-
-
-// output - список файлов
-feature "astra-source-dir" {
-	avp: visual_process
-	title="Загрузка из папки"
-	gui={
-		button "Выбрать папку" {
-			m_apply `(tenv) => {
-			  window.showDirectoryPicker({id:'astradata',startIn:'documents'}).then( (p) => {
-			  	console.log('got',p, p.entries());
-			  	follow( p.entries(),(res) => {
-			  		//console.log("thus res is",res);
-			  		let sorted = res.sort( (a,b) => {
-			  			if (a[0] < b[0]) return -1;
-			  			if (a[0] > b[0]) return 1;
-			  			return 0;
-			  		})
-			  		
-			  		let myfiles = sorted.filter( s => s[0].match(/\.dat/i))
-			  		console.log(myfiles);
-			  		tenv.setParam("output",myfiles);
-			  	} );
-
-			  	function follow( iterator,cbfinish,acc=[] ) {
-						iterator.next().then( res => {
-			  			//console.log( res );
-			  			if (res.done) {
-			  				return cbfinish( acc );
-			  			}
-			  			if (res && res.value) {
-			  				acc.push( res.value );
-			  				return follow( iterator,cbfinish,acc )
-			  			}
-			  		});
-			  	}
-			  	
-			  })
-			}` @avp;
-		}; // button
-	}
-	gui3={
-		render-params @avp;
-	}
-  ;
-};
-
-// объект который дает диалог пользвоателю а в output выдает найденный dataframe отмеченный меткой df56
+// объект который дает диалог пользвателю 
+// а в output выдает найденный dataframe отмеченный меткой df56
 feature "find-data-source" {
-   findsource: data_length=(@findsource->output | geta "length")
+   findsource: 
+      data_length=(@findsource->output | geta "length")
 	    input_link=(@datafiles->output | geta 0)
       {{
           datafiles: find-objects-bf features="df56" | arr_map code="(v) => v.getPath()+'->output'";
@@ -212,7 +137,6 @@ feature "find-data-source" {
            value=12;
 
           x-param-label name="data_length";
-	     
       }}
     {
       link from=@findsource->input_link to="@findsource->output";
