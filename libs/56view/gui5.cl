@@ -144,20 +144,20 @@ feature "object_change_type"
                 //console.log("dump is",dump)
 
                 let newobj = obj.vz.createObj({parent: origparent});
-                newobj.manual_feature( v );
-                newobj.manuallyInserted=true;
+                Promise.allSettled( newobj.manual_feature( v ) ).then( () => {
+                  newobj.manuallyInserted=true;
 
-                console.log("setted manual feature",v);
+                  console.log("setted manual feature",v);
 
-                if (dump) {
-                  if (dump.params)
-                      delete dump.params['manual_features'];
-                  dump.manual = true;
-                  //console.log("restoring dump",dump);
-                  newobj.restoreFromDump( dump, true );
-                  console.log("created obj", newobj)
-                }
-
+                  if (dump) {
+                    if (dump.params)
+                        delete dump.params['manual_features'];
+                    dump.manual = true;
+                    //console.log("restoring dump",dump);
+                    newobj.restoreFromDump( dump, true );
+                    console.log("created obj", newobj)
+                  }  
+                });
                 
 
                 }`;

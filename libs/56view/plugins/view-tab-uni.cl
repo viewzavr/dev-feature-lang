@@ -2,7 +2,9 @@
 
 find-objects-bf features="the_view_types" recursive=false 
 |
-insert_children { value="the_view_uni" title="Слева на право (uni)"; };
+insert_children { 
+  value="the_view_uni" title="Слева на право (uni)"; 
+};
 
 feature "the_view_uni"
 {
@@ -29,7 +31,7 @@ feature "the_view_uni"
       let filtered = view.params.sources_str.split(',').filter( (v) => v.length>0)
       let nv = filtered.concat([add]).join(',');
       view.setParam( 'sources_str', nv, true);
-    }`) }}    
+    }`) }}
 
     gui={ 
 
@@ -83,6 +85,7 @@ feature "camera3dt" {
   ;
 };
 
+// по сути то экран..
 feature "area" 
 {
   it: sibling_types=["area"] 
@@ -152,6 +155,22 @@ feature "area"
 
 };
 
+feature "show_area" {
+  area_rect: dom style="flex: 1 1 0;" 
+  {
+            process_rect: show_3d_scene
+              scene3d=(@area_rect->input | geta "visible_sources" | map_geta "scene3d")
+              camera=(@area_rect->input | geta "camera")
+              style="width:100%; height:100%;"
+              ;
+
+            extra_screen_things: 
+              column style="padding-left:2em; min-width: 80%; position:absolute; bottom: 1em; left: 1em;" {
+                 dom_group input=(@area_rect->input | geta "visible_sources" | map_geta "scene2d");
+              };
+ }; // area-rect  
+};
+
 feature "show_visual_tab_uni" {
    svr: dom_group
       screenshot_dom = @rrviews->dom
@@ -163,22 +182,10 @@ feature "show_visual_tab_uni" {
         justify-content: center;"
     {
       repa: repeater input=(@svr->input | geta "visible_areas") {
-        area_rect: dom style="flex: 1 1 0;" {
-            process_rect: show_3d_scene
-              scene3d=(@area_rect->input | geta "visible_sources" | map_geta "scene3d")
-              camera=(@area_rect->input | geta "camera")
-              style="width:100%; height:100%;"
-              ;
+        show_area;
+      }; // repeater of areas
 
-            extra_screen_things: 
-              column style="padding-left:2em; min-width: 80%; position:absolute; bottom: 1em; left: 1em;" {
-                 dom_group input=(@area_rect->input | geta "visible_sources" | map_geta "scene2d");
-              };  
-              
-          }; // area-rect  
-        }; // repeater of areas
-
-      }; // global row rrviews
+    }; // global row rrviews
 
    }; // domgroup
 
