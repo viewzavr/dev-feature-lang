@@ -78,6 +78,7 @@ feature "astra-source" {
 			astradata: N=0 files=[] files_url="https://viewlang.ru/assets/astra/data/list.txt"
 			  {{ x-param-files name="files"}}
 			  {{ x-param-option name="files" option="priority" value=10 }}
+			  {{ x-param-option name="files" option="values" value=["https://viewlang.ru/assets/astra/data/list.txt"] }}
 			  
 				{{ x-param-slider name="N" sliding=false min=0 max=((@astradata->files | geta "length") - 1) }}
 				
@@ -185,7 +186,7 @@ feature "find-data-source" {
 
           x-param-combo
            name="input_link" 
-           values=@datafiles->output {{ console_log_params }}
+           values=@datafiles->output 
 
            ;
 

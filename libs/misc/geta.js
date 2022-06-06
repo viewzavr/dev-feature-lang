@@ -143,6 +143,10 @@ export function map_geta( env )
     env.params.args_count ||= 0;
     
     get_one( input, env.params, 0,(res) => {
+
+      if (res == null && env.params.default != null)
+          res = env.params.default;
+
       if (env.single_geta_mode) {
         env.setParam( "output",res );
         return;
