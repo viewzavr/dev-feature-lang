@@ -57,69 +57,48 @@ register_feature name="render-guis-a" {
     };
 };
 
+////////////////////////////
+
 feature "astra-source" {
   qqe: visual_process df56 
     title="Загрузка звёзд"
     index=1 	
     gui={
-    	column plashka {
-	    	sa: switch_selector_row index=1
-	    	  items=["Папка","Сеть"] {{ hilite_selected }} 
-	    	  style_ee="padding-top:5px; padding-bottom: 3px;";
-
-	    	x-modify input=@qqe {
-	    		x-set-params index=@sa->index;
-	    	};
-
-	    	//insert_children input=@.. list=(list @adir @ainet)  
-
-	    	oof: show_one index=@sa->index {
-	    		column {
-	    			insert_children input=@.. list=@adir->gui;
-	    		};
-	    		column {
-	    			insert_children input=@.. list=@ainet->gui;
-	    		};
-	    	} {{ one-of-keep-state; one_of_all_dump; }};
-
-	    	render-params @astradata;
-      };
+    	render-params @astradata plashka;
     } 
     
     output=@loaded_data2->output
     {
-    	adir:  astra-source-dir;
-      ainet: astra-source-inet;
-
 			scene2d: dom {
 			  		//text tag="h2" style="color:white;" (join (@listing->output | geta @astradata->N));
 			  		text tag="h2" style="color:white;" @astradata->current_file_name;
 			  		
 			};
 
-			astradata:  N=0 
-			  files=( geta input=(list @adir @ainet) @qqe->index | geta "output")
-			  {{ console_log "@loaded_data->output" @loaded_data->output }}
-				
+			astradata: N=0 files=[] files_url="https://viewlang.ru/assets/astra/data/list.txt"
+			  {{ x-param-files name="files"}}
+			  {{ x-param-option name="files" option="priority" value=10 }}
+			  
 				{{ x-param-slider name="N" sliding=false min=0 max=((@astradata->files | geta "length") - 1) }}
 				
-				{{ x-param-label name="files_count"}}
-				{{ x-param-label name="current_file_name"}}
+				{{ x-param-label-small name="files_count"}}
+				{{ x-param-label-small name="current_file_name"}}
 				{{ x-param-option name="current_file" option="readonly" value=true }}
 
-				{{ x-param-label name="lines_loaded"}}
+				{{ x-param-label-small name="lines_loaded"}}
 				current_file=(@astradata->files | geta @astradata->N | geta 1)
 		    current_file_name=(@astradata->files | geta @astradata->N | geta 0)
 		    lines_loaded=(@loaded_data2->output | geta "length")
 		    files_count=(@astradata->files | geta "length")
       {
-      	 loaded_data2: load-file file=@astradata->current_file 
+      	 loaded_data2: load-file file=(@astradata->current_file or null)
          	| m_eval "() => 'X Z Y\n' + env.params.input" // F-CHANGE-DATA-AXES
-			   	| parse_csv separator="\s+";				
+			   	| parse_csv separator="\s+";
 			};   
     };
 	  //astra-source-dir;
 };
+
 
 // выход: output -  список файлов, каждая запись это массив [имя, объект файла]
 feature "astra-source-inet" {

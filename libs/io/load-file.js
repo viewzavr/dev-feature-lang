@@ -6,8 +6,13 @@ export function load_file( env ) {
   env.feature("load_file_func");
   //var empty_df = df.create();
   env.addFile("file");
-  env.onvalue("file",(file) => {
+  
+  env.trackParam("file",(file) => {
     console.log("load-file: gonna load file from ",file);
+    if (!file) {
+      env.setParam("output","");
+      return;
+    }
     //env.setParam("output",df );
     // возможно стоит compute_path внедрить в load_file
     file = env.compute_path( file );

@@ -1,4 +1,5 @@
 load "new-modifiers";
+load "params-on-custom.cl";
 
 feature "x-param-combo" {
   r: x-patch-r @r->name @r->titles? @r->values
@@ -50,17 +51,6 @@ feature "x-param-checkbox" {
     ";  
 };
 
-// F-PARAM-CUSTOM
-feature "x-param-custom" {
-  r: x-patch-r @r->name @r->editor
-    code="(name,editor_code, obj) => {
-      if (name) {
-        obj.addGui( {name:name, type: "custom"} );
-        obj.setParamOption( name,"editor",editor_code );
-      }
-    }
-    ";  
-};
 
 /* наша попытка работать с род. окружением
 feature "x-param-checkbox" {
