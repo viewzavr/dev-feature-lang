@@ -809,7 +809,7 @@ export function feature_func( env )
         if (typeof( env.params.code) == 'function')
             func = env.params.code;
         else  
-            func = new Function( "env","args", env.params.code );
+            func = new Function( "env","arg1, arg2, arg3, arg4, arg5", env.params.code );
 
         let r = func.call( null, env, ...args );
         resarr.push(r);
@@ -2784,4 +2784,9 @@ export function pass_input(env){
   })
 };
 
-
+// модификатор
+export function force_dump(env) {
+  env.on("attach",(obj) => {
+      obj.params.force_dump=true;
+  });
+}

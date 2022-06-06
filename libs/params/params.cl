@@ -10,7 +10,7 @@ feature "x-param-combo" {
       obj.setParamOption( name,'titles',titles);
     else
       obj.setParamOption( name,'titles',null);
-  }    
+  }
   ";
 };
 

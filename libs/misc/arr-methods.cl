@@ -245,7 +245,7 @@ register_feature name="arr_uniq"
 
   function process(arr,elem) {
     if (!Array.isArray(arr)) {
-      env.setParam("output",false);
+      env.setParam("output",[]);
       return;
     }
 
@@ -262,3 +262,26 @@ register_feature name="arr_uniq"
     
   }
 `;
+
+register_feature name="arr_flat"
+  code=`
+
+  env.onvalues_any(["input",0],process);
+
+  function process(arr,elem) {
+    if (!Array.isArray(arr)) {
+      env.setParam("output",[]);
+      return;
+    }
+
+    let res = arr.flat(5);
+    env.setParam("output",res);
+    
+  }
+`;
+
+/* когда разберемся с добавкой аргументов то сможем делать вот так:
+feature "arr_flat" {
+  m_eval "(arr) => flat(5)" output=[] {{ x-param-alias name=1 from="input" }};
+};
+*/

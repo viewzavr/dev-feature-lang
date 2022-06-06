@@ -272,14 +272,14 @@ export function camera3d( env ) {
   let a1, a2;
   
   // гуи
-  env.addArray( "pos", [], 3 );
-  env.addArray( "center", [], 3 );  
+  env.addArray( "pos", [0,0,10], 3 );
+  env.addArray( "center", [0,0,0], 3 );  
   // env.addGui( {"type": "custom", "editor":"vector-editor"});
   env.addSlider("theta",0,-180,180,0.1);
 
   env.onvalue( "pos", (v) => {
     //console.log("onval pos",v)
-    if (v !== a1) {
+    if (v !== a1 && v) {
       if (isFinite(v[0]) && isFinite(v[1]) && isFinite(v[2]))
         cam.position.set( v[0],v[1],v[2] );
       //cam.lookAt( new THREE.Vector3( 0,0,0 ) );
@@ -288,7 +288,7 @@ export function camera3d( env ) {
   })
   env.onvalue( "center", (v) => {
     //console.log("onval center",v)
-    if (v !== a2) {
+    if (v !== a2 && v) {
        if (isFinite(v[0]) && isFinite(v[1]) && isFinite(v[2]))
          cam.lookAt( new THREE.Vector3( v[0],v[1],v[2] ) );
        //cam.updateProjectionMatrix();
@@ -327,7 +327,10 @@ export function orbit_control( env ) {
   env.ns.parent.onvalue("target_dom",update);
 
   var cc;
+  let unsub = () => {};
   function update() {
+    unsub(); unsub = () => {};
+
     var c = env.params.camera;
     if (c?.params)
         c = c.params.output;
@@ -348,7 +351,7 @@ export function orbit_control( env ) {
 
     // криво косо но пока так
     if (c.vrungel_camera_env) {
-      c.vrungel_camera_env.onvalues(["pos","center"],(p,c) => {
+      let u1 = c.vrungel_camera_env.onvalues(["pos","center"],(p,c) => {
 
         // защита от зацикливания
         let eps = 0.0001;
@@ -361,7 +364,7 @@ export function orbit_control( env ) {
         // вроде как pos ставить не надо т.к. оно и так из камеры его берет
       })
 
-      c.vrungel_camera_env.onvalue("theta",(t) => {
+      let u2 = c.vrungel_camera_env.onvalue("theta",(t) => {
          //cc.spherical.theta = 2*Math.PI / 360;
          ///debugger;
          //cc.setAzimuthalAngle( 2*Math.PI / 360 )
@@ -372,7 +375,10 @@ export function orbit_control( env ) {
             cc.manualTheta = nv;
 
          cc.update();
-      })
+      });
+
+      unsub = () => { u1(); u2(); };
+
     }
 
     let flag=false;
@@ -386,6 +392,7 @@ export function orbit_control( env ) {
         //console.log( "oc changbed",c);
         //c.setParam
     });
+
   }
 
 }

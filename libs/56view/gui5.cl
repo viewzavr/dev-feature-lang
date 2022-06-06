@@ -64,11 +64,12 @@ feature "created_mark_manual" {
   ;    
 };
 
+// добавка
 // curview параметр обязательный, процесс приезжает в аргументе
 feature "created_add_to_current_view" {
   x-on "created" 
      code=`
-         let item = args[1];
+         let item = arg2;
          env.params.curview.append_process( item );
          //let project = args[0].ns.parent;
          //args[0].manuallyInserted=true;
@@ -84,11 +85,12 @@ feature "button_add_object" {
         link from="@bt_root->add_to" to="@cre->target" soft_mode=true;
 
         cre: creator input={}
-          {{ onevent name="created" 
+          {{ onevent 
+             name="created" 
              newf=@bt_root->add_type
              btroot=@bt_root
              code=`
-                 args.manuallyInserted=true;
+                 arg1.manuallyInserted=true;
 
                  // сейчас мы через фичи инициализируем новые объекты через manual_features
                  // чтобы выбранный тип "сохранялся" в состоянии сцены.
@@ -98,11 +100,11 @@ feature "button_add_object" {
                  //let s = "linestr";
 
                  let s = env.params.newf;
-                 args.setParam("manual_features",s,true)
+                 arg1.setParam("manual_features",s,true)
                  
-                 console.log("created",args)
+                 console.log("created",arg1)
 
-                 env.params.btroot.emit("created", args );
+                 env.params.btroot.emit("created", arg1 );
              `
           }};
      };    
@@ -194,7 +196,6 @@ rl_root:
          plashka style_qq="margin-bottom:0px !important;"
          ;
 
-
      link to="@ba->add_to" from=(@rl_root->items | get @s->index | get "add_to");
      ba: button_add_object 
                        add_type=(@rl_root->items | get @s->index | get "add");
@@ -220,9 +221,10 @@ rl_root:
             input=(@objects_list->output | get index=@cbsel->index?)
             visible=(@co->input?)
       {
-        row {
+        row visible=((@co->input?  | geta  "sibling_types" | geta "length" default=0) > 1) 
+        {
           object_change_type input=@co->input?
-            types=(@co->input?  | geta  "sibling_types" )            
+            types=(@co->input?  | geta  "sibling_types" )
             titles=(@co->input? | geta "sibling_titles")
             //types=(@co->input  | geta  "items" | geta (i_call_js code="Object.keys"))
             //titles=(@co->input  | geta  "items" | geta (i_call_js code="Object.values"))
