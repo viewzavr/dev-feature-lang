@@ -64,7 +64,13 @@ feature "astra-source" {
     title="Загрузка звёзд"
     index=1 	
     gui={
-    	render-params @astradata plashka;
+    	column plashka {
+    		//render-params @astrafiles;
+    		column {
+      		insert_children input=@.. list=@astrafiles->gui;
+    	  };
+    	  render-params @astradata;
+      };
     } 
     
     output=@loaded_data2->output
@@ -75,8 +81,13 @@ feature "astra-source" {
 			  		
 			};
 
-			astradata: N=0 files=[] files_url="https://viewlang.ru/assets/astra/data/list.txt"
-			  {{ x-param-files name="files"}}
+			astrafiles: select-files url="https://viewlang.ru/assets/astra/data/list.txt";
+
+			astradata: N=0 
+			    //files=[] 
+			    //files_url="https://viewlang.ru/assets/astra/data/list.txt"
+			    files=@astrafiles->output
+			  // {{ x-param-files name="files"}}
 			  {{ x-param-option name="files" option="priority" value=10 }}
 			  {{ x-param-option name="files" option="values" value=["https://viewlang.ru/assets/astra/data/list.txt"] }}
 			  

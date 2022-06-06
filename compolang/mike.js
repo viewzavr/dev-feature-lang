@@ -110,9 +110,18 @@ export function m_apply( env )
    env.feature("call_cmd_by_path");
 
   // пусть у лямбды аутпут будет js-функция для вызова
+  
   env.setParam("output", (...args) => {
     return env.callCmd("apply",...args);
-  }) 
+  })
+  
+  env.on("param_changed",(name) => {
+    if (name == "output") return;
+    //console.log("mapplay update-func 2")
+    env.setParam("output", (...args) => {
+      return env.callCmd("apply",...args);
+    });
+  });
 
   let func;
   function update_func() {

@@ -170,6 +170,7 @@ export function x_modify( env )
 
 }
 
+// отличается от x-modify тем что вход берет из списка list
 export function x_modify_list( env ) 
 {
 

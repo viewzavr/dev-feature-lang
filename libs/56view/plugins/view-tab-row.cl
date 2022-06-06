@@ -9,8 +9,18 @@ feature "the_view_row"
     scene3d=(@tv->visible_sources | map_geta "scene3d" | arr_compact)
     scene2d=(@tv->visible_sources | map_geta "scene2d")
     camera=@cam 
+    sync_cameras=true
+    {{ x-param-checkbox "sync_cameras" }}
+    select_camera=(m_apply "(issync,list,index) => {
+      console.log('select-camera called',issync)
+      if (issync) return list[0];
+      return list[index];
+      } " @tv->sync_cameras @tv->cameras)
+
+    cameras=@cams->output
     {
       cam: camera3d pos=[-400,350,350] center=[0,0,0];
+      cams: @tv->visible_sources | repeater { camera3d pos=[-400,350,350] center=[0,0,0] };
     };
 };
 
@@ -28,7 +38,8 @@ feature "show_visual_tab_row" {
         src: dom style="flex: 1 1 0;" {
           show_3d_scene
             scene3d=@src->input
-            camera=(@svr->input | geta "camera") 
+            //camera=(@svr->input | geta "camera") 
+            camera=(m_eval (@svr->input | geta "select_camera") @src->input_index)
             style="width:100%; height:100%;";
         };
       };

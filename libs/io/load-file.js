@@ -6,9 +6,9 @@ export function load_file( env ) {
   env.feature("load_file_func");
   //var empty_df = df.create();
   env.addFile("file");
-  
+
   env.trackParam("file",(file) => {
-    console.log("load-file: gonna load file from ",file);
+    console.log("load-file: gonna load file from ",file,"env is",env.getPath());
     if (!file) {
       env.setParam("output","");
       return;
