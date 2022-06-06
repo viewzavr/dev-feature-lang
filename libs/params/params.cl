@@ -14,6 +14,21 @@ feature "x-param-combo" {
   ";
 };
 
+/*
+feature "x-param-editable-combo" {
+  r: x-patch-r @r->name @r->titles? @r->values
+  code="(name,titles,values,obj) => {
+    if (name && values)
+      obj.addEditableCombo( name, undefined, values );
+    if (name && titles) 
+      obj.setParamOption( name,'titles',titles);
+    else
+      obj.setParamOption( name,'titles',null);
+  }    
+  ";
+};
+*/
+
 feature "x-add-cmd" {
   //r: code=@.->0 name=@.->1;
   //мечты мечты.. но кстати зато можно порожденные объекты в output хреначить..

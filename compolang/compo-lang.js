@@ -727,7 +727,7 @@ export function setter( env )
    //////////////////////////////
 
    env.addCmd( "apply",() => {
-      //console.log("called setter apply. value=",env.params.value);
+      //console.log("called setter apply. value=",env.params.value, env.params.object, env.params.param);
 
       if (env.params.target) {
         //var arr = env.params.target.split("->");
