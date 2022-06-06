@@ -6,8 +6,8 @@ feature "the_view_small_big"
 {
   tv: the-view 
     show_view={ show_visual_tab_small_big input=@tv; }
-    scene3d=(@tv->sources | map_geta "scene3d" | arr_compact)
-    scene2d=(@tv->sources | map_geta "scene2d")
+    scene3d=(@tv->visible_sources | map_geta "scene3d" | arr_compact)
+    scene2d=(@tv->visible_sources | map_geta "scene2d")
     camera=@cam 
     camera2=@cam2 
     {

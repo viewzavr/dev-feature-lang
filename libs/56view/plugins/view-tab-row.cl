@@ -6,8 +6,8 @@ feature "the_view_row"
 {
   tv: the-view 
     show_view={ show_visual_tab_row input=@tv; }
-    scene3d=(@tv->sources | map_geta "scene3d" | arr_compact)
-    scene2d=(@tv->sources | map_geta "scene2d")
+    scene3d=(@tv->visible_sources | map_geta "scene3d" | arr_compact)
+    scene2d=(@tv->visible_sources | map_geta "scene2d")
     camera=@cam 
     {
       cam: camera3d pos=[-400,350,350] center=[0,0,0];
