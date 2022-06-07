@@ -156,7 +156,7 @@ feature "landing-view-base"
 
     button "Настройки объектов" {
       lambda @view @view->gui2 code="(obj,g2) => { 
-         console.log('g2=',g2)
+         //console.log('g2=',g2)
          obj.emit('show-settings',g2) 
          }";
     };
@@ -585,6 +585,7 @@ datavis: feature {
           )
     step_N=25
     editable-addons    
+    //data_adjust="traj"
   {{
 
     da: x-param-combo

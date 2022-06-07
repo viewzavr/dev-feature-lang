@@ -157,9 +157,7 @@ feature "show_sources_params"
       button "&lt;" style_h="height:1.5em;" 
         visible=(m_eval "(list) => {
             return list && list.length>0 ? true: false;}" 
-            @extra_settings_panel->list? allow_undefined=true) ;
-        
-        
+            @extra_settings_panel->list? allow_undefined=true) 
       {
          setter target="@extra_settings_panel->list" value=[];
       };

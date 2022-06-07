@@ -151,7 +151,10 @@ feature "effect3d_sprite" {
     sprite="ball.png"
     gui={render-params @eoa; }
     x-modify {
-      x-set-params texture_url=(if (@eoa->sprite != "") then={resolve_url (+ "sprites/" @eoa->sprite)});
+      //x-set-params texture_url=(if (@eoa->sprite != "") then={resolve_url (+ "sprites/" @eoa->sprite)});
+      // этот if ненадежная схема - сначала успевает отработать resolve-url а потом уже if его грохает, но сигнал уже послан..
+      // спокойная функц схема отрабатывает тут лучше.. забавно..
+      x-set-params texture_url=(m_eval "(p) => p && p.length > 0 ? env.compute_path('sprites/'+p) : null " @eoa->sprite);
     }  
   ;
 };

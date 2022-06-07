@@ -46,7 +46,7 @@ feature "manage_addons" {
      call target="@addons_dialog" name="show";
    };
    */
-   collapsible "Добавки" expanded=( (@aa->input? | geta "addons_container" | get_children_arr | geta "length") > 0)
+   collapsible "Добавки" expanded=( (@ma->input? | geta "addons_container" | get_children_arr | geta "length") > 0)
    {
    	 addons_area input=@ma->input;
    };

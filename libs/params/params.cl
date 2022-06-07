@@ -4,8 +4,14 @@ load "params-on-custom.cl";
 feature "x-param-combo" {
   r: x-patch-r @r->name @r->titles? @r->values
   code="(name,titles,values,obj) => {
-    if (name && values)
+    if (name && values) {
       obj.addComboValue( name, undefined, values );
+      // немного криминально
+      // но я ожидаю что добавляя комбо оно таки выберет первый вариант..
+      // мб в будущем ключ value добавить но тогда и всем..
+      if (obj.params[name] == null)
+        obj.setParam( name, values[0] );
+    }
     if (name && titles)
       obj.setParamOption( name,'titles',titles);
     else
