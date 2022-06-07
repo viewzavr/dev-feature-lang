@@ -141,10 +141,10 @@ export function find_objects_bf( env  ) {
       walk_on_obj_features( obj, features,0, () => {
         // наш клиент
         // доп условие
-        //log("fobf: next object found",features);
+        log("fobf: next object found",features,obj);
         //debugger;
         //next_object_found( obj )
-        if (env.params.include_root || (!env.params.include_root && obj !== root)) {
+        if (env.params.include_root || (!env.params.include_root && obj !== env.params.root)) {
             next_object_found( obj,features )
         }
         //env.emit("next_object_found", obj );

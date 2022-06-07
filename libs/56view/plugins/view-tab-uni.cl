@@ -49,8 +49,8 @@ feature "the_view_uni"
 
         render_layers_inner 
          title="Области" 
-         root=@tv
-         items=[ {"title":"Области", "find":"area","add":"area","add_to":"@areas_block->."}, 
+         root=@tv {{ console_log_params "TVT"}}
+         items=[ {"title":"Области", "find":"the-view","add":"the-view-mix3d","add_to":"@areas_block->."}, 
                  {"title":"Камеры", "find":"camera3dt","add":"camera3dt","add_to":"@cameras_block->."}
                ];
       }

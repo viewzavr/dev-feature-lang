@@ -204,6 +204,7 @@ rl_root:
      find-objects-bf (@rl_root->items | get @s->index | get "find") 
                      root=@rl_root->root
                      recursive=false
+                     include_root=false debug=true
      | sort_by_priority;
      ;
 
