@@ -4,14 +4,20 @@ insert_children { manage_views; };
 
 feature "manage_views" {
 
-  collapsible "Настройка экрана" {
+  mv: 
+      render_project=@..->render_project;
+      project=@..->project
+      active_view=@..->active_view
+
+      collapsible "Настройка экрана" 
+      {
 
            co: column plashka 
                 style_r="position:relative;" 
-                input=@rend->active_view 
+                input=@mv->active_view 
             {
 
-              button_add_object "Добавить новый экран" add_to=@rend->project add_type="the-view-mix3d";  
+              button_add_object "Добавить новый экран" add_to=@mv->project add_type="the-view-mix3d";  
 
               column {
                 object_change_type text="Способ отображения:"
@@ -33,11 +39,11 @@ feature "manage_views" {
 
 /*
            render_layers_inner title="Виды" expanded=true
-           root=@rend->project
+           root=@mv->project
            items=[ { "title":"Виды", 
                      "find":"the-view",
                      "add":"the-view",
-                     "add_to": "@rend->project"
+                     "add_to": "@mv->project"
                    } ];
 */                   
          };

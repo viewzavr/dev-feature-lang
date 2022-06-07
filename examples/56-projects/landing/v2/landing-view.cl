@@ -234,7 +234,7 @@ feature "landing-view-base"
         x-param-option name="y_scale_coef" option="visible" value=@fileparams->scale_y;
     }}
   {
-	  loaded_data: ;
+    loaded_data:;
     link from=@fileparams->input_link? to="@loaded_data->output";
 	};
 

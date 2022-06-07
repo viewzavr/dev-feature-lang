@@ -44,4 +44,4 @@ screen1: screen auto-activate  {
   render_project @project active_view_index=1;
 };
 
-debugger-screen-r;
+// debugger-screen-r;

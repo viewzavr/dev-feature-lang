@@ -96,14 +96,14 @@ scr: screen {
         {
           cb: column {
             cbb: checkbox 
-                    text=(@cb->modelData | get_param name="title")
+                    text=(@cb->input | geta "title")
                     value2=false
-                    value=(@cb->modelData | get_param name="init_on");
-                    //value=(@cb->modelData | get param="init_on");
+                    value=(@cb->input | geta "init_on");
+                    
             if @cbb->value? then={
               column {
                 render-params object=@fobj;
-                fobj: deploy input=(@cb->modelData | get_param name="body");
+                fobj: insert_children input=@.. list=(@cb->input | geta "body");
                 install_explorer_feature dat=@fobj;
               };
             };

@@ -2,6 +2,12 @@ feature "if"
 code="
   let cnt=0;
   env.on('appendChild',(c) => {
+    if (cnt == 0)
+    {
+      // важный момент
+      // -2 это выход наружу if, на внешний скоп.. пипец..
+      c.$use_scope_for_created_things = env.$scopes[ env.$scopes.length -2 ];
+    }
     cnt++;
     if (cnt > 1 
         && c.ns.name.indexOf('arg_link_to')<0 // тупняк конечно - чтобы разрешить условия вида if @alfa

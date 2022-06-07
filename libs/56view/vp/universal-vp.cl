@@ -397,13 +397,17 @@ esync1: feature {
 	processes-found=(@synced_processes | geta "length");
 	{
 	  synced_processes: (find-objects-bf features="visual-process" root=@es1->project);
+	    
+//	    @synced_processes | x-modify {
+//	      x-set-param name=@es1->synced_param_name value=@es1->synced_param_value;
+//	    };
 
       @synced_processes | insert_children {
-        link from="@es1->synced_param_value" 
+        link from=(join (@es1 | geta "getPath") "->synced_param_value")
              to=(join ".->" @es1->synced_param_name) 
                  tied_to_parent=true manual_mode=true;
 
-        link to="@es1->synced_param_value"
+        link to=(join (@es1 | geta "getPath") "->synced_param_value")
              from=(join ".->" @es1->synced_param_name)
                  tied_to_parent=true manual_mode=true;
       };

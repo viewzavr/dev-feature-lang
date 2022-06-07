@@ -18,21 +18,29 @@ screen auto_activate {
     text text=" ) should be 5";
     ///
     extra: {
-      alfa: beta=4; // должно выдать ошибку
+      alfa: beta=4; // должно выдать ошибку и не добавить эту alfa в общую видимость...
     };
     ///
     text "also";
     text @qq->text
      {{ qq: text="in subfeatures"; }};
     ////
-    ex: extratext more="feature may link to own name"; 
+    ex: extratext more="feature may link to own name, if you see this"; 
     
     ////
     text "should print sigma";
     t1: text sigma="sigma" text=@inner->result {{ inner: result=@t1->sigma; }};
     
     ////
+    text "finally, render params";
     render-params @ex;
+    text "finally, render params 2 times";
+    render-params @ex;
+    
+    ////
+    if true then={
+      text (join "inside if alfa->beta is" @alfa->beta);
+    };
   };
 };
 

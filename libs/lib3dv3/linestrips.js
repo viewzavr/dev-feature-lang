@@ -11,7 +11,7 @@ export function linestrips( env ) {
   convertor_env.feature( "linestrips_to_lines" );
   convertor_env.linkParam( "input","..->input");
   var painter_env = env.create_obj({},{name:"lines-env"});
-  painter_env.linkParam( "input","@convertor->output");
+  painter_env.linkParam( "input","../convertor->output");
   painter_env.feature("lines");
   env.linkParam("output","lines-env->output");
 

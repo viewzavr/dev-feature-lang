@@ -171,7 +171,7 @@ feature "render_project" {
          //render_project=@rend
          active_view=@rend->active_view
          active_view_tab=@of->output
-         //render_project=@rend
+         render_project=@rend
          //{{ x-modify list=@render_project_right_col_modifier }}
         {
         }; // column справа

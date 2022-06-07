@@ -538,12 +538,12 @@ register_feature name="switch_selector" {
 
 // но с другой стороны тут еще стили особые появятся, поэтому ладно уж
 register_feature name="switch_selector_row" {
-	root: row index=0 gap="0.2em" generated_items=@rep->output 
+	root55: row index=0 gap="0.2em" generated_items=@rep->output 
 	{
-		rep: repeater input=@root->items {
+		rep: repeater input=@root55->items {
 			 button text=@.->input
 			 {
-			 	 setter target="@root->index" value=@..->input_index manual=true;
+			 	 setter target="@root55->index" value=@..->input_index manual=true;
 			 };
 		};
 	}; // column
