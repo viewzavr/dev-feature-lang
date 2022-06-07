@@ -10,7 +10,7 @@ feature "the_view_uni"
 {
   tv: the-view 
     show_view={
-      show_visual_tab_uni input=@tv; 
+      show_visual_tab_uni input=@tv;
     }
     scene3d=(@tv->visible_sources | map_geta "scene3d" | arr_compact)
     scene2d=(@tv->visible_sources | map_geta "scene2d")
@@ -124,9 +124,9 @@ feature "area"
               @it->project | geta "processes" | repeater //target_parent=@qoco 
               {
                  i: checkbox text=(@i->input | geta "title") 
-                       value=(@qq->it | geta "sources" | arr_contains @i->input)
+                       value=(@qq | geta "sources" | arr_contains @i->input)
                     {{ x-on "user-changed" {
-                        toggle_visprocess_view_assoc2 process=@i->input view=@qq->it;
+                        toggle_visprocess_view_assoc2 process=@i->input view=@it;
                     } }};
               };
 
@@ -156,7 +156,7 @@ feature "area"
 };
 
 feature "show_area" {
-  area_rect: dom style="flex: 1 1 0;" 
+  area_rect: dom 
   {
             process_rect: show_3d_scene
               scene3d=(@area_rect->input | geta "visible_sources" | map_geta "scene3d")
@@ -182,7 +182,7 @@ feature "show_visual_tab_uni" {
         justify-content: center;"
     {
       repa: repeater input=(@svr->input | geta "visible_areas") {
-        show_area;
+        show_area style="flex: 1 1 0;" ;
       }; // repeater of areas
 
     }; // global row rrviews

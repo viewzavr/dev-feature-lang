@@ -29,7 +29,7 @@ export function render3d( env ) {
   //env.setParamOption("camera","internal",true);
   //env.renderer;
 
-  let installed_w, installed_h;
+  let installed_w=1, installed_h=1;
 
   ///////////////////////////////////////  
   var unsub_target=()=>{};
@@ -75,6 +75,7 @@ export function render3d( env ) {
     // были начатки в cu..
     let de = env.renderer.domElement;
     if (de.clientWidth != installed_w || de.clientHeight != installed_h) {
+    //if (Math.abs(de.clientWidth - installed_w) + Math.abs(de.clientHeight-installed_h) > 100) {
       installed_w = de.clientWidth;
       installed_h = de.clientHeight;
 

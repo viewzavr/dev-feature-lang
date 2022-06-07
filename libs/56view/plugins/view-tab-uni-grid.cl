@@ -21,7 +21,8 @@ feature "show_visual_tab_uni_grid" {
     show_sources_params input=(@svr->input | geta "sources");
 
     rrviews: dom style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2;
-        display: grid; grid-template-columns: repeat(2, 1fr);"
+        display: grid; grid template: 'a a b' 'a a b';"
+        //grid-template-columns: 1fr 1fr;"
     {
       repa: repeater input=(@svr->input | geta "visible_areas") {
           show_area;
