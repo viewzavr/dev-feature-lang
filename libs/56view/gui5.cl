@@ -196,7 +196,10 @@ rl_root:
          plashka style_qq="margin-bottom:0px !important;"
          ;
 
-     link to="@ba->add_to" from=(@rl_root->items | get @s->index | get "add_to");
+     link to="@ba->add_to" from=(@rl_root->items | get @s->index | get "add_to")
+          {{ attach_scope @rl_root -2 }}
+           ;
+          
      ba: button_add_object 
                        add_type=(@rl_root->items | get @s->index | get "add");
 

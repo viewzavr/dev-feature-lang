@@ -2836,3 +2836,9 @@ export function force_dump(env) {
       obj.params.force_dump=true;
   });
 }
+
+export function attach_scope(env) {
+  env.onvalues( [0,1], (scopeobj, level) => {
+    env.host.$scopes.addScopeRef( scopeobj.$scopes[ scopeobj.$scopes.length + level])
+  });
+}

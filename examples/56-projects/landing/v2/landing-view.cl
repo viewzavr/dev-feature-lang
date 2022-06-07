@@ -155,7 +155,10 @@ feature "landing-view-base"
 	  };
 
     button "Настройки объектов" {
-      lambda @view @view->gui2 code="(obj,g2) => { obj.emit('show-settings',g2) }";
+      lambda @view @view->gui2 code="(obj,g2) => { 
+         console.log('g2=',g2)
+         obj.emit('show-settings',g2) 
+         }";
     };
 
    }
@@ -185,7 +188,7 @@ feature "landing-view-base"
 
   }
 
-  {
+  { // тело визпроцесса
 
 	timeparams: time_index=0 {
     link from="@timeparams->time_index" to="@view->time_index";
@@ -208,7 +211,10 @@ feature "landing-view-base"
 	   //visible: param_checkbox;        
 	};
 
-	fileparams: scale_y=true y_scale_coef=50
+	fileparams: 
+     scale_y=true 
+     y_scale_coef=50
+     input_link=(@datafiles->output | geta 0)
   {{
         datafiles: find-objects-bf features="landing-file" | arr_map code="(v) => v.getPath()+'->output'";
 
@@ -223,7 +229,7 @@ feature "landing-view-base"
         x-param-option
          name="input_link"
          option="priority"
-         value=10; 
+         value=10;
 
         x-param-checkbox name="project_x";
         x-param-checkbox name="project_y";
@@ -234,8 +240,8 @@ feature "landing-view-base"
         x-param-option name="y_scale_coef" option="visible" value=@fileparams->scale_y;
     }}
   {
-    loaded_data:;
-    link from=@fileparams->input_link? to="@loaded_data->output";
+    loaded_data: qqq=44;
+    link from=@fileparams->input_link to="@loaded_data->output";
 	};
 
 

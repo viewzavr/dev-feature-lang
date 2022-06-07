@@ -5,7 +5,7 @@ insert_children { manage_views; };
 feature "manage_views" {
 
   mv: 
-      render_project=@..->render_project;
+      render_project=@..->render_project
       project=@..->project
       active_view=@..->active_view
 

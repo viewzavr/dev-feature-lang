@@ -6,7 +6,7 @@ feature "x-param-combo" {
   code="(name,titles,values,obj) => {
     if (name && values)
       obj.addComboValue( name, undefined, values );
-    if (name && titles) 
+    if (name && titles)
       obj.setParamOption( name,'titles',titles);
     else
       obj.setParamOption( name,'titles',null);
