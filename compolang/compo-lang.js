@@ -18,7 +18,9 @@ export function simple_lang(env)
     try {
       var parsed = P.parse( code, { vz: env.vz, parent: (opts.parent || env), base_url:opts.base_url } );
       var dump = parsed2dump( env.vz, parsed, opts.base_url || "" );
-      dump.keepExistingChildren = true; 
+      dump.keepExistingChildren = true;
+      dump.$scopeParent = env.$scopes.createScope("parseSimpleLang"); // F-SCOPE
+
       return env.restoreFromDump( dump );
     }
     catch (e) 
@@ -559,11 +561,28 @@ export function register_feature( env, envopts ) {
 
         let promarr = [];
         let first = true;
+        // F-SCOPE
+        // собственный скоп фичи - пойдет всюду на детей и аттачед фичи
+        // и не пойдет во вложенные компаланг-фичи (ибо они там создадут собственный новый скоп)
+        let scope = tenv.$scopes.createScope( "feature "+env.params.name + " for env id "+tenv.$vz_unique_id);
+
         for (let cname of Object.keys( children )) {
           var edump = children[cname];
           edump.keepExistingChildren = true; // смехопанорама
           // но иначе применение фичи может затереть созданное другими фичами или внешним клиентом
           edump.keepExistingParams = true;
+          edump.$scopeParent = scope; // F-SCOPE                       
+
+          // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
+          // todo тут надо scope env делать и детям назначать, или вроде того
+          // но пока обойдемся так
+          tenv.$env_extra_names ||= {};
+          //console.log("adding extra-name",cname)
+          if (first)
+             tenv.$env_extra_names[ cname ] = true;
+
+          scope[ cname ] = tenv; // F-SCOPE
+          // в эту новую скопу.. добавляем и фичу, и сиблинги.. ок
 
           let res;
           if (first) { // это код для целевого окружения где примененена фича
@@ -583,7 +602,8 @@ export function register_feature( env, envopts ) {
             //console.warn("compolang feature: skipping 2nd and rest elem",edump);
             
             edump.lexicalParent = tenv;
-            if (tenv.hosted) {              
+            if (tenv.hosted) {
+              // баг - rec нету
               res = env.vz.importAsParametrizedFeature( rec, tenv.host );
             }
             else {
@@ -593,12 +613,7 @@ export function register_feature( env, envopts ) {
           }
           promarr.push( Promise.resolve(res) ); 
 
-          // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
-          // todo тут надо scope env делать и детям назначать, или вроде того
-          // но пока обойдемся так
-          tenv.$env_extra_names ||= {};
-          //console.log("adding extra-name",cname)
-          tenv.$env_extra_names[ cname ] = true;
+
          }; 
             
         //tenv.vz.createChildrenByDump( dump, obj, manualParamsMode );
