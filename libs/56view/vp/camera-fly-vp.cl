@@ -18,16 +18,20 @@ feature "camera-fly-vp" {
 	avp: visual_process
 	title="Полет камеры"
 	scene3d=@scene->output
+	project=@..
+	
 	gui={
-		render-params @te plashka;
-		render-params @cc plashka;
-		render-params @liness plashka;
+		render-params @avp;
+		render-params @te plashka; // редактор траекторий
+		render-params @cc plashka; // вычислитель положения
+		render-params @liness plashka; // рисователь линии
 		// avp filters={ params-hide list="title"; params-priority list="add-current";}
 	}
 	gui3={
 		//render-params-list object=@avp;
 		render-params @avp;
 	}
+	{{ x-param-objref-3 name="camera" values=(@avp->project | geta "cameras") }}
 	{
 		scene: node3d {
 			liness: linestrips input=@te->output color=[0,1,0];
@@ -37,15 +41,15 @@ feature "camera-fly-vp" {
 
 		te: trajectory_editor 
 		      {{ x-set-params 
-		      	    input_position=(@avp->current_view | geta "camera" | geta "pos")
-		            input_look_at=(@avp->current_view | geta "camera" | geta "center")
+		      	    input_position=(@avp->camera | geta "pos")
+		            input_look_at=(@avp->camera | geta "center")
 		      }}
 		      ;
 		cc: camera_computer_splines input=@te->output 
 		      {{ x-set-params time=@te->recommended_time?; }}; // обновляем положение когда аппендят новую точку к траектории
 
 		    if (@avp->visible) then={
-			   	 x-modify input=(@avp->current_view | geta "camera") {
+			   	 x-modify input=@avp->camera {
 			   	 	 x-set-params pos=@cc->output_position center=@cc->output_look_at;
 			   	 };
 			  };
@@ -70,7 +74,7 @@ feature "df_editor" {
 //  output = df с траекторией
 feature "trajectory_editor" {
   
-	avpc: 
+	avpc: df56 // хохо
 	{{
 
 	  //x-param-option name="add-current" option="priority" value=10;

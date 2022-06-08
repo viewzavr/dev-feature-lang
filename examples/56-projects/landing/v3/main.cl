@@ -6,8 +6,8 @@ load "landing-view.cl";
 
 project: the_project active_view_index=1 default_animation_parameter="project/lv1/timeparams->time_index"
 {
-
-  insert_default_children input=@project list={
+  
+  insert_children input=@project active=(is_default @project) manual=true list={
 
     lf: landing-file;
     lv1: landing-view-1;
@@ -28,10 +28,12 @@ project: the_project active_view_index=1 default_animation_parameter="project/lv
     };
 
     v2: the-view-uni title="Вид на ракету" {
-        area sources_str="@lv2,@lv_t_select" camera=@c1;
+        area sources_str="@lv2,@lv_t_select" camera=@c2;
       };
 
     c1: camera3dt title="Главная камера" 
+          center=[0,0,0] pos=[0,300,1000];
+    c2: camera3dt title="Камера у начала координат" 
           center=[0,0,0] pos=[101.97743440722813, 111.82726702985235, 155.1388566634926];
         
   };

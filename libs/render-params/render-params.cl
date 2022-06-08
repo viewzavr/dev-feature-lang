@@ -118,7 +118,7 @@ feature "params-hide" {
 };
 
 register_feature name="render-params" {
-  rp: column gap="0.1em" object=@.->input? input=@.->0? 
+  rp: column gap="0.1em" object=@.->input? input=@.->0?
   {
 
     link to=".->object" from=@..->object_path? tied_to_parent=true soft_mode=true; // тут надо maybe что там объект и тогда норм будет..
@@ -238,7 +238,7 @@ register_feature name="render-param-array" {
           ta: dom tag="textarea" style="width: 70vh; height: 30vh;" 
                 dom_obj_value=(m_eval "(txt) => txt.join ? txt.join(' ') : txt.toString()" @pf->value)
                   ;
-          button text="ВВОД" cmd="@commit->apply";
+          button text="ВВОД" cmd=@commit->apply;
 
           text style="max-width:70vh;"
                (get_param_option @pf->obj @pf->name "hint");
@@ -269,16 +269,17 @@ register_feature name="render-param-text" {
           text text="Введите текст"; // todo hints
           ta: dom tag="textarea" style="width: 70vh; height: 30vh;" 
                   ;
-          button text="ВВОД" cmd="@commit->apply";
+          button text="ВВОД" cmd=@commit->apply;
 
           text style="max-width:70vh;"
                (get_param_option @pf->obj @pf->name "hint");
 
-          commit: func pf=@pf ta=@ta dlg=@dlg code=`
-              let v = env.params.ta?.dom?.value;
-              env.params.pf.setParam("value", v )
-              env.params.dlg.close();
-          `;
+          commit: m_lambda `(pf,ta,dlg) => {
+                let v = ta.dom?.value;
+                pf.setParam("value", v )
+                dlg.close();
+            };
+          ` @pf @ta @dlg check_params=true;
         }
       }
     }

@@ -190,7 +190,8 @@ feature "landing-view-base"
 
   { // тело визпроцесса
 
-	timeparams: time_index=0 {
+	timeparams: time_index=0 
+  {
     link from="@timeparams->time_index" to="@view->time_index";
     link to="@timeparams->time_index" from="@view->time_index" manual_mode=true;
     //link to="@timeparams->time_index" from="@view->external_time_index" manual_mode=true;
@@ -307,9 +308,7 @@ feature "landing-view-base"
     // но нет надо, визуальный редактор занимается тем что потом добавляет доп объекты
     // именно вот в эти объекты-контейнеры (scene и проч)
 
-    //insert_children input=@scene list=@view->scene3d_items;
-    //insert_children input=@scene list=@view->scene3d_items active=(is_default @scene) manual=true;
-    insert_default_children input=@scene list=@view->scene3d_items?;
+    insert_children input=@scene list=@view->scene3d_items? active=(is_default @scene) manual=true;
 
     scene: node3d visible=@view->visible force_dump=true
     {
@@ -496,8 +495,8 @@ feature "selectedvars" {
         gui={ render-params input=@selected; } 
         {
 
-          selected: gui_title="Выбрать" 
-             //columns=(@sv->df | geta "colnames" | arr_join with=",")
+          selected: 
+             gui_title="Выбрать"          //columns=(@sv->df | geta "colnames" | arr_join with=",")
              columns="время,t[c]
 место,x[м],y[м],z[м],
 ускорение, Vx[м/с],Vy[м/с],Vz[м/с], Vx1[м/с],Vy1[м/с],Vz1[м/с],
@@ -513,7 +512,7 @@ delta1[град],delta2[град],delta3[град],delat4[град]"
                  Доступные имена колонок: <br/><br/><span style='background: #9cb6e7;'>" (@sv->df | geta "colnames" | arr_join with=", ") "</span>");
                //x-param-label name="columns_info" value=(@sv->df | geta "colnames");
 
-               x-on name="param_changed" cmd="@qq->recompute";
+               x-on name="param_columns_changed" cmd=@qq->recompute;
                x-on name="gui-added" cmd="@qq->recompute";
              }}
           {

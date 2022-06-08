@@ -18,16 +18,17 @@ feature "manage_universal_vp" {
       project=@..->project
       curview=@..->active_view
 
-  collapsible "Произвольные узлы" {
+  collapsible "Универсальное" {
     column plashka {
       text "Добавить:";
 
-      button_add_object "Добавить полет камеры" 
+      button_add_object "Полёт камеры" 
          add_to=@ma->project 
          add_type="camera-fly-vp"
          {{
            created_add_to_current_view curview=@ma->curview;
          }};      
+      /* решил пока мозг не выносить. пусть будет что будет.
       
       button_add_object "Добавить 3d образ" 
          add_to=@ma->project 
@@ -56,14 +57,17 @@ feature "manage_universal_vp" {
          {{
            created_add_to_current_view curview=@ma->curview;
          }};
+
+         
       button_add_object "Добавить группу" 
          add_to=@ma->project 
          add_type="group-vp"
          {{
            created_add_to_current_view curview=@ma->curview;
          }};
+         */
 
-	  button_add_object "Добавить совмещенный узел" 
+	  button_add_object "Визуальный процесс общего назначения" 
          add_to=@ma->project 
          add_type="universal_vp"
          {{
@@ -116,7 +120,7 @@ feature "linesetc-file" {
 
 feature "universal_vp" 
 {
-  view: visual_process title="Совмещённый" visible=true 
+  view: visual_process title="Визуальный процесс" visible=true 
   
   //time_index=@timeparams->time_index
 

@@ -449,6 +449,9 @@ export function shadow_dom( obj, options )
   var shadow_parent = obj.ns.parent;
   obj.ns.parent.ns.forgetChild( obj );
   obj.ns.parent = shadow_parent; // надо для ссылок ../..
+
+  // важный момент!
+  shadow_parent.on("remove", obj.remove );
   
   // после этого связть только через inputObjectsList получается, что в принципе норм.
   // вопрос - а не потеряет ли от этого искалка?

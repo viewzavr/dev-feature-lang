@@ -3,6 +3,9 @@
 
 // input - куды
 // list - чиво
+/*
+  update жизнь сложнее там еще скопы надо создавать - короче в лес, юзаем insert_children и is-default
+
 feature "insert_default_children" code=`
 
   //console.log("insert_default_children welcome screen",env.getPath())
@@ -28,7 +31,9 @@ feature "insert_default_children" code=`
           edump.manual = true;
           edump.params.manual_features = Object.keys( edump.features ).filter( (f) => f != "base_url_tracing");
           //console.log("next child",edump,env.getPath());
+
           var p = env.vz.createSyncFromDump( edump,null,input,edump.$name,true );
+
           p.then( (child_env) => {
              child_env.manuallyInserted = true;
              //console.log("created child. dump is",child_env.dump(),env.getPath());
@@ -40,6 +45,7 @@ feature "insert_default_children" code=`
   }
 
 `;
+*/
 
 // это вычисление поля active для обычного insert_children
 // также надо для целевого контейнера ставить force_dump=true
@@ -55,7 +61,6 @@ feature "is_default" code=`
         else env.setParam("output",true);
      });
   });
-
 `;
 
 /*

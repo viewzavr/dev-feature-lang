@@ -152,8 +152,15 @@ export function m_apply( env )
       //console.log("lambda apply",env.getPath())
 
       let args = [];
-      for (let i=1; i<env.params.args_count;i++) 
-        args.push( env.params[i] );
+      for (let i=1; i<env.params.args_count;i++) {
+        let v = env.params[i];
+
+        if (env.params.check_params && v == null) { // ну пока так.. хотя странно все это..
+          return;
+        }
+        
+        args.push( v );
+      }
 
       for (let i=0; i<extra_args.length;i++) 
         args.push( extra_args[i] );

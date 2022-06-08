@@ -53,6 +53,7 @@ feature "the_view_uni"
          title="Области" 
          root=@tv
          items=[ {"title":"Области", "find":"area","add":"area","add_to":"@tv->."} ];
+         
          /* работает но надо налаживать плюс рекурсия выносит мозг
          items=[ {"title":"Области", "find":"the-view","add":"the-view-mix3d","add_to":"@areas_block->."}, 
                  {"title":"Камеры", "find":"camera3dt","add":"camera3dt","add_to":"@cameras_block->."}

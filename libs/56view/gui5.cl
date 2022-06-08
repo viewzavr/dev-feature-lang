@@ -236,7 +236,7 @@ rl_root:
         };
 
         column {
-          insert_children input=@.. list=(@co->input? | get_param name="gui");
+          insert_children input=@.. list=(@co->input? | geta "gui" default=[]);
         };
 
         if (has_feature input=@co->input? name="editable-addons") then={
