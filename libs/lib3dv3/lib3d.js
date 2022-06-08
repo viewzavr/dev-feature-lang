@@ -65,7 +65,8 @@ export function render3d( env ) {
     var cam = env.params.camera;
     if (cam?.params) 
         cam = cam.params.output; // случай когда камеру залинковали на объект
-    if (!cam) cam=default_camera;
+    if (!cam || !cam.isCamera) 
+         cam=default_camera;
     // т.е render3d camera=@somecam
 
     // фича - управление размерами. Альтернативно можно сделать Resize Observer Api
@@ -342,7 +343,7 @@ export function orbit_control( env ) {
       console.log("lib3d:orbit-control: parent.target_dom is blank!")
       return;
     };
-    if (!c) return;
+    if (!c || !c.isCamera) return;
 
     if (cc) cc.dispose();
 
@@ -372,8 +373,10 @@ export function orbit_control( env ) {
          //if (t >= 0)
          let eps = 0.000001; // 0.5 * 2 * Math.PI / 360;
          let nv = 2*Math.PI *t / 360;
-         if (Math.abs( cc.getAzimuthalAngle() - nv) > eps)
+         if (Math.abs( cc.getAzimuthalAngle() - nv) > eps) {
+            console.log('orbitcontrols',env.$vz_unique_id,': theta of camera changed, differs from me, setting manual. val=', nv, 'my orig val=',cc.getAzimuthalAngle())
             cc.manualTheta = nv;
+         }
 
          cc.update();
       });
@@ -386,8 +389,9 @@ export function orbit_control( env ) {
     cc.addEventListener( 'change', function() {
 
         if (c.vrungel_camera_env) {
-          c.vrungel_camera_env.external_set( c.position, cc.target );
-          c.vrungel_camera_env.setParam("theta", ( cc.getAzimuthalAngle() * 360 / (2*Math.PI)));
+          c.vrungel_camera_env.external_set( c.position, cc.target, ( cc.getAzimuthalAngle() * 360 / (2*Math.PI)) );
+          console.log('orbitcontrols',env.$vz_unique_id,': i send new theta to camera ',cc.getAzimuthalAngle())
+          c.vrungel_camera_env.setParam("theta", ( cc.getAzimuthalAngle() * 360 / (2*Math.PI)), false);
         }
           // так-то можно и аргумент - камеру )))
         //console.log( "oc changbed",c);

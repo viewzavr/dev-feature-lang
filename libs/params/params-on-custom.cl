@@ -34,6 +34,8 @@ feature "x-param-objref-3" {
       if (name) {
         obj.addGui( {name:name, type: "custom"} );
         obj.setParamOption( name,"editor",editor_code );
+        console.log('objref-3 setting ref on name=',name, 'obj=',obj)
+
         obj.setReference( name );
       }
     }
@@ -41,7 +43,7 @@ feature "x-param-objref-3" {
      editor={
   	 edt: param_field {
 	  	      combobox
-		        	value=(@edt->object | geta @edt->name)
+		        	value=(@edt->object | geta @edt->name | geta "getPath" ) // считается что там объект сидит благодаря
 		        	values=(@r->values | map_geta (m_apply "(obj) => obj.getPath()"))
 		        	titles=(@r->values | map_geta "title")
 		        	{{ x-on "user_changed_value" 

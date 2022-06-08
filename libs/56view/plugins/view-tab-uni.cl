@@ -113,7 +113,7 @@ feature "area"
        {{ x-param-checkbox name="visible" }}
 
        // это по умолчанию
-       camera=(@it->project | geta "cameras" | geta 0)
+       // camera=(@it->project | geta "cameras" | geta 0)
 
        gui={
 
@@ -126,7 +126,7 @@ feature "area"
               @it->project | geta "processes" | repeater //target_parent=@qoco 
               {
                  i: checkbox text=(@i->input | geta "title") 
-                       value=(@it | geta "sources" | console_log_input "YYY" | arr_contains @i->input)
+                       value=(@it | geta "sources" | arr_contains @i->input)
                     {{ x-on "user-changed" {
                         toggle_visprocess_view_assoc2 process=@i->input view=@it;
                     } }};
