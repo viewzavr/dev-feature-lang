@@ -191,6 +191,11 @@ feature "landing-view-base"
   { // тело визпроцесса
 
 	timeparams: time_index=0 
+       time=(@internal_columns_dat->output | df_get column="T" | geta @timeparams->time_index default=0)
+       {{ x-param-combo 
+           name="time"
+           values=(@internal_columns_dat->output | df_get column="T")
+       }}
   {
     link from="@timeparams->time_index" to="@view->time_index";
     link to="@timeparams->time_index" from="@view->time_index" manual_mode=true;

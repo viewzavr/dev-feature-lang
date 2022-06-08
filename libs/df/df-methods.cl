@@ -76,13 +76,15 @@ register_feature name="df_mul" code=`
 
 /* пример: @dat | df_filter code="(line) => line.X > 0";
 */
+
+// мб тут стоит применить идею лямбды. а ее можно каррировать
 register_feature name="df_filter" 
   code=`
+  env.feature("param-alias");
+  env.addParamAlias("code",0);
   env.onvalues(["input","code"],process);
 
   function process(df,code) {
-  	
-    
     if (!df || !df.isDataFrame) {
       env.setParam("output",[]);
       return;
@@ -90,7 +92,8 @@ register_feature name="df_filter"
     //var f = new Function( "line", code );
     //var res = dfjs.create_from_df_filter( df, f );
     
-    var f = eval( code );
+    var f=code;
+    if (typeof(f) == 'string') f = eval( f );
 
     var res = df.create_from_df_filter( f );
     env.setParam("output",res);

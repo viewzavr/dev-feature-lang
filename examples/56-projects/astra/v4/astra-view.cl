@@ -82,7 +82,9 @@ feature "astra-source" {
 			  		
 			};
 
-			astrafiles: select-files url="https://viewlang.ru/assets/astra/data/list.txt";
+			//astrafiles: select-files url="https://viewlang.ru/assets/astra/data/list.txt";
+			astrafiles: select-files url="http://127.0.0.1:8080/vrungel/public_local/data1/list.txt";
+			
 
 			astradata: N=0 
 			    //files=[] 

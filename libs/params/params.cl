@@ -69,7 +69,7 @@ feature "x-param-checkbox" {
         obj.addCheckbox( name, undefined );
       }
     }
-    ";  
+    ";
 };
 
 
