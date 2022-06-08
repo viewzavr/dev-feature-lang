@@ -29,20 +29,28 @@ feature "x-param-editable-combo" {
 };
 
 feature "x-param-objref-3" {
-  xi: x-param-custom
-  	 name=@xi->name
+  r: x-patch-r @r->name @r->editor
+    code=`(name,editor_code, obj) => {
+      if (name) {
+        obj.addGui( {name:name, type: "custom"} );
+        obj.setParamOption( name,"editor",editor_code );
+        obj.setReference( name );
+      }
+    }
+    `
      editor={
-  	 edt: 
-  	      combobox
-	        	value=(@edt->object | geta @edt->name)
-	        	values=(@xi->values | map_geta (m_apply "(cam) => cam.getPath()"))
-	        	titles=(@xi->values | map_geta "title")
-	        	{{ x-on "user_changed_value" 
-                  code=(m_apply "(area,param_var, b,c,val) => {
-                       area.setParam(param_var,val,true);
-                       }" @edt->object @edt->name);
-            }}
-	        ;
+  	 edt: param_field {
+	  	      combobox
+		        	value=(@edt->object | geta @edt->name)
+		        	values=(@r->values | map_geta (m_apply "(obj) => obj.getPath()"))
+		        	titles=(@r->values | map_geta "title")
+		        	{{ x-on "user_changed_value" 
+	                  code=(m_apply "(area,param_var, b,c,val) => {
+	                       area.setParam(param_var,val,true);
+	                       }" @edt->object @edt->name);
+	            }}
+		        ;
+	        };
      };
 
 };     

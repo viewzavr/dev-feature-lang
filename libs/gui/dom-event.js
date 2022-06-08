@@ -9,7 +9,7 @@ export function dom_event( obj )
    obj.feature("func");
 
    function callcmd(event_data) {
-      obj.callCmd("apply",event_data);
+      obj.callCmd("apply",event_data); // переход к алогоритмам func
    }
 
    var unbind;

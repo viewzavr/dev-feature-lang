@@ -1,8 +1,8 @@
 register_feature name="button" {
-	dom tag="button" innerHTML=@.->text text=@.->0?
+	tb: dom tag="button" innerHTML=@.->text text=@.->0?
 	func 
 	{{
-		dom_event name="click" cmd=".->apply";
+		dom_event name="click" cmd="@tb->apply";
 	}};
 };
 

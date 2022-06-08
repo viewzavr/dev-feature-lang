@@ -55,7 +55,7 @@ feature "x-param-objref" {
       if (name) {
         obj.addObjRef( name, undefined );
         if (root) {
-          obj.setParamOption(name,"tree_func",() => root);
+          obj.setParamOption(name,'tree_func',() => root);
         }
       }
     }

@@ -49,28 +49,25 @@ feature "the_view_uni"
 
         render_layers_inner 
          title="Области" 
-         root=@tv {{ console_log_params "TVT"}}
-         items=[ {"title":"Области", "find":"area","add":"area","add_to":"@areas_block->."}, 
-                 {"title":"Камеры", "find":"camera3dt","add":"camera3dt","add_to":"@cameras_block->."}
-               ];
+         root=@tv
+         items=[ {"title":"Области", "find":"area","add":"area","add_to":"@tv->."} ];
          /* работает но надо налаживать плюс рекурсия выносит мозг
          items=[ {"title":"Области", "find":"the-view","add":"the-view-mix3d","add_to":"@areas_block->."}, 
                  {"title":"Камеры", "find":"camera3dt","add":"camera3dt","add_to":"@cameras_block->."}
                ];
-          */     
+         */
       }
-      areas=(find-objects-bf features="area" root=@areas_block)
+      areas=(find-objects-bf features="area" root=@tv)
       visible_areas=(@tv->areas | filter_geta "visible")
-      cameras=(find-objects-bf features="camera3d" root=@cameras_block)
-      cameras_ptr=@cameras //(@cameras | get_children_arr)
-      areas_ptr=@areas
+      cameras=(find-objects-bf features="camera3d" root=@tv)
     {
       //cam: camera3d pos=[-400,350,350] center=[0,0,0];
       //cams: @tv->visible_sources | repeater { camera3d pos=[-400,350,350] center=[0,0,0] };
-      cameras_block: {{ force_dump }};
-      areas_block: project=@tv->project view=@tv {{ force_dump }};
+      //cameras_block: {{ force_dump }};
+      //areas_block: project=@tv->project view=@tv {{ force_dump }};
 
-      insert_default_children input=@areas_block list={area title="область 1";};
+      //insert_default_children input=@areas_block list={area title="область 1";};
+      /*
       insert_default_children input=@cameras_block list={
         camera3dt title="камера 1";
         camera3dt title="камера 2";
@@ -79,6 +76,7 @@ feature "the_view_uni"
         camera3dt title="камера 5";
         camera3dt title="камера 6";
       };
+      */
   };
 };
 
@@ -86,9 +84,15 @@ feature "camera3dt" {
   ccc: camera3d title="Камера" sibling_titles=["Камера"] sibling_types=["camera3dt"]
     {{ x-param-string name="title"}}
     gui={ render-params @ccc }
-    
   ;
 };
+
+/*
+feature "check_feature_present" 
+  code=`
+    env.onvalue('')
+  `;
+*/  
 
 // по сути то экран..
 feature "area" 
@@ -97,30 +101,23 @@ feature "area"
        sibling_titles=["Область"]
        title="Область"
        project=@..->project
-       view=@..->view
+       view=@..
        visible=true
+       sources_str=""
        sources=(find-objects-by-pathes input=@it->sources_str root=@it->project)
        visible_sources = (@it->sources | filter_geta "visible")
 
        {{ x-param-option name="sources_str" option="manual" value=true }}
-
-       // {{ x-param-objref-3 name="camera_path" values=(@it->view | geta "cameras")}}
-
-       {{ x-param-combo name="camera_path" 
-             values=(@it->view | geta "cameras" | map_geta "getPath")
-             titles=(@it->view | geta "cameras" | map_geta "title");
-       }}
-
+       {{ x-param-objref-3 name="camera" values=(@it->project | geta "cameras") }}
        {{ x-param-string name="title" }}
        {{ x-param-checkbox name="visible" }}
 
-       //camera=( (find-one-object input=@it->camera_path) or (@it->view | geta "cameras" | geta 0) )
-       camera=(find-one-object input=@it->camera_path)
-       camera_path=(@it->view | geta "cameras" | geta 0 | geta "getPath")
-       gui={
-            qq: it=@it;
+       // это по умолчанию
+       camera=(@it->project | geta "cameras" | geta 0)
 
-            render-params-list object=@it list=["visible"];
+       gui={
+
+            render-params-list object=@it list=["visible","camera"];
 
             text "Включить процессы:";
 
@@ -129,7 +126,7 @@ feature "area"
               @it->project | geta "processes" | repeater //target_parent=@qoco 
               {
                  i: checkbox text=(@i->input | geta "title") 
-                       value=(@qq | geta "sources" | arr_contains @i->input)
+                       value=(@it | geta "sources" | console_log_input "YYY" | arr_contains @i->input)
                     {{ x-on "user-changed" {
                         toggle_visprocess_view_assoc2 process=@i->input view=@it;
                     } }};
@@ -137,20 +134,7 @@ feature "area"
 
             };
 
-            render-params-list object=@it list=["camera_path","title"];
-
-/*
-            combobox values=(@it->view | geta "cameras" | map_geta (m_apply "(cam) => cam.getPath()"))
-                     titles=(@it->view | geta "cameras" | map_geta "title")
-                     value=@it->camera_path?
-                     {{ x-on "user_changed_value" 
-                          code=(m_apply "(area,b,c,val) => {
-                            area.setParam('camera_path',val,true);
-                            }" @it)
-                     }}
-                     ;
-*/
-
+            render-params-list object=@it list=["title"];
        }
        {
          //def_camera;
