@@ -29,14 +29,17 @@ feature "x-param-editable-combo" {
 };
 
 feature "x-param-objref-3" {
-  r: x-patch-r @r->name @r->editor
-    code=`(name,editor_code, obj) => {
+  r: x-patch-r @r->name @r->editor @r->values
+    code=`(name,editor_code, values, obj) => {
       if (name) {
         obj.addGui( {name:name, type: "custom"} );
         obj.setParamOption( name,"editor",editor_code );
-        console.log('objref-3 setting ref on name=',name, 'obj=',obj)
-
         obj.setReference( name );
+
+        // ну вот тоже как-то так.. пусть хоть что-то выбирает
+        if (values && values[0] && !obj.params[name]) {
+        	obj.setParam( name, values[0] );
+        }
       }
     }
     `
