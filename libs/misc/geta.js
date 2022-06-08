@@ -149,11 +149,15 @@ export function map_geta( env )
     
     get_one( input, env.params, 0,(res) => {
 
-      if (res == null && env.params.default != null)
+      if (res == null && env.hasParam('default'))
+      {
           res = env.params.default;
-
+      }
+      else
       if (res == null) {
-        console.warn( "geta: result is null, arg=[", env.params[0],"]", env.getPath());
+        console.warn( "geta: result is null, arg=[", env.params[0],"] input=[",env.params.input,"]", env.getPath());
+        if (env.$locinfo)
+            console.log( env.$locinfo );
       }
 
       if (env.single_geta_mode) {

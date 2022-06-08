@@ -39,7 +39,7 @@
 
     let lines = [];
     for (let i=s1.start.line-3; i<s1.start.line+3; i++) {
-      let s = `${i==s1.start.line-1 ? '*':' '} ${i}: ${s1.source.lines[i]}`;
+      let s = `${i==s1.start.line-1 ? '*':' '} ${i+1}: ${s1.source.lines[i]}`;
       lines.push(s);
     }
     //let lines = s1.source.lines.slice( s1.start.line-3, s1.start.line+3 );
@@ -184,6 +184,9 @@ one_env
   child_envs:(__ "{" ws @env_list ws "}" __)*
   {
     var env = new_env( envid );
+
+    env.locinfo = getlocinfo();
+
     var linkcounter = 0;
     for (let m of env_modifiers) {
       if (m.positional_param) { // F_POSITIONAL_PARAMS

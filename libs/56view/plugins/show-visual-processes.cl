@@ -82,7 +82,7 @@ feature "render_process_hierarchy" {
 
     /// параметры объекта
 
-     selected_object: (@objects_list | geta @cbsel->index? | geta "obj");
+     selected_object: (@objects_list | geta @cbsel->index? default=null | geta "obj");
 
      co: column plashka style_r="position:relative; overflow: auto;"  
             input=@selected_object?

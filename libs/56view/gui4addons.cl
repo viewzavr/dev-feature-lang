@@ -66,7 +66,7 @@ feature "addons_area" {
 
 addons_dialog: dialog style="position:absolute; width: 80vw; bottom: 0px; top: initial;"
   //visible=false
-  input=(@objects_list2->output | geta @cbsel->index?)
+  input=(@objects_list2->output | geta @cbsel->index? default=null)
 {
 	   column {
 	   

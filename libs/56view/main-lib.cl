@@ -228,7 +228,7 @@ i-call-js
 
 feature "show_visual_tab" {
   sv: dom_group 
-        screenshot_dom=(@ic->output | geta 0 | geta "screenshot_dom") 
+        screenshot_dom=(@ic->output | pause_input | geta 0 | geta "screenshot_dom") 
   {
     ic: insert_children input=@sv list=(@sv->input | get_param "show_view")
     ;
@@ -250,7 +250,7 @@ feature "render_project_right_col";
 feature "render_project" {
    rend: column padding="1em" project=@.->0 
             active_view_index=0 
-            active_view=(@rend->project|geta "views"|geta @ssr->index) 
+            active_view=(@rend->project|geta "views"|geta @ssr->index default=null) 
 
             {{ x-add-cmd name="goto_next_view" code=(i-call-js ssr=@ssr code=`(val) => {
               let ssr = env.params.ssr;
