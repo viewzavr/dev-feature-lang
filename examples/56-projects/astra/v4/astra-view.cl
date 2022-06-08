@@ -180,7 +180,7 @@ feature "astra-vis-1" {
 		     // слайдер сделан специально чтобы не указать слишком больших значений
 		     gui={ render-params @pts; manage-addons @pts; };
 
-		   insert_default_children input=@pts->addons_container list={
+		   insert_children input=@pts->addons_container active=(is_default @pts->addons_container) list={
 		   	 // F-PIXEL-PRESET
 		   	 effect3d_sprite sprite="disc.png";
 		   	 effect3d_additive;

@@ -53,7 +53,7 @@ feature "the_view_uni"
          title="Области" 
          root=@tv
          items=[ {"title":"Области", "find":"area","add":"area","add_to":"@tv->."} ];
-         
+
          /* работает но надо налаживать плюс рекурсия выносит мозг
          items=[ {"title":"Области", "find":"the-view","add":"the-view-mix3d","add_to":"@areas_block->."}, 
                  {"title":"Камеры", "find":"camera3dt","add":"camera3dt","add_to":"@cameras_block->."}
@@ -62,7 +62,7 @@ feature "the_view_uni"
       }
       areas=(find-objects-bf features="area" root=@tv)
       visible_areas=(@tv->areas | filter_geta "visible")
-      cameras=(find-objects-bf features="camera3d" root=@tv)
+      cameras=(find-objects-bf features="camera" root=@tv)
     {
       //cam: camera3d pos=[-400,350,350] center=[0,0,0];
       //cams: @tv->visible_sources | repeater { camera3d pos=[-400,350,350] center=[0,0,0] };
@@ -83,8 +83,8 @@ feature "the_view_uni"
   };
 };
 
-feature "camera3dt" {
-  ccc: camera3d title="Камера" sibling_titles=["Камера"] sibling_types=["camera3dt"]
+feature "camera" {
+  ccc: camera3d title="Камера" sibling_titles=["Камера"] sibling_types=["camera"]
     {{ x-param-string name="title"}}
     gui={ render-params @ccc }
   ;

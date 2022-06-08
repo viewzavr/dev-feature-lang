@@ -13,7 +13,7 @@ feature "the_project" {
   processes=(find-objects-bf features="visual-process" root=@project recursive=false | sort_by_priority)
   top_processes=(find-objects-bf features="top-visual-process" root=@project recursive=false | sort_by_priority)
 
-  cameras=(find-objects-bf features="camera3dt" root=@project | sort_by_priority)
+  cameras=(find-objects-bf features="camera" root=@project | sort_by_priority)
 
   //{{ @project->processes | x-modify { x-set-params project=@project } }}
 

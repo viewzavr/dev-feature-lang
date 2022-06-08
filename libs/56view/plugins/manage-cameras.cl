@@ -20,8 +20,8 @@ feature "manage_cameras" {
               render_layers_inner title="Камеры" expanded=true
                 root=@mv->project
                 items=[ { "title":"Камеры", 
-                     "find":"camera3dt",
-                     "add":"camera3dt",
+                     "find":"camera",
+                     "add":"camera",
                      "add_to": "@mv->project"
                    } ];
 

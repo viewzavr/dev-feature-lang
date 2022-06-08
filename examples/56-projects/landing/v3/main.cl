@@ -24,16 +24,16 @@ project: the_project active_view_index=1 default_animation_parameter="project/lv
     };        
 
     v1: the-view-uni title="Общий вид" {
-        area sources_str="@lv1,@lv_t_cur"    camera=@c1;
+        area sources_str="@lv1,@lv_t_cur" camera=@c1;
     };
 
     v2: the-view-uni title="Вид на ракету" {
         area sources_str="@lv2,@lv_t_select" camera=@c2;
       };
 
-    c1: camera3dt title="Главная камера" 
+    c1: camera title="Главная камера" 
           center=[0,0,0] pos=[0,300,1000];
-    c2: camera3dt title="Камера у начала координат" 
+    c2: camera title="Камера у начала координат" 
           center=[0,0,0] pos=[101.97743440722813, 111.82726702985235, 155.1388566634926];
         
   };
