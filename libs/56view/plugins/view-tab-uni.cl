@@ -83,12 +83,6 @@ feature "the_view_uni"
   };
 };
 
-feature "camera" {
-  ccc: camera3d title="Камера" sibling_titles=["Камера"] sibling_types=["camera"]
-    {{ x-param-string name="title"}}
-    gui={ render-params @ccc }
-  ;
-};
 
 /*
 feature "check_feature_present" 

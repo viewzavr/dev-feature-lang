@@ -20,9 +20,9 @@ feature "manage_astra" {
 			   	 created_add_to_current_view curview=@ma->curview;
 			   }};
 
-			button_add_object "Полёт камеры" 
+			button_add_object "Загрузка файла звёзд" 
 			   add_to=@ma->project
-			   add_type="camera-fly-vp"
+			   add_type="astra-source"
 			   {{
 			   	 created_add_to_current_view curview=@ma->curview;
 			   }};   
@@ -72,6 +72,7 @@ feature "astra-source" {
     	  render-params @astradata;
       };
     } 
+    N=@astradata->N
     
     output=@loaded_data2->output
     {
@@ -141,6 +142,48 @@ feature "find-data-source" {
     {
       link from=@findsource->input_link to="@findsource->output";
     };
+};
+
+feature "astra-camera-rotate" {
+	avp: visual_process
+	title="Вращение камеры и N"
+	project=@..
+	gui={
+		ko: column plashka {
+			/*
+			text "Источник данных";
+ 		  render-params @astradata;
+ 		  text "Целевая камера";
+ 		  //render-params-list object=@avp list=["camera"];
+ 		  */
+ 		  render-params @avp;
+	  };
+	}
+	gui3={
+		render-params @avp;
+	}
+	
+	{{ x-param-objref-3 name="astra_source" values=(@avp->project | find-objects-bf features="astra_source") }}
+	{{ x-param-objref-3 name="camera" values=(@avp->project | geta "cameras") }}
+	{{ x-param-slider name="start_angle" min=0 max=360 }}
+	{{ x-param-slider name="coef" min=0 max=100 step=0.1 }}
+	{{ x-param-label name="theta"}}
+	start_angle=0
+	coef=3.6
+	theta=(m_eval "(n,start,coef) => {
+					  if (isFinite(n) && isFinite(start) && isFinite(coef))
+					    return coef*n+start;
+					  return 0;
+					}" (@avp->astra_source |geta "N") @avp->start_angle @avp->coef)
+	{
+		astradata: find-data-source;
+
+		if (@avp->visible) then={
+			@avp->camera | x-modify {
+				x-set-params theta=@avp->theta;
+			};
+	  };
+	}
 };
 
 feature "astra-vis-1" {

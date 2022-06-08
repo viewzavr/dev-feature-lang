@@ -13,9 +13,11 @@ export function load_file( env ) {
     file = env.compute_path( file );
 
     env.loadFile( file,(text) => {
-      env.setParam("output",text );
+      if (env.params.file == file)
+          env.setParam("output",text );
     },(err) => {
-      env.setParam("output","" );
+      if (env.params.file == file)
+          env.setParam("output","" );
     });
     /* fetch не работает с файловыми объектами
     fetch( file ).then( (res) => res.text() ).then( (text) => {

@@ -58,7 +58,7 @@ feature "x-param-objref-3" {
 	        };
      };
 
-};     
+};
 
 feature "x-param-objref-2" {
   xi: x-modify {

@@ -1,12 +1,12 @@
 // метка для объектов для которых добавить визуальное управление добавками
 
 feature "editable-addons" {
-   eathing: addons_container=@xxx
+   eathing: addons_container=@addons
    {{
-     x-modify-list input=@eathing list=(@xxx | get_children_arr | filter_geta "visible");
+     x-modify-list input=@eathing list=(@addons | get_children_arr | filter_geta "visible");
    }}
    {
-     xxx: {}; // целенаправленно в children ибо оно сохранится в dump
+     addons: {}; // целенаправленно в children ибо оно сохранится в dump
    };
 };
 
@@ -156,5 +156,26 @@ feature "effect3d_sprite" {
       // спокойная функц схема отрабатывает тут лучше.. забавно..
       x-set-params texture_url=(m_eval "(p) => p && p.length > 0 ? env.compute_path('sprites/'+p) : null " @eoa->sprite);
     }  
+  ;
+};
+
+/// ну тут вопрос что входы хотелось бы из других объектов..
+add_sib_item @geffect3d "effect3d-script" "Скрипт";
+feature "effect3d_script" {
+  script: geffect3d
+    {{ x-param-float name="input1" }}
+    {{ x-param-float name="input2" }}
+    {{ x-param-text name="code" }}
+    gui={
+      text "Введите код скрипта и при желании доп. входные параметры.";
+      render-params @script; 
+    }
+    x-patch-r @script->input1 @script->input2
+    code=
+`(n,coef,tenv) => {
+  if (n != null && coef != null)
+    tenv.setParam('theta', coef*(n*360/100)-180 );
+  return () => {};
+};`;  
   ;
 };

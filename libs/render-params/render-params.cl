@@ -133,7 +133,8 @@ register_feature name="render-params" {
       column {
         //text text=@..->modelData;
         render-one-param obj=@rp->object name=@..->modelData;
-      }
+
+      };
     };
 
     // todo - вставить сюда рекурсию для детей и для фич.. или хотя бы для фич.. можно управляемую @idea
@@ -161,7 +162,10 @@ register_feature name="render-one-param" {
     {
       
       dm: recreator list={
-        render-one-param-p obj=@..->obj name=@..->name;
+        row {
+          render-one-param-p obj=@dg->obj name=@dg->name;
+          //text "<a href='#'>@</a>";
+        };
       };
 
     };

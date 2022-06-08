@@ -23,11 +23,15 @@ export function load_file( env ) {
     env.loadFile( file,(text) => {
       root.setParam( "loading_files",root.params.loading_files.filter( f => f != file) );
       console.log("load-file: file",file," loaded, text len is ",text.length);
-      env.setParam("output",text );
+      if (env.params.file == file) 
+        env.setParam("output",text );
+      else console.log('file is skipped - non actual');
     },(err) => {
       root.setParam( "loading_files",root.params.loading_files.filter( f => f != file) );
       console.error("load-file: file",file," load error",err);
-      env.setParam("output","" );
+      if (env.params.file == file) { 
+        env.setParam("output","" );
+      } else console.log('file is skipped - non actual');
     });
     /* fetch не работает с файловыми объектами
     fetch( file ).then( (res) => res.text() ).then( (text) => {

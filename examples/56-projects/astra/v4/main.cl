@@ -12,9 +12,10 @@ project: the_project
     av1: astra-vis-1;
     camfly1: camera-fly-vp;
     //axes-view;
+    camrotate: astra-camera-rotate;
 
     v1: the-view-uni title="Общий вид" {
-          area sources_str="@adata, @av1,@camfly1";
+          area sources_str="@adata, @av1,@camrotate, @camfly1";
           camera pos=[0,1.7724860904458464,1.8847246126475379] center=[0,0,0];
         };
   };
