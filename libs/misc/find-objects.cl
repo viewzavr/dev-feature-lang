@@ -62,15 +62,14 @@ feature "find-objects-by-pathes" {
 			  if (p === '') return [];
 			  return p.split(',').map(s => s.trim())
 		}"
-		//| console_log_input "find-objects-by-pathes pt1"
 		|
 		r: repeater {
 			find-one-object root=@ee->root;
 		}
-		//| console_log_input "find-objects-by-pathes pt2"
+		//| pause_input // криминальчик
 		|
-		m: map_geta "output"	
-		//| console_log_input "find-objects-by-pathes pt3"
+		m: map_geta "output" default=[] 
+		// типа мы обратились ко всем результатам репитера и запросили там output
 		;
 	};
 };

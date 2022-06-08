@@ -66,14 +66,14 @@ feature "render_process_hierarchy" {
      	        obj=@q->input
      	         ;
 
-     	    l2: (@q->input | geta "subprocesses" | repeater target_parent=@~ {
+     	    l2: (@q->input | geta "subprocesses" default=[] | repeater target_parent=@~ {
        	          qq: id=(@qq->input | geta "$vz_unique_id")
      	          title=(join "  - " (@qq->input | geta "title"))
      	          obj=@qq->input
      	          ;
      	        });
      	  };
-        } | map_geta "repeater_output" | geta "flat" | arr_compact);
+        } | pause_input | map_geta "repeater_output" | geta "flat" | arr_compact);
 
      cbsel: combobox style="margin: 5px;" dom_size=10
        values=(@objects_list | map_geta "id")

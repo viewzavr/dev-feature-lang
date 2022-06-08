@@ -12,12 +12,14 @@ feature "the_view_uni"
     show_view={
       show_visual_tab_uni input=@tv;
     }
-    scene3d=(@tv->visible_sources | map_geta "scene3d" | arr_compact)
-    scene2d=(@tv->visible_sources | map_geta "scene2d")
-    sources=(@tv->visible_areas | map_geta "sources" | arr_flat | arr_uniq)
+    scene3d=(@tv->visible_sources | map_geta "scene3d" default=[] | arr_compact)
+    scene2d=(@tv->visible_sources | map_geta "scene2d" default=[])
+    sources=(@tv->visible_areas | map_geta "sources" default=[] | arr_flat | arr_uniq)
 
-    {{ x-add-cmd name="append_process" code=(i-call-js view=(@tv->areas | geta 0) code=`(val) => {
+    {{ x-add-cmd name="append_process" code=(i-call-js view=(@tv->areas | geta 0 default=null) code=`(val) => {
       let view = env.params.view; // это area на самом деле
+      if (!view) return;
+
       view.params.sources ||= [];
       view.params.sources_str ||= '';
       if (!val) return;
@@ -148,14 +150,14 @@ feature "show_area" {
   area_rect: dom 
   {
             process_rect: show_3d_scene
-              scene3d=(@area_rect->input | geta "visible_sources" | map_geta "scene3d")
+              scene3d=(@area_rect->input | geta "visible_sources" | map_geta "scene3d" default=[])
               camera=(@area_rect->input | geta "camera")
               style="width:100%; height:100%;"
               ;
 
             extra_screen_things: 
               column style="padding-left:2em; min-width: 80%; position:absolute; bottom: 1em; left: 1em;" {
-                 dom_group input=(@area_rect->input | geta "visible_sources" | map_geta "scene2d");
+                 dom_group input=(@area_rect->input | geta "visible_sources" | map_geta "scene2d" default=[]);
               };
  }; // area-rect  
 };

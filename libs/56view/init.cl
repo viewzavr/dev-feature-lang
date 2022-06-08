@@ -56,7 +56,7 @@ feature "the_view"
     x-param-option name="title" option="manual" value=true;
     x-param-option name="sources_str" option="manual" value=true;
   }}
-  
+  sources_str=""
   sources=(find-objects-by-pathes input=@tv->sources_str root=@tv->project)
   visible_sources = (@tv->sources | filter_geta "visible")
   project=@..
