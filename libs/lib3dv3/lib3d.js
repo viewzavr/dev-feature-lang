@@ -352,14 +352,17 @@ export function orbit_control( env ) {
     cc = new OrbitControls( c, dom );
 
     // криво косо но пока так
+
+    let skip_camera_update=false;
+
     if (c.vrungel_camera_env) {
       let u1 = c.vrungel_camera_env.onvalues(["pos","center"],(p,c) => {
-
+        skip_camera_update=true;
         // защита от зацикливания
         let eps = 0.0001;
         if (Math.abs( c[0] - cc.target.x) > eps || Math.abs( c[1] - cc.target.y ) > eps || Math.abs( c[2] - cc.target.z ) > eps )
         { 
-          //console.log("uopdating orbit target",c)
+          //console.log('orbitcontrols',env.$vz_unique_id,"pos of camera changed, updating me",c)
           cc.target.set( c[0], c[1], c[2] );
           cc.update();
         }
@@ -367,6 +370,7 @@ export function orbit_control( env ) {
       })
 
       let u2 = c.vrungel_camera_env.onvalue("theta",(t) => {
+         skip_camera_update=true;
          //cc.spherical.theta = 2*Math.PI / 360;
          ///debugger;
          //cc.setAzimuthalAngle( 2*Math.PI / 360 )
@@ -376,9 +380,9 @@ export function orbit_control( env ) {
          if (Math.abs( cc.getAzimuthalAngle() - nv) > eps) {
             //console.log('orbitcontrols',env.$vz_unique_id,': theta of camera changed, differs from me, setting manual. val=', nv, 'my orig val=',cc.getAzimuthalAngle())
             cc.manualTheta = nv;
+            cc.update();
          }
-
-         cc.update();
+         
       });
 
       unsub = () => { u1(); u2(); };
@@ -387,8 +391,14 @@ export function orbit_control( env ) {
 
     let flag=false;
     cc.addEventListener( 'change', function() {
+        if (skip_camera_update)
+        {
+          skip_camera_update = false;
+          return;
+        }
 
         if (c.vrungel_camera_env) {
+          //console.log('orbitcontrols',env.$vz_unique_id,': i send new pos and center to camera ',c.position, cc.target)
           c.vrungel_camera_env.external_set( c.position, cc.target, ( cc.getAzimuthalAngle() * 360 / (2*Math.PI)) );
           //console.log('orbitcontrols',env.$vz_unique_id,': i send new theta to camera ',cc.getAzimuthalAngle())
           c.vrungel_camera_env.setParam("theta", ( cc.getAzimuthalAngle() * 360 / (2*Math.PI)), false);
