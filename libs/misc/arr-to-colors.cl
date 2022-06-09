@@ -2,8 +2,12 @@
 // input - массив
 // color_func - функция раскрашивания
 register_feature name="arr_to_colors" {
-  root: color_func=(color_func_red) output=@color_arr->output min=@mm->min max=@mm->max {
+  root: color_func=(color_func_white) output=@color_arr->output min=@mm->min max=@mm->max 
+    {{ x-param-option name="reset" option="priority" value=110 }}
+    {{ x-param-option name="help" option="priority" value=0 }}
+    {
     mm: arr_find_min_max input=@root->input;
+
 
     param_float name="min" ;
     param_float name="max" ;
@@ -11,6 +15,8 @@ register_feature name="arr_to_colors" {
        setter target="@root->min" value=@mm->min;
        setter target="@root->max" value=@mm->max;
     };
+    
+    //param_label name="help" value="Выбор мин и макс<br/>значения для раскраски";
     
     color_arr: js input=@root->input cf=@root->color_func min=@root->min max=@root->max code=`
       env.onvalues(["input","cf","min","max"], (input,cf,min,max) => {
@@ -37,10 +43,21 @@ register_feature name="color_func_red" code=`
   env.setParam("output",f);
 `;
 
+register_feature name="color_func_white" code=`
+  let f = function( t, acc, index ) {
+     acc[index] = t;
+     acc[index+1] = t;
+     acc[index+2] = t;
+  }
+  env.setParam("output",f);
+`;
+
 // идеи - функция из функций, например логарифм и затем раскраска
 // конструктор функций с гуи.. (можно даже чистым dom)
 // просто выбиралка функций (можно из 2х стадий - расчет и раскраска) (на параметрах)
 // ...
+
+// ................................ старое
 
 /*
 register_feature name="arr_to_colors_10" {
@@ -89,6 +106,7 @@ register_feature name="arr_to_colors" {
     arr_to_colors_10 input=@norm->output;
   }
 };
+
 */
 
 /*

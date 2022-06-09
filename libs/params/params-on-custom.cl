@@ -28,6 +28,7 @@ feature "x-param-editable-combo" {
   };
 };
 
+// рабочий вариант
 feature "x-param-objref-3" {
   r: x-patch-r @r->name @r->editor @r->values
     code=`(name,editor_code, values, obj) => {

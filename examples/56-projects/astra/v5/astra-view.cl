@@ -256,7 +256,7 @@ feature "astra-vis-1" {
 		     {{ x-param-slider name="radius" min=0.01 max=5 step=0.01 }}
 		     gui={ render-params @pts_planet; manage-addons @pts_planet; };    
 
-		   insert_children input=@pts_dust->addons_container active=(is_default @pts->addons_container) list={
+		   insert_children input=@pts_dust->addons_container active=(is_default @pts_dust->addons_container) list={
 		   	 // F-PIXEL-PRESET
 		   	 effect3d_sprite sprite="disc.png";
 		   	 effect3d_additive;
@@ -264,12 +264,12 @@ feature "astra-vis-1" {
 		   	 effect3d-opacity opacity=0.25 alfa_test=0;
 		   };
 
-		   insert_children input=@pts_star->addons_container active=(is_default @pts->addons_container) list={
+		   insert_children input=@pts_star->addons_container active=(is_default @pts_star->addons_container) list={
 		   	 // F-PIXEL-PRESET
 		   	 effect3d_sprite sprite="ball.png";
 		   };
 
-		   insert_children input=@pts_planet->addons_container active=(is_default @pts->addons_container) list={
+		   insert_children input=@pts_planet->addons_container active=(is_default @pts_addons->addons_container) list={
 		   	 // F-PIXEL-PRESET
 		   	 effect3d_sprite sprite="ball.png";
 		   };		   

@@ -144,6 +144,33 @@ feature "effect3d_pos" {
   ;
 };
 
+add_sib_item @geffect3d "effect3d-scale" "Масштаб";
+feature "effect3d_scale" {
+  eo: geffect3d
+    {{ x-param-float name="x"; }}
+    {{ x-param-float name="y"; }}
+    {{ x-param-float name="z"; }}
+    gui={render-params @eo; }
+    x-patch-r code=`(tenv) => {
+          tenv.onvalue('output',(threejsobj)=> {
+              let x = env.params.x;
+              let y = env.params.y;
+              let z = env.params.z;
+              if (isFinite(x)) threejsobj.scale.x=x;
+              if (isFinite(y)) threejsobj.scale.y=y;
+              if (isFinite(z)) threejsobj.scale.z=z;
+            });
+            return () => {
+                if (tenv.params.output) {
+                  let threejsobj = tenv.params.output;
+                  threejsobj.scale.set(1,1,1);
+                }
+            };
+          }
+    `;
+  ;
+};
+
 add_sib_item @geffect3d "effect3d-sprite" "Вид точек";
 feature "effect3d_sprite" {
   eoa: geffect3d

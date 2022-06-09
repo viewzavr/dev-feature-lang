@@ -80,6 +80,7 @@ export function lines( env ) {
   });
 
   env.onvalue("colors",(v) => {
+    //console.log('setting colors',v)
     if (v?.length > 0) {
       geometry.setAttribute( 'color', new THREE.BufferAttribute( new Float32Array(v), 3 ) );
       material.vertexColors = true;
@@ -87,13 +88,14 @@ export function lines( env ) {
     else
     {
       geometry.deleteAttribute( 'color' );
-      material.vertexColors = false; 
+      material.vertexColors = false;
     }
     geometry.needsUpdate = true;
     material.needsUpdate = true;
   })
 
   env.onvalue("color",(v) => {
+     //console.log('setting color one',v)
      material.color = utils.somethingToColor(v);
      material.needsUpdate = true;
   });
@@ -137,7 +139,8 @@ export function points( env ) {
     if (v?.length > 0) {
       geometry.setAttribute( 'color', new THREE.BufferAttribute( new Float32Array(v), 3 ) );
       material.vertexColors = true;
-      env.setParam("color",[1,1,1]); // надо таки сбросить, а то эти цвета начинают на тот перемножаться
+      //env.setParam("color",[1,1,1]); // надо таки сбросить, а то эти цвета начинают на тот перемножаться
+      // но оно и хорошо может быть
     }
     else
     {

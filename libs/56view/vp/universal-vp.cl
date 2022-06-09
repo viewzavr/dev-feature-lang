@@ -27,7 +27,7 @@ feature "manage_universal_vp" {
          add_type="camera-fly-vp"
          {{
            created_add_to_current_view curview=@ma->curview;
-         }};      
+         }};
       /* решил пока мозг не выносить. пусть будет что будет.
       
       button_add_object "Добавить 3d образ" 
@@ -66,6 +66,13 @@ feature "manage_universal_vp" {
            created_add_to_current_view curview=@ma->curview;
          }};
          */
+
+      button_add_object "Оси координат" 
+         add_to=@ma->project 
+         add_type="axes-view"
+         {{
+           created_add_to_current_view curview=@ma->curview;
+         }};              
 
 	  button_add_object "Визуальный процесс общего назначения" 
          add_to=@ma->project 
