@@ -105,3 +105,26 @@ register_feature name="df_filter"
   });
 */  
 `;
+
+register_feature name="df_filter_fast" 
+  code=`
+  env.feature("param-alias");
+  env.addParamAlias("code",0);
+  env.onvalues(["input","code"],process);
+
+  function process(df,code) {
+    if (!df || !df.isDataFrame) {
+      env.setParam("output",[]);
+      return;
+    }
+    
+    var f=code;
+    if (typeof(f) == 'string') f = eval( f );
+
+    var res = df.create_from_df_filter( f );
+    env.setParam("output",res);
+  }
+
+`;
+
+//geta (m_apply "(df,func) => df.df_filter_fast(func)" @input (m_apply ....код...))
