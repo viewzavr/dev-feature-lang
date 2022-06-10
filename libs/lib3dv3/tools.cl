@@ -107,8 +107,21 @@ register_feature name="compute_bbox" code=`
    }
 `;
 
-register_feature name="get_coords_bbox" code=`
+//THREEJS: import_js (resolve_url "three.js/build/three.module.js");
+
+register_feature name="get_coords_bbox" 
+   // imports={ THREEJS: import_js .... } 
+   //imports={ THREEJS: "three.js/build/three.module.js" }
+   //THREEJS=@THREEJS->output
+   // {{ feature_import_js "THREE" "three.js/build/three.module.js" }}
+   threejspath=(resolve_url "three.js/build/three.module.js")
+code=`
    env.feature("timers");
+
+   //let THREEJS = feature_env.params.THREEJS;
+   
+   import( feature_env.params.threejspath ).then( (THREE) => {
+
    env.setInterval( process,1000 ); // пока так
    function process() {
       
@@ -119,7 +132,6 @@ register_feature name="get_coords_bbox" code=`
         env.setParam("min",[0,0,0]);
         env.setParam("max",[0,0,0]);
         env.setParam("center",[0,0,0]);
-        console.log("AFVSDFVDSFV 000");
         return;
       }
 
@@ -130,7 +142,7 @@ register_feature name="get_coords_bbox" code=`
 
       let tores = (v) => [v.x, v.y, v.z];
 
-      console.log("AFVSDFVDSFV 111",box);
+      //console.log("AFVSDFVDSFV 111",box);
 
       env.setParam("min",tores(box.min) )
       env.setParam("max",tores(box.max) )
@@ -139,6 +151,8 @@ register_feature name="get_coords_bbox" code=`
       box.getCenter( center );
       env.setParam("center",tores(center) )
    }
+
+   });
 `;
 
 /* вроде пока не нужна

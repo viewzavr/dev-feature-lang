@@ -400,6 +400,7 @@ export function x_patch_r( env  )
   let recall_attached = env.delayed( () => {
     for (let rec of Object.values( attached_list )) {
        let obj = rec.obj;
+       // console.log('x-patch-r: re-patch object', obj.getPath())
        if (rec.unsub) rec.unsub();
        rec.unsub = env.callCmd("apply",obj );
 
@@ -426,6 +427,7 @@ export function x_patch_r( env  )
   let attached_list = {};
 
   env.on("attach",(obj) => {
+    //console.log('x-patch-r: attach called',obj.getPath() );
 
     let resarr = env.callCmd("apply",obj);
     
@@ -448,6 +450,7 @@ export function x_patch_r( env  )
 */    
 
     return () => {
+       //console.log('x-patch-r: a-unsub detach called',obj.getPath() );
        unsub();
        delete attached_list[ obj.$vz_unique_id ];
     };
@@ -455,10 +458,11 @@ export function x_patch_r( env  )
   });
 
   env.on("detach",(obj) => {
-    
+    // console.log('x-patch-r: detach called',obj.getPath() );
     let rec = attached_list[ obj.$vz_unique_id ];
     let f = rec ? rec.unsub : undefined;
     if (f) {
+
       f();
       delete attached_list[ obj.$vz_unique_id ];
       //delete detach[ obj.$vz_unique_id ];

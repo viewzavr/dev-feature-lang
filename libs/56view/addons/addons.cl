@@ -125,6 +125,7 @@ feature "effect3d_pos" {
     {{ x-param-float name="z"; }}
     gui={render-params @eo; }
     x-patch-r code=`(tenv) => {
+      console.log("patching",tenv.getPath(),env.params.x,env.params.y,env.params.z);
           tenv.onvalue('output',(threejsobj)=> {
               let x = env.params.x;
               let y = env.params.y;
@@ -132,11 +133,17 @@ feature "effect3d_pos" {
               if (isFinite(x)) threejsobj.position.x=x;
               if (isFinite(y)) threejsobj.position.y=y;
               if (isFinite(z)) threejsobj.position.z=z;
+              threejsobj.position.managed_by_addons ||= 0;
+              threejsobj.position.managed_by_addons++;
             });
+
             return () => {
                 if (tenv.params.output) {
                   let threejsobj = tenv.params.output;
-                  threejsobj.position.set(0,0,0);
+                  //console.log('unpatching',tenv.getPath())
+                  threejsobj.position.managed_by_addons--;
+                  if (threejsobj.position.managed_by_addons <= 0)
+                    threejsobj.position.set(0,0,0);
                 }
             };
           }

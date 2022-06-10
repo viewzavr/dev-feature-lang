@@ -545,7 +545,7 @@ export function register_feature( env, envopts ) {
       // хоть на комполанге хоть на лиспе хоть на xml ксатти
       // feature "foo" (from-xml "<points/>");
 
-      var code = "(env,args) => { " + env.params.code + "}";
+      var code = "(env,feature_env,...args) => { " + env.params.code + "}";
       /* ерунда это все - мы код прямо сейчас eval-им.
       var code = `(env,args) => { 
         try {
@@ -640,7 +640,8 @@ export function register_feature( env, envopts ) {
         debugger;
         return Promise.all("removed");
       }
-      let r1 = js_part( e,...args);
+      
+      let r1 = js_part( e,env, ...args);
       let r2 = compalang_part( e,...args);
       return Promise.all( [Promise.resolve(r1), Promise.resolve(r2)] );
     }

@@ -8,7 +8,7 @@ project: the_project
 {
   insert_children input=@project manual=true active=(is_default @project) list={
     adata: vtk-source;
-    av1: vtk-vis-1;
+    av1: vtk-vis;
     //axes-view;
 
     objdata: obj-source;

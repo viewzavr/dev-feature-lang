@@ -152,9 +152,9 @@ feature "vtk-vis-1" {
 
     columns=(@avp->input | geta "colnames")
     selected_data = (get input=@avp->input name=@avp->selected_column)
-    {{
-      selected_column: param_combo values=@avp->columns index=0;
-    }}
+    selected_column=""
+    {{ x-param-combo name="selected_column" values=@avp->columns }}
+    //{{ selected_column: param_combo values=@avp->columns index=0; }}
 
 
 	gui={
@@ -190,7 +190,7 @@ feature "vtk-vis-1" {
 
 		scene2d: dom {
 			  		text tag="h3" style="color:white;margin:0;" @avp->selected_column;
-		};		
+		};
 
 		scene: node3d visible=@avp->visible {{ force_dump }}
 		{
@@ -212,6 +212,13 @@ feature "vtk-vis-1" {
 
 		   // вообще может оказаться что это будет отдельный визуальный процесс - "антураж"
 		   //ab: axes_view size=1;
+
+		   text3d_one text=@avp->selected_column 
+		   {{
+          box: get_coords_bbox input=@pts->output;
+          effect3d-pos x=(@box->max | geta 0) y=(@box->max | geta 1) z=(@box->max | geta 2);
+       }}   
+
 
 		};
 	};
@@ -244,3 +251,106 @@ register_feature name="compute_magnitude_col" code=`
         env.setParam("output",df);
       });
 `;
+
+
+feature "vtk-vis-group" {
+	vp: visual_process
+	title="Визуализация наборов VTK точек"
+
+	gui={
+		render-params @vp;
+
+    button "Настройки объектов" {
+      lambda @vp @vp->gui2 code="(obj,g2) => { 
+         obj.emit('show-settings',g2) 
+         }";
+    };		
+
+    manage-addons @scene;
+	}
+
+	gui2={ 
+   	render_layers_inner title="Визуальные объекты" expanded=true
+           root=@vp
+           items=[ { "title":"Объекты данных", 
+                     "find":"vtk-vis-1",
+                     "add":"vtk-vis-1",
+                     "add_to": "@scene->.",
+                     "sibling_types":["vtk-vis-1"],
+                     "sibling_titles":["Точки VTK"]
+                   }
+                 ]
+           ;
+
+  }
+
+  scene3d=@scene->output
+
+  {{ x-param-slider name="delta" min=0.5 max=10 step=0.1 }}
+  delta=1
+
+  {
+  	scene: node3d editable-addons;
+  	//points positions=[1,2,3,4,5,6];
+
+/*
+  	@scene | get_children_arr | x-modify {
+  		effect3d-pos z=5;
+  	};
+  	*/
+
+  	@scene | find-objects-bf features="vtk-vis-1" | repeater {
+  		rep: x-modify {
+  		  effect3d-pos z=(@rep->input_index * @vp->delta);
+  	  };
+  	};  
+  };
+
+};
+
+feature "vtk-vis" {
+	vp: visual_process
+	title="Визуализация наборов VTK точек"
+	columns=(@vp->input | geta "colnames")
+	input=@vtkdata->output
+
+	gui={
+		render-params @vp;
+
+		collapsible "Источник данных" {
+  		  render-params @vtkdata;
+	  };		
+
+   	show_sources_params input=@vp->generated_processes;
+
+    manage-addons @scene;
+	}
+
+  scene3d=@scene->output
+
+  {{ x-param-slider name="delta" min=0.5 max=10 step=0.1 }}
+  delta=1
+  generated_processes=(@scene | find-objects-bf features="vtk-vis-1")
+
+  {
+    vtkdata: find-data-source; // гуи выбора входных данных
+
+  	scene: node3d editable-addons {
+  		@vp->columns | repeater {
+  			rep: node3d {
+  			 vtk-vis-1 
+  			    input=@vp->input 
+  			    selected_column=@rep->input title=@rep->input;
+  			};
+  		};
+  		
+  	};
+
+  	 @vp->generated_processes | filter_geta "visible" | console_log_input "EEE" | repeater {
+	  		rep: x-modify {
+	  		  effect3d-pos z=(@rep->input_index * @vp->delta);
+	  	  };
+  	  };  
+  };
+
+};
