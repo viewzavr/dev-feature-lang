@@ -97,8 +97,8 @@ feature "vtk-source" {
 
 				{{ x-param-label-small name="points_loaded"}}
 				
-				current_file=(@data->files | geta @data->N | geta 1)
-		    current_file_name=(@data->files | geta @data->N | geta 0)
+				current_file=(@data->files | geta @data->N default=[] | geta 1 default=null)
+		    current_file_name=(@data->files | geta @data->N default=[] | geta 0 default=null)
 		    points_loaded=(@loaded_data2->output | geta "length")
 		    files_count=(@data->files | geta "length")
 
@@ -144,6 +144,7 @@ feature "find-data-source" {
 
 
 // тут у нас и раскраска и доп.фильтр встроен. ну ладно.
+// и это 1 штучка
 feature "vtk-vis-1" {
 	avp: visual_process
 	title="Визуализация VTK точек"

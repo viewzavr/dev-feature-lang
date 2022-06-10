@@ -9,7 +9,7 @@ export function setup(vz, m) {
   //vz.register_feature_set(F);
   F.setup( vz, F);
   M.setup( vz, M);
-  A.setup( vz, M);
+  A.setup( vz, A);
 }
 
 import * as P from "./lang-parser.js";

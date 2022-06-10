@@ -186,7 +186,7 @@ feature "select-files"
 {
 	xedt: 
 	  index=1
-	  output=( (list @l1 @l2) | geta @xedt->index | geta "output")
+	  output=( (list @l1 @l2) | geta @xedt->index | geta "output" default=[])
 	  gui={
 		  dom_group {
 	  		sa: switch_selector_row index=@xedt->index

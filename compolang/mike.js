@@ -35,6 +35,7 @@ export function m_eval( env ) {
       // todo
       if (!env.params.allow_undefined && typeof(v) == "undefined") { // ну пока так.. хотя странно все это..
         /// 
+        return env.params.default;
         return;
       }
       args.push( v );

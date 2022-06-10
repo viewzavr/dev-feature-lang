@@ -154,7 +154,7 @@ export function map_geta( env )
           res = env.params.default;
       }
       else
-      if (res == null) {
+      if (res == null && !env.filter_mode) {
         console.warn( "geta: result is null, arg=[", env.params[0],"] input=[",env.params.input,"]", env.getPath());
         if (env.$locinfo)
             console.log( env.$locinfo );

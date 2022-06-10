@@ -100,7 +100,7 @@ export function parse_obj(lines) {
   }
   console.timeEnd("parse_obj");
   
-  var res = { XYZ: new Float32Array(xyz), indices: new Uint32Array(iii) }
+  var res = { XYZ: new Float32Array(xyz), indices: new Uint32Array(iii), length: xyz.length }
 
 /*  
   var res = {
