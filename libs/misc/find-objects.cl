@@ -97,7 +97,7 @@ feature "find-objects-by-crit" {
 		//| console_log_input "UU: after eval"
 		|
 		r: repeater always_recreate=true {
-			q:  {
+			q: output=[] {
 				splitted: eval @q->input code="(str) => str.split(/\s+/)";
 				//console_log "splitted test" @splitted->output (@splitted->output | geta 0);
 				i: if ( (@splitted->output | geta 0 | geta 0) == "@") then={
@@ -129,8 +129,9 @@ feature "find-objects-by-crit" {
 			} // q
 		} // рипитер
 		//| console_log_input "UU: after repeater"
-		| // в итоге репитер выдает нам массив объектов в параметром .output
-		map_geta "output" // где output это может быть объект или массив объектов или пустота
+		| // в итоге репитер выдает нам массив объектов в своем параметре .output
+		  // и у всех этих объектов есть свой output, который мы тут и забираем далее
+		map_geta "output" // где их output это может быть объект или массив объектов или пустота
 		//| console_log_input "UU: after output fields join"
 		| // получили серию значений возможно некоторые из них массивы - схлопнем
 		geta "flat"

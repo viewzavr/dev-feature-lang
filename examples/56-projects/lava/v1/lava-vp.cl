@@ -103,7 +103,7 @@ feature "vtk-source" {
 		    files_count=(@data->files | geta "length")
 
       {
-      	 loaded_data2: load_file_binary file=@data->current_file {{ console_log_params "ddd" }} | parse_vtk_points 
+      	 loaded_data2: load_file_binary file=@data->current_file | parse_vtk_points 
       	    | compute_magnitude_col; // туду это должна быть добавка
 			};   
     };

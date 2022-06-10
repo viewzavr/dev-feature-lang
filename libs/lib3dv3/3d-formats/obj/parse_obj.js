@@ -7,7 +7,7 @@
 
 // input: lines - a string of obj file (not an array)
 export function parse_obj(lines) {
-  console.time("parse_obj");
+  //console.time("parse_obj");
   
   var xyz=[];
   var iii=[];
@@ -98,7 +98,7 @@ export function parse_obj(lines) {
   {
     perliner( lines_arr[i] );
   }
-  console.timeEnd("parse_obj");
+  //console.timeEnd("parse_obj");
   
   var res = { XYZ: new Float32Array(xyz), indices: new Uint32Array(iii), length: xyz.length }
 

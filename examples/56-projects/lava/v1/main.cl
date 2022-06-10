@@ -26,4 +26,7 @@ project: the_project
 
 
 //////////////////////////////////////////////////////// главное окно программы
-//debugger-screen-r;
+
+screen1: screen auto-activate  {
+  render_project @project active_view_index=0;
+};

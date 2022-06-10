@@ -9,7 +9,7 @@ export function parse_vtk_points( env ) {
   env.onvalue("input",(text) => {
      var loader = new VTKLoader();
      var df = loader.parse( text );
-     console.log("parse_vtk: df=",df );
+     //console.log("parse_vtk: df=",df );
      env.setParam("output",df);
   })
   
