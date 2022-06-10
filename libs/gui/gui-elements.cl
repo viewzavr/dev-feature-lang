@@ -65,6 +65,20 @@ register_feature name="checkbox" {
 	};
 };
 
+register_feature name="checkbox-c" {
+	dom tag="label" //value=true 
+	    dom_style_whiteSpace="nowrap" // это важно чтобы чекбоксы не разрывались
+	  {
+		dom tag="input" dom_type="checkbox" dom_obj_checked=@..->value? {
+			dom_event name="change" code=`
+				var v = env.params.object.dom.checked;
+				env.params.object.ns.parent.emit("user-changed",v);
+			`;
+		};
+		text text=@..->text?;
+	};
+};
+
 ///////////////////////////////////////////////////// input_float
 /* входы
      value - начальное значение

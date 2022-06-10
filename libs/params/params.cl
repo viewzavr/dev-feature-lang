@@ -171,6 +171,16 @@ feature "x-param-option" {
   }";
 };
 
+feature "x-param-options" {
+  r: x-patch-r 
+  code="(name,obj,ee) => {
+    //let name = env.params[0];
+    for (let k of env.getParamsNames())
+      if (k != 0 && k != 'code' && k != 'output' && k != 'apply' && k != "args_count")
+         obj.setParamOption( name, k, env.params[k] );
+  }";
+};
+
 feature "get-param-option" code=`
   function pass_option( obj, paramname, optionname ) {
     let v = obj.getParamOption( paramname, optionname );

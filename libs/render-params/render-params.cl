@@ -96,6 +96,7 @@ register_feature name="render-params-list" {
   };
 };
 
+// filters={ params-hide list="title"; params-priority list="add-current";}
 feature "params-priority" {
   pp: eval @pp->list 
         code="(params_list) => {
@@ -107,6 +108,7 @@ feature "params-priority" {
          }";
 };
 
+// filters={ params-hide list="title"; params-priority list="add-current";}
 feature "params-hide" {
   pp: eval @pp->list 
         code="(params_list) => {

@@ -13,6 +13,7 @@ export function text3d_one( env ) {
   env.setParam("output",group ); // я это сделал чтобы позицию понимаешь сохранять можно было..
 
   env.addSlider("size",2,0,10,0.1 );
+  env.addString("text");
 
   env.onvalues(["text","loaded_font","size"],(t,font,size) => {
         t = t.toString(); // а то числы подают

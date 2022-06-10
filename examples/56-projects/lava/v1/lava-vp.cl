@@ -53,6 +53,23 @@ feature "manage_project" {
 	};
 };
 
+feature "text3d_vp" {
+	vp: visual-process editable-addons title="Текст"
+	  gui={ render-params @vp
+	  	       filters={ params-hide list="title"; }; 
+	    manage-addons @vp; }
+	  text3d_one
+	  ;
+};
+
+feature "points_vp" {
+	vp: visual-process editable-addons title="Точки"
+	  gui={ render-params @vp
+	  	       filters={ params-hide list="title"; }; 
+	    manage-addons @vp; }
+	  points;
+};
+
 ////////////////////////////
 
 // берет на вход серию файлов а на выходе выдает содержимое в форме df
@@ -161,6 +178,10 @@ feature "vtk-vis-1" {
 		
 		ko: column plashka {
 
+			// render-params-list object=@avp list=["visible"];
+			//checkbox "visible" value=@avp->visible
+			//{{ x-on "user-changed" "(obj) => obj.setParam('visible',!obj.params.visible, true) " }}
+
 			collapsible "Источник данных" {
   		  render-params @vtkdata;
 	    };
@@ -178,6 +199,24 @@ feature "vtk-vis-1" {
 			;
 	  };
 	}
+
+	gui1={
+		
+		ko: column plashka {
+
+			//render-params-list object=@avp list=["visible"];
+
+	    collapsible "Раскраска данных" {
+   	    render-params @arrtocols;
+	    };
+
+			show_sources_params 
+			  input=(find-objects-by-crit "visual-process" root=@scene include_root=false recursive=false)
+			  auto_expand_first=false
+			;
+	  };
+	}	
+
 	gui3={
 		render-params @avp;
 	}
@@ -196,9 +235,8 @@ feature "vtk-vis-1" {
 		{
 
 		   // 218 201 93 цвет 0.85, 0.78, 0.36
-		   @avp->input | pts: points title="Точки" visual-process editable-addons 
-		     radius=1 color=[1,0,0] 
-		     gui={ render-params @pts; manage-addons @pts; }
+		   @avp->input | pts: points_vp
+		     radius=1 color=[1,0,0]
 		     colors=( @avp->selected_data | arrtocols: arr_to_colors gui_title="Цвета"  ) // color_func=(color_func_white)
 		     ;
 
@@ -213,12 +251,18 @@ feature "vtk-vis-1" {
 		   // вообще может оказаться что это будет отдельный визуальный процесс - "антураж"
 		   //ab: axes_view size=1;
 
-		   text3d_one text=@avp->selected_column 
+		   tx: text3d_vp text=@avp->selected_column 
 		   {{
           box: get_coords_bbox input=@pts->output;
-          effect3d-pos x=(@box->max | geta 0) y=(@box->max | geta 1) z=(@box->max | geta 2);
-       }}   
+				  effect3d-pos x=(@box->max | geta 0) y=(@box->max | geta 1) z=(@box->max | geta 2);
+       }};
 
+/*
+		   insert_children input=@tx->addons_container active=(is_default @tx->addons_container) list={
+          box: get_coords_bbox input=@pts->output;
+          effect3d-pos x=(@box->max | geta 0) y=(@box->max | geta 1) z=(@box->max | geta 2);
+		   };       
+*/
 
 		};
 	};
@@ -321,7 +365,21 @@ feature "vtk-vis" {
   		  render-params @vtkdata;
 	  };		
 
-   	show_sources_params input=@vp->generated_processes;
+   	//show_sources_params input=@vp->generated_processes;
+   	column {
+   	@vp->sub_processes | repeater {
+   		rep: row {
+   			button (@rep->input | geta "title") style='min-width:220px;'
+   			{
+		       m_lambda "(obj,g2) => { obj.emit('show-settings',g2) }" @vp (@rep->input | geta "gui1");
+   			};
+   			k: checkbox-c value=(@rep->input | geta "visible")
+   			   {{ x-on 'user-changed' {
+   			   	  m_lambda "(obj) => obj.setParam('visible', !obj.params.visible, true);" @rep->input;
+   			   } }};
+   		};
+   	};
+    };
 
     manage-addons @scene;
 	}
@@ -331,6 +389,7 @@ feature "vtk-vis" {
   {{ x-param-slider name="delta" min=0.5 max=10 step=0.1 }}
   delta=1
   generated_processes=(@scene | find-objects-bf features="vtk-vis-1")
+  sub_processes=@vp->generated_processes
 
   {
     vtkdata: find-data-source; // гуи выбора входных данных
@@ -340,7 +399,8 @@ feature "vtk-vis" {
   			rep: node3d {
   			 vtk-vis-1 
   			    input=@vp->input 
-  			    selected_column=@rep->input title=@rep->input;
+  			    selected_column=@rep->input title=@rep->input
+  			    ;
   			};
   		};
   		

@@ -125,7 +125,7 @@ feature "effect3d_pos" {
     {{ x-param-float name="z"; }}
     gui={render-params @eo; }
     x-patch-r code=`(tenv) => {
-      console.log("patching",tenv.getPath(),env.params.x,env.params.y,env.params.z);
+      //console.log("patching",tenv.getPath(),env.params.x,env.params.y,env.params.z);
           tenv.onvalue('output',(threejsobj)=> {
               let x = env.params.x;
               let y = env.params.y;
