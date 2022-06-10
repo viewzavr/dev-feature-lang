@@ -2,12 +2,14 @@
 
 import * as F from "./find-objects-by-features.js";
 import * as M from "./mike.js";
+import * as A from "./assert.js";
 
 export function setup(vz, m) {
   vz.register_feature_set(m);
   //vz.register_feature_set(F);
   F.setup( vz, F);
   M.setup( vz, M);
+  A.setup( vz, M);
 }
 
 import * as P from "./lang-parser.js";
@@ -2864,8 +2866,11 @@ export function force_dump(env) {
   });
 }
 
+// это надо для хаков иногда.. см применение в коде найди
 export function attach_scope(env) {
   env.onvalues( [0,1], (scopeobj, level) => {
     env.host.$scopes.addScopeRef( scopeobj.$scopes[ scopeobj.$scopes.length + level])
   });
 }
+
+
