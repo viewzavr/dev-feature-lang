@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html>
-<head>
-</head>
+<head></head>
 <body>
-
   <style>
   .viewlang-canvas {
     width: 100%; height: 100%;
@@ -12,41 +10,14 @@
   body { margin: 0; background: #757575; overflow: hidden; /*hack а то иногда на 1 пикс выползает*/}
   </style>
 
-<!--
-  <script src="./viewzavr-system-a/lib/viewlang/code//threejs_driver/init.js"></script>
-  <script src="//unpkg.com/3d-force-graph@1.70.5/dist/3d-force-graph.js"></script>
-
-  <script src="libs/scene-explorer-3d/3d-force-graph.js"></script>
-  <script src="libs/scene-explorer-3d/three-spritetext.js"></script>
--->    
-
   <script type="module">
 
-    ///////////////////////////// qmlweb and viewlang (required for viewzavr-system-a implementation)
-    
-//    import * as Viewlang from "./viewzavr-system-a/lib/viewlang/code/embed2/init.js"
-//    window.qmlEngine = new QMLEngine( document.getElementById( "qmlSpace" ) );
-//    Viewlang.setup_qmlweb( qmlEngine );
-    
     ///////////////////////////// viewzavr
     
     import * as Viewzavr from "./viewzavr-core/init.js";
 
     var vz = Viewzavr.create();
     // window.vz = vz;
-    
-    //////////////////////////// player
-
-/*    
-    import * as Player from "./viewzavr-system-a/player/init.js";
-    var vzPlayer = Player.create( vz );
-    window.vzPlayer = vzPlayer;
-*/    
-    // vzPlayer.feature("switch_to_editor_kbd switch_to_editor_link");
-    
-    //////////////////////////// graphical api
-    //import * as VisAPI from "./viewzavr-system-a/graphical-api/init.js";
-    //VisAPI.setup( vz );
 
     //////////////////////////// feature lang
     import * as compomachine from "./compolang/machine.js";
@@ -59,29 +30,16 @@
     import * as timers from "./player-stuff/timers.js";
     timers.setup( vz, timers );    
     
-    //var q = vzPlayer.loadEmptyScene();
-    
-    //var obj = vz.createObjByType( "compolang_machine", {parent:vzPlayer.getRoot()})
-    //var obj = vz.createObj( {parent:vzPlayer.getRoot(),features:"compolang_machine",name:"compolang_machine"})
-    //var obj = vzPlayer.getRoot().create_obj({},{features:"compolang_machine",name:"compolang_machine"})
-    //var obj = vzPlayer.getRoot().env({features:"compolang_machine",name:"compolang_machine"})
-    //var obj = vzPlayer.getRoot();
     var vzPlayer = vz.createObj();
     window.vzPlayer = vzPlayer;
     
     vzPlayer.feature("packages_load packages_table save_state_to_window_hash");
 
     var htmldir = vz.getDir(import.meta.url)  
-//    vzPlayer.loadPackage( htmldir + "./viewzavr-system-a/features/list.txt" ).then( () => {
-
-    //vzPlayer.feature("switch_to_editor_kbd switch_to_editor_link");
     
     vzPlayer.addPackage( {code:"lib3d",url:(htmldir + "./libs/lib3d/lib3d.js")});
     vzPlayer.addPackage( {code:"csv",url:(htmldir + "./libs/csv/features.js")});
 
-    //vzPlayer.addPackage( {code:"basic",url:(htmldir + "./libs/basic/basic.js")});
-    
-    //vzPlayer.addPackage( {code:"params",url:(htmldir + "./libs/params/params.cl")});
     vzPlayer.feature("register_compolang_func");
     vzPlayer.register_compalang( "params",(htmldir + "./libs/params/params.cl"));
 
@@ -128,14 +86,6 @@
         obj.setParam("base_url",filedir);
         obj.setParam("diag_file", file );
         obj.setParam("text",txt);
-
-        /*
-        var obj = vzPlayer.getRoot();
-        obj.feature("simple-lang");
-        // здесь я чувствую что фича это тупо.. как было бы проще выдавать просто env.parse..
-        // но это по сути require, по своей сути, получается... ну глянем на язык еще
-        obj.parseSimpleLang( txt, {base_url: filedir} );
-        */
 
         //obj.feature("timers")
 
