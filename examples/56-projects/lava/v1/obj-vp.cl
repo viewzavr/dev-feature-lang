@@ -44,7 +44,7 @@ feature "obj-vis"
 		{
 
 		   // 218 201 93 цвет 0.85, 0.78, 0.36
-		   @vis->input | console_log_input "ZZZ" | m: mesh title="OBJ" visual-process editable-addons 
+		   @vis->input | m: mesh title="OBJ" visual-process editable-addons 
 		     color=[0,0.5,0] 
 		     gui={ render-params @m; manage-addons @m; }
 		     ;

@@ -114,17 +114,18 @@ feature "find-objects-by-crit" {
 							  bf: find-objects-bf root=@rt->output 
 							         features=(@splitted->output | geta "slice" 1)
 							         ;
-							  link to="@q->output" from="@bf->output";
+							  link to="@q->output" from="@bf->output" soft_mode=true;
 						}
 						else={ // нету фичи в этом критерии
-							link to="@q->output" from="@rt->output";
+							link to="@q->output" from="@rt->output" soft_mode=true;
 					  };
 				  }
 				  else={
 				  	//console_log "else --";
 	  				// else тупо фичи
 						bf: find-objects-bf root=@ee->root features=@q->input;
-						link to="@q->output" from="@bf->output";
+						link to="@q->output" from="@bf->output" soft_mode=true;
+						// soft_mode=true тут стоит чтобы undefined значения не пропихивать
 				  };
 			} // q
 		} // рипитер

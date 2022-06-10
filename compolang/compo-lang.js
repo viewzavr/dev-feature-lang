@@ -1107,7 +1107,7 @@ export function call_cmd_by_path(env) {
       var sobj = env.findByPath( objname, env );
       if (!sobj) {
         console.error("callCmdByPath: cmd target obj not found",objname );
-        if (env.$locinfo) console.log( env.$locinfo );
+        env.vz.console_log_diag( env );
         
         var sobj2 = env.findByPath( objname, env );
         return; 

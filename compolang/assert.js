@@ -9,8 +9,7 @@ export function assert( env ) {
   env.trackParam('output',(v) => {
     if (!v) {
       console.error('assert: failed',env.params.info);
-      if (env.$locinfo)
-        console.log(env.$locinfo);
+      env.vz.console_log_diag( env );
     }
   });
 
@@ -26,8 +25,7 @@ export function assert_input( env ) {
   env.trackParam('output',(v) => {
     if (!v) {
       console.error('assert: failed',env.params.info);
-      if (env.$locinfo)
-        console.log(env.$locinfo);
+      env.vz.console_log_diag( env );
     }
   });
 
@@ -55,8 +53,7 @@ export function map_assert( env ) {
   		fn(elem)
   		if (!v) {
 	      	console.error('map_assert: failed at index ',counter,'elem',elem,env.params.info);
-      		if (env.$locinfo)
-        		console.log(env.$locinfo);
+      		env.vz.console_log_diag( env );
     	}
     	counter++;
   	}

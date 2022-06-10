@@ -160,8 +160,7 @@ export function map_geta( env )
         else
           console.warn( "map_geta: element result is null, arg=[", env.params[0],
                "] input=[",env.params.input,"] index=", index, env.getPath()); 
-        if (env.$locinfo)
-            console.log( env.$locinfo );
+        env.vz.console_log_diag( env );
       }
 
       if (env.single_geta_mode) {
