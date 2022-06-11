@@ -16,12 +16,11 @@ feature "manage_export" {
           cb: checkbox value=false text="Высокое разрешение";
           if (@cb->value) then={
             render-params @hr;
-            hr: make-hi-res;
           };
         };
 
         ee: image-exporter input=(@vp->active_view_tab | geta "screenshot_dom");
-        
+        hr: make-hi-res enabled=@cb->value;
       };  
 
 };
@@ -88,17 +87,24 @@ feature "make-hi-res" {
 
 feature "make-hi-res" {
  k: 
-   {{ x-param-float name="width" }}
-   {{ x-param-float name="height" }}
-   width=4192
-   height=4192
+   enabled=true
+   {{ x-param-string name="width" }}
+   {{ x-param-string name="height" }}
+   {{ x-param-option name="rescan_children" option="visible" value=false }}
+   width=4096
+   height=''
    dom_group {
-   css-style (m_eval "(w,h) => `
-         body { overflow: auto; }
-        .view56_visual_tab {
-           width: ${w}px !important;
-           height: ${h}px !important;
-        }`" @k->width @k->height)
-      ;
-   };   
+    if (@k->enabled) then={
+       css-style (m_eval "(w,h) => {
+         w = parseFloat(w);
+         if (h == '') h = w * window.innerHeight / window.innerWidth; else h = parseFloat(h);
+         return `
+             body { overflow: auto; }
+            .view56_visual_tab {
+               width: ${w}px !important;
+               height: ${h}px !important;
+            }`}" @k->width @k->height)
+          ;
+    };
+   };
 };
