@@ -14,6 +14,7 @@ load "plugins/view-tab-uni.cl";
 //load "plugins/view-small-big.cl";
 
 load "plugins/rotate-views.cl";
+load "plugins/export.cl";
 
 
 load "plugins/animation/animation.cl";

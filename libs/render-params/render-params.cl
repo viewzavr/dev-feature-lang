@@ -230,6 +230,36 @@ register_feature name="render-param-string" {
   };
 };
 
+feature name="render-param-vector" {
+  cos: column {
+    text text=@..->name;
+    input_vector_c 
+      dom_obj_readOnly=(get_param_option @cos->obj @cos->name "readonly")
+      value=(read-param @cos->param_path)
+      {{ x-on 'user-changed' {
+              m_lambda "(obj,name,obj2,val) => {
+                debugger;
+                obj.setParam(name, val, true);
+              }" @cos->object @cos->name;
+         } }};
+   };         
+};
+
+feature name="render-param-string" {
+  cos: column {
+    text text=@..->name;
+    dom tag="input" dom_obj_readOnly=(get_param_option @cos->obj @cos->name "readonly")
+    {
+      link from=@../..->param_path to=".->dom_value" tied_to_parent=true;
+      link to=@../..->param_path from=".->value" tied_to_parent=true 
+        soft_mode=true manual_mode=true;
+      dom_event name="change" code=`
+        env.params.object.setParam("value",env.params.object.dom.value,true);
+      `;
+    };
+  };
+};
+
 register_feature name="render-param-array" {
   pf: param_field {
 

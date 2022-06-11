@@ -213,3 +213,34 @@ feature "effect3d_script" {
 };`;  
   ;
 };
+
+
+//////////////
+
+/// ну тут вопрос что входы хотелось бы из других объектов..
+add_sib_item @geffect3d "effect3d-delta" "Размещение детей (delta)";
+feature "effect3d_delta" {
+  eff: geffect3d
+  {{ x-param-slider name="dx" min=0.0 max=10 step=0.1 }}
+  {{ x-param-slider name="dy" min=0.0 max=10 step=0.1 }}
+  {{ x-param-slider name="dz" min=0.0 max=10 step=0.1 }}
+  dx=1 dy=0 dz=0
+    gui={
+      render-params @eff; 
+    }
+  
+  element=@../..
+  // нужен x-insert-children. тогда
+  {
+  find-objects-bf root=@eff->element features="node3d" recursive=false include_root=false
+    | filter_geta "visible" 
+    | repeater {
+        rep: x-modify {
+          effect3d-pos 
+            x=(@rep->input_index * @eff->dx)
+            y=(@rep->input_index * @eff->dy)
+            z=(@rep->input_index * @eff->dz);
+        };
+      };
+  };
+};

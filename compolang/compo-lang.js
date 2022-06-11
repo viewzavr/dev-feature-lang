@@ -876,7 +876,8 @@ export function feature_lambda( env )
   let func;
   function update_func() {
     let code = env.params.code;
-    func = eval( code );
+    if (typeof(code) == 'string') code = eval(code);
+    func = code;
   }
   env.onvalues_any(["code"],update_func);
 
@@ -1129,6 +1130,9 @@ export function call_cmd_by_path(env) {
 //////////////////////////////////
 export function repeater( env, fopts, envopts ) {
   var children;
+  let current_state = [];
+  let model;
+
   /* оказалось что env.restoreFromDump уже вызывают, 
      если repeater первый в register-feature стоит.. - то он не успел получается это переопределить
      поэтому я перешел на переопределение restoreChildrenFromDump...
@@ -1162,8 +1166,6 @@ export function repeater( env, fopts, envopts ) {
   env.addCmd("refresh",() => recreate());
 
 
-  let current_state = [];
-  let model;
 
   function recreate() {
      //console.log("repeater recreate", env.getPath() )

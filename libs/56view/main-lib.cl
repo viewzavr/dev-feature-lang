@@ -87,7 +87,7 @@ feature "user_template" {
 // можно переделать будет на раздельное питание
 feature "show_3d_scene" {
   scene_3d_view: 
-    view3d style="width:100%; height:100%; max-height: 100vh;" {
+    view3d style="width:100%; height:100%; " { // max-height: 100vh;
       // max-height 100vh багфиксит грида
     
     // если вытащить его в хвост фичи (замкнуть view3d) то оно перестает видеть scene_3d_View почему-то

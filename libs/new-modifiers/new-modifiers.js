@@ -474,3 +474,77 @@ export function x_patch_r( env  )
   // это должен получается modify тоже разруливать...
 
 }
+
+
+//////////////////////
+
+// reactive - перевызывает код при изменении аргументов
+// x-patch-r2 "(env) => что хотим делаем с env" arg1 arg2;
+export function x_patch_r2( env  )
+{
+  env.feature("m_lambda");
+
+  // env.addCheckbox("active",true);
+  // env.feature("m-apply");
+
+  // 1. дадим поменяться нескольким параметрам
+  // 2. если идет remove-процесс то наше param-changed по идее не сработает (его удалят на delayed)
+  // именно вклинивание сюда позволило мне решить ситуацию, когда параллельно шли процессы
+  // удаления дерева, как следствие удаление модификаторов, изменение параметров,
+  // и как следствие пере-применение других модификаторов (вот этих, x-partch-r)
+  // что влекло работу затем recreator и конструирование на участках поддерева до которых еще не дошел remove
+  // - и все это на этапе удаления общего дерева..
+  env.feature("delayed");
+  let recall_attached = env.delayed( () => {
+    for (let rec of Object.values( attached_list )) {
+       let obj = rec.obj;
+       // console.log('x-patch-r: re-patch object', obj.getPath())
+       if (rec.unsub) rec.unsub();
+       rec.unsub = env.callCmd("apply",obj );
+
+       // да хрен с ним, не будем менять пока unsub..
+       // но вообще это на туду что надо быть
+    }
+  });
+
+  env.on("param_changed", recall_attached );
+
+
+  let attached_list = {};
+
+  env.on("attach",(obj) => {
+    //console.log('x-patch-r: attach called',obj.getPath() );
+
+    let resarr = env.callCmd("apply",obj);
+    
+    if (!resarr) resarr = [];
+    if (!Array.isArray(resarr)) resarr = [resarr];
+    resarr = resarr.flat(5);
+
+    let unsub = () => resarr.map( (f) => f.bind ? f() : false )
+
+    attached_list[ obj.$vz_unique_id ] = {
+      obj: obj,
+      unsub: unsub
+    };
+
+    return () => {
+       //console.log('x-patch-r: a-unsub detach called',obj.getPath() );
+       unsub();
+       delete attached_list[ obj.$vz_unique_id ];
+    };
+
+  });
+
+  env.on("detach",(obj) => {
+    // console.log('x-patch-r: detach called',obj.getPath() );
+    let rec = attached_list[ obj.$vz_unique_id ];
+    let f = rec ? rec.unsub : undefined;
+    if (f) {
+      f();
+      delete attached_list[ obj.$vz_unique_id ];
+      //delete detach[ obj.$vz_unique_id ];
+    }
+  });
+
+}

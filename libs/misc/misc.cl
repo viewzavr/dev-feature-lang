@@ -1,3 +1,13 @@
+// input,0 - путь к параметру вида name->param
+feature "read-param" {
+  q: input=@.->0
+    splitted = (m_eval "(str) => str.split('->')" @q->input)
+    objpath=(@q->splitted | geta 0)
+    paramname=(@q->splitted | geta 1)
+    output=(find-one-object input=@q->objpath | geta @q->paramname default=@q->default?)
+  ;
+};
+
 feature "if" 
 code="
   let cnt=0;
@@ -20,8 +30,13 @@ code="
     {
       //insert input=@i->..
       insert_siblings_to_parent
-       list=(eval @i->0? @i->then @i->else? allow_undefined=true
-             code="(cond,t,e) => {
+       list=(eval @i->0? @i->then? @i->else? @i allow_undefined=true
+             code="(cond,t,e,env) => {
+               if (cond && !t) {
+                    console.error('if: no then section!');
+                    env.vz.console_log_diag( env );                
+               }
+
                return cond ? t : e
              };");
     };

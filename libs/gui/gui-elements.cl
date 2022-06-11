@@ -94,6 +94,41 @@ register_feature name="input_float" {
 	};
 };
 
+///////////////////////////////////////////////////// input_vector
+/* входы
+     value - начальное значение
+   выходы
+     value - выбираемое значение
+*/
+register_feature name="input_vector" {
+	dom tag="input" dom_obj_value=(m_eval "(v) => {
+		  if (Array.isArray(v)) v=v.join(' ');
+		  return v.toString();
+		}" @.->value?) {
+		dom_event name="change" code=`
+		    let s = env.params.object.dom.value.split( /[,\s]+/ );
+		    let v = s.map( parseFloat );
+				//var v = parseFloat( env.params.object.dom.value );
+				env.params.object.setParam("value",v);;
+			`;
+	};
+};
+
+// выход - событие user-changed
+register_feature name="input_vector_c" {
+	dom tag="input" dom_obj_value=(m_eval "(v) => {
+		  if (Array.isArray(v)) v=v.join(' ');
+		  return v.toString();
+		}" @.->value?) {
+		dom_event name="change" code=`
+		    let s = env.params.object.dom.value.split( /[,\s]+/ );
+		    let v = s.map( parseFloat );
+				//var v = parseFloat( env.params.object.dom.value );
+				env.params.object.ns.parent.emit("user-changed",c);
+			`;
+	};
+};
+
 
 ///////////////////////////////////////////////////// radio_button
 /* входы

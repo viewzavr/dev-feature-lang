@@ -1,5 +1,17 @@
 // F-PARAM-CUSTOM
 
+/*
+  здесь "параметр" это процесс ассоциированный с основным процессом
+   который показывает свой интерфейс на стадии render-params основного процесса
+   и взаимодействует с пользователем, записывая свой результат в указанных выход
+   основного процесса.
+   при этом начальное значение как ни странно сейчас записывается через этот же вход
+   и берется оттуда же.
+
+   хотя должно бы поидее являться начальным входом этого процесса, а результат работы
+    процесса должен по идее пропускаться через функцию проверки или произвольной реакции.
+*/
+
 feature "x-param-custom" {
   r: x-patch-r @r->name @r->editor
     code=`(name,editor_code, obj) => {
@@ -14,6 +26,19 @@ feature "x-param-custom" {
 feature "x-param-label-small" {
   xi: x-param-custom editor={
   	 edt: text (join @edt->name " = " (@edt->object | geta @edt->name));
+  };
+};
+
+feature "x-param-vector-2" {
+  xi: x-param-custom editor={
+  	 edt: input_vector_c (@edt->object | geta @edt->name)
+   			   {{ x-on 'user-changed' {
+   			   	  m_lambda "(obj,obj2,val) => {
+   			   	  	debugger;
+   			   	    //console.log('setting visible to obj',obj,val );
+   			   	    obj.setParam('visible', val, true);
+   			   	  }" @xi->name;
+   			   } }};
   };
 };
 

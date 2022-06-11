@@ -141,7 +141,7 @@ feature "movie_recorder"
     // несовместима с justify-content и как следствие не выводит текущее окно в окне
     
     html2canvas( dom_input ).then( canvas => {
-       var img = canvas.toDataURL("image/png"); 
+       var img = canvas.toDataURL("image/png");
        console.image(img,10);
         let recorderWindow = env.getParam("wnd");
         let subcounter = 0;

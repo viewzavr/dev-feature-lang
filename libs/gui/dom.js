@@ -249,6 +249,8 @@ export function dom( obj, options={} )
 
 
   obj.addCmd("rescan_children",(reason) => rescan_children_delayed(reason) )
+  obj.setParamOption("rescan_children","visible",false);
+  
   //obj.addCmd("rescan_children",() => rescan_children2() )
 
   //obj.rescan_children = rescan_children;

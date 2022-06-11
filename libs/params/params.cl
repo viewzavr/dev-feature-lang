@@ -49,6 +49,21 @@ feature "x-add-cmd" {
     ";
 };
 
+// x-add-cmd "name" fn;
+feature "x-add-cmd2" {
+  r: 
+  x-modify {
+
+    x-patch-r2 "(name,fn,obj) => {
+        if (name) {
+          obj.addCmd( name, fn, true );
+        }
+    }
+    " @r->0 @r->1;
+
+  };
+};
+
 feature "x-param-objref" {
   r: x-patch-r @r->name @r->root
     code="(name,root, obj) => {
