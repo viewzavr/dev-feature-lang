@@ -1,28 +1,66 @@
 ////////////////////////
 
+register_feature name="collapsible_w" {
+  cola: 
+  column text=@.->0 expanded=false
+  {
+    shadow_dom {
+      btn: button text=@../..->text {
+        m_apply "(env) => env.setParam('expanded', !env.params.expanded, true)" @cola;
+      };
+
+      pcol: 
+      column visible=@cola->expanded? {{ use_dom_children from=@../..; }};
+
+    };
+
+  };
+};
+
 feature "show_addons"
 {
   svlist: repeater {
-        amm: column {
-         row {
-         	acbv: checkbox value=(@amm->input | get_param "visible");
+        amm: column style='border:1px solid #050505; border-radius:5px;
+             position: relative' // relative чтобы внутри X позиционировать через absolute
+           plashka
+           expanded=true
+        {
 
-         	object_change_type text="" input=@amm->input
-            	types=(@amm->input  | geta  "sibling_types" )            
-            	titles=(@amm->input | geta "sibling_titles")
-            	;
-            
-            x-modify input=@amm->input {
-              x-set-params visible=@acbv->value ;
-            };
+          dom_group {
 
-            button "x" //style="position:absolute; top:0px; right:0px;" 
-	        {
-	          lambda @amm->input code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
-	        };
+            if ( (@amm->input | geta "title") == "-" ) then={
+               row {
+                   object_change_type text="" input=@amm->input
+                    types=(@amm->input  | geta  "sibling_types" )            
+                    titles=(@amm->input | geta "sibling_titles")
+                    ;
+               }; 
+            }
+            else={
+
+           row gap="2px" {
+             	acbv: checkbox value=(@amm->input | get_param "visible");
+              button (@amm->input | geta "title")
+              {
+                m_apply "(env) => env.setParam('expanded', !env.params.expanded, true)" @amm;
+              };
+                
+              x-modify input=@amm->input {
+                x-set-params visible=@acbv->value ;
+              };
+
+           }; // row
+
+           }; // else
 
          };
-         insert_children input=@.. list=(@amm->input | get_param "gui");
+
+         button "x" style="position:absolute; top:3px; right:3px;" 
+              {
+                lambda @amm->input code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
+              };
+
+         insert_children input=@.. list=(@amm->input | get_param "gui") active=@amm->expanded;
         }; 
 
     }; // svlist  
@@ -54,7 +92,7 @@ feature "manage_addons" {
 };
 
 feature "addons_area" {
-  aa: column {
+  aa: column plashka {
 	ba: button_add_object add_to=(@aa->input? | geta "addons_container")
 	                      add_type="effect3d_blank"
 	                      text="+"

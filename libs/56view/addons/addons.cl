@@ -117,7 +117,7 @@ feature "effect3d_zbuffer" {
   ;
 };
 
-add_sib_item @geffect3d "effect3d-pos" "Положение в пространстве";
+add_sib_item @geffect3d "effect3d-pos" "Положение";
 feature "effect3d_pos" {
   eo: geffect3d
     {{ x-param-float name="x"; }}
@@ -221,9 +221,9 @@ feature "effect3d_script" {
 add_sib_item @geffect3d "effect3d-delta" "Размещение детей (delta)";
 feature "effect3d_delta" {
   eff: geffect3d
-  {{ x-param-slider name="dx" min=0.0 max=10 step=0.1 }}
-  {{ x-param-slider name="dy" min=0.0 max=10 step=0.1 }}
-  {{ x-param-slider name="dz" min=0.0 max=10 step=0.1 }}
+  {{ x-param-slider name="dx" min=-10.0 max=10 step=0.1 }}
+  {{ x-param-slider name="dy" min=-10.0 max=10 step=0.1 }}
+  {{ x-param-slider name="dz" min=-10.0 max=10 step=0.1 }}
   dx=1 dy=0 dz=0
     gui={
       render-params @eff; 

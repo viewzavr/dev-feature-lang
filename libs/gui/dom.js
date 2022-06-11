@@ -249,7 +249,7 @@ export function dom( obj, options={} )
 
 
   obj.addCmd("rescan_children",(reason) => rescan_children_delayed(reason) )
-  obj.setParamOption("rescan_children","visible",false);
+  //obj.setParamOption("rescan_children","visible",false);
 
   //obj.addCmd("rescan_children",() => rescan_children2() )
 
@@ -362,13 +362,13 @@ export function dom( obj, options={} )
     //trigger_all_params();
     //if (obj.ns.parent?.rescan_children) obj.ns.parent.rescan_children();
     if (obj.ns.parent) {
-        obj.ns.parent.callCmd("rescan_children","child created dom"+obj.getPath());
+        obj.ns.parent.callCmd("rescan_children");
     }
   }
 
   obj.on("remove",() => {
     if (obj.ns.parent) {
-        obj.ns.parent.callCmd("rescan_children","child removed"+obj.getPath());
+        obj.ns.parent.callCmd("rescan_children");
     }
   });
   

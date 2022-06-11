@@ -6,7 +6,7 @@ register_feature name="collapsible" {
     shadow_dom {
       btn: button text=@../..->text {
         m_apply "(env) => env.setParam('expanded', !env.params.expanded, true)" @cola;
-      };  
+      };
 
       pcol: 
       column visible=@cola->expanded? {{ use_dom_children from=@../..; }};
