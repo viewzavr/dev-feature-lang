@@ -79,6 +79,7 @@ feature "effect3d_opacity" {
             return () => {
                 if (tenv.params.material) {
                   tenv.params.material.transparent = false;
+                  tenv.params.material.opacity = 1.0;
                   tenv.params.material.alphaTest = 1.0;
                 }
             };
@@ -242,5 +243,24 @@ feature "effect3d_delta" {
             z=(@rep->input_index * @eff->dz);
         };
       };
+  };
+};
+
+/// ну тут вопрос что входы хотелось бы из других объектов..
+add_sib_item @geffect3d "effect3d-colorize" "Раскраска по данным";
+feature "effect3d_colorize" {
+  eff: geffect3d
+  dx=1 dy=0 dz=0
+    gui={
+      //render-params @d;
+      dom_group {
+        insert_children input=@.. list=@d->gui;
+      };
+      render-params @arrtocols;
+    }
+  element=@../..
+  x-modify {
+    x-set-params colors=(@d->output | arrtocols: arr_to_colors gui_title="Цвета");
+    d: find-data-source-column init_input=(@eff->element | geta "input");
   };
 };

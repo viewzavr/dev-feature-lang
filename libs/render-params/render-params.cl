@@ -24,7 +24,7 @@ register_feature name="render_gui_title" code=`
 register_feature name="render-guis" {
   rep: repeater opened=true {
     das1: column {
-            btn: button text=@btntitle->output cmd="@pcol->trigger_visible" 
+            btn: button text=@btntitle->output cmd=@pcol->trigger_visible
              {{ insert_features input=@btn list=@rep->button_features? }};
 
           pcol: column visible=false { /* @../../..->opened */

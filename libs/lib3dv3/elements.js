@@ -80,7 +80,7 @@ export function lines( env ) {
   });
 
   env.onvalue("colors",(v) => {
-    //console.log('setting colors',v)
+    console.log('setting colors',v)
     if (v?.length > 0) {
       geometry.setAttribute( 'color', new THREE.BufferAttribute( new Float32Array(v), 3 ) );
       material.vertexColors = true;
@@ -135,7 +135,8 @@ export function points( env ) {
     geometry.needsUpdate = true;
   });
 
-  env.onvalue("colors",(v) => {
+  env.monitor_values(["colors"],(v) => {
+    
     if (v?.length > 0) {
       geometry.setAttribute( 'color', new THREE.BufferAttribute( new Float32Array(v), 3 ) );
       material.vertexColors = true;

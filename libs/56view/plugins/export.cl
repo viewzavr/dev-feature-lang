@@ -19,7 +19,7 @@ feature "manage_export" {
           };
         };
 
-        ee: image-exporter input=(@vp->active_view_tab | geta "screenshot_dom");
+        ee: image-exporter input=(@vp->active_view_tab | geta "screenshot_dom" default=null);
         hr: make-hi-res enabled=@cb->value;
       };  
 

@@ -75,6 +75,7 @@ export function param_subchannels(env)
 
     // m.addTreeToObj(obj, "ns");
     res.remove = (restore_values_to_original=true) => {
+       console.log('channel removing',res)
        let i = env.$subchannels.indexOf( res );
        if (i >= 0)
            env.$subchannels.splice( i, 1 );
@@ -82,6 +83,9 @@ export function param_subchannels(env)
        if (!restore_values_to_original) // особый случай. если у нас ручное управление то отменять не надо. да уж.
            return; // ну либо отдельный флаг надо будет сделать
 
+       // todo странно все это.. все параметры заново выставлять.. тем более там есть ссылки и резульатты выражений..
+       // возможно лучше было бы.. выставлять только то что было в данном канале...
+       // + cочесть с тем что ниже на тему выставления undefined
        let notified = env.update_params_from_subchannels();
 
        // ну и еще для кучи для теста разошлем информацию что поменялось то, что ушло

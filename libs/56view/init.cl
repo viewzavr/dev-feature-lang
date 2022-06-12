@@ -1,5 +1,5 @@
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d new-modifiers imperative";
-load "main-lib.cl plugins.cl gui5.cl gui4addons.cl";
+load "main-lib.cl plugins.cl gui5.cl gui4addons.cl editor-abstractions.cl";
 
 ///////////////////////////////////////////// проект
 

@@ -131,7 +131,7 @@ feature "object_change_type"
             value=(detect_type @cot->input? @cbb->values?)
             style="width: 120px;"
            {{ on "user_changed_value" {
-              lambda @cot->input? code=`(obj,v) => {
+              lambda @cot->input? @cot code=`(obj,cot, v) => {
                 // вот мы спотыкаемся - что это, начальное значение или управление пользователем
 
                 //console.log("existing obj",obj,"creating new obj type",v);
@@ -156,7 +156,9 @@ feature "object_change_type"
                     //console.log("restoring dump",dump);
                     newobj.restoreFromDump( dump, true );
                     console.log("created obj", newobj)
-                  }  
+                  }
+
+                  cot.emit('type-changed');
                 });
                 
 

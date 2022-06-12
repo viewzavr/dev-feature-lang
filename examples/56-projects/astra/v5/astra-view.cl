@@ -65,7 +65,7 @@ register_feature name="render-guis-a" {
 ////////////////////////////
 
 feature "astra-source" {
-  qqe: visual_process df56 
+  qqe: visual_process 
     title="Загрузка звёзд"
     index=1 	
     gui={
@@ -106,8 +106,8 @@ feature "astra-source" {
 				{{ x-param-option name="current_file" option="readonly" value=true }}
 
 				{{ x-param-label-small name="lines_loaded"}}
-				current_file=(@astradata->files | geta @astradata->N | geta 1)
-		    current_file_name=(@astradata->files | geta @astradata->N | geta 0)
+				current_file=(@astradata->files | geta @astradata->N default='' | geta 1 default='') // файл
+		    current_file_name=(@astradata->files | geta @astradata->N default='' | geta 0 default='') // символ имени
 		    lines_loaded=(@loaded_data2->output | geta "length")
 		    files_count=(@astradata->files | geta "length")
 
@@ -120,46 +120,14 @@ feature "astra-source" {
       {
       	 loaded_data2: load-file file=(@astradata->current_file or null)
          	| m_eval "() => 'X Z Y DENSITY ID TYPE\n' + env.params.input" // F-CHANGE-DATA-AXES
-			   	| parse_csv separator="\s+";
+			   	| parse_csv separator="\s+" df56;
 
 			   dust: @loaded_data2->output | df_filter "(line) => line.ID < 1000000";
 			   star: @loaded_data2->output | df_filter "(line) => line.ID == 1000000";
 			   planet: @loaded_data2->output | df_filter "(line) => line.ID == 1000001";
-			};   
+			};
     };
 	  //astra-source-dir;
-};
-
-// объект который дает диалог пользвателю 
-// а в output выдает найденный dataframe отмеченный меткой df56
-feature "find-data-source" {
-   findsource: 
-      data_length=(@findsource->output | geta "length")
-	    input_link=(@datafiles->output | geta 0)
-      {{
-          datafiles: find-objects-bf features="df56" | arr_map code="(v) => v.getPath()+'->output'";
-
-          x-param-combo
-           name="input_link" 
-           values=@datafiles->output 
-
-           ;
-
-          x-param-option
-           name="input_link"
-           option="priority"
-           value=10;
-
-           x-param-option
-           name="data_length"
-           option="priority"
-           value=12;
-
-          x-param-label name="data_length";
-      }}
-    {
-      link from=@findsource->input_link to="@findsource->output";
-    };
 };
 
 feature "astra-camera-rotate" {
@@ -194,7 +162,7 @@ feature "astra-camera-rotate" {
 					  return 0;
 					}" (@avp->astra_source |geta "N") @avp->start_angle @avp->coef)
 	{
-		astradata: find-data-source;
+		//astradata: find-data-source;
 
 		if (@avp->visible) then={
 			@avp->camera | x-modify {
@@ -216,14 +184,26 @@ feature "astra-vis-1" {
 		//find-objects-by-crit "visual_process" root=@scene recursive=false | render-guis-a;
 		ko: column plashka {
 
+		  /*
 			collapsible "Источник данных" {
   		  render-params @astradata;
 	    };
+	    */
 
+	    render-params @astradata;
+
+/*
 			show_sources_params 
 			  input=(find-objects-by-crit "visual-process" root=@scene include_root=false recursive=false)
 			  auto_expand_first=false
-			;
+			;*/
+
+			manage-content @scene
+       root=@avp
+       title="Слои"
+       allow_add=false
+       vp=@avp
+       items=[{"title":"Скалярные слои", "find":"visual-process"}];
 	  };
 	}
 	gui3={
@@ -233,7 +213,7 @@ feature "astra-vis-1" {
 
 	{
 
-		astradata: find-data-source;
+		astradata: find-data-source features="astra_source";
 
 		scene: node3d visible=@avp->visible force_dump=true
 		{
@@ -275,7 +255,7 @@ feature "astra-vis-1" {
 		   };		   
 
 		   // вообще может оказаться что это будет отдельный визуальный процесс - "антураж"
-		   ab: axes_view size=1;
+		   // ab: axes_view size=1;
 
 		};
 	};
@@ -299,3 +279,4 @@ register_feature name="joinlines" code=`
   
   compute();
 `;
+

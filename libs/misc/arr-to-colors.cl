@@ -2,18 +2,27 @@
 // input - массив
 // color_func - функция раскрашивания
 register_feature name="arr_to_colors" {
-  root: color_func=(color_func_white) output=@color_arr->output min=@mm->min max=@mm->max 
-    {{ x-param-option name="reset" option="priority" value=110 }}
+  root: color_func=(color_func_white) 
+     output=@color_arr->output 
+
+     //{{ x-set-params min=@mm->min max=@mm->max }}
+
+    {{ x-param-option name="recalculate" option="priority" value=110 }}
     {{ x-param-option name="help" option="priority" value=0 }}
     {
     mm: arr_find_min_max input=@root->input;
 
-
     param_float name="min" ;
     param_float name="max" ;
-    param_cmd name="reset" {
+    param_cmd name="recalculate" {
        setter target="@root->min" value=@mm->min;
        setter target="@root->max" value=@mm->max;
+    };
+    param_checkbox name="auto_calculate" value=true;
+
+    if (@root->re_calculate) then={
+      setter target="@root->min" value=@mm->min auto_apply;
+       setter target="@root->max" value=@mm->max auto_apply;
     };
     
     //param_label name="help" value="Выбор мин и макс<br/>значения для раскраски";

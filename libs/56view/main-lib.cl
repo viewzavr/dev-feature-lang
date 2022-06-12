@@ -307,4 +307,61 @@ feature "render_project" {
 
 
    };  
-}
+};
+
+
+// объект который дает диалог пользвателю 
+// а в output выдает найденный dataframe отмеченный меткой df56
+// todo предикат ф-ю
+feature "find-data-source" {
+   findsource: 
+      //data_length=(@findsource->output | geta "length")
+      input_link=(@datafiles->output | geta 0)
+      features="df56"
+      {{
+          datafiles: find-objects-bf features=@findsource->features 
+                      | arr_map code="(v) => v.getPath()+'->output'";
+
+          x-param-combo
+           name="input_link" 
+           values=@datafiles->output 
+           ;
+
+          x-param-option
+           name="input_link"
+           option="priority"
+           value=10;
+
+           x-param-option
+           name="data_length"
+           option="priority"
+           value=12;
+
+           //x-param-label-small name="data_length";
+      }}
+    {
+      link from=@findsource->input_link to="@findsource->output";
+    };
+};
+
+// input - dfка
+feature "select-source-column" {
+  s: 
+  {{ x-param-combo name="selected_column" values=@s->columns }}
+  columns=(@s->input | geta "colnames")
+  selected_column=""
+  output=( @s->input | geta @s->selected_column default=[])
+};
+
+feature "find-data-source-column" {
+  it:
+  gui={
+    render-params @s1;
+    render-params @s2;
+  }
+  output=@s2->output
+  {
+     s1: find-data-source;
+     s2: select-source-column input=@s1->output?;
+  };
+};

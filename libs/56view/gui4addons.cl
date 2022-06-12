@@ -1,21 +1,5 @@
 ////////////////////////
 
-register_feature name="collapsible_w" {
-  cola: 
-  column text=@.->0 expanded=false
-  {
-    shadow_dom {
-      btn: button text=@../..->text {
-        m_apply "(env) => env.setParam('expanded', !env.params.expanded, true)" @cola;
-      };
-
-      pcol: 
-      column visible=@cola->expanded? {{ use_dom_children from=@../..; }};
-
-    };
-
-  };
-};
 
 feature "show_addons"
 {
@@ -23,18 +7,22 @@ feature "show_addons"
         amm: column style='border:1px solid #050505; border-radius:5px;
              position: relative' // relative чтобы внутри X позиционировать через absolute
            plashka
-           expanded=true
+           expanded=false
         {
 
           dom_group {
 
             if ( (@amm->input | geta "title") == "-" ) then={
-               row {
+
+               row 
+               
+               {
                    object_change_type text="" input=@amm->input
-                    types=(@amm->input  | geta  "sibling_types" )            
-                    titles=(@amm->input | geta "sibling_titles")
-                    ;
-               }; 
+                      types=(@amm->input  | geta  "sibling_types" )            
+                      titles=(@amm->input | geta "sibling_titles")
+                      {{ x-on "type-changed" { m_lambda "(e) => { e.setParam('expanded',true); }" @amm }; }};
+               }
+                
             }
             else={
 
@@ -46,8 +34,10 @@ feature "show_addons"
               };
                 
               x-modify input=@amm->input {
-                x-set-params visible=@acbv->value ;
+                x-set-params visible=@acbv->value __manual=true;
               };
+
+              dom style='width: 22px;';
 
            }; // row
 
@@ -55,7 +45,7 @@ feature "show_addons"
 
          };
 
-         button "x" style="position:absolute; top:3px; right:3px;" 
+         button "x" style="position:absolute; top:5px; right:3px;" 
               {
                 lambda @amm->input code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
               };
@@ -84,7 +74,10 @@ feature "manage_addons" {
      call target="@addons_dialog" name="show";
    };
    */
-   collapsible "Добавки" expanded=( (@ma->input? | geta "addons_container" | get_children_arr | geta "length") > 0)
+
+   co: collapsible (join "Добавки (" @co->addons_count ")")
+   addons_count=(@ma->input? | geta "addons_container" | get_children_arr | geta "length")
+   expanded=(@co->addons_count > 0)
    {
    	 addons_area input=@ma->input;
    };
