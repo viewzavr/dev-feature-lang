@@ -31,7 +31,7 @@ feature "manage-content" {
      find-objects-bf (@mc->items | geta 0 | get "find") 
                      root=@mc->root
                      recursive=false
-                     include_root=false debug=true
+                     include_root=false 
                     | sort_by_priority;
 
 		@objects_list->output | repeater {

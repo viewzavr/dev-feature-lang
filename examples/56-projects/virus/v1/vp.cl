@@ -66,7 +66,7 @@ feature "source" {
     }}
     current_file_name=(@pc->titles | geta @pc->index)
     scene2d=@scene2d
-    current_listing=( @qqe->files or @listing->output {{ console_log_params "EEE"}})
+    current_listing=( @qqe->files or @listing->output)
     //current_listing=@listing->output
     {
 				scene2d: dom {
@@ -108,9 +108,8 @@ feature "vis-1" {
 
 		scene: node3d visible=@avp->visible force_dump=true
 		{
-
 		   
-		   @data->output | geta "spheres" 
+		   @data->output? | geta "spheres" 
 		     | 
 		     df_create_from_arrays columns=["X","Y","Z","RADIUS"]
 		     |
@@ -120,10 +119,9 @@ feature "vis-1" {
 		     //{{ x-param-slider name="radius" min=0.01 max=0.25 step=0.01 }}
 		     ;
 
-		   @data->output | geta "lines" 
+		   @data->output? | geta "lines" 
 		     | 
 		     df_create_from_arrays columns=["X","Y","Z","X2","Y2","Z2"]
-		     | console_log_input "LINES"
 		     |
 		    lines: lines-vp title="lines"
 		      color=[0.75, 0.75, 0.85]
@@ -131,10 +129,9 @@ feature "vis-1" {
 		     //{{ x-param-slider name="radius" min=0.01 max=0.25 step=0.01 }}
 		     ;  
 
- 				@data->output | geta "labels" 
+ 				@data->output? | geta "labels" 
 		     | 
 		     df_create_from_arrays columns=["X","Y","Z","TEXT"]
-		     | console_log_input
 		     |
 		    text3d-vp title="labels"
 		      size=0.01
