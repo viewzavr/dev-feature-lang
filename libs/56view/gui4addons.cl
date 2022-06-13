@@ -27,14 +27,15 @@ feature "show_addons"
             else={
 
            row gap="2px" {
-             	acbv: checkbox value=(@amm->input | get_param "visible");
+             	acbv: checkbox value=(@amm->input | geta "visible");
               button (@amm->input | geta "title")
               {
                 m_apply "(env) => env.setParam('expanded', !env.params.expanded, true)" @amm;
               };
                 
               x-modify input=@amm->input {
-                x-set-params visible=@acbv->value __manual=true;
+                x-set-params visible=@acbv->value __manual=true
+                ;
               };
 
               dom style='width: 22px;';
@@ -76,7 +77,7 @@ feature "manage_addons" {
    */
 
    co: collapsible (join "Добавки (" @co->addons_count ")")
-   addons_count=(@ma->input? | geta "addons_container" | get_children_arr | geta "length")
+   addons_count=(@ma->input? | geta "addons_container" | get_children_arr | geta "length" default=0)
    expanded=(@co->addons_count > 0)
    {
    	 addons_area input=@ma->input;

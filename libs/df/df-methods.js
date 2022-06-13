@@ -10,6 +10,19 @@ export function setup(vz, m) {
 */
 }
 
+/* df_import_arrays columns=["X,Y,Z,TEXT"];
+*/
+export function df_create_from_arrays(env) {
+  env.onvalues(["input","columns"],(value,columns) => {
+   if (!Array.isArray(value)) {
+      console.error( "df_import_arrays: incoming value is not array", value)
+      return
+   };
+   let output = df.create_from_arrays(value, columns);
+   env.setParam("output",output)
+  });
+}
+
 // создает новую df из выбранных колонок входной df
 // пример: df_set X=<значение> Y="->Z"
 // тогда в колонке X будет константа указанного значения, а в Y - скопируется колонка Z

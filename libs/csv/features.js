@@ -6,7 +6,7 @@ import CSV from "./csv.js";
 import * as df from "../df/df.js";
 
 export function parse_csv( env ) {
-  env.feature("load_file_func");
+  //env.feature("load_file_func");
   //var empty_df = df.create();
   env.addText("input");
   env.addString("separator",",");
@@ -46,4 +46,18 @@ export function generate_csv( env ) {
     env.setParam("output",text);
   };
 
+}
+
+////
+export function parse_json( env ) {
+  //env.feature("load_file_func");
+  //var empty_df = df.create();
+  env.addText("input");
+  //env.addString("separator",",");
+  //env.addString("columns");
+
+  env.onvalues(["input"],(text) => {
+    var df = JSON.parse(text);
+    env.setParam("output",df );
+  })
 }

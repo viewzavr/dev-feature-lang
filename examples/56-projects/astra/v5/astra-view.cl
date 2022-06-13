@@ -218,6 +218,8 @@ feature "astra-vis-1" {
 		scene: node3d visible=@avp->visible force_dump=true
 		{
 
+				//mesh positions=[0,0,0, 10,10,10, 0,10,0 ];
+
 		   // 218 201 93 цвет
 		   @astradata->output | geta 0 | pts_dust: points title="Точки" visual-process editable-addons 
 		     radius=0.02 color=[0.85, 0.78, 0.36] 
@@ -225,16 +227,21 @@ feature "astra-vis-1" {
 		     // слайдер сделан специально чтобы не указать слишком больших значений
 		     gui={ render-params @pts_dust; manage-addons @pts_dust; };
 
-		   @astradata->output | geta 1 | pts_star: points title="Звезда" visual-process editable-addons 
-		     radius=1 color=[1,0,0] 
-		     {{ x-param-slider name="radius" min=0.01 max=5 step=0.01 }}
-		     gui={ render-params @pts_star; manage-addons @pts_star; };  
+		   @astradata->output | geta 1 | pts_star: spheres-vp title="Звезда" visual-process editable-addons 
+		     //src="https://viewlang.ru/assets/planets/Sun_1_1391000.glb"
+		     //src="https://viewlang.ru/assets/models/Lake_IV_Heavy.glb" 
+		     //src="https://viewlang.ru/assets/planets/Mars_1_6792.glb"
+		     radius=0.05 color=[1,0,0]
+		     {{ x-param-slider name="radius" min=0.01 max=1 step=0.001 }}
+		     //{{ x-param-slider name="radius" min=0.001 max=1 step=0.001 }}
+		     //gui={ render-params @pts_star; manage-addons @pts_star; }
+		     ;  
 
 		     // 107 123 279
-		   @astradata->output | geta 2 | pts_planet: points title="Планета" visual-process editable-addons 
-		     radius=0.5 color=[0.42,0.5,0.93] 
-		     {{ x-param-slider name="radius" min=0.01 max=5 step=0.01 }}
-		     gui={ render-params @pts_planet; manage-addons @pts_planet; };    
+		   @astradata->output | geta 2 | pts_planet: spheres-vp title="Планета"
+		     radius=0.05 color=[0.42,0.5,0.93] 
+		     {{ x-param-slider name="radius" min=0.01 max=1 step=0.001 }}
+		     ;
 
 		   insert_children input=@pts_dust->addons_container active=(is_default @pts_dust->addons_container) list={
 		   	 // F-PIXEL-PRESET
@@ -244,15 +251,19 @@ feature "astra-vis-1" {
 		   	 effect3d-opacity opacity=0.25 alfa_test=0;
 		   };
 
+/*
 		   insert_children input=@pts_star->addons_container active=(is_default @pts_star->addons_container) list={
 		   	 // F-PIXEL-PRESET
-		   	 effect3d_sprite sprite="ball.png";
+		   	 //effect3d_sprite sprite="ball.png";
+		   	 //effect3d-scale x=@pts_star->radius y=@pts_star->radius z=@pts_star->radius;
 		   };
 
-		   insert_children input=@pts_planet->addons_container active=(is_default @pts_addons->addons_container) list={
+		   insert_children input=@pts_planet->addons_container active=(is_default @pts_planet->addons_container) list={
 		   	 // F-PIXEL-PRESET
-		   	 effect3d_sprite sprite="ball.png";
-		   };		   
+		   	 // effect3d_sprite sprite="ball.png";
+		   	 //effect3d-scale x=@pts_star->radius y=@pts_star->radius z=@pts_star->radius;
+		   };
+*/		   
 
 		   // вообще может оказаться что это будет отдельный визуальный процесс - "антураж"
 		   // ab: axes_view size=1;

@@ -80,7 +80,7 @@ export function lines( env ) {
   });
 
   env.onvalue("colors",(v) => {
-    console.log('setting colors',v)
+    //console.log('setting colors',v)
     if (v?.length > 0) {
       geometry.setAttribute( 'color', new THREE.BufferAttribute( new Float32Array(v), 3 ) );
       material.vertexColors = true;
@@ -220,6 +220,8 @@ export function mesh( env ) {
 
   env.feature("delayed");
   let recompute_normals = env.delayed( () => { 
+    
+    geometry.deleteAttribute( 'normal' );
     geometry.computeVertexNormals(); 
     env.emit("normals-recomputed", sceneObject );
   });
@@ -241,6 +243,7 @@ export function mesh( env ) {
   // geometry.setAttribute( 'normal', new THREE.BufferAttribute( new Float32Array(normals), 3 ) );
 
   env.onvalue("colors",(v) => {
+    //console.log("mesh setting colors",v)
     if (v?.length > 0) {
       geometry.setAttribute( 'color', new THREE.BufferAttribute( new Float32Array(v), 3 ) );
       material.vertexColors = true;
@@ -255,12 +258,15 @@ export function mesh( env ) {
   })
 
   env.onvalue("color",(v) => {
+     //console.log("mesh setting color",v);
      material.color = utils.somethingToColor(v);
      material.needsUpdate = true;
   });
+  env.addColor("color");
   
   // а вот почему я материал сюда положил, а scale3d - туда????
   env.onvalue("material",(v) => {
+     //console.log("mesh change mat",v)
      // тут разрешаем объект подать, сообразно проверим
      // а давайте без давайте попробуем.. материал и все..
      //if (v.params) v = v.params.output;

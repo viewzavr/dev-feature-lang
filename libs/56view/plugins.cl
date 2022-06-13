@@ -24,7 +24,7 @@ load "plugins/animation/animation.cl";
 // решатели задач визуализации
 
 load "vp/universal-vp.cl";
-load "vp/axes-vp.cl";
+load "vp/basic-vp.cl";
 load "vp/group-vp.cl";
 load "vp/camera-fly-vp.cl";
 

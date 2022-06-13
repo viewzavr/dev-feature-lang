@@ -57,6 +57,7 @@ register_feature name="checkbox" {
 		dom tag="input" dom_type="checkbox" dom_obj_checked=@..->value? {
 			dom_event name="change" code=`
 				var v = env.params.object.dom.checked;
+				//console.log('cb setting value to',v)
 				env.params.object.ns.parent.setParam("value",v);
 				env.params.object.ns.parent.emit("user-changed",v);
 			`;

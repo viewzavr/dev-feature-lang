@@ -142,7 +142,7 @@ feature "movie_recorder"
     
     html2canvas( dom_input ).then( canvas => {
        var img = canvas.toDataURL("image/png");
-       console.image(img,10);
+       //console.image(img,10);
         let recorderWindow = env.getParam("wnd");
         let subcounter = 0;
         if (recorderWindow) {

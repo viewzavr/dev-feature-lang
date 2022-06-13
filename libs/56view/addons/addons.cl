@@ -260,7 +260,8 @@ feature "effect3d_colorize" {
     }
   element=@../..
   x-modify {
-    x-set-params colors=(@d->output | arrtocols: arr_to_colors gui_title="Цвета");
+    x-set-params colors=@arrtocols->output;
     d: find-data-source-column init_input=(@eff->element | geta "input");
+    arrtocols: arr_to_colors gui_title="Цвета" input=@d->output;
   };
 };

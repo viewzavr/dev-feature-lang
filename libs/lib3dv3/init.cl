@@ -12,6 +12,5 @@ tools.cl
 3d-formats/vtk-points/vr-vtk-points.js
 axesv1/axes.cl
 curve.cl
+spheres.cl
 `;
-
-

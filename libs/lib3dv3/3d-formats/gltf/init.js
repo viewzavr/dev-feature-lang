@@ -34,12 +34,15 @@ export function render_gltf( obj ) {
   obj.addSlider( "opacity", 100,0,100,1,function(v) {
     obj.opacity = v / 100.0;
   });
-
-  попробуем юзать scale3d..  
-  obj.addSlider( "scale", 1, 0.1, 10, 0.1,function(v) {
-      obj.scale = v;
-  });
 */
+
+  // попробуем юзать scale3d..  
+  /*
+  obj.addSlider( "scale", 1, 0.1, 10, 0.1,function(v) {
+      //obj.scale.set(v,v,v);
+      obj.scale=v;
+  });
+  */
 
   obj.setParam("color",[0,0,0]); // что-то белое по умолчанию забеляет..
   obj.onvalue( "color",function(c) {

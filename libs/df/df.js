@@ -113,6 +113,19 @@ export function create_from_df( src ) {
   return r;
 }
 
+export function create_from_arrays( array_of_arrays, colnames ) {
+  var r = create();
+
+  let i=0;
+  colnames.forEach( function(name) {
+      let data = array_of_arrays.map( (arr) => arr[i] );
+      add_column( r, name, data );
+      i++;
+  });
+
+  return r;
+}
+
 export function clone( src ) {
   return create_from_df( src );
 }
