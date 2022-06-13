@@ -35,9 +35,9 @@ feature "camera-fly-vp" {
 	{{ x-param-objref-3 name="camera" values=(@avp->project | geta "cameras") }}
 	{
 		scene: node3d {
-			liness: linestrips input=@te->output color=[0,1,0];
+			liness: linestrips input=@te->output color=[0,1,0] visible=false;
 			//get_param_option @liness/lines-env
-			text3d input=(@te->output | df_set TEXT="->TIME_DELTA" | console_log_input) size=0.05 visible=@liness->visible;
+			text3d input=(@te->output | df_set TEXT="->TIME_DELTA") size=0.05 visible=@liness->visible;
 		};
 
 		te: trajectory_editor 

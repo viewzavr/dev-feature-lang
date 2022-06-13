@@ -134,8 +134,8 @@ feature "x-param-objref-2" {
 };
 
 // вход: listing_file - путь к файлу листинга
-// выход: output - массив загруженных файлов из файла листинга
-// ну и 
+// выход: output - массив путей файлов из файла листинга
+// где каждая запись это пара [имя,полный-путь]
 feature "select-files-inet" {
 		idata: 
 						  //listing_file="http://127.0.0.1:8080/public_local/data2/data.csv"

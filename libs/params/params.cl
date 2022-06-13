@@ -162,6 +162,16 @@ feature "x-param-file" {
   ";
 };
 
+feature "x-param-files" {
+  r: x-patch-r @r->name
+  code="(name,obj) => {
+    
+    if (!name) return;
+    obj.addFiles( name, undefined );
+  }
+  ";
+};
+
 // кстати идея мб неск параметров? x-param-float names=....;
 feature "x-param-float" {
   r: x-patch-r @r->name

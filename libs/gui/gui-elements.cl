@@ -24,8 +24,13 @@ register_feature name="file" {
 register_feature name="files" {
 	dom tag="input" dom_type="file" dom_attr_multiple=true {
 		dom_event object=@.. name="change" code=`
-		  env.params.object.setParam("value",env.params.object.dom.files,true);
-		  env.params.object.setParam("output",env.params.object.dom.files,true);
+		  let arr = [];
+		  let files = env.params.object.dom.files;
+		  for (let i=0; i<files.length; i++)
+		  	arr.push( [files[i].name, files[i]] );
+		   
+		  env.params.object.setParam("value",arr,true);
+		  env.params.object.setParam("output",arr,true);
 		`;
 	};
 };

@@ -6,29 +6,28 @@ load "params";
 // по идее надо научиться на уровне данных - добавлять фильтры визуально.
 // а виз объекты уже к ним цепляются.
 
-/*
 find-objects-bf features="render_project_right_col" recursive=false 
 |
-insert_children { manage_astra; };
+insert_children { manage_vir; };
 
-feature "manage_astra" {
+feature "manage_vir" {
 	ma: 
 	    project=@..->project
 	    curview=@..->active_view
 
-	collapsible "Проект Astra" {
+	collapsible "Проект 'Вирусы'" {
 		column plashka {
 			text "Добавить:";
-			button_add_object "Визуализация звёзд" 
+			button_add_object "Визуализация вирусов" 
 			   add_to=@ma->project
-			   add_type="astra-vis-1"
+			   add_type="vis-1"
 			   {{
 			   	 created_add_to_current_view curview=@ma->curview;
 			   }};
 
-			button_add_object "Загрузка файла звёзд" 
+			button_add_object "Загрузка файла вирусов" 
 			   add_to=@ma->project
-			   add_type="astra-source"
+			   add_type="source"
 			   {{
 			   	 created_add_to_current_view curview=@ma->curview;
 			   }};   
@@ -52,10 +51,32 @@ feature "source" {
     } 
     output=@loaded_data->output?
     df56
-    file=(resolve_url "data/H3N2_D100_1-fixed.json")
-    
-    {{ x-param-file name="file" }}
+    //files=(resolve_url "data/H3N2_D100_1-fixed.json")
+    {{ x-param-files name="files" }}
+
+/*
+    {{ x-param-combo name="file" 
+           titles=(@listing->output | arr_map code="(val) => val[0]") 
+           values=(@listing->output | arr_map code="(val) => val[1]") 
+    }}
+*/
+	  {{ pc: param_combo name="file" 
+           titles=(@qqe->current_listing | arr_map code="(val) => val[0]") 
+           values=(@qqe->current_listing | arr_map code="(val) => val[1] || val[0]")
+           index=0
+    }}
+    current_file_name=(@pc->titles | geta @pc->index)
+    scene2d=@scene2d
+    current_listing=( @qqe->files or @listing->output {{ console_log_params "EEE"}})
+    //current_listing=@listing->output
     {
+				scene2d: dom {
+			  		text tag="h2" style="color:white;margin:0;" (m_eval "(s) => s.split('.')[0]" @qqe->current_file_name)
+			  		;
+				};
+
+    	 listing: select-files-inet listing_file="https://viewlang.ru/assets/majid/2022-06/list.txt";
+
      	 loaded_data: m_eval "JSON.parse" (load-file file=@qqe->file);
     };
 };
