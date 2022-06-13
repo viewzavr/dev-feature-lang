@@ -19,6 +19,7 @@ feature "camera-fly-vp" {
 	title="Полет камеры"
 	scene3d=@scene->output
 	project=@..
+	//trajectory=""
 	
 	gui={
 		render-params @avp;
@@ -44,6 +45,7 @@ feature "camera-fly-vp" {
 		      	    input_position=(@avp->camera | geta "pos")
 		            input_look_at=(@avp->camera | geta "center")
 		      }}
+		      trajectory=@avp->trajectory?
 		      ;
 		cc: camera_computer_splines input=@te->output 
 		      {{ x-set-params time=@te->recommended_time?; }}; // обновляем положение когда аппендят новую точку к траектории
@@ -182,7 +184,7 @@ feature "max_time" {
   m_js `(df) => {
   	if (!df) return 0;
   	let t = 0;
-  	let col = df["TIME_DELTA"];
+  	let col = df["TIME_DELTA"] || [];
   	
     for (var i=1; i<col.length; i++) {
     	t += col[i];
@@ -216,7 +218,7 @@ feature "camera_computer_splines" {
   // приведение time к отрезку 0..1
   compute_current_t=(m_js `(res,time) => {
   	let t = 0;
-  	let col = res["TIME_DELTA"];
+  	let col = res["TIME_DELTA"] || [];
   	let w = 0;
   	let ii = -1;
     for (var i=1; i<col.length; i++) {

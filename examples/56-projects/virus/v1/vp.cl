@@ -93,19 +93,19 @@ feature "vis-1" {
 		   @data->output | geta "spheres" 
 		     | 
 		     df_create_from_arrays columns=["X","Y","Z","RADIUS"]
-		     | console_log_input
 		     |
 		    pts: spheres-vp title="spheres"
 		     radius=5
+		     color=[1,0,0]
 		     //{{ x-param-slider name="radius" min=0.01 max=0.25 step=0.01 }}
 		     ;
 
 		   @data->output | geta "lines" 
 		     | 
 		     df_create_from_arrays columns=["X","Y","Z","X2","Y2","Z2"]
-		     | console_log_input
+		     | console_log_input "LINES"
 		     |
-		    lines: linestrips-vp title="lines"
+		    lines: lines-vp title="lines"
 		      color=[0.75, 0.75, 0.85]
 		     //radius=0.02 
 		     //{{ x-param-slider name="radius" min=0.01 max=0.25 step=0.01 }}

@@ -47,8 +47,12 @@ export function linestrips_to_lines( env ) {
   env.trackParam("input",(dat) => {
     if (!df.is_df(dat)) {
       console.error( "linestrips_to_lines: incoming value is not df", dat)
-      return
-   };
+      return;
+     };
+    if (!dat.X || !dat.Y || !dat.Z) {
+      console.error( "linestrips_to_lines: incoming dataframe have no .X .Y .Z fields!", dat)
+      return;
+    }
 
     var prevn = -1;
     var vals = {X:[],Y:[],Z:[],X2:[],Y2:[],Z2:[],R:[],G:[],B:[],R2:[],G2:[],B2:[]}

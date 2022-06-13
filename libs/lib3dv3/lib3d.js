@@ -19,7 +19,7 @@ export function render3d( env ) {
   // хотя может он и рендерер должен выдавать.. (но он и выдает..)
 
   // todo ориентироваться на dom-размеры..
-  var default_camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000000 );
+  var default_camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.001, 10000000 );
   /*
   if (!env.params.camera) {
     env.setParam("camera",default_camera);
@@ -269,7 +269,7 @@ export function renderer_bg_color( env ) {
 }
 
 export function camera3d( env ) {
-  var cam = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10000000 );
+  var cam = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.0000001, 10000000 );
   cam.vrungel_camera_env = env;
   let a1, a2;
   

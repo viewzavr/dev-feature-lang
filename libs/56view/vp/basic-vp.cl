@@ -39,6 +39,14 @@ feature "points_vp" {
 	  points;
 };
 
+feature "lines_vp" {
+	vp: visual-process editable-addons title="Отрезки"
+	  gui={ render-params @vp
+	  	       filters={ params-hide list="title"; }; 
+	    manage-addons @vp; }
+	  lines;
+};
+
 feature "linestrips_vp" {
 	vp: visual-process editable-addons title="Отрезки"
 	  gui={ render-params @vp

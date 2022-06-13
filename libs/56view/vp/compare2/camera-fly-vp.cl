@@ -118,7 +118,7 @@ feature "camera_computer" {
 //  	console.log('compute-current called, time is ',res,time)
   	let t = 0;
   	//debugger
-  	let col = res["TIME_DELTA"];
+  	let col = res["TIME_DELTA"] || [];
     for (var i=1; i<col.length; i++) {
       if (time >= t && time <= t+col[i]) {
         var w = (time - t) / col[i];
@@ -155,7 +155,7 @@ feature "max_time" {
   m_js `(df) => {
   	if (!df) return 0;
   	let t = 0;
-  	let col = df["TIME_DELTA"];
+  	let col = df["TIME_DELTA"] || [];
   	
     for (var i=1; i<col.length; i++) {
     	t += col[i];
