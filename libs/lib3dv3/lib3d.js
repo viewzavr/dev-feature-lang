@@ -269,7 +269,8 @@ export function renderer_bg_color( env ) {
 }
 
 export function camera3d( env ) {
-  var cam = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.0000001, 10000000 );
+  // значение znear 0.00000001 дает любопытнейший глюк збуфера
+  var cam = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.001, 10000000 );
   cam.vrungel_camera_env = env;
   let a1, a2;
   

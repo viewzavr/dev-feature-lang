@@ -55,7 +55,7 @@ feature "find-one-object" code=`
 //      - root - от какого объекта отсчитываются пути
 // выход - output - массив найденных объектов. там где не найдено там null.
 feature "find-objects-by-pathes" {
-	ee: input=@.->0 
+	ee: input=@.->0
 	    output=@m->output
 	{
 		eval @ee->input code="(p) => {
