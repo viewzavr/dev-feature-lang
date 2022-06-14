@@ -467,6 +467,10 @@ export function computer(env)
 // пример: append_feature "rect" "rounded red"
 // и значит когда создается объект rect к нему цепляются фичи rounded и red
 export function append_feature( env, envopts ) {
+  // дорогая вещь
+  console.error("append_feature is deprecated")
+  debugger;
+
   env.onvalues( [0,1],(a,b) => {
     //console.log("append_feature",a,b)
     if (a && b) {
@@ -2515,6 +2519,7 @@ export function insert_children( env )
      
      // ну тут поомтимизировать наверное можно, но пока тупо все давайте очищать
      // todo optimize! но сначала померять часто ли эта фигня и скоко времени занимаетs
+
      close_envs();
      //debugger;
 

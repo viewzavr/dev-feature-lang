@@ -35,6 +35,7 @@ export function setup( vz, m ) {
 // здесь f это функция создания dom-элемента
 export function dom( obj, options={} )
 {
+  let rescan_counter=0;
 
   /////// собственный html-код
   //obj.setParamOption("output","internal",true);
@@ -217,6 +218,7 @@ export function dom( obj, options={} )
 
   //obj.rescan_children = delayed(rescan_children);
   obj.feature("delayed");
+  //var rescan_children_delayed = obj.delayed(rescan_children2,2);
   var rescan_children_delayed = obj.delayed(rescan_children2);
 
 
@@ -255,8 +257,10 @@ export function dom( obj, options={} )
 
   //obj.rescan_children = rescan_children;
   
+  
   function rescan_children2(reason) {
-   //console.log("rescan_children2 called", obj.getPath(), "["+reason+"]")
+    //console.log("rescan_children2 called", obj.getPath(), "["+reason+"]")
+    //console.log("rescan",rescan_counter++)
     clear_viewzavr_dom_children();
 
     let target  = obj.combiningDom();

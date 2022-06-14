@@ -20,7 +20,7 @@ export function set_params( env )
    for (let c of env.getParamsNames())
       channel.setParam( c, env.getParam(c));
 
-   env.on("remove", () => channel.remove() );
+   env.on("remove", () => channel.remove( ! env.host.removing ) );
 }
 
 // новый модификатор
@@ -75,13 +75,15 @@ export function param_subchannels(env)
 
     // m.addTreeToObj(obj, "ns");
     res.remove = (restore_values_to_original=true) => {
-       console.log('channel removing',res)
+       
        let i = env.$subchannels.indexOf( res );
        if (i >= 0)
            env.$subchannels.splice( i, 1 );
 
        if (!restore_values_to_original) // особый случай. если у нас ручное управление то отменять не надо. да уж.
            return; // ну либо отдельный флаг надо будет сделать
+
+       console.log('channel removing and restoring params',res) 
 
        // todo странно все это.. все параметры заново выставлять.. тем более там есть ссылки и резульатты выражений..
        // возможно лучше было бы.. выставлять только то что было в данном канале...

@@ -119,7 +119,7 @@ feature "show_sources_params"
           collapsible text=(@mm->input | get_param "title" default="no title") 
             style="min-width:250px;" padding="2px"
             style_h = "max-height:80vh;"
-            body_features={ set_params style_h="max-height: inherit; overflow-y: auto;"}          
+            body_features={ set_params style_h="max-height: inherit; overflow-y: auto;"}
             expanded=( (@mm->input_index == 0) and @sv->auto_expand_first)
           {
              insert_children input=@.. list=(@mm->input | get_param "gui");
@@ -153,18 +153,20 @@ feature "show_sources_params"
     }; // svlist  
 
 
-    extra_settings_panel_outer: row gap="2px" style='pointer-events: all !important;' {
+    extra_settings_panel_outer: row gap="2px" style='pointer-events: all !important;' 
+        visible=(m_eval "(list) => {
+            return list && list.length>0 ? true: false;}" 
+            @extra_settings_panel->list? allow_undefined=true) 
+    {
       extra_settings_panel: 
       column // style="position:absolute; top: 1em; right: 1em;" 
       {
          insert_children input=@.. list=@extra_settings_panel->list?;
       };
-      button "&lt;" style_h="height:1.5em;" 
-        visible=(m_eval "(list) => {
-            return list && list.length>0 ? true: false;}" 
-            @extra_settings_panel->list? allow_undefined=true) 
+      bt: button "&lt;" style_h="height:1.5em;" 
       {
          setter target="@extra_settings_panel->list" value=[];
+         //m_lambda "() => console.log('clocled');"
       };
     }; // extra_settings_panel_outer
 
