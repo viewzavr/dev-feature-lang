@@ -20,8 +20,8 @@ register_feature name="arr_to_colors" {
     };
     param_checkbox name="auto_calculate" value=true;
 
-    if (@root->re_calculate) then={
-      setter target="@root->min" value=@mm->min auto_apply;
+    if (@root->auto_calculate) then={
+       setter target="@root->min" value=@mm->min auto_apply;
        setter target="@root->max" value=@mm->max auto_apply;
     };
     

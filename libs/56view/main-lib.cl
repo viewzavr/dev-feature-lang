@@ -110,11 +110,11 @@ feature "show_3d_scene" {
 // input - список процессов
 feature "show_sources_params"
 {
-  sv: row auto_expand_first=true {
-    svlist: column {
+  sv: row auto_expand_first=true style='pointer-events: none !important;' {
+    svlist: column style='align-items: flex-start; pointer-events: none !important;' {
       repeater input=@sv->input {
         mm: 
-         row {
+         row style='pointer-events: all !important;' {
         //dom tag="fieldset" style="border-radius: 5px; padding: 2px; margin: 2px;" {
           collapsible text=(@mm->input | get_param "title" default="no title") 
             style="min-width:250px;" padding="2px"
@@ -153,7 +153,7 @@ feature "show_sources_params"
     }; // svlist  
 
 
-    extra_settings_panel_outer: row gap="2px" {
+    extra_settings_panel_outer: row gap="2px" style='pointer-events: all !important;' {
       extra_settings_panel: 
       column // style="position:absolute; top: 1em; right: 1em;" 
       {
@@ -253,7 +253,9 @@ feature "show_visual_tab" {
 feature "render_project_right_col";
 
 feature "render_project" {
+   // прикидывается колонкой чтобы стыковать левую колонку экрана с кнопками экранов
    rend: column padding="1em" project=@.->0 
+            class='vz-mouse-transparent-layout'
             active_view_index=0 
             active_view=(@rend->project|geta "views"|geta @ssr->index default=null) 
 
