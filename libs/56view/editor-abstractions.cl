@@ -16,14 +16,9 @@
 
 feature "manage-content" {
 
- 	mc: column root=@mc->0 allow_add=true {
+ 	mc: column root=@mc->0 allow_add=true plashka {
 
-     if (@mc->allow_add) then={
-          ba: button_add_object
-               add_to=@mc->root
-               add_type=(@mc->items | geta 0 | get "add")
-               ;
-     };     
+     dom tag="h3" style="margin:0px; color: white; " innerText=@mc->title;
 
      //@ba | x-modify-list list=@mc->add_bt_modifiers;
 
@@ -34,6 +29,7 @@ feature "manage-content" {
                      include_root=false 
                     | sort_by_priority;
 
+     column {                    
 		@objects_list->output | repeater {
    		rep: row 
 
@@ -59,6 +55,15 @@ feature "manage-content" {
    			   } }};
    		};
    	};
+
+    }; // column of elements
+    
+     if (@mc->allow_add) then={
+          ba: button_add_object
+               add_to=@mc->root
+               add_type=(@mc->items | geta 0 | get "add")
+               ;
+     };     
    	
-    };
+    }; // main col
 };

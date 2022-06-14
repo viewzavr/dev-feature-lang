@@ -365,7 +365,7 @@ feature "find-data-source-column" {
   }
   output=@s2->output
   {
-     s1: find-data-source;
+     s1: find-data-source input_link=@it->initial_link?;
      s2: select-source-column input=@s1->output?;
   };
 };

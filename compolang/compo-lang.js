@@ -1599,14 +1599,15 @@ export function console_log_life( env, options )
 {
   env.host.on("param_changed",(n,v) => {
     console.log( "console_log_life: ",env.params.text || env.params[0] || "", 
-       env.host.getPath(), 
+       env.host.getPath(), env.host,
        "param changed",
        "->",n,":",v )
   });
   {
     let g = env.host.addGui;
     env.host.addGui = (...args) => {
-      console.log( "console_log_life: ",env.params.text || env.params[0] || "", env.host.getPath(), 
+      console.log( "console_log_life: ",env.params.text || env.params[0] || "", 
+        env.host.getPath(), env.host,
           "addGui",...args )
       return g.apply( env.host, args);
     }
@@ -1618,7 +1619,8 @@ export function console_log_life( env, options )
   {
     let g = env.host.callCmd;
     env.host.callCmd = (...args) => {
-      console.log( "console_log_life: ",env.params.text || env.params[0] || "", env.host.getPath(), 
+      console.log( "console_log_life: ",env.params.text || env.params[0] || "", 
+        env.host.getPath(), env.host,
           "cmd called",...args )
       return g.apply( env.host, args);
     }
@@ -1633,7 +1635,8 @@ export function console_log_life( env, options )
       let qq=args[0].substring(0,6);
       //if (args[0] != 'param_changed' && qq != "param_") {
       if (qq != "param_") {  
-        console.log( "console_log_life: ",env.params.text || env.params[0] || "", env.host.getPath(), 
+        console.log( "console_log_life: ",env.params.text || env.params[0] || "", 
+          env.host.getPath(), env.host,
             "event",...args )
       };
       return g.apply( env.host, args);
@@ -1642,6 +1645,10 @@ export function console_log_life( env, options )
         env.host.emit = g;
     })
   }  
+
+  env.on("remove",() => {
+    console.log("console_log_life: env removed!", env.params.text || env.params[0] || "", env.host.getPath());
+  });
 }
 
 // решил пусть будет один режим работы - по позиционным параметрам

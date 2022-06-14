@@ -76,7 +76,7 @@ feature "manage_addons" {
    };
    */
 
-   co: collapsible (join "Добавки (" @co->addons_count ")")
+   co: collapsible (join "Спецфункции (" @co->addons_count ")")
    addons_count=(@ma->input? | geta "addons_container" | get_children_arr | geta "length" default=0)
    expanded=(@co->addons_count > 0)
    {
@@ -87,12 +87,17 @@ feature "manage_addons" {
 
 feature "addons_area" {
   aa: column plashka {
+
+    column {
+      show_addons input=(@aa->input? | geta "addons_container" | get_children_arr | sort_by_priority);
+    };
+
 	ba: button_add_object add_to=(@aa->input? | geta "addons_container")
 	                      add_type="effect3d_blank"
 	                      text="+"
 	                      ;
 
-  	show_addons input=(@aa->input? | geta "addons_container" | get_children_arr | sort_by_priority);
+  	
   };
 };	
 

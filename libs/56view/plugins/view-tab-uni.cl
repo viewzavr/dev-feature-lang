@@ -169,7 +169,7 @@ feature "show_visual_tab_uni" {
         justify-content: center;" class="view56_visual_tab"
     {
       repa: repeater input=(@svr->input | geta "visible_areas") {
-        show_area style="flex: 1 1 0;" ;
+        show_area style="flex: 1 1 0; position: relative;" ; // rel указан чтобы дом-записи внизу не смешивались
       }; // repeater of areas
 
     }; // global row rrviews

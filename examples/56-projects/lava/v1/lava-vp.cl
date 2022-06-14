@@ -53,6 +53,7 @@ feature "manage_project" {
 	};
 };
 
+/*
 feature "text3d_vp" {
 	vp: visual-process editable-addons title="Текст"
 	  gui={ render-params @vp
@@ -61,6 +62,7 @@ feature "text3d_vp" {
 	  text3d_one
 	  ;
 };
+*/
 
 feature "points_vp" {
 	vp: visual-process editable-addons title="Точки"

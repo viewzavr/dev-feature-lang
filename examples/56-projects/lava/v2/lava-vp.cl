@@ -53,6 +53,7 @@ feature "manage_project" {
 	};
 };
 
+/*
 feature "text3d_vp" {
 	vp: visual-process editable-addons title="Текст"
 	  gui={ render-params @vp
@@ -69,6 +70,7 @@ feature "points_vp" {
 	    manage-addons @vp; }
 	  points;
 };
+*/
 
 ////////////////////////////
 
@@ -92,7 +94,7 @@ feature "vtk-source" {
 
     url="http://127.0.0.1:8080/vrungel/public_local/Kalima/list.txt"
     dictionary_urls=["http://127.0.0.1:8080/vrungel/public_local/Kalima/list.txt"]
-
+    scene2d=@scene2d
     {
 			scene2d: dom {
 			  		//text tag="h2" style="color:white;" (join (@listing->output | geta @astradata->N));
@@ -127,14 +129,15 @@ feature "vtk-source" {
 };
 
 
-
 // тут у нас и раскраска и доп.фильтр встроен. ну ладно.
 // и это 1 штучка
 feature "vtk-vis-1" {
 	avp: visual_process
-	title="Визуализация VTK точек"
+	//title="Визуализация VTK точек"
 	input=@vtkdata->output
 	output=@avp->scene3d
+	show_source=true
+	title=(@avp->selected_column or "Слой точек")
 
     columns=(@avp->input | geta "colnames")
     selected_data = (get input=@avp->input name=@avp->selected_column)
@@ -150,7 +153,7 @@ feature "vtk-vis-1" {
 			//checkbox "visible" value=@avp->visible
 			//{{ x-on "user-changed" "(obj) => obj.setParam('visible',!obj.params.visible, true) " }}
 
-			collapsible "Источник данных" {
+			collapsible "Источник данных" visible=@avp->show_source{
   		  render-params @vtkdata;
 	    };
 
@@ -219,7 +222,7 @@ feature "vtk-vis-1" {
 		   // вообще может оказаться что это будет отдельный визуальный процесс - "антураж"
 		   //ab: axes_view size=1;
 
-		   tx: text3d_vp text=@avp->selected_column 
+		   tx: text3d_vp text=@avp->selected_column
 		   {{
           box: get_coords_bbox input=@pts->output;
 				  effect3d-pos x=(@box->max | geta 0) y=(@box->max | geta 1) z=(@box->max | geta 2);
@@ -323,25 +326,64 @@ feature "vtk-vis-group" {
 
 };
 
+/*
+feature "render-gui" {
+	insert_children input=@.. list=@.->0;
+};
+*/
+
+feature "lava-group" {
+		vp: visual_process
+		  title="Пакет данных по лаве"
+		  scene2d=(list @s->scene2d @vis->scene2d)
+		  //scene2d=@s->scene2d
+		  scene3d=@vis->scene3d
+		  gui={
+		  	column style="padding-left: 1em;" {
+		  	  show_sources_params input=(list @s @vis);
+		    };
+		  	//insert_children input=@.. list=@.->0;
+		  	//render-gui @s->gui;
+		  	//render-gui @vis->gui;
+		  }
+		  gui3={
+		  	render-params @vp;
+		  }
+		  {{ x-on "cocreated" {
+		  		setter target="@vis->initial_input_link" value=(+ (@s | geta "getPath") "->output");
+		  	} }}
+		  {
+		  	s: vtk-source;
+		  	vis: vtk-vis show_source2=false ;
+		  	       //initial_input_link=(+ (@s | geta "getPath") "->output");
+		  };
+};
+
 feature "vtk-vis" {
 	vp: visual_process
 	title="VTK точки"
 	columns=(@vp->input | geta "colnames")
 	input=@vtkdata->output
+	show_source=true
 
 	gui={
-		render-params @vp;
+		//render-params @vp;
+		column style="padding-left:1em;" {
 
-		collapsible "Источник данных" {
-  		  render-params @vtkdata;
+		collapsible "Источник данных" visible=@vp->show_source{
+  		  render-params @vtkdata plashka;
 	  };
-
-    manage-addons @scene;
 
     manage-content @scene 
        vp=@vp
        title="Слои" 
-       items=[{"title":"Скалярные слои", "find":"vtk-vis-1","add":"vtk-vis-1"}];
+       items=[{"title":"Скалярные слои", "find":"vtk-vis-1","add":"vtk-vis-1"}]
+       ;
+
+       manage-addons @scene;
+    };
+
+    
 	}
 
   scene3d=@scene->output
@@ -350,11 +392,18 @@ feature "vtk-vis" {
   sub_processes=@vp->generated_processes
 
   {
-    vtkdata: find-data-source; // гуи выбора входных данных
+    vtkdata: find-data-source initial_link=@vp->initial_input_link?; // гуи выбора входных данных
 
   	scene: node3d editable-addons 
   	  {
 
+  	  	vtk-vis-1 
+  			      input=@vp->input 
+  			      title=@.->selected_column
+  			      show_source=false
+  			;
+
+/*
   	  	// это должно быть разовым действием - добавление всех колонок
   		@vp->columns | repeater {
   			 rep: output=@vv->output {
@@ -364,8 +413,13 @@ feature "vtk-vis" {
   			      ;
   			    };  
   		};
+*/  		
 
   	};
+
+		insert_children input=@scene->addons_container active=(is_default @scene) list={
+				effect3d-delta dz=5;
+		};
 
 /*
   	 @vp->generated_processes | filter_geta "visible" | repeater {
@@ -490,38 +544,3 @@ rl_root:
 
 };
 
-
-
-feature "manage-content" {
-
- 	mc: column root=@mc->0 {
-
-     ba: button_add_object 
-          add_to=@mc->root
-          add_type=(@mc->items | geta 0 | get "add");
-
-     objects_list:
-     find-objects-bf (@mc->items | geta 0 | get "find") 
-                     root=@mc->root
-                     recursive=false
-                     include_root=false debug=true
-     | sort_by_priority;
-
-		@objects_list->output | repeater {
-   		rep: row {
-   			button (@rep->input | geta "title") style='min-width:220px;'
-   			{
-		       m_lambda "(obj,g2) => { obj.emit('show-settings',g2) }" @mc->vp (@rep->input | geta "gui");
-   			};
-   			k: checkbox-c value=(@rep->input | geta "visible")
-   			   {{ x-on 'user-changed' {
-   			   	  m_lambda "(obj,obj2,val) => {
-   			   	    //console.log('setting visible to obj',obj,val );
-   			   	    obj.setParam('visible', val, true);
-   			   	  }" @rep->input;
-   			   } }};
-   		};
-   	};
-   	
-    };
-};

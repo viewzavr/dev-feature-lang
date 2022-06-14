@@ -13,7 +13,7 @@ feature "axes-view" {
     };
 };
 
-feature "text3d_one_vp" {
+feature "text3d_vp" {
 	vp: visual-process editable-addons title="Текст"
 	  gui={ render-params @vp
 	  	       filters={ params-hide list="title"; }; 
@@ -22,7 +22,7 @@ feature "text3d_one_vp" {
 	  ;
 };
 
-feature "text3d_vp" {
+feature "text3d_lines_vp" {
 	vp: visual-process editable-addons title="Текст"
 	  gui={ render-params @vp
 	  	       filters={ params-hide list="title"; }; 

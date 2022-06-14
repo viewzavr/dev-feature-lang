@@ -7,6 +7,10 @@ project: the_project
   default_animation_parameter="project/adata/data->N"
 {
   insert_children input=@project manual=true active=(is_default @project) list={
+
+    lg: lava-group;
+
+    /*
     adata: vtk-source;
     av1: vtk-vis;
     av11: vtk-vis-1;
@@ -14,11 +18,12 @@ project: the_project
 
     objdata: obj-source;
     objvis: obj-vis;
+    */
 
     axes: axes-view size=10;
 
     v1: the-view-uni title="Общий вид" {
-          area sources_str="@adata, @av1, @objdata, @objvis, @axes, @av11";
+          area sources_str="@lg, @axes";
           camera pos=[-1.213899509537966, -6.483218783513895, 6.731292315078603] center=[-1.3427112420191143,2.246045687869776,2.985181087924206];
     };
   };

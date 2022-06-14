@@ -133,7 +133,7 @@ feature "vis-1" {
 		     | 
 		     df_create_from_arrays columns=["X","Y","Z","TEXT"]
 		     |
-		    text3d-vp title="labels"
+		    text3d-lines-vp title="labels"
 		      size=0.01
 		     //radius=0.02 
 		     {{ x-param-slider name="size" min=0.01 max=0.25 step=0.01 }}
