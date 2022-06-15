@@ -128,6 +128,63 @@ feature "vtk-source" {
     };
 };
 
+// вход - взаимодействие с пользователем либо файл list.txt
+// выход - список vtk_files, obj_files
+
+feature "vtk-data-package" {
+  qqe: visual_process df56 
+    title="Загрузка пакета лавы"
+    index=1 	
+    gui={
+    	column plashka {
+    		
+    		column {
+      		insert_children input=@.. list=@files->gui;
+    	  };
+
+    	  render-params @data;
+      };
+    } 
+    url="http://127.0.0.1:8080/vrungel/public_local/Kalima/list.txt"
+    dictionary_urls=["http://127.0.0.1:8080/vrungel/public_local/Kalima/list.txt"]
+
+    vtk_files = @files->output | arr_filter code="(rec) => rec[0].match(/\.vtk/i)";
+    obj_files = @files->output | arr_filter code="(rec) => rec[0].match(/\.obj/i)";
+
+    {
+			files: select-files url=@qqe->url;
+			
+			data: N=0 
+			      files=@files->output
+			  {{ x-param-option name="files" option="priority" value=10 }}
+			  {{ x-param-option name="files" option="values" value=@qqe->dictionary_urls? }}
+			  
+				{{ x-param-slider name="N" sliding=false min=0 max=((@data->files | geta "length") - 1) }}
+				
+				{{ x-param-label-small name="files_count"}}
+				{{ x-param-label-small name="current_file_name"}}
+				{{ x-param-option name="current_file" option="readonly" value=true }}
+
+				{{ x-param-label-small name="points_loaded"}}
+				
+				current_file=(@data->files | geta @data->N default=[] | geta 1 default=null)
+		    current_file_name=(@data->files | geta @data->N default=[] | geta 0 default=null)
+		    points_loaded=(@loaded_data2->output | geta "length")
+		    files_count=(@data->files | geta "length")
+
+      {
+      	 loaded_data2: load_file_binary file=@data->current_file | parse_vtk_points 
+      	    | compute_magnitude_col; // туду это должна быть добавка
+			};   
+    };
+};
+
+// input - список файлов
+// выход - выбранный файл
+feature "select-file-by-n" {
+
+}
+
 
 // тут у нас и раскраска и доп.фильтр встроен. ну ладно.
 // и это 1 штучка

@@ -66,3 +66,15 @@ feature "spheres_vp" {
 	    manage-addons @vp->mesh; }
 	  spheres;
 };
+
+feature "mesh_vp" {
+	vp: visual-process editable-addons title="Меш"
+	  scene3d=@vp->output
+	  gui={ render-params @vp
+	  	       filters={ params-hide list="title"; }; 
+	    manage-addons @vp; 
+	  }
+	  {{ x-param-label-small name="positions_count"}}
+	  positions_count=(@vp->positions | geta "length")
+	  mesh;
+};

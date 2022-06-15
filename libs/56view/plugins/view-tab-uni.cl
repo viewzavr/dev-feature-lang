@@ -12,6 +12,7 @@ feature "the_view_uni"
     show_view={
       show_visual_tab_uni input=@tv;
     }
+    //scene3d=(@tv->visible_sources | map_geta "scene3d" default=[] | arr_compact | arr_flat | console_log_input)
     scene3d=(@tv->visible_sources | map_geta "scene3d" default=[] | arr_compact)
     scene2d=(@tv->visible_sources | map_geta "scene2d" default=[])
     sources=(@tv->visible_areas | map_geta "sources" default=[] | arr_flat | arr_uniq)
@@ -181,7 +182,7 @@ feature "show_visual_tab_uni" {
 
 // вход: project, areas, cameras
 feature "areas_settings_dialog" {
-    d: dialog {{console_log_params "DDD" }} {
+    d: dialog{
      dom style_1=(eval (@d->areas | arr_length) 
            code="(len) => 'display: grid; grid-template-columns: repeat('+(1+len)+', 1fr);'") 
      {

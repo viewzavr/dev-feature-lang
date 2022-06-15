@@ -12,6 +12,8 @@ export function view3d( env ) {
 }
 
 export function render3d( env ) {
+
+  let w_counter=0;
   
   env.scene = new THREE.Scene();
   env.setParam( "output",env.scene ); // вот, теперь у нас render3d выдает на выход сцену,
@@ -154,11 +156,28 @@ export function render3d( env ) {
         env.scene.add( env.params.input );
     // и еще списком - но может это стоит в node3d отдать..
 
+    function add( item ) {
+      if (!item) return;
+
+      if (item.isObject3D)
+        env.scene.add(item);
+      else
+        if (Array.isArray(item))
+          item.forEach( add );
+      else {
+        if (w_counter++ < 100)
+            console.error("render3d: wrong input item", env.getPath(), "item=",item)  
+      }
+    }
+    add( env.params.input );
+
+    /*
     if (Array.isArray(env.params.input)) {
       for (let q of env.params.input)
         if (q?.isObject3D)
            env.scene.add( q );
     }      
+    */
   }
 
   update_scene();

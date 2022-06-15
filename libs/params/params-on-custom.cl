@@ -25,7 +25,7 @@ feature "x-param-custom" {
 
 feature "x-param-label-small" {
   xi: x-param-custom editor={
-  	 edt: text (join @edt->name " = " (@edt->object | geta @edt->name));
+  	 edt: text (join @edt->name " = " (@edt->object | geta @edt->name default=null));
   };
 };
 
@@ -164,9 +164,13 @@ feature "select-files-inet" {
 
 // вход: regtest - выражение для встроенного фильтра проверки имен файлов
 // выход: output - массив загруженных файлов из выбранной пользователем папки
+
+// update: regtest завалил мне работу с vtk. и это изменение протокола 
+// (хоть и встройка адаптера - лесом ее пусит явная будет..) 
+// наверное это и не встройка адаптера а изменение таки протокола.. параметр добавили и поведение измениили
 feature "select-files-dir" { 
 
-	ll: regtest = '\.dat'
+	ll: regtest = '.'
 	  {{
 		x-add-cmd name="Выбрать папку" code=(
 			m_apply `(tenv,regtest) => {
@@ -180,7 +184,8 @@ feature "select-files-dir" {
 							  			return 0;
 							  		})
 							  		
-							  		let myfiles = sorted.filter( s => s[0].match( new RegExp(regtest,'i') ) )
+							  		//let myfiles = sorted.filter( s => s[0].match( new RegExp(regtest,'i') ) )
+							  		let myfiles = sorted;
 							  		tenv.setParam('output',myfiles);
 							  	} );
 

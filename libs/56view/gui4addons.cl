@@ -12,7 +12,7 @@ feature "show_addons"
 
           dom_group {
 
-            if ( (@amm->input | geta "title") == "-" ) then={
+            if ( (@amm->input | geta "title" default='') == "-") then={
 
                row 
                
