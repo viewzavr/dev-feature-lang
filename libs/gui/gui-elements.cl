@@ -124,7 +124,7 @@ register_feature name="input_vector" {
 register_feature name="input_vector_c" {
 	dv: dom tag="input" dom_obj_value=(m_eval "(v) => {
 		  if (Array.isArray(v)) v=v.join(' ');
-		  return v.toString();
+		  return v ? v.toString() : null;
 		}" @dv->value?) {
 		dom_event name="change" code=`
 		    let s = env.params.object.dom.value.split( /[,\s]+/ );

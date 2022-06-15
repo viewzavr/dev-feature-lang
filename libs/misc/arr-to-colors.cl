@@ -5,30 +5,29 @@ register_feature name="arr_to_colors" {
   root: color_func=(color_func_white) 
      output=@color_arr->output 
 
-     //{{ x-set-params min=@mm->min max=@mm->max }}
-
     {{ x-param-option name="recalculate" option="priority" value=110 }}
     {{ x-param-option name="help" option="priority" value=0 }}
+    {{ x-param-vector name="minmax" }}
+    {{ x-param-label-small name="minmax_computed" }}
+    minmax_computed=@mm->output
     {
     mm: arr_find_min_max input=@root->input;
-
-    param_float name="min" ;
-    param_float name="max" ;
+    
     param_cmd name="recalculate" {
-       setter target="@root->min" value=@mm->min;
-       setter target="@root->max" value=@mm->max;
+       setter target="@root->minmax" value=@mm->output;
     };
     param_checkbox name="auto_calculate" value=true;
 
     if (@root->auto_calculate) then={
-       setter target="@root->min" value=@mm->min auto_apply;
-       setter target="@root->max" value=@mm->max auto_apply;
+       setter target="@root->minmax" value=@mm->output auto_apply;
     };
     
     //param_label name="help" value="Выбор мин и макс<br/>значения для раскраски";
     
-    color_arr: js input=@root->input cf=@root->color_func min=@root->min max=@root->max code=`
-      env.onvalues(["input","cf","min","max"], (input,cf,min,max) => {
+    color_arr: js input=@root->input cf=@root->color_func minmax=@root->minmax code=`
+      env.onvalues(["input","cf","minmax"], (input,cf,minmax) => {
+        let min = minmax[0];
+        let max = minmax[1];
         let diff = max-min;
 
         let acc = new Float32Array( input.length*3 );

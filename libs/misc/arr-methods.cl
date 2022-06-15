@@ -197,7 +197,7 @@ register_feature name="arr_find_min_max" code=`
     env.setParam("max",res.max);
     env.setParam("diff",res.diff);
 
-    env.setParam("output",res)
+    env.setParam("output",[res.min, res.max])
   }
 `;
 
