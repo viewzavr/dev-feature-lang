@@ -72,7 +72,8 @@ feature "vtk-data-package" {
     	  render-params @qqe filters={ params-hide list="title"; };
       };
     }
-    url="http://127.0.0.1:8080/vrungel/public_local/Kalima/list.txt"
+    //url="http://127.0.0.1:8080/vrungel/public_local/Kalima/list.txt"
+    url="https://viewlang.ru/assets/lava/Etna/list.txt"
     dictionary_urls=["http://127.0.0.1:8080/vrungel/public_local/Kalima/list.txt"]
 
     vtk_files=(@files->output | arr_filter code="(rec) => rec[0].match(/\.vtk/i)")
@@ -183,7 +184,8 @@ feature "lava-group" {
 		  //{{ console_log_params "RRR" }}
 		  gui={
 		  	column style="padding-left: 1em;" {
-		  	  show_sources_params input=(list @s @cur @load @vis @visobj);
+		  	  //show_sources_params input=(list @s @cur @load @vis @visobj);
+		  	  show_sources_params input=(list @s @cur @vis @visobj);
 		  	  //show_sources_params input=@s;
 		  	  //show_sources_params input=@vis;
 		    };
@@ -213,6 +215,9 @@ feature "lava-group" {
 */
 
 				vis: vis-many title="Колонки данных VTK" find="vtk-vis-1" add="vtk-vis-1" 
+				points_loaded=(@load->output | geta "length")
+				{{ x-param-label-small name="points_loaded" }}
+				gui0={ render-params plashka @vis filters={ params-hide list=["title","visible"]; }; }
 		  	{
   	  		vtk-vis-1 
   			      input=@load->output
@@ -268,8 +273,17 @@ feature "vis-many"
 	title="Изображение группы"
 
 	gui={
-		//render-params @vp;
 		column style="padding-left:1em;" {
+
+			column {
+			  insert_children input=@.. list=@vp->gui0?;
+		  };
+		  /*
+			cp: column plashka visible=( > (@cp | get_children_arr | geta "length") 1) 
+			{
+			  render-params @vp filters={ params-hide list=["title","visible"]; }; 
+		  };
+		  */
 
 	    manage-content @vp 
 	       vp=@vp

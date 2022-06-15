@@ -231,16 +231,18 @@ register_feature name="render-param-string" {
 };
 
 feature name="render-param-vector" {
-  cos: column {
+  cos: column
+  {
     text text=@..->name;
-    input_vector_c 
+
+    input_vector_c
       dom_obj_readOnly=(get_param_option @cos->obj @cos->name "readonly")
       value=(read-param @cos->param_path)
+      
       {{ x-on 'user-changed' {
               m_lambda "(obj,name,obj2,val) => {
-                debugger;
                 obj.setParam(name, val, true);
-              }" @cos->object @cos->name;
+              }" @cos->obj @cos->name;
          } }};
    };         
 };

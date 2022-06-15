@@ -132,6 +132,16 @@ feature "x-param-string" {
   ";
 };
 
+feature "x-param-vector" {
+  r: x-patch-r @r->name
+  code="(name,obj) => {
+    
+    if (!name) return;
+    obj.addVector( name, undefined );
+  }
+  ";
+};
+
 feature "x-param-text" {
   r: x-patch-r @r->name
   code="(name,obj) => {

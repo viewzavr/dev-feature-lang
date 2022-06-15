@@ -228,7 +228,13 @@ feature "select-files"
 		    	  	  obj.setParam( nam,v,true);
 		    	  	}" @xedt 'index' @sa->index;
 
-		    column {
+				// rgb(90 177 204);
+				// идея что пока невыбрано оно поярче а когда выбралось то потише
+
+		    column style="background: #70ddff; 
+    border-radius: 5px;
+    border: 0px solid black; padding: 2px;
+    margin: 2px;" {
 		    	//render-params ( (list @l1 @l2) | geta @xedt->index | geta "output");
 		    	
 			    if (@sa->index == 0) 

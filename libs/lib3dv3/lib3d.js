@@ -52,7 +52,12 @@ export function render3d( env ) {
       
       if (env.renderer) env.renderer.dispose();
 
-      env.renderer = new THREE.WebGLRenderer( {canvas: dom, preserveDrawingBuffer : true}); // alpha: true
+      env.renderer = new THREE.WebGLRenderer( 
+        {canvas: dom, 
+         preserveDrawingBuffer : true, // надо для скриншотов
+         logarithmicDepthBuffer: true  // без этого наши точки глючат..
+         // Early Fragment Test
+        }); // alpha: true
       env.setParam("renderer",env.renderer);
       //animate(); -- вынесено наружу, всегда рисуем
   });
@@ -289,13 +294,13 @@ export function renderer_bg_color( env ) {
 
 export function camera3d( env ) {
   // значение znear 0.00000001 дает любопытнейший глюк збуфера
-  var cam = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.001, 10000000 );
+  var cam = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.001, 100000 );
   cam.vrungel_camera_env = env;
   let a1, a2;
   
   // гуи
-  env.addArray( "pos", [0,0,10], 3 );
-  env.addArray( "center", [0,0,0], 3 );  
+  env.addVector( "pos", [0,0,10], 3 );
+  env.addVector( "center", [0,0,0], 3 );  
   // env.addGui( {"type": "custom", "editor":"vector-editor"});
   env.addSlider("theta",0,-180,180,0.1);
 

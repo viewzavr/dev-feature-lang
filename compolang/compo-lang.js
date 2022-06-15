@@ -1599,16 +1599,17 @@ export function console_log_life( env, options )
 {
   env.host.on("param_changed",(n,v) => {
     console.log( "console_log_life: ",env.params.text || env.params[0] || "", 
-       env.host.getPath(), env.host,
-       "param changed",
-       "->",n,":",v )
+       "param changed", "->",n,":",v,
+       env.host.getPath(), env.host
+        )
   });
   {
     let g = env.host.addGui;
     env.host.addGui = (...args) => {
       console.log( "console_log_life: ",env.params.text || env.params[0] || "", 
-        env.host.getPath(), env.host,
-          "addGui",...args )
+        "addGui",...args,
+        env.host.getPath(), env.host
+          )
       return g.apply( env.host, args);
     }
     env.on("remove",() => {
@@ -1620,8 +1621,9 @@ export function console_log_life( env, options )
     let g = env.host.callCmd;
     env.host.callCmd = (...args) => {
       console.log( "console_log_life: ",env.params.text || env.params[0] || "", 
-        env.host.getPath(), env.host,
-          "cmd called",...args )
+        "cmd called",...args,
+        env.host.getPath(), env.host
+          )
       return g.apply( env.host, args);
     }
     env.on("remove",() => {
@@ -1636,8 +1638,9 @@ export function console_log_life( env, options )
       //if (args[0] != 'param_changed' && qq != "param_") {
       if (qq != "param_") {  
         console.log( "console_log_life: ",env.params.text || env.params[0] || "", 
-          env.host.getPath(), env.host,
-            "event",...args )
+          "event",...args,
+          env.host.getPath(), env.host
+             )
       };
       return g.apply( env.host, args);
     }

@@ -37,7 +37,11 @@ feature "camera-fly-vp" {
 		scene: node3d {
 			liness: linestrips input=@te->output color=[0,1,0] visible=false;
 			//get_param_option @liness/lines-env
-			text3d input=(@te->output | df_set TEXT="->TIME_DELTA") size=0.05 visible=@liness->visible;
+
+			/*
+			text3d input=(@te->output | df_set TEXT="->TIME_DELTA") 
+			       size=1.05 visible=@liness->visible;
+			*/       
 		};
 
 		te: trajectory_editor 
@@ -92,7 +96,10 @@ feature "trajectory_editor" {
       	
       	var str = "100," + cp.map( v => v.toString() ).join(",") + "," + cla.map( v => v.toString() ).join(",");
 
-        tenv.setParam( "trajectory", tenv.params.trajectory + "\n" + str, true );
+				if (tenv.params.trajectory) str = tenv.params.trajectory + "\n" + str;
+
+        tenv.setParam( "trajectory", str, true );
+
         // шоб не прыгало
         tenv.emit( "user_added_new",tenv.params.trajectory_time_len + 100)
         console.log('setting new recommended time',tenv.params.trajectory_time_len + 100)
@@ -101,25 +108,27 @@ feature "trajectory_editor" {
     	}` @avpc);
 
     x-add-cmd 
-      name="restart" 
+      name="start_new" 
       code=(m-apply `(tenv) => {
-        tenv.setParam( "trajectory", 
-        	  tenv.params.default_trajectory, true );
+        tenv.setParam( "trajectory",'', true );
             tenv.callCmd("add-current");
     	}` @avpc);    	
-    x-param-option name="restart" option="priority"	value=10; // подальше убрать ее
+    x-param-option name="start_new" option="priority"	value=10; // подальше убрать ее
 
     x-param-text name="trajectory";
+    x-param-option name="trajectory" option="hint" value="Колонки: TIME_DELTA,X,Y,Z,LOOKAT_X,LOOKAT_Y,LOOKAT_Z";
     
-    x-param-string name="input_position";
-    x-param-string name="input_look_at";
+    x-param-vector name="input_position";
+    x-param-vector name="input_look_at";
 
 	}}
-	default_trajectory="TIME_DELTA,X,Y,Z,LOOKAT_X,LOOKAT_Y,LOOKAT_Z"
-	trajectory=@.->default_trajectory
+	//default_trajectory="TIME_DELTA,X,Y,Z,LOOKAT_X,LOOKAT_Y,LOOKAT_Z"
+	//trajectory=@.->default_trajectory
 	
 	trajectory_time_len=(m_eval (max_time) @avpc->output)
-	output=(@avpc->trajectory | parse_csv)
+	output=(
+		     (m_eval '(t) => "TIME_DELTA,X,Y,Z,LOOKAT_X,LOOKAT_Y,LOOKAT_Z\n" + t' @avpc->trajectory) 
+		     | parse_csv)
 	;
 };
 
@@ -132,9 +141,9 @@ feature "camera_computer" {
 	avpco: 
 	{{ 
     x-param-slider name="time" max=@avpco->trajectory_time_len;
-    x-param-string name="output_position";
+    x-param-vector name="output_position";
     x-param-string name="output_look_at" ;
-    x-param-option name="output_position" option="readonly" value=true;
+    x-param-vector name="output_position" option="readonly" value=true;
     x-param-option name="output_look_at" option="readonly" value=true;
 	}}
 	time=0
@@ -203,8 +212,8 @@ feature "camera_computer_splines" {
 	avpco: 
 	{{ 
     x-param-slider name="time" max=@avpco->trajectory_time_len;
-    x-param-string name="output_position";
-    x-param-string name="output_look_at" ;
+    x-param-vector name="output_position";
+    x-param-vector name="output_look_at" ;
     x-param-option name="output_position" option="readonly" value=true;
     x-param-option name="output_look_at" option="readonly" value=true;
 	}}

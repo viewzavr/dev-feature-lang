@@ -41,7 +41,13 @@ feature "manage-content" {
    		   	 }
    		   }
    		 {
-   			button (@rep->input | geta "title") style='min-width:220px;'
+   			button (@rep->input | geta "title") 
+                  style='min-width:220px;
+    background: #70ddff;
+    border-radius: 5px;
+    border: 1px solid black;
+    margin: 2px;
+                '
    			{
 		       m_lambda "(obj,g2) => { obj.emit('show-settings',g2) }" 
 		         @mc->vp @rep->item_gui;
