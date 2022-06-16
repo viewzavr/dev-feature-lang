@@ -8,7 +8,8 @@ register_feature name="arr_to_colors" {
     {{ x-param-option name="recalculate" option="priority" value=110 }}
     {{ x-param-option name="help" option="priority" value=0 }}
     {{ x-param-vector name="minmax" }}
-    {{ x-param-label-small name="minmax_computed" }}
+    {{ x-param-vector name="minmax_computed" }}
+    {{ x-param-option name="minmax_computed" option="readonly" value=true }}
     minmax_computed=@mm->output
     {
     mm: arr_find_min_max input=@root->input;
