@@ -16,9 +16,10 @@ load "plugins/view-tab-uni.cl";
 load "plugins/rotate-views.cl";
 load "plugins/export.cl";
 
-
 load "plugins/animation/animation.cl";
 // load "plugins/global-addons-editor.cl";
+
+load "plugins/show-files-progress.cl";
 
 //////////////////////////////
 // решатели задач визуализации

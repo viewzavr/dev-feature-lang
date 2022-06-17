@@ -11,6 +11,7 @@ export function setup(vz, m) {
 
 // пример: find_objects_bf root=@some features="alfa beta";
 
+// идея надо не root а input!
 export function find_objects_bf( env  ) {
 
   //if (!env.hasParam("root")) env.setParam("root","/");  

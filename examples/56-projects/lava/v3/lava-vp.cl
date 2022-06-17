@@ -176,7 +176,8 @@ feature "lava-group" {
 		vp: visual_process
 		  title="Расчёты по лаве"
 		  //scene2d=(list @cur->scene2d @vis->scene2d?)
-		  scene2d=@cur->scene2d
+		  scene2d=(list @cur->scene2d @vis->scene2d)
+		  
 		  //scene2d=@s->scene2d
 		  scene3d=(list @vis->scene3d @visobj->scene3d)
 		  //scene3d=(list @vis->scene3d)
@@ -295,9 +296,11 @@ feature "vis-many"
 
     };
 	}
-	//generated_processes=(@vp | find-objects-bf features="visual-process" include_root=false recursive=false)
-  //scene3d=(@vp->generated_processes | map_geta "output")
+	generated_processes=(find-objects-bf root=@vp features="visual-process" include_root=false recursive=false)
+  scene2d=(@vp->generated_processes | map_geta "scene2d" default=null)
+
   scene3d=@vp->output
+  
   node3d 
   editable-addons
   // авось прокатит
@@ -398,11 +401,13 @@ feature "vtk-vis-1" {
 		   // вообще может оказаться что это будет отдельный визуальный процесс - "антураж"
 		   //ab: axes_view size=1;
 
+/*
 		   tx: text3d_vp text=@avp->selected_column
 		   {{
           box: get_coords_bbox input=@pts->output;
 				  effect3d-pos x=(@box->max | geta 0) y=(@box->max | geta 1) z=(@box->max | geta 2);
        }};
+*/       
 
 		};
 	};

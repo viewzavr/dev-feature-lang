@@ -10,35 +10,42 @@ export function load_file_func(env) {
 // flag that data is loading
 // this is used to pause animation
 
+
+/*
 function setFileProgress( filename, msg, percent, callback )
 {
 }
+*/
 
 function file_on() {
+/*    
   setTimeout( function() {
     //qmlEngine.rootObject.propertyComputationPending = qmlEngine.rootObject.propertyComputationPending+1;
     vzPlayer.setParam( "file_pending_count", (vzPlayer.params.file_pending_count||0)+1 )
   }, 0);
+*/  
 }
 
 function file_off() {
+/*
   setTimeout( function() {
     vzPlayer.setParam( "file_pending_count", (vzPlayer.params.file_pending_count||0)-1 )
     //qmlEngine.rootObject.propertyComputationPending = qmlEngine.rootObject.propertyComputationPending-1;
   }, 0);
+*/  
 }
 
 /////////////////////// file io
     
-function loadFile( file_or_path, handler, errhandler ) {
+function loadFile( file_or_path, handler, errhandler, setFileProgress=()=>{} ) {
     //formatSrc?
-    return loadFileBase( (file_or_path), true, handler, errhandler );
+    return loadFileBase( (file_or_path), true, handler, errhandler, setFileProgress );
 }
-function loadFileBinary( file_or_path, handler, errhandler ) {
-    return loadFileBase( (file_or_path), false, handler, errhandler );
+function loadFileBinary( file_or_path, handler, errhandler, setFileProgress=()=>{} ) {
+    return loadFileBase( (file_or_path), false, handler, errhandler, setFileProgress );
 }
 
-function loadFileBase( file_or_path, istext, handler, errhandler ) {
+function loadFileBase( file_or_path, istext, handler, errhandler, setFileProgress ) {
     if (file_or_path instanceof FileSystemFileHandle) {
         file_or_path.getFile().then( file => {
             loadFileBase( file, istext, handler, errhandler );
@@ -113,6 +120,11 @@ function loadFileBase( file_or_path, istext, handler, errhandler ) {
             xhr.responseType = istext ? 'text' : 'arraybuffer';
             // тоже нет слов.. это чтобы оно хотя бы с etag консультировалось
             //xhr.setRequestHeader("Cache-Control", "no-cache");
+
+            xhr.onprogress = function(event) {
+                setFileProgress( file_or_path,(event.loaded/(1024)+"Kb") ) ;
+                //console.log( 'Получено с сервера ' + event.loaded + ' байт из ' + event.total,event );
+            }
 
             xhr.onload = function(e) {
                 //console.log("xhr loadFileBase onload fired",file_or_path,e);

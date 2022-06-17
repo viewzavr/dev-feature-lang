@@ -510,7 +510,10 @@ export function dom_group( env ) {
 
       // ну типа дорого.. но посмотрим..
       // ладно пусть пока будет
-      input = input.flat();
+      //console.log("domgroup input= before flat",input, env.getPath(),"output=",acc);
+      input = input.flat(5);
+      //console.log("domgroup input=",input, env.getPath(),"output=",acc);
+      
 
 //        console.warn("dom_group: you passed input that is not array! Use `list` to create array.", 
             //env.getPath(),
@@ -530,14 +533,14 @@ export function dom_group( env ) {
               continue;
             }            
 
-            let od = c.params.output;
-            
+            let od = c?.params ? c.params.output : c;
+
             if (typeof(od) === "function") od = od();
             if (Array.isArray(od)) od.forEach( (el) => acc.push(el) )
               else acc.push( od );
           };
           
-
+      //console.log("output=",acc);
       return acc;
 
       /* вариант с мэп не учитывает что могут вернуть массив и получится мы генерим массив массивов
