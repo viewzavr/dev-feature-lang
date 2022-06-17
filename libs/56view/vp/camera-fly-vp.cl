@@ -191,6 +191,7 @@ feature "camera_computer" {
 
 feature "max_time" {
   m_js `(df) => {
+
   	if (!df) return 0;
   	let t = 0;
   	let col = df["TIME_DELTA"] || [];
@@ -198,6 +199,7 @@ feature "max_time" {
     for (var i=1; i<col.length; i++) {
     	t += col[i];
     }
+    console.log("max_time",df,t)
     return t;
   }`;
 };

@@ -48,7 +48,7 @@ function loadFileBinary( file_or_path, handler, errhandler, setFileProgress=()=>
 function loadFileBase( file_or_path, istext, handler, errhandler, setFileProgress ) {
     if (file_or_path instanceof FileSystemFileHandle) {
         file_or_path.getFile().then( file => {
-            loadFileBase( file, istext, handler, errhandler );
+            loadFileBase( file, istext, handler, errhandler,setFileProgress );
         })
         return;
     }
