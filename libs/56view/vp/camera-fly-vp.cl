@@ -101,9 +101,13 @@ feature "trajectory_editor" {
         tenv.setParam( "trajectory", str, true );
 
         // шоб не прыгало
-        tenv.emit( "user_added_new",tenv.params.trajectory_time_len + 100)
-        console.log('setting new recommended time',tenv.params.trajectory_time_len + 100)
-        tenv.setParam( "recommended_time", tenv.params.trajectory_time_len + 100);
+        //tenv.emit( "user_added_new",tenv.params.trajectory_time_len + 100)
+        if (isFinite(tenv.params.trajectory_time_len))
+        {
+        	console.log('setting new recommended time',tenv.params.trajectory_time_len + 100)
+        	tenv.setParam( "recommended_time", tenv.params.trajectory_time_len + 100);
+        } else
+          console.error('camera-fly-vp: tenv.params.trajectory_time_len is nan',tenv.params.trajectory_time_len)
 
     	}` @avpc);
 
@@ -124,6 +128,7 @@ feature "trajectory_editor" {
 	}}
 	//default_trajectory="TIME_DELTA,X,Y,Z,LOOKAT_X,LOOKAT_Y,LOOKAT_Z"
 	//trajectory=@.->default_trajectory
+	trajectory = ""
 	
 	trajectory_time_len=(m_eval (max_time) @avpc->output)
 	output=(
@@ -147,7 +152,7 @@ feature "camera_computer" {
     x-param-option name="output_look_at" option="readonly" value=true;
 	}}
 	time=0
-	trajectory_time_len=(m_eval (max_time) @avpco->input)
+	trajectory_time_len=( (m_eval (max_time) @avpco->input) or 0)
 	current_result=(m_eval @avpco->compute_current @avpco->input @avpco->time)
 	output_position=(m_eval "(arr) => arr.slice(1,1+3)" @avpco->current_result)
 	output_look_at=(m_eval "(arr) => arr.slice(4,4+3)" @avpco->current_result)

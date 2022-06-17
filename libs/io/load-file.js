@@ -17,6 +17,8 @@ export function load_file( env ) {
     // возможно стоит compute_path внедрить в load_file
     file = env.compute_path( file );
 
+    //let rec_filename = file.name ? file.name 
+
     let root = env.findRoot();
     root.setParam( "loading_files", (root.params.loading_files || []).concat( file ) );
 

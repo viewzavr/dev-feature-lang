@@ -9,9 +9,9 @@ insert_children {
       visible=( (@/->loading_files | geta "length") > 0 )
       style_q="opacity: 85%;"
   {
-    text "Загружаются файлы...";
+    text "Идёт загрузка...";
     repeater input=@/->loading_files {
-      text @.->input;
+      r: text (m_eval "(s) => { return s.name ? s.name : s; }" @r->input);
     };
   };
 };

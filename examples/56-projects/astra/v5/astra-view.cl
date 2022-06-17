@@ -94,7 +94,7 @@ feature "astra-source" {
 			astradata: N=0 
 			    //files=[] 
 			    //files_url="https://viewlang.ru/assets/astra/data/list.txt"
-			    files=@astrafiles->output
+			    files=(@astrafiles->output | arr_filter code="(rec) => rec[0].match(/.dat$/i)")
 			  // {{ x-param-files name="files"}}
 			  {{ x-param-option name="files" option="priority" value=10 }}
 			  {{ x-param-option name="files" option="values" value=["https://viewlang.ru/assets/astra/data/list.txt"] }}
