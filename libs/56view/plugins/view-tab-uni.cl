@@ -36,6 +36,26 @@ feature "the_view_uni"
       view.setParam( 'sources_str', nv, true);
     }`) }}
 
+    {{ x-add-cmd name="forget_process" code=(i-call-js view=@tv code=`(val) => {
+          console.log('forget processc alled');
+          
+          for (let view of env.params.view.params.areas) {
+            view.params.sources ||= [];
+            view.params.sources_str ||= '';
+            if (!val) return;
+
+            let curind = view.params.sources.indexOf( val );
+            if (curind < 0) return;
+
+            let project = view.params.project;
+            let add = '@' + val.getPathRelative( project );
+
+            let filtered = view.params.sources_str.split(',').filter( (v) => v.length>0 && v.trim() != add).join(",");
+            view.setParam( 'sources_str', filtered, true);
+          };
+        }`);
+    }}
+
     gui={ 
 
         render-params @tv; 

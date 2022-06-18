@@ -29,7 +29,7 @@ feature "manage_project" {
 			   {{
 			   	 created_add_to_current_view curview=@ma->curview
 			   	   {{ created_mark_manual }}
-			   	 ;
+			   	 ; 
 			   }};
 
 			button_add_object "Загрузка серии VTK" 
@@ -218,13 +218,14 @@ feature "lava-group" {
 				vis: vis-many title="Колонки данных VTK" find="vtk-vis-1" add="vtk-vis-1" 
 				points_loaded=(@load->output | geta "length")
 				{{ x-param-label-small name="points_loaded" }}
+
 				gui0={ render-params plashka @vis filters={ params-hide list=["title","visible"]; }; }
 		  	{
   	  		vtk-vis-1 
   			      input=@load->output
   			      title=@.->selected_column
   			      selected_column="visco_coefs"
-  			      show_source=false
+  			      show_source=false; // эт начальное
   			;
 		  	};
 				insert_children input=@vis->addons_container active=(is_default @vis) list={

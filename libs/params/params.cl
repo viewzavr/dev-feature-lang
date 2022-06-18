@@ -40,6 +40,24 @@ feature "x-add-cmd" {
   //мечты мечты.. но кстати зато можно порожденные объекты в output хреначить..
   // но опять же а как репитер тут сделаешь? ведь тогда апутупом будет репитер.. ну и ладно..
 
+  rr: x-modify {
+    x-patch-r @rr->name @rr->code
+    code="(name,fn,obj) => {
+      if (name) {
+        obj.addCmd( name, fn, true );
+      }
+    }
+    ";    
+  }
+
+};
+
+/*
+feature "x-add-cmd" {
+  //r: code=@.->0 name=@.->1;
+  //мечты мечты.. но кстати зато можно порожденные объекты в output хреначить..
+  // но опять же а как репитер тут сделаешь? ведь тогда апутупом будет репитер.. ну и ладно..
+
   r: x-patch-r @r->name @r->code
     code="(name,fn,obj) => {
       if (name) {
@@ -48,6 +66,7 @@ feature "x-add-cmd" {
     }
     ";
 };
+*/
 
 // x-add-cmd "name" fn;
 feature "x-add-cmd2" {

@@ -68,6 +68,18 @@ feature "the_view"
   }}
   sources_str=""
   sources=(find-objects-by-pathes input=@tv->sources_str root=@tv->project)
+
+
+  // эта штука соединяет удаление визпроцесса и удаление его из списка визпроцессов экрана
+  {{
+    @tv->sources | x-modify {
+      x-patch-r @tv code=`(view,src) => {
+        return src.on("remove", () => view.callCmd("forget_process",src));
+      }`;
+    };
+  }}
+  
+
   visible_sources = (@tv->sources | filter_geta "visible")
   project=@..
 
@@ -97,6 +109,23 @@ feature "the_view"
       let filtered = view.params.sources_str.split(',').filter( (v) => v.length>0)
       let nv = filtered.concat([add]).join(',');
       view.setParam( 'sources_str', nv, true);
+    }`);
+  }}
+
+  {{ x-add-cmd name="forget_process" code=(i-call-js view=@tv code=`(val) => {
+      let view = env.params.view;
+      view.params.sources ||= [];
+      view.params.sources_str ||= '';
+      if (!val) return;
+
+      let curind = view.params.sources.indexOf( val );
+      if (curind >= 0) return;
+
+      let project = view.params.project;
+      let add = '@' + val.getPathRelative( project );
+
+      let filtered = view.params.sources_str.split(',').filter( (v) => v.length>0 && v.trim() != add).join(",");
+      view.setParam( 'sources_str', filtered, true);
     }`);
   }}
 

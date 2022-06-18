@@ -20,6 +20,8 @@ export function setup( vz ) {
 
 import * as lang from "./compo-lang.js";
 
+// вход text, base_url
+// выход - компаланг обьект
 export function compolang_machine(obj) {
   obj.feature("simple-lang delayed");
   var go = obj.delayed(interpret);
@@ -33,7 +35,7 @@ export function compolang_machine(obj) {
 
     Promise.resolve(res).then( (res) => {
       obj.emit("machine_done",res);
-    });  
+    });
   }
   // вот вопрос. если мы устанавливаем эти вещи, как нам узнать, что это выполнено?
   // по уму, по логике вещей. надо для восстановления из хеша страницы.

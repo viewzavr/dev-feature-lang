@@ -14,6 +14,8 @@ export function setup(vz, m) {
 
 import * as P from "./lang-parser.js";
 
+// создает функцию которая по строчке компаланг-кода генерирует компаланг-процессы
+// и внедряет их в текущее окружение. как ни странно.
 export function simple_lang(env) 
 {
   env.parseSimpleLang = function( code, opts={} ) {
@@ -46,7 +48,9 @@ export function simple_lang(env)
   env.compalang = env.parseSimpleLang;
 }
 
-// объект для парсинга строки в дамп
+// по строчке компаланг-процесса выдает дамп
+// вход - input строка
+// выход - дамп, пригодный для подачи в insert_children и т.п
 export function compalang(env) 
 {
   env.onvalue("input",(code) => {
@@ -54,7 +58,13 @@ export function compalang(env)
     let opts = { base_url: env.$base_url }; // пока так
     
     try {
-      var parsed = P.parse( code, { vz: env.vz, parent: (opts.parent || env), base_url:opts.base_url } );
+      var parsed = P.parse( code, 
+          { vz: env.vz, 
+            parent: (opts.parent || env), 
+            base_url:opts.base_url,
+            grammarSource: {lines: code.split('\n'), file: opts.diag_file } 
+          } 
+            );
       
       var dump = parsed2dump( env.vz, parsed, opts.base_url || "" );
       //dump.keepExistingChildren = true; 
@@ -249,6 +259,7 @@ export function load(env,opts)
 
          Promise.resolve(p1).then( () => {
            resolve(); // загрузили, пропарсили все там
+           env.setParam("output",p1)
          });
        });
 
@@ -2594,6 +2605,7 @@ export function insert_children( env )
  
  function close_envs() {
    for (let old_env of created_envs) {
+     //console.log('issuing remove for',old_env)
      old_env.remove();
    }
    created_envs = [];
@@ -2725,6 +2737,7 @@ export function get_child( env )
   let param_tracking = () => {};
 
   function source_param_changed (input,name) {
+
     let v = input ? input.ns.childrenTable[ name ] : undefined;
 
     env.setParam("output",v );

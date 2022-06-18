@@ -74,7 +74,7 @@ feature "created_add_to_current_view" {
          //let project = args[0].ns.parent;
          //args[0].manuallyInserted=true;
      `;
-  ;    
+  ;
 };
 
 // add_to 
