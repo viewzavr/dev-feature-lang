@@ -275,7 +275,7 @@ feature "vis-many"
 	title="Изображение группы"
 
 	gui={
-		column style="padding-left:1em;" {
+		column style="padding-left:0em;" {
 
 			column {
 			  insert_children input=@.. list=@vp->gui0?;

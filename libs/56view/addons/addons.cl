@@ -1,12 +1,17 @@
 // метка для объектов для которых добавить визуальное управление добавками
 
 feature "editable-addons" {
-   eathing: addons_container=@addons
+   eathing: 
+   addons_container=@addons_p
+   addons=[]
    {{
-     x-modify-list input=@eathing list=(@addons | get_children_arr | filter_geta "visible");
+     // активация аддонов из addons_p области
+     x-modify-list input=@eathing list=(@addons_p | get_children_arr | filter_geta "visible");
+     // внедрение доп. аддонов из параметров (апи режим)
+     insert-children input=@addons_p list=@eathing->addons;
    }}
    {
-     addons: {}; // целенаправленно в children ибо оно сохранится в dump
+     addons_p: {}; // целенаправленно в children ибо оно сохранится в dump
    };
 };
 

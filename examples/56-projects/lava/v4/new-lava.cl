@@ -3,16 +3,20 @@ feature "vtk-series" {
 		  title="Серия VTK"
 		  scene2d=(list @cur->scene2d @vis->scene2d)
 		  scene3d=(list @vis->scene3d)
+		  output=@vis->scene3d
 		  gui={
-		  	column style="padding-left: 1em;" {
+		  	column style="padding-left: 0em;" {
 		  	  show_sources_params input=(list @cur @vis);
+		  	  //insert-children input=@.. list=(list @cur->gui @vis->gui);
+		  	  //insert-children input=@.. list=@cur->gui;
+		  	  //insert-children input=@.. list= @vis->gui;
 		    };
 		  }
 		  gui3={
 		  	render-params @vp;
 		  }
 		  {{ x-on "cocreated" {
-		  		setter target="@vis->initial_input_link" value=(+ (@load | geta "getPath") "->output");
+		  		//setter target="@vis->initial_input_link" value=(+ (@load | geta "getPath") "->output");
 		  	} }}
 		  {
 
@@ -42,7 +46,19 @@ feature "vtk-series" {
 		  };
 };
 
+feature "obj-array" {
+  vp: vis-many title="OBJ-файлы" find="obj-vp" add="obj-vp" 
+  {
+	  repeater input=@vp->files { 
+  	    i: obj-vp
+     		  file=(@i->input | geta 1)
+  			  title=(@i->input | geta 0);
+	   	    
+		};
+   };
+};
 
+/*
 feature "obj-array" {
 		vp: visual_process
 		  title="OBJ файлы"
@@ -56,9 +72,6 @@ feature "obj-array" {
 		  gui3={
 		  	render-params @vp;
 		  }
-		  {{ x-on "cocreated" {
-		  		setter target="@vis->initial_input_link" value=(+ (@load | geta "getPath") "->output");
-		  	} }}
 		  {
 
 		  	visobj: vis-many title="OBJ-файлы" find="obj-vp" add="obj-vp" 
@@ -72,5 +85,6 @@ feature "obj-array" {
 		  	
 		  };
 };
+*/
 
 // todo притащить сюда obj-vp
