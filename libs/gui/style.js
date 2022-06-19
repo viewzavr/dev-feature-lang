@@ -8,6 +8,7 @@ export function add_css_style( env ) {
   var styleSheet = document.createElement("style");
   styleSheet.type = "text/css"; 
   document.head.appendChild(styleSheet)
+  env.onvalue(0,(v) => env.setParam('content',v));
   env.onvalue("content",(styles) => {
     styleSheet.textContent = styles;  
   });

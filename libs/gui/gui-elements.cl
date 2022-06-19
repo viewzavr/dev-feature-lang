@@ -1,3 +1,7 @@
+feature "css-style" {
+  dom tag="style" dom_obj_type="text/css" dom_obj_textContent=@.->0;
+};
+
 register_feature name="button" {
 	tb: dom tag="button" innerHTML=@.->text text=@.->0?
 	func 

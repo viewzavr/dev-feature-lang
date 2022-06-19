@@ -115,7 +115,7 @@ feature "select-file-by-n" {
 
 		scene2d=@scene2d
 		{
-			scene2d: dom {
+			scene2d: dom style="" {
 			  		text tag="h2" style="color:white;margin:0;" @q->fname;
 			};
 		}
@@ -291,7 +291,8 @@ feature "vis-many"
 	    manage-content @vp 
 	       vp=@vp->show_settings_vp
 	       title="" 
-	       items=(m_eval `(t,t2) => { return [{title:"Скалярные слои", find:t, add:t2}]}` @vp->find @vp->add)
+	       items=(m_eval `(t,t2) => { return [{title:"Скалярные слои", find:t, add:t2}]}` 
+	       	      @vp->find @vp->add)
 	       ;
 
 	    manage-addons @vp;

@@ -172,9 +172,18 @@ feature "show_area" {
               ;
 
             extra_screen_things: 
-              column style="padding-left:2em; min-width: 80%; position:absolute; bottom: 1em; left: 1em;" {
-                 dom_group input=(@area_rect->input | geta "visible_sources" | map_geta "scene2d" default=[]);
+              column style="padding-left:2em; position:absolute; bottom: 1em; left: 1em;" 
+              class='vz-mouse-transparent-layout extra-screen-thing'
+              {
+                 dg: dom_group input=(@area_rect->input | geta "visible_sources" | map_geta "scene2d" default=[]);
               };
+
+/*
+   css-style "
+   .extra-screen-thing > * {
+     display: inline-block;
+    }";
+    */
  }; // area-rect  
 };
 

@@ -2,7 +2,7 @@
 // просмотр 1 источника по выбору N
 // просмотр всех источников
 // а чего просмотр - уже параметр..
-// ну а далее уже понять что с синхр N и - как установить цвет )))
+// ну а далее уже понять что с синхр N и - как установить цвет блоку
 
 feature "vtk-series" {
 		vp: visual_process
@@ -52,6 +52,47 @@ feature "vtk-series" {
 		  	
 		  };
 };
+
+feature "vtk-vis-file" {
+		vis: vis-many title="Колонки данных VTK" 
+		    find="vtk-vis-1" 
+		    add={ vtk-vis-1 input=@load->output title=@.->selected_column show_source=false; } 
+				points_loaded=(@load->output | geta "length")
+				{{ x-param-label-small name="points_loaded" }}
+				gui0={ render-params plashka @vis filters={ params-hide list=["title","visible"]; }; }
+				addons={effect3d-delta dz=5}
+		  	{
+	  	  		vtk-vis-1 
+	  			      input=@load->output
+	  			      title=@.->selected_column
+	  			      selected_column="visco_coefs"
+	  			      show_source=false
+	  			;
+
+	  			load: load-vtk-file input=@vis->input;
+		  	};
+ 
+};
+
+/*
+feature "vtk-vis-file" {
+	vp: visual_process
+	    gui=@vis->gui
+	    scene3d=@vis->scene3d
+	    scene2d=@vis->scene2d
+  {
+		load: load-vtk-file input=@vp->input;
+
+		vis: vtk-vis-1
+	  		 input=@load->output
+	  		 title=@.->selected_column
+	  		 selected_column="visco_coefs"
+	  		 show_source=false
+	  		 addons={	effect3d-delta dz=5; };
+  };
+};
+*/
+
 
 feature "obj-array" {
   vp: vis-many title="OBJ-файлы" find="obj-vp" add="obj-vp" 
