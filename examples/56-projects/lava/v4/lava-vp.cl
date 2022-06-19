@@ -273,6 +273,7 @@ feature "vis-many"
 {
 	vp: visual_process
 	title="Изображение группы"
+	show_settings_vp=@vp
 
 	gui={
 		column style="padding-left:0em;" {
@@ -288,7 +289,7 @@ feature "vis-many"
 		  */
 
 	    manage-content @vp 
-	       vp=@vp
+	       vp=@vp->show_settings_vp
 	       title="" 
 	       items=(m_eval `(t,t2) => { return [{title:"Скалярные слои", find:t, add:t2}]}` @vp->find @vp->add)
 	       ;

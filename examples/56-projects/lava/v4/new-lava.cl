@@ -1,3 +1,9 @@
+// todo раздвоить
+// просмотр 1 источника по выбору N
+// просмотр всех источников
+// а чего просмотр - уже параметр..
+// ну а далее уже понять что с синхр N и - как установить цвет )))
+
 feature "vtk-series" {
 		vp: visual_process
 		  title="Серия VTK"
@@ -6,10 +12,10 @@ feature "vtk-series" {
 		  output=@vis->scene3d
 		  gui={
 		  	column style="padding-left: 0em;" {
-		  	  show_sources_params input=(list @cur @vis);
+		  	  //show_sources_params input=(list @cur @vis);
 		  	  //insert-children input=@.. list=(list @cur->gui @vis->gui);
-		  	  //insert-children input=@.. list=@cur->gui;
-		  	  //insert-children input=@.. list= @vis->gui;
+		  	  insert-children input=@.. list=@cur->gui;
+		  	  insert-children input=@.. list= @vis->gui;
 		    };
 		  }
 		  gui3={
@@ -31,6 +37,7 @@ feature "vtk-series" {
 				{{ x-param-label-small name="points_loaded" }}
 				gui0={ render-params plashka @vis filters={ params-hide list=["title","visible"]; }; }
 				visible=@vp->visible
+				show_settings_vp=@vp
 		  	{
 	  	  		vtk-vis-1 
 	  			      input=@load->output
