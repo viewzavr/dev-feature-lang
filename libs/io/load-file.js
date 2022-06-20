@@ -24,7 +24,7 @@ export function load_file( env ) {
 
     env.loadFile( file,(text) => {
       root.setParam( "loading_files",root.params.loading_files.filter( f => f != file) );
-      console.log("load-file: file",file," loaded, text len is ",text.length);
+      console.log("load-file: file",file," loaded, text len is ",text.byteLength || text.length);
       if (env.params.file == file) 
         env.setParam("output",text );
       else console.log('file is skipped - non actual');

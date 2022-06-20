@@ -106,6 +106,16 @@ feature "x-param-checkbox" {
     ";
 };
 
+feature "x-param-color" {
+  r: x-patch-r @r->name
+    code="(name,obj) => {
+      if (name) {
+        obj.addColor( name, undefined );
+      }
+    }
+    ";
+};
+
 
 /* наша попытка работать с род. окружением
 feature "x-param-checkbox" {

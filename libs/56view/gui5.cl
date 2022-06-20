@@ -110,6 +110,39 @@ feature "button_add_object" {
      };    
 };
 
+// add_to
+// add_template это шаблон
+feature "button_add_object_t" {
+  bt_root: button "Добавить" margin="0.5em" {
+        
+        link from="@bt_root->add_to" to="@cre->target" soft_mode=true;
+
+        cre: creator input=@bt_root->add_template
+          {{ onevent 
+             name="created" 
+             //newf=@bt_root->add_type
+             btroot=@bt_root
+             code=`
+                 arg1.manuallyInserted=true;
+
+                 // сейчас мы через фичи инициализируем новые объекты через manual_features
+                 // чтобы выбранный тип "сохранялся" в состоянии сцены.
+                 // в будущем это можно будет изменить на другой подход
+                 //args[0].manual_feature( "linestr" );
+                 //args[0].setParamManualFlag("manual_features");
+                 //let s = "linestr";
+
+                 //let s = env.params.newf;
+                 //arg1.setParam("manual_features",s,true)
+                 
+                 console.log("created",arg1)
+
+                 env.params.btroot.emit("created", arg1 );
+             `
+          }};
+     };    
+};
+
 //target_obj | object_change_type | console_log;
 //вот тут хотелось бы... чтобы вместо object_change_type оказалось бы 2 объекта..
 

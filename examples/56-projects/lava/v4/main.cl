@@ -28,6 +28,42 @@ feature "find-files" {
   };
 };
 
+// по набору имен файлов определяет подпоследовательности файлов
+// вход: 1 аргумент массив файлов 
+//       2 регулярное выражение с 2 скобочками, первая для имени блока вторая для номера файла
+// выход: массив вида [ [имяблока,[массив-файлов]],[имяблока,[массив-файлов]],.. ]
+feature "detect_blocks" {
+  r: output=@mm->output {
+  mm: m_eval "(arr,crit) => {
+        let regexp = new RegExp( crit,'i' );
+        let blocks = {};
+        arr.forEach( elem => {
+          let filename = elem[0];
+          let res = filename.match( regexp );
+          if (res && res[1]) {
+
+            blocks[ res[1] ] ||= [];
+
+            if (res[2]) // сохраним чиселку для сортировки
+                elem.num = parseFloat( res[2] );
+            else
+                elem.num = 0;    
+
+            blocks[ res[1] ].push( elem );
+          }
+        });
+        let blocks_arr = [];
+        let block_names = Object.keys( blocks ).sort();
+        for (let bn of block_names) {
+          let files = blocks[bn].sort( (a,b) => a.num - b.num );
+          blocks_arr.push( [ bn, files] );
+        }
+        console.log('b c',blocks_arr)
+        return blocks_arr;
+      }" @r->0 @r->1;
+  };
+};
+
 feature "auto_gui" {
   vp:
   gui={
@@ -53,8 +89,8 @@ feature "auto_gui2" {
   }
   subprocesses=(find-objects-bf root=@vp features="visual-process" include_root=false recursive=false)
   visible_subprocesses = (@vp->subprocesses | filter_geta "visible")
-  scene3d= (@vp->visible_subprocesses | map_geta "scene3d")
-  scene2d= (@vp->visible_subprocesses | map_geta "scene2d")
+  scene3d= (@vp->visible_subprocesses | map_geta "scene3d" default=null)
+  scene2d= (@vp->visible_subprocesses | map_geta "scene2d" default=null)
   ;
 };
 

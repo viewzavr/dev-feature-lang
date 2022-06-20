@@ -14,9 +14,13 @@
    
 */
 
+// find - строчка по которой искать объекты
+// add - шаблон нового объекта
 feature "manage-content" {
 
- 	mc: column root=@mc->0 allow_add=true plashka {
+ 	mc: column root=@mc->0 
+       allow_add=(@mc->add) 
+     plashka {
 
      dom tag="h3" style="margin:0px; color: white; " innerText=@mc->title;
 
@@ -65,9 +69,9 @@ feature "manage-content" {
     }; // column of elements
     
      if (@mc->allow_add) then={
-          ba: button_add_object
+          ba: button_add_object_t
                add_to=@mc->root
-               add_type=(@mc->items | geta 0 | get "add")
+               add_template=(@mc->items | geta 0 | get "add")
                ;
      };     
    	

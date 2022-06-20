@@ -245,7 +245,22 @@ feature "lava-group" {
 		  };
 };
 
-feature "obj-vp" {
+/*
+feature "obj-vis-file" {
+		it: 
+		mesh-vp 
+		title='obj' 
+		input=@loadobj->output?
+		{{ x-param-file name="file" }}
+		{{ x-param-option name="file" option="priority" value=10 }}
+		{
+  			loadobj: load_file file=@it->file | parse_obj;
+ 	  };
+};
+*/
+
+
+feature "obj-vis-file" {
 		it: visual_process title='obj' 
 		scene3d=@mesh->scene3d 
 		gui={
@@ -260,10 +275,13 @@ feature "obj-vp" {
 		visible=@mesh->visible
 		{
   			loadobj: load_file file=@it->file | parse_obj;
-	  		mesh: mesh-vp input=@loadobj->output?
+	  		mesh: mesh-vp 
+	  		  input=@loadobj->output?
+	  		  color=@it->color?
 	  		  visible=@it->visible;
  	  };
 };
+
 
 // визуальный процесс изображающий группу
 // find - описание рисователя строчкой
@@ -274,6 +292,8 @@ feature "vis-many"
 	vp: visual_process
 	title="Изображение группы"
 	show_settings_vp=@vp
+	find="visual_process"
+	add=null
 
 	gui={
 		column style="padding-left:0em;" {
@@ -322,11 +342,13 @@ feature "vtk-vis-1" {
 	input=@vtkdata->output
 	output=@avp->scene3d
 	show_source=true
+	color=[1,0,0]
 	title=(@avp->selected_column or "Слой точек")
 
     columns=(@avp->input | geta "colnames")
     selected_data = (geta input=@avp->input @avp->selected_column default=[])
     selected_column=""
+
     {{ x-param-combo name="selected_column" values=@avp->columns }}
     //{{ selected_column: param_combo values=@avp->columns index=0; }}
 
@@ -392,7 +414,8 @@ feature "vtk-vis-1" {
 
 		   // 218 201 93 цвет 0.85, 0.78, 0.36
 		   @avp->input | pts: points_vp
-		     radius=1 color=[1,0,0]
+		     radius=1 
+		     color=@avp->color
 		     colors=( @avp->selected_data | arrtocols: arr_to_colors gui_title="Цвета"  ) // color_func=(color_func_white)
 		     ;
 

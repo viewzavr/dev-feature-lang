@@ -56,22 +56,37 @@ feature "vtk-series" {
 feature "vtk-vis-file" {
 		vis: vis-many title="Колонки данных VTK" 
 		    find="vtk-vis-1" 
-		    add={ vtk-vis-1 input=@load->output title=@.->selected_column show_source=false; } 
+		    //add="vtk-vis-connected-l"
+		    add={ 
+		       vtk-vis-1 
+		          input=@load->output 
+		          title=@.->selected_column 
+		          selected_column=@vis->default_column
+		          color=@vis->color
+		          show_source=false; 
+		    } 
+		    default_column="XYZ"
 				points_loaded=(@load->output | geta "length")
 				{{ x-param-label-small name="points_loaded" }}
+				{{ x-param-label-small name="file_name" }}
+				file_name=(@vis->file | geta 0)
 				gui0={ render-params plashka @vis filters={ params-hide list=["title","visible"]; }; }
 				addons={effect3d-delta dz=5}
+				{{ x-param-color "color" }}
+				color=[1,0,0]
 		  	{
-	  	  		vtk-vis-1 
+
+
+  	  		vtk-vis-1 
 	  			      input=@load->output
 	  			      title=@.->selected_column
-	  			      selected_column="visco_coefs"
-	  			      show_source=false
-	  			;
+	  			      selected_column=@vis->default_column
+	  			      color=@vis->color
+	  			      show_source=false;
+	  			
 
-	  			load: load-vtk-file input=@vis->input;
+	  			load: load-vtk-file input=(@vis->file | geta 1);
 		  	};
- 
 };
 
 /*
