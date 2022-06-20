@@ -168,7 +168,7 @@ feature "select-files-inet" {
 // update: regtest завалил мне работу с vtk. и это изменение протокола 
 // (хоть и встройка адаптера - лесом ее пусит явная будет..) 
 // наверное это и не встройка адаптера а изменение таки протокола.. параметр добавили и поведение измениили
-feature "select-files-dir" { 
+feature "select-files-dir" {
 
 	ll: regtest = '.'
 	  {{
@@ -195,6 +195,7 @@ feature "select-files-dir" {
 							  			if (res.done) {
 							  				return cbfinish( acc );
 							  			}
+
 							  			if (res && res.value) {
 							  				acc.push( res.value );
 							  				return follow( iterator,cbfinish,acc )

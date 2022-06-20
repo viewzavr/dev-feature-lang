@@ -19,7 +19,7 @@
 feature "manage-content" {
 
  	mc: column root=@mc->0 
-       allow_add=(@mc->add) 
+
      plashka {
 
      dom tag="h3" style="margin:0px; color: white; " innerText=@mc->title;
@@ -68,12 +68,12 @@ feature "manage-content" {
 
     }; // column of elements
     
-     if (@mc->allow_add) then={
+     if (@mc->items | geta 0 | get "add") then={
           ba: button_add_object_t
                add_to=@mc->root
                add_template=(@mc->items | geta 0 | get "add")
                ;
-     };     
+     };
    	
     }; // main col
 };
