@@ -26,7 +26,9 @@ register_feature name="compute_magnitude_col" code=`
 `;
 
 feature "vtk-vis-file" {
-    vis: vis-many title="Колонки данных VTK" 
+    vis: vis-group title="Колонки данных VTK" 
+        auto_gui3
+        //gui={}
         find="vtk-vis-1" 
         //add="vtk-vis-connected-l"
         add={ 

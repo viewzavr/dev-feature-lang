@@ -1,4 +1,4 @@
-feature "vis-many" 
+feature "vis-group" 
 {
 	vp: visual_process
 	title="Изображение группы"
@@ -9,9 +9,10 @@ feature "vis-many"
 	gui={
 		column style="padding-left:0em;" {
 
-			column {
+		  column {
 			  insert_children input=@.. list=@vp->gui0?;
 		  };
+		  
 		  /*
 			cp: column plashka visible=( > (@cp | get_children_arr | geta "length") 1) 
 			{
@@ -31,14 +32,12 @@ feature "vis-many"
     };
 	}
 	generated_processes=(find-objects-bf root=@vp features="visual-process" include_root=false recursive=false)
-  scene2d=(@vp->generated_processes | map_geta "scene2d" default=null)
-
-  scene3d=@vp->output
-  
-  node3d 
-  editable-addons
-  // авось прокатит
-  {
-  };
+    scene2d=(@vp->generated_processes | map_geta "scene2d" default=null)
+    scene3d=@vp->output
+    node3d 
+    editable-addons
+    // авось прокатит
+    {
+    };
 
 };

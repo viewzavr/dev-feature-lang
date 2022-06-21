@@ -32,6 +32,20 @@ feature "auto_gui2" {
   ;
 };
 
+feature "auto_gui3" {
+  vp:
+  gui={}
+  gui2={
+    render-params plashka @vp filters={ params-hide list="title"; };
+
+    column style="" {
+      show_sources_params input=@vp->ag_subprocesses;
+    };
+  }
+  ag_subprocesses=(find-objects-bf root=@vp features="visual-process" include_root=false recursive=false)
+  ;
+};
+
 
 project: the_project 
   default_animation_parameter="project/adata/data->N"

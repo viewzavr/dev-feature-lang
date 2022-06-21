@@ -78,7 +78,8 @@ feature "manage_addons" {
 
    co: collapsible (join "Спецфункции (" @co->addons_count ")")
    addons_count=(@ma->input? | geta "addons_container" | get_children_arr | geta "length" default=0)
-   expanded=(@co->addons_count > 0)
+   expanded=false
+   //expanded=(@co->addons_count > 0)
    {
    	 addons_area input=@ma->input;
    };
