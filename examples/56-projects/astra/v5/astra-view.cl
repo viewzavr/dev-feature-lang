@@ -94,7 +94,7 @@ feature "astra-source" {
 			astradata: N=0 
 			    //files=[] 
 			    //files_url="https://viewlang.ru/assets/astra/data/list.txt"
-			    files=(@astrafiles->output | arr_filter code="(rec) => rec[0].match(/.dat$/i)")
+			    files=(@astrafiles->output | arr_filter code="(rec) => rec.name.match(/.dat$/i)")
 			  // {{ x-param-files name="files"}}
 			  {{ x-param-option name="files" option="priority" value=10 }}
 			  {{ x-param-option name="files" option="values" value=["https://viewlang.ru/assets/astra/data/list.txt"] }}
@@ -106,8 +106,8 @@ feature "astra-source" {
 				{{ x-param-option name="current_file" option="readonly" value=true }}
 
 				{{ x-param-label-small name="lines_loaded"}}
-				current_file=(@astradata->files | geta @astradata->N default='' | geta 1 default='') // файл
-		    current_file_name=(@astradata->files | geta @astradata->N default='' | geta 0 default='') // символ имени
+				current_file=(@astradata->files | geta @astradata->N default='') // файл
+		    current_file_name=(@astradata->files | geta @astradata->N default='' | geta 'name' default='') // символ имени
 		    lines_loaded=(@loaded_data2->output | geta "length")
 		    files_count=(@astradata->files | geta "length")
 
