@@ -46,12 +46,17 @@ function loadFileBinary( file_or_path, handler, errhandler, setFileProgress=()=>
 }
 
 function loadFileBase( file_or_path, istext, handler, errhandler, setFileProgress ) {
+    // таким образом в url можно посадить и FileSystemFileHandle при желании
+    if (file_or_path.url)
+        file_or_path = file_or_path.url;
+
     if (file_or_path instanceof FileSystemFileHandle) {
         file_or_path.getFile().then( file => {
             loadFileBase( file, istext, handler, errhandler,setFileProgress );
         })
         return;
     }
+
 
     if (file_or_path instanceof File) {
         // http://www.html5rocks.com/en/tutorials/file/dndfiles/
@@ -105,6 +110,8 @@ function loadFileBase( file_or_path, istext, handler, errhandler, setFileProgres
           payload = file_or_path.payload;
           file_or_path = file_or_path.path;
         }
+
+
         
         if (file_or_path && file_or_path.length > 0) {
             if (file_or_path.match(/^wss?:\/\//))

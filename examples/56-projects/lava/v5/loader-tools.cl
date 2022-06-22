@@ -24,17 +24,16 @@ feature "load-dir" {
       files: select-files url=@qqe->url;
 
       loader_file_obj: m_eval "(arr) => {
-        let loader_file = arr.find( elem => elem[0] == 'loader.cl' );
+
+        let loader_file = arr.find( elem => elem.name == 'loader.cl' );
+
         if (!loader_file) {
           console.warn('loader.cl not found in dir',arr)
           return null;
         }
-        if (!loader_file[1]) {
-          console.warn('loader.cl found but content is undefined',loader_file)
-          return null;
-        }
+
         console.warn('loader.cl is found in dir',loader_file)
-        return loader_file[1];
+        return loader_file;
       }" @files->output;
 
       loaded_content: load-file file=@loader_file_obj->output;
@@ -59,40 +58,6 @@ feature "load-dir" {
 
       @r1->output | x-modify { x-set-params dir=@files->output; };
 
-      /*
-      //r1: insert_children input=@loader_cl_content list=@parsed->output {{ console_log_life "recre1"}};
-      loader_cl_content: teta=5;
-      loader: insert_children input=@qqe->project 
-              list=(@loader_cl_content | console_log_input | get_child name="loader" | console_log_input 'i2') {{ console_log_life "recre2"}};
-      @loader->output? | x-modify { x-set-params dir=@files->output };
-      */
-
-      /*
-
-      //loaded_dump: compalang input=@loaded_content->output;
-      //insert_children input=@.. list=@loaded_dump->output;
-
-      //console_log @loaded_content->output;
-
-      @cm | x-modify { 
-          x-set-params text=@loaded_content->output base_url="?";
-        };
-
-      cm: compolang_machine 
-      
-      //{{ x-on 'machine_done' {
-      //   m_lambda "(machine,dir) => {
-      //      let loader_feature = machine.ns.getChildByName("loader");
-      //      let loader = machine.vz.createSyncFromDump( loader_feature, null, machine.ns.parent );
-      //      loader.setParam( "dir", dir)
-      //   }" @files->output;
-      // } }}
-      
-      ;
-
-      loader: recreator list=(@cm | get_child name="loader") {{ console_log_life "recre2"}};
-      @loader->output? | x-modify { x-set-params dir=@files->output };
-      */
     };
 };
 
@@ -104,7 +69,7 @@ feature "find-file" {
   mm: m_eval "(arr,crit) => {
 
         let regexp = new RegExp( crit,'i' );
-        let file = arr.find( elem => elem[0].match( regexp ) );
+        let file = arr.find( elem => elem.name.match( regexp ) );
         if (!file) {
           return null;
         }
@@ -117,7 +82,7 @@ feature "find-files" {
   r: output=@mm->output {
   mm: m_eval "(arr,crit) => {
         let regexp = new RegExp( crit,'i' );
-        let files = arr.filter( elem => elem[0].match( regexp ) );
+        let files = arr.filter( elem => elem.name.match( regexp ) );
         return files;
       }" @r->0 @r->1;
   };
@@ -133,7 +98,7 @@ feature "detect_blocks" {
         let regexp = new RegExp( crit,'i' );
         let blocks = {};
         arr.forEach( elem => {
-          let filename = elem[0];
+          let filename = elem.name;
           let res = filename.match( regexp );
           if (res && res[1]) {
 
@@ -153,7 +118,7 @@ feature "detect_blocks" {
           let files = blocks[bn].sort( (a,b) => a.num - b.num );
           blocks_arr.push( [ bn, files] );
         }
-        console.log('b c',blocks_arr)
+
         return blocks_arr;
       }" @r->0 @r->1;
   };

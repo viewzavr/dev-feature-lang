@@ -43,7 +43,7 @@ feature "vtk-vis-file" {
         points_loaded=(@load->output | geta "length")
         {{ x-param-label-small name="points_loaded" }}
         {{ x-param-label-small name="file_name" }}
-        file_name=(@vis->file | geta 0)
+        file_name=(@vis->file | geta "name")
         gui0={ render-params plashka @vis filters={ params-hide list=["title","visible"]; }; }
         addons={effect3d-delta dz=5}
         {{ x-param-color "color" }}
@@ -59,7 +59,7 @@ feature "vtk-vis-file" {
                 show_source=false;
           
 
-          load: load-vtk-file input=(@vis->file | geta 1);
+          load: load-vtk-file input=@vis->file;
         };
 };
 

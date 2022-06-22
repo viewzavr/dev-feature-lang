@@ -133,9 +133,13 @@ feature "x-param-objref-2" {
   };
 };
 
+//////////////////////////////////
+////////////////////////////////// выбор файлов
+//////////////////////////////////
+
 // вход: listing_file - путь к файлу листинга
 // выход: output - массив путей файлов из файла листинга
-// где каждая запись это пара [имя,полный-путь]
+// где каждая запись это {name:имя,url:полный-путь}
 feature "select-files-inet" {
 		idata: 
 						  //listing_file="http://127.0.0.1:8080/public_local/data2/data.csv"
@@ -156,14 +160,20 @@ feature "select-files-inet" {
 							listing: load-file file=@idata->listing_file 
 							  | m_eval "(txt) => txt && txt.length > 0 ? txt.split('\n') : []" @.->input;
 							listing_resolved: @listing->output | map_geta (m_apply "(dir,item) => dir+'/'+item" @idata->listing_file_dir);
-							result: m_eval "(arr1,arr2) => 
-								  arr1.map( (elem,index) => [ elem, arr2[index]])
-							" @listing->output @listing_resolved->output;
+							result: m_eval "(arr1,arr2) => {
+								  
+								  if (arr1.length != arr2.length) return;
+								  return arr1.map( (elem,index) => {
+								  	return {name: elem, url: arr2[index]};
+								  })
+								}
+								" @listing->output @listing_resolved->output;
 				    };
 };
 
 // вход: regtest - выражение для встроенного фильтра проверки имен файлов
 // выход: output - массив загруженных файлов из выбранной пользователем папки
+// где каждая запись это FileSystemFileHandle и у нее есть поле name
 
 // update: regtest завалил мне работу с vtk. и это изменение протокола 
 // (хоть и встройка адаптера - лесом ее пусит явная будет..) 
@@ -176,7 +186,7 @@ feature "select-files-dir" {
 			m_apply `(tenv,regtest) => {
 							  window.showDirectoryPicker({id:'astradata',startIn:'documents'}).then( (p) => {
 							  	//console.log('got',p, p.entries());
-							  	follow( p.entries(),(res) => {
+							  	follow( p.values(),(res) => {
 							  		//console.log("thus res is",res);
 							  		let sorted = res.sort( (a,b) => {
 							  			if (a[0] < b[0]) return -1;
