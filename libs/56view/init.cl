@@ -112,6 +112,7 @@ feature "the_view"
     }`);
   }}
 
+  {{ x-param-option name="forget_process" option="visible" value=false }}
   {{ x-add-cmd name="forget_process" code=(i-call-js view=@tv code=`(val) => {
       let view = env.params.view;
       view.params.sources ||= [];

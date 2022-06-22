@@ -83,7 +83,7 @@ feature "the_view_uni"
       }
       areas=(find-objects-bf features="area" root=@tv)
       visible_areas=(@tv->areas | filter_geta "visible")
-      cameras=(find-objects-bf features="camera" root=@tv)
+      //cameras=(find-objects-bf features="camera" root=@tv)
     {
       //cam: camera3d pos=[-400,350,350] center=[0,0,0];
       //cams: @tv->visible_sources | repeater { camera3d pos=[-400,350,350] center=[0,0,0] };

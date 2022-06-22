@@ -305,7 +305,7 @@ export function camera3d( env ) {
   env.addSlider("theta",0,-180,180,0.1);
 
   env.onvalue( "pos", (v) => {
-    //console.log("onval pos",v)
+    console.log("camera onval pos",v,cam)
     if (v !== a1 && v) {
       if (isFinite(v[0]) && isFinite(v[1]) && isFinite(v[2]))
         cam.position.set( v[0],v[1],v[2] );
@@ -358,6 +358,8 @@ export function orbit_control( env ) {
   function update() {
     unsub(); unsub = () => {};
 
+    console.log("orbit-control: update, cam=",env.params.camera)
+
     var c = env.params.camera;
     if (c?.params)
         c = c.params.output;
@@ -373,21 +375,27 @@ export function orbit_control( env ) {
     if (cc) cc.dispose();
 
     //console.log('making orbit controls over camera c',c, 'and dom ',dom);
-    
+
     cc = new OrbitControls( c, dom );
+
+    //console.log("made",cc)
 
     // криво косо но пока так
 
     let skip_camera_update=false;
 
     if (c.vrungel_camera_env) {
+      // короче оказалось что там свое некое тета возникает в этот момент
+      // и нам его надо закопировать в камеру
+      c.vrungel_camera_env.setParam( "theta", 360 * cc.getAzimuthalAngle() / (2*Math.PI) );
+
       let u1 = c.vrungel_camera_env.onvalues(["pos","center"],(p,c) => {
         skip_camera_update=true;
         // защита от зацикливания
         let eps = 0.0001;
         if (Math.abs( c[0] - cc.target.x) > eps || Math.abs( c[1] - cc.target.y ) > eps || Math.abs( c[2] - cc.target.z ) > eps )
         { 
-          //console.log('orbitcontrols',env.$vz_unique_id,"pos of camera changed, updating me",c)
+          console.log('orbitcontrols',env.$vz_unique_id,"target of camera changed, updating me",c)
           cc.target.set( c[0], c[1], c[2] );
           cc.update();
         }

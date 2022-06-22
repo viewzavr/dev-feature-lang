@@ -17,7 +17,7 @@ feature "manage_views" {
                 input=@mv->active_view 
             {
 
-              button_add_object "Добавить новый экран" add_to=@mv->project add_type="the-view-mix3d";  
+              button_add_object "Добавить новый экран" add_to=@mv->project add_type="the_view_uni";  
 
               column visible=( (@co->input | pause_input | geta "sibling_types" | geta "length") > 1) {
                 object_change_type text="Способ отображения:"

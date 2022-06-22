@@ -70,7 +70,7 @@ feature "effect3d_opacity" {
   eo: geffect3d
     {{ x-param-slider name="opacity" min=0 max=1 step=0.01; }}
     {{ x-param-slider name="alfa_test" min=0 max=1 step=0.01; }}
-    alfa_test=0.0
+    alfa_test=0.5
     opacity=1.0
     gui={render-params @eo; }
     x-patch-r code=`(tenv) => {
@@ -85,7 +85,7 @@ feature "effect3d_opacity" {
                 if (tenv.params.material) {
                   tenv.params.material.transparent = false;
                   tenv.params.material.opacity = 1.0;
-                  tenv.params.material.alphaTest = 0.0;
+                  tenv.params.material.alphaTest = 0.5;
                 }
             };
           }

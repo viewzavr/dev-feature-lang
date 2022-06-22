@@ -231,7 +231,7 @@ feature "astra-vis-1" {
 		     //src="https://viewlang.ru/assets/planets/Sun_1_1391000.glb"
 		     //src="https://viewlang.ru/assets/models/Lake_IV_Heavy.glb" 
 		     //src="https://viewlang.ru/assets/planets/Mars_1_6792.glb"
-		     radius=0.05 color=[1,0,0]
+		     radius=0.15 color=[1,0,0]
 		     {{ x-param-slider name="radius" min=0.01 max=1 step=0.001 }}
 		     //{{ x-param-slider name="radius" min=0.001 max=1 step=0.001 }}
 		     //gui={ render-params @pts_star; manage-addons @pts_star; }
@@ -239,8 +239,9 @@ feature "astra-vis-1" {
 
 		     // 107 123 279
 		   @astradata->output | geta 2 | pts_planet: spheres-vp title="Планета"
-		     radius=0.05 color=[0.42,0.5,0.93] 
+		     radius=0.03 color=[0.42,0.5,0.93] 
 		     {{ x-param-slider name="radius" min=0.01 max=1 step=0.001 }}
+		     addons={ effect3d-opacity opacity=0.5; }
 		     ;
 
 		   insert_children input=@pts_dust->addons_container active=(is_default @pts_dust->addons_container) list={
