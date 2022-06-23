@@ -106,7 +106,7 @@ feature "landing-view-1" {
 
 feature "landing-view-2" {
 	landing-view-base title="Приземление, вид на объект"
-    
+
     file_params_modifiers={
       xx: x-set-params project_x=true project_y=true project_z=true scale_y=false;
     }
@@ -201,8 +201,9 @@ feature "landing-view-base"
        }}
        */
   {
-    link from="@timeparams->time_index" to="@view->time_index";
-    link to="@timeparams->time_index" from="@view->time_index" manual_mode=true;
+    link1: link from="@timeparams->time_index" to="@view->time_index";
+    link2: link to="@timeparams->time_index" from="@view->time_index" manual_mode=true
+      ;
     //link to="@timeparams->time_index" from="@view->external_time_index" manual_mode=true;
     
 

@@ -110,7 +110,7 @@ export function param_subchannels(env)
        if (!restore_values_to_original) // особый случай. если у нас ручное управление то отменять не надо. да уж.
            return; // ну либо отдельный флаг надо будет сделать
 
-       console.log('channel removing and restoring params',res) 
+       //console.log('channel removing and restoring params',res) 
 
        // todo странно все это.. все параметры заново выставлять.. тем более там есть ссылки и резульатты выражений..
        // возможно лучше было бы.. выставлять только то что было в данном канале...
