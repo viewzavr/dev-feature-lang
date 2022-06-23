@@ -358,7 +358,7 @@ export function orbit_control( env ) {
   function update() {
     unsub(); unsub = () => {};
 
-    console.log("orbit-control: update, cam=",env.params.camera)
+    //console.log("orbit-control: update, cam=",env.params.camera)
 
     var c = env.params.camera;
     if (c?.params)

@@ -204,9 +204,11 @@ export function mesh( env ) {
   //var material = new THREE.MeshStandardMaterial( {side: THREE.DoubleSide} );
   //var material = new THREE.MeshPhongMaterial( {
     var material = new THREE.MeshStandardMaterial( {
-      specular: 0x888888,
-      emissive: 0x000000,
-      shininess: 250,
+      // чето оно ушло из threejs
+      //specular: 0x888888,
+      //emissive: 0x000000,
+      //shininess: 250,
+
       //ambient: 0xffffff,
       side: THREE.DoubleSide
   } );

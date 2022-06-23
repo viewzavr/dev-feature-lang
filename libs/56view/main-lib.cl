@@ -181,17 +181,17 @@ i-call-js
   code="(cobj,val) => { // cobj объект чекбокса, val значение
     let view = env.params.view; // вид the_view
     //let view = cobj.params.view;
-    console.log({view,cobj,val});
+    // console.log({view,cobj,val});
     view.params.sources ||= [];
     view.params.sources_str ||= '';
     if (val) { // надо включить
       let curind = view.params.sources.indexOf( env.params.process );
       if (curind < 0) {
         let add = '@' + env.params.process.getPathRelative( view.params.project );
-        console.log('adding',add);
+        //console.log('adding',add);
         let filtered = view.params.sources_str.split(',').filter( (v) => v.length>0)
         let nv = filtered.concat([add]).join(',');
-        console.log('nv',nv)
+        //console.log('nv',nv)
         
         view.setParam( 'sources_str', nv, true);
       }
