@@ -1714,7 +1714,7 @@ export function console_log_input( env, options )
   env.createLinkTo( {param:"text",from:"~->0",soft:true });
 
   function print() {
-    console.log( "console_log_input",env.params.text || "", env.params.input || "" );
+    console.log( "console_log_input",env.params.text || "", env.params.input );
   }
 
   env.onvalue("input",(input) => {
@@ -2518,9 +2518,13 @@ export function insert_children( env )
     return Promise.resolve("success");
   }
   
-  env.onvalues_any(["input","list","active"],perform);
+  //env.onvalues_any(["input","list","active"],perform);
+  // ну все-равно там на проходе создания ничего толком нет (параметры еще не выставлены)
+  // а и опять же надо дать шанс active пересчитаться если он формула
+  env.monitor_values(["input","list","active"],perform);
 
   function perform() {
+    //console.log("inserT_children: perform called", env.params, env.getPath())
     let input = env.params.input || [];
     if (!Array.isArray(input)) input=[input]; // допускаем что не список а 1 штука
     let features = env.params.list;

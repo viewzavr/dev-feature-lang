@@ -318,7 +318,9 @@ feature "landing-view-base"
     // но нет надо, визуальный редактор занимается тем что потом добавляет доп объекты
     // именно вот в эти объекты-контейнеры (scene и проч)
 
-    insert_children input=@scene list=@view->scene3d_items? active=(is_default @scene) manual=true;
+    insert_children input=@scene list=@view->scene3d_items? active=(is_default @scene | console_log_input "ISDEF") manual=true;
+    //insert_children input=@scene list=@dbg->debugger active=(is_default @scene | console_log_input "ISDEF") manual=true;
+    //dbg: debugger={ debugger };
 
     scene: node3d visible=@view->visible force_dump=true
     {
@@ -328,7 +330,10 @@ feature "landing-view-base"
     // ну вот... как бы это.. а мы бы хотели...
 
 
+    //insert_children input=@screen_space list=@view->scene2d_items? active=(is_default @screen_space);
+
     insert_children input=@screen_space list=@view->scene2d_items? active=(is_default @screen_space);
+
     // это у нас место куда будут добавляться объекты пользователем
     screen_space: dom visible=@view->visible force_dump=true
     {
