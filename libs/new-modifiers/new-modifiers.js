@@ -23,6 +23,13 @@
      в общем еще подумать надо.
 */
 
+/* 2022-06-23 надо сделать:
+    F1 x-on2 новый работающий с позиционными аргументами (code=выглядит глупо)
+      и он же работающий с {} окружением по-новому, через передачу аргументов
+      (см 2022-06-22 разговор с Мишей.txt)
+    F2 фичу - авто обработчик detach, которая вызывает функцию возвращенную в attach.
+*/
+
 
 /* старая заметка
   замысел ввести такой вид модификаторов который берет на вход input
@@ -379,7 +386,6 @@ export function x_active( env ) {
 }
 */
 
-
 // reactive - перевызывает код при изменении аргументов
 export function x_patch_r( env  )
 {
@@ -545,6 +551,170 @@ export function x_patch_r2( env  )
       delete attached_list[ obj.$vz_unique_id ];
       //delete detach[ obj.$vz_unique_id ];
     }
+  });
+
+}
+
+// реализация фичи F2
+// отслеживает функцию, возвращенную attach, и вызывает ее при detach или повторном attach
+// update: у нас нет механизма отлова событий других и получения от них результатов
+// поэтому переходим к логике что вызывается метод с именем apply.
+/*
+export function x_auto_detach( env  )
+{
+
+  let attached_list = {};
+
+  env.on("attach",(obj) => {
+
+    // уже прицеплены
+    if (attached_list[ obj.$vz_unique_id ])
+        return;
+
+    let resarr = env.callCmd("apply",obj);
+    
+    if (!resarr) resarr = [];
+    if (!Array.isArray(resarr)) resarr = [resarr];
+    resarr = resarr.flat(5);
+
+    let unsub = () => resarr.map( (f) => f.bind ? f() : false )
+
+    attached_list[ obj.$vz_unique_id ] = {
+      obj: obj,
+      unsub: unsub
+    };
+
+    return () => {
+       //console.log('x-patch-r: a-unsub detach called',obj.getPath() );
+       unsub();
+       delete attached_list[ obj.$vz_unique_id ];
+    };
+
+  });
+
+  env.on("detach",(obj) => {
+    // console.log('x-patch-r: detach called',obj.getPath() );
+    let rec = attached_list[ obj.$vz_unique_id ];
+    let f = rec ? rec.unsub : undefined;
+    if (f) {
+      f();
+    }
+    if (rec) {
+      delete attached_list[ obj.$vz_unique_id ];
+    }
+  });
+
+}
+*/
+
+// реализация алгоритма и без всяких фич
+export function m_auto_detach_algo( env,attach_func )
+{
+
+  let attached_list = {};
+
+  env.on("attach",(obj) => {
+
+    // уже прицеплены
+    if (attached_list[ obj.$vz_unique_id ])
+        return;
+
+    let resarr = attach_func(obj);
+    
+    if (!resarr) resarr = [];
+    if (!Array.isArray(resarr)) resarr = [resarr];
+    resarr = resarr.flat(5);
+
+    let unsub = () => resarr.map( (f) => f.bind ? f() : false )
+
+    attached_list[ obj.$vz_unique_id ] = {
+      obj: obj,
+      unsub: unsub
+    };
+
+    return () => {
+       //console.log('x-patch-r: a-unsub detach called',obj.getPath() );
+       unsub();
+       delete attached_list[ obj.$vz_unique_id ];
+    };
+
+  });
+
+  env.on("detach",(obj) => {
+    // console.log('x-patch-r: detach called',obj.getPath() );
+    let rec = attached_list[ obj.$vz_unique_id ];
+    let f = rec ? rec.unsub : undefined;
+    if (f) {
+      f();
+    }
+    if (rec) {
+      delete attached_list[ obj.$vz_unique_id ];
+    }
+  });
+
+  // можно было бы в on remove все повыключать но по идее нас
+  // итак выключат - x-modify а может быть и {{ }} - фичи (хотя они не факт...)
+
+}
+
+// теперь про x-on2. назовем его m_on
+/*
+  можно так: 
+    m_on event-name { |obj,event-name,...event-args|
+       m_lambda "() => debugger";
+    }
+  но вообще я хотел изначально кодом:
+
+  m_on event-name "(obj,event_name,...event_args) => {
+  }";
+
+*/
+
+// мб на будущее event-name мб массивом 
+
+export function m_on( env  )
+{
+  //env.lambda_start_arg = 1;
+  env.feature("m_lambda", {lambda_start_arg:1} );
+  //env.vz.m_lambda( env, 1 ); это следующий этап
+
+  m_auto_detach_algo( env,(obj) => {
+    //console.log("x-on: attach to obj",obj.getPath())
+
+    var u1 = () => {};
+
+    // todo вынести это наружу attach-а    
+    let k1 = env.onvalue( "name", connect );
+    let k2 = env.onvalue( 0, connect );
+
+    return () => { 
+        k1(); k2(); u1();
+    };
+
+    function connect(name,name0) {
+      name ||= name0;
+
+      u1();
+      //console.log("m-on: subscribing to event" , name, obj.getPath() )
+      u1 = obj.on( name ,(...args) => {
+        //console.log("m-on: passing event" , name )
+
+        let fargs = [ obj ].concat( args );
+        // получается мы вызываем m-lambda приписав к вызову.. справа..
+        // такие аргументы: obj, event-arg1, event-arg2, ....
+        env.callCmd("apply",...fargs);
+      })
+
+      //console.log("on: connected",name,env.getPath())
+        env.emit("connected", obj);
+     }
+
+     detach[ obj.$vz_unique_id ] = () => { 
+        k1(); k2(); u1();
+        delete detach[ obj.$vz_unique_id ];
+     };
+
+     return detach[ obj.$vz_unique_id ] 
   });
 
 }

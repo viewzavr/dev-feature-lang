@@ -64,6 +64,33 @@ export function x_set_params( env )
 
 }
 
+export function x_set_param( env )
+{
+  env.feature("m_auto_detach_algo",(obj) => {
+      //console.log("x-set-params attach",env.getPath(),obj.getPath())
+
+      obj.feature("param_subchannels");
+
+      let channel = obj.create_subchannel();
+
+      let u1 = env.monitor_values( ["name","value"],(n,v) => {
+         if (!n) return;
+         console.log("x-set-param",n,v,obj.getPath())
+         // туду реагировать на изменение n отменой параметра в канале
+         channel.setParam( n,v, env.params.__manual);
+      });
+
+      let unsub = () => { 
+         if (!channel.removed) 
+             channel.remove( ! env.params.__manual ); 
+         u1(); 
+      }
+
+      return unsub;
+  });
+
+}
+
 // отличается от setter тем что сразу же делает
 // по сути это то же самое что compute.. только на вход не код а value..
 export function param_subchannels(env) 

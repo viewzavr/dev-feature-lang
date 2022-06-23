@@ -106,6 +106,7 @@ feature "landing-view-1" {
 
 feature "landing-view-2" {
 	landing-view-base title="Приземление, вид на объект"
+    {{ console_log_life "lv2" }}
     file_params_modifiers={
       xx: x-set-params project_x=true project_y=true project_z=true scale_y=false;
     }
@@ -190,12 +191,15 @@ feature "landing-view-base"
 
   { // тело визпроцесса
 
-	timeparams: time_index=0 
+	timeparams: 
+       time_index=0 
        time=(@internal_columns_dat->output | df_get column="T" | geta @timeparams->time_index default=0)
+       /*
        {{ x-param-combo 
            name="time"
            values=(@internal_columns_dat->output | df_get column="T")
        }}
+       */
   {
     link from="@timeparams->time_index" to="@view->time_index";
     link to="@timeparams->time_index" from="@view->time_index" manual_mode=true;

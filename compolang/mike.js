@@ -108,12 +108,15 @@ export function m_js( env ) {
 // ну и еще тема подготовки аргументов - что вызывать их как функции.. функциональная история..
 
 // все-таки это лямбда. ну т.е. процесс генерирующий лямбду.
-export function m_lambda( env ) {
-  env.feature("m_apply");
+export function m_lambda( env,opts ) {
+  env.feature("m_apply",opts);
 }
 
-export function m_apply( env )
+export function m_apply( env, opts )
 {
+   //env.lambda_start_arg ||= 0;
+   env.lambda_start_arg = opts?.lambda_start_arg || 0;
+
    env.feature("call_cmd_by_path");
 
   // пусть у лямбды аутпут будет js-функция для вызова
@@ -122,6 +125,7 @@ export function m_apply( env )
     return env.callCmd("apply",...args);
   })
   
+  // изменились параметры - меняем параметр .output
   env.on("param_changed",(name) => {
     if (name == "output") return;
     //console.log("mapplay update-func 2")
@@ -132,10 +136,10 @@ export function m_apply( env )
 
   let func;
   function update_func() {
-    let code = env.params[0];
+    let code = env.params[ env.lambda_start_arg ];
     func = eval( code );
   }
-  env.onvalues_any([0],update_func);
+  env.onvalues_any([ env.lambda_start_arg ],update_func);
 
    //console.log( "feature_func: installing apply cmd",env.getPath());
    env.addCmd( "apply",(...extra_args) => {
@@ -153,7 +157,7 @@ export function m_apply( env )
       //console.log("lambda apply",env.getPath())
 
       let args = [];
-      for (let i=1; i<env.params.args_count;i++) {
+      for (let i=(env.lambda_start_arg+1); i<env.params.args_count;i++) {
         let v = env.params[i];
 
         if (env.params.check_params && v == null) { // ну пока так.. хотя странно все это..

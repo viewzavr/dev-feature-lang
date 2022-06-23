@@ -305,7 +305,7 @@ export function camera3d( env ) {
   env.addSlider("theta",0,-180,180,0.1);
 
   env.onvalue( "pos", (v) => {
-    console.log("camera onval pos",v,cam)
+    // console.log("camera onval pos",v,cam)
     if (v !== a1 && v) {
       if (isFinite(v[0]) && isFinite(v[1]) && isFinite(v[2]))
         cam.position.set( v[0],v[1],v[2] );
@@ -395,7 +395,7 @@ export function orbit_control( env ) {
         let eps = 0.0001;
         if (Math.abs( c[0] - cc.target.x) > eps || Math.abs( c[1] - cc.target.y ) > eps || Math.abs( c[2] - cc.target.z ) > eps )
         { 
-          console.log('orbitcontrols',env.$vz_unique_id,"target of camera changed, updating me",c)
+          //console.log('orbitcontrols',env.$vz_unique_id,"target of camera changed, updating me",c)
           cc.target.set( c[0], c[1], c[2] );
           cc.update();
         }

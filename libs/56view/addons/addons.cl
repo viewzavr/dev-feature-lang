@@ -270,3 +270,10 @@ feature "effect3d_colorize" {
     arrtocols: arr_to_colors gui_title="Цвета" input=@d->output;
   };
 };
+
+
+add_sib_item @geffect3d "effect3d-debug" "Отладка";
+feature "effect3d_colorize" {
+  eff: geffect3d
+  {{ x-param-cmd name="Запустить js debugger" cmd="debugger" }}
+};

@@ -387,10 +387,12 @@ export function models_df_input( env ) {
       env.setParam("positions", utils.combine( [ dat.X, dat.Y, dat.Z ] ) );
 
     if (dat.rotations)
-      env.setParam("positions", dat.rotations );
+      env.setParam("rotations", dat.rotations );
     else
-      if (dat.RX)
-      env.setParam("rotations", utils.combine( [ dat.RX, dat.RY, dat.RZ ] ) );    
+      if (dat.RX && dat?.RX?.length > 0 && dat?.RY?.length > 0 && dat?.RZ?.length > 0)
+         env.setParam("rotations", utils.combine( [ dat.RX, dat.RY, dat.RZ ] ) );    
+      else
+         env.setParam("rotations",[] ); 
 
     if (dat.colors)
       env.setParam("colors", dat.colors );

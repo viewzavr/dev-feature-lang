@@ -119,7 +119,8 @@ export function render_gltf( obj ) {
         
         // debugger;
         if (!obj.gltf) return;
-        obj.gltf.scene.rotation.set( v[0],v[1],v[2] ); 
+        if (v && v.length >= 3)
+         obj.gltf.scene.rotation.set( v[0],v[1],v[2] ); 
       }
     });
 
