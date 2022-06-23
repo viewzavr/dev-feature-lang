@@ -75,7 +75,7 @@ export function x_set_param( env )
 
       let u1 = env.monitor_values( ["name","value"],(n,v) => {
          if (!n) return;
-         console.log("x-set-param",n,v,obj.getPath())
+         //console.log("x-set-param",n,v,obj.getPath())
          // туду реагировать на изменение n отменой параметра в канале
          channel.setParam( n,v, env.params.__manual);
       });

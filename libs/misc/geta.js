@@ -32,8 +32,22 @@ export function setup(vz, m) {
   vz.register_feature_set(m);
 }
 
+// новые имена 23-06-2022
+
+/*
+export function get( env ) {
+  env.feature("geta");
+}
+export function map_get( env ) {
+  env.feature("map_geta");
+}
+export function filter_get( env ) {
+  env.feature("filter_geta");
+}
+*/
+
 //////////////// geta
-// берет все подряд, a | get b c d 
+// берет все подряд, a | get b c d
 
 export function geta( env ) {
   env.single_geta_mode=true;

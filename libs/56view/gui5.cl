@@ -231,15 +231,15 @@ rl_root:
          plashka style_qq="margin-bottom:0px !important;"
          ;
 
-     link to="@ba->add_to" from=(@rl_root->items | get @s->index | get "add_to")
+     link to="@ba->add_to" from=(@rl_root->items | geta @s->index | geta "add_to")
           {{ attach_scope @rl_root -2 }}
            ;
           
      ba: button_add_object 
-                       add_type=(@rl_root->items | get @s->index | get "add");
+                       add_type=(@rl_root->items | geta @s->index | geta "add");
 
      objects_list:
-     find-objects-bf (@rl_root->items | get @s->index | get "find") 
+     find-objects-bf (@rl_root->items | geta @s->index | geta "find") 
                      root=@rl_root->root
                      recursive=false
                      include_root=false
@@ -257,7 +257,7 @@ rl_root:
     /// параметры объекта   
 
      co: column plashka style_r="position:relative; overflow: auto;"  
-            input=(@objects_list->output | get index=@cbsel->index?)
+            input=(@objects_list->output | geta @cbsel->index? default=null)
             visible=(@co->input?)
       {
         row visible=((@co->input?  | geta  "sibling_types" | geta "length" default=0) > 1) 

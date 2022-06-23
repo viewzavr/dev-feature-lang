@@ -70,7 +70,7 @@ feature "landing-file" {
       //f1_info: param_label "Укажите текстовый файл с данными";
       //f1:  param_file value=(resolve_url "../2021-10-phase.txt");
       f1:  param_file value="https://viewlang.ru/assets/other/landing/2021-10-phase.txt";
-      lines_loaded: param_label (@loaded_data->output | get name="length");
+      lines_loaded: param_label (@loaded_data->output | geta "length");
 
       loaded_data: load-file file=@fileparams->f1
              | parse_csv separator="\s+";
@@ -106,7 +106,7 @@ feature "landing-view-1" {
 
 feature "landing-view-2" {
 	landing-view-base title="Приземление, вид на объект"
-    {{ console_log_life "lv2" }}
+    
     file_params_modifiers={
       xx: x-set-params project_x=true project_y=true project_z=true scale_y=false;
     }
@@ -208,7 +208,7 @@ feature "landing-view-base"
 
 	  time_index: param_slider
 	           min=0 
-	           max=(@internal_columns_dat->output | get "length" | @.->input - 1)
+	           max=(@internal_columns_dat->output | geta "length" | @.->input - 1)
 	           step=1 
 	           value=@time->index
 	           ;
@@ -376,7 +376,7 @@ models: feature {
 
             param_slider name="radius" min=1 max=10 value=3;
             param_color  name="hilight_color" value=[0,0,0];
-            param_label  name="count" value=(@rep->input? | get name="length");
+            param_label  name="count" value=(@rep->input? | geta "length");
 
             @root->input | df_slice count=100 | df_to_rows | rep: repeater {
               gltf:
@@ -581,7 +581,7 @@ datavis: feature {
     input=@pipe->output
     sibling_types=@datavis->sibling_types
     sibling_titles=@datavis->sibling_titles
-    //title=(@rt->sibling_types | get name=(detect_type @rt @rt->sibling_types))
+    //title=(@rt->sibling_types | geta (detect_type @rt @rt->sibling_types))
     title=(join 
               (compute_title key=@rt->data_adjust
                          types=@da->values

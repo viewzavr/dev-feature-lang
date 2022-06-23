@@ -296,16 +296,16 @@ feature "render_project" {
        of: one_of 
               index=@ssr->index
               list={ 
-                show_visual_tab input=(@rend->project | get_param "views" | get 0); // так то.. так то.. показывай просто текущий, согласно project[index].. но параметры сохраняй...
-                show_visual_tab input=(@rend->project | get_param "views" | get 1);
-                show_visual_tab input=(@rend->project | get_param "views" | get 2);
-                show_visual_tab input=(@rend->project | get_param "views" | get 3);
-                show_visual_tab input=(@rend->project | get_param "views" | get 4);
-                show_visual_tab input=(@rend->project | get_param "views" | get 5); // так то.. так то.. показывай просто текущий, согласно project[index].. но параметры сохраняй...
-                show_visual_tab input=(@rend->project | get_param "views" | get 6);
-                show_visual_tab input=(@rend->project | get_param "views" | get 7);
-                show_visual_tab input=(@rend->project | get_param "views" | get 8);
-                show_visual_tab input=(@rend->project | get_param "views" | get 9);                
+                show_visual_tab input=(@rend->project | get_param "views" | geta 0); // так то.. так то.. показывай просто текущий, согласно project[index].. но параметры сохраняй...
+                show_visual_tab input=(@rend->project | get_param "views" | geta 1 default=null);
+                show_visual_tab input=(@rend->project | get_param "views" | geta 2 default=null);
+                show_visual_tab input=(@rend->project | get_param "views" | geta 3 default=null);
+                show_visual_tab input=(@rend->project | get_param "views" | geta 4 default=null);
+                show_visual_tab input=(@rend->project | get_param "views" | geta 5 default=null); // так то.. так то.. показывай просто текущий, согласно project[index].. но параметры сохраняй...
+                show_visual_tab input=(@rend->project | get_param "views" | geta 6 default=null);
+                show_visual_tab input=(@rend->project | get_param "views" | geta 7 default=null);
+                show_visual_tab input=(@rend->project | get_param "views" | geta 8 default=null);
+                show_visual_tab input=(@rend->project | get_param "views" | geta 9 default=null);                
               }
               {{ one-of-keep-state; one_of_all_dump; }}
               ;

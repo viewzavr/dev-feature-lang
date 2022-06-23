@@ -2757,8 +2757,11 @@ export function get_child( env )
 //////////////// get
 // плохой дизайн - реагировать в зависимости от аргумента...
 // плох тем что у меня где-то есть get_param и я не могу его заменить на get здесь...
+
 export function get( env ) {
   let param_tracking = () => {};
+  console.warn("get called", env.getPath());
+  env.vz.console_log_diag( env );
 
   env.createLinkTo( {param:"name",from:"~->0",soft:true });
 

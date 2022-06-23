@@ -413,7 +413,7 @@ esync1: feature {
 	      x-set-param name=@es1->synced_param_name value=@es1->synced_param_value;
         m-on (+ "param_" @es1->synced_param_name "_changed") "(es1,obj,param_value) =>
          {
-          console.log('see param change', obj.getPath())
+          // console.log('see param change', obj.getPath())
           es1.setParam('synced_param_value',param_value);
          }" @es1;
 	    };
