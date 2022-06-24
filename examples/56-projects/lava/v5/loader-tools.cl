@@ -44,6 +44,7 @@ feature "load-dir" {
               input=@qqe->project 
               list=@parsed->output;
 
+/* вроде как решил идти путем ручного создания экранов
       @r1 | x-modify {
         x-on "after_deploy" {
           m_lambda "(active_view,emitter,created_objects) => {
@@ -54,7 +55,7 @@ feature "load-dir" {
           }" @qqe->active_view;
         };
       };
-
+*/
 
       @r1->output | x-modify { x-set-params dir=@files->output; };
 

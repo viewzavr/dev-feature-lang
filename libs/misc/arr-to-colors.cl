@@ -32,7 +32,7 @@ register_feature name="arr_to_colors" {
         let diff = max-min;
 
         let acc = new Float32Array( input.length*3 );
-        console.log('minmax',minmax)
+        //console.log('minmax',minmax)
         
         for (let i=0,j=0; i<input.length; i++,j+=3) {
           let t = (input[i] - min) / diff;

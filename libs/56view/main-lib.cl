@@ -271,11 +271,24 @@ feature "render_project" {
             }`);
             }}
 
+            // приделаем реакцию на событие activate у экранов
+            {{
+                @rend->project | x-modify {
+                  m-on "activate" "(allviews,ssr,project,view) => {
+                     let index = allviews.indexOf( view );
+                     //console.log('activate signal catched, index=',index)
+                     if (index >= 0)
+                         ssr.setParam('index',index);
+                  }" @rend->sorted_views @ssr;
+                };
+            }}
+
+            sorted_views=(@rend->project | geta "views" | sort_by_priority)
             {
 
        ssr: switch_selector_row 
                index=@rend->active_view_index
-               items=(@rend->project | get_param "views" | sort_by_priority | map_param "title")
+               items=(@rend->sorted_views | map_geta "title")
 
                style_qq="margin-bottom:15px;" {{ hilite_selected }}
                 ;
@@ -312,9 +325,16 @@ feature "render_project" {
               ;
 
 
-   };  
+   };
 };
 
+feature "auto_activate_view" code=`
+  env.feature("delayed");
+  env.timeout( () => {
+    //console.log("sending activate to project with arg ",env)
+    env.ns.parent.emit("activate", env)
+  },5);
+`;
 
 // объект который дает диалог пользвателю 
 // а в output выдает найденный dataframe отмеченный меткой df56

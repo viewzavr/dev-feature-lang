@@ -16,7 +16,6 @@ feature "the_project" {
   cameras=(find-objects-bf features="camera" root=@project | sort_by_priority)
 
   //{{ @project->processes | x-modify { x-set-params project=@project } }}
-
   ;
 
 };

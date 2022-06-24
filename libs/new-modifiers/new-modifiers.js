@@ -695,7 +695,7 @@ export function m_on( env  )
       name ||= name0;
 
       u1();
-      //console.log("m-on: subscribing to event" , name, obj.getPath() )
+      console.log("m-on: subscribing to event" , name, obj.getPath() )
       u1 = obj.on( name ,(...args) => {
         //console.log("m-on: passing event" , name )
 
