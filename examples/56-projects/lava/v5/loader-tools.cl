@@ -21,7 +21,7 @@ feature "load-dir" {
     {{ x-param-label-small name="all_files_count"}}
     all_files_count=(@files->output | geta "length")
     {
-      files: select-files url=@qqe->url;
+      files: select-files url=@qqe->url index=0;
 
       loader_file_obj: m_eval "(arr) => {
 

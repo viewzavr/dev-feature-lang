@@ -18,7 +18,7 @@ project: the_project
     v1: the-view-uni title="Общий вид" {
           area sources_str="@adata, @av1,@camrotate, @camfly1, @ab";
           camera pos=[0,1.7724860904458464,1.8847246126475379] center=[0,0,0];
-        };
+    };
   };
 
 };

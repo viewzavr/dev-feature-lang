@@ -274,7 +274,7 @@ feature "render_project" {
             // приделаем реакцию на событие activate у экранов
             {{
                 @rend->project | x-modify {
-                  m-on "activate" "(allviews,ssr,project,view) => {
+                  m-on "activate_view" "(allviews,ssr,project,view) => {
                      let index = allviews.indexOf( view );
                      //console.log('activate signal catched, index=',index)
                      if (index >= 0)
@@ -332,7 +332,7 @@ feature "auto_activate_view" code=`
   env.feature("delayed");
   env.timeout( () => {
     //console.log("sending activate to project with arg ",env)
-    env.ns.parent.emit("activate", env)
+    env.ns.parent.emit("activate_view", env)
   },5);
 `;
 
