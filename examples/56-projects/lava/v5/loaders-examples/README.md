@@ -11,7 +11,7 @@
 
 ## Примеры
 * Загрузчик для Этны: [etna/loader.cl](etna/loader.cl)
-* Загрузчик для Калимы: [kalima-v2-vtk-8-20/loader.cl]
+* Загрузчик для Калимы: [kalima-v2-vtk-8-20/loader.cl](kalima-v2-vtk-8-20/loader.cl)
 
 # Запуск
 
