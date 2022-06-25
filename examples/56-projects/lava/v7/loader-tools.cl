@@ -22,6 +22,28 @@ feature "load-dir" {
       logic: {
         when @files "param_output_changed" { |files| 
           console_log "see new files " @files;
+
+          loader_file: find_file @files "loader\.cl";
+
+          // это не контент а файл
+          // todo заменить на find-file тогда уж и его события
+          builtin_loader_content: m_eval "(arr) => {
+
+            let loader_file = arr.find( elem => elem.name == 'loader.cl' );
+
+            if (!loader_file) {
+              console.warn('loader.cl not found in dir',arr)
+              return null;
+            }
+
+            console.warn('loader.cl is found in dir',loader_file)
+            return loader_file;
+          }" @files;
+
+          when @builtin_loader_content "computed" { |content|
+            console_log "loader content detected " @content; 
+          };
+
         };
       };  
       
@@ -34,13 +56,15 @@ feature "load-dir" {
 feature "find-file" {
   r: output=@mm->output {
 
-  mm: m_eval "(arr,crit) => {
+  mm: m_eval "(arr,crit,obj) => {
 
         let regexp = new RegExp( crit,'i' );
         let file = arr.find( elem => elem.name.match( regexp ) );
         if (!file) {
+          obj.emit('not-found');
           return null;
         }
+        obj.emit('found',file);
         return file;
       }" @r->0 @r->1;
   };
