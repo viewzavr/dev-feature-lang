@@ -7,6 +7,7 @@ register_feature name="button" {
 	func 
 	{{
 		dom_event name="click" cmd="@tb->apply";
+		on_dom_event @tb "click" (m_lambda "(obj) => { obj.emit('click'); }" @tb);
 	}};
 };
 

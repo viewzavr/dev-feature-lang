@@ -61,3 +61,28 @@ export function dom_event( obj )
    })
 
 }
+
+export function on_dom_event( env )
+{
+   var forget_bound_dom = ()=>{};
+   var forget_obj = ()=>{};
+
+   env.onvalues([0,1,2],(obj,eventname,dom_event_handler) => {
+
+     forget_obj();
+     forget_obj = obj.onvalue("dom",(dom) => {
+      forget_bound_dom();
+      //console.log('subb',eventname,dom_event_handler)
+      dom.addEventListener( eventname,dom_event_handler )
+      forget_bound_dom = () => {
+        dom.removeEventListener(eventname,dom_event_handler );
+      };
+    })
+
+   });
+
+   env.on("remove",() => {
+     forget_bound_dom();
+     forget_obj();
+   })
+}

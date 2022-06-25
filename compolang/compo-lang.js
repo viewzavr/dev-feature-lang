@@ -3,6 +3,7 @@
 import * as F from "./find-objects-by-features.js";
 import * as M from "./mike.js";
 import * as A from "./assert.js";
+import * as C from "./csp-tricks.js";
 
 export function setup(vz, m) {
   vz.register_feature_set(m);
@@ -10,6 +11,7 @@ export function setup(vz, m) {
   F.setup( vz, F);
   M.setup( vz, M);
   A.setup( vz, A);
+  C.setup( vz, C);
 }
 
 import * as P from "./lang-parser.js";
@@ -27,6 +29,7 @@ export function simple_lang(env)
                               grammarSource: {lines: code.split('\n'), file: opts.diag_file }
                             }
                              );
+      //console.log("parsed",parsed)      
       var dump = parsed2dump( env.vz, parsed, opts.base_url || "" );
       dump.keepExistingChildren = true;
       let $scopeFor = env.$scopes.createScope("parseSimpleLang"); // F-SCOPE
@@ -115,7 +118,7 @@ function parsed2dump( vz, parsed, base_url ) {
     if (vz.getTypeInfo(first_feature_code))
       parsed.type = first_feature_code;
   }
-  for (let c of Object.keys(parsed.children)) {
+  for (let c of Object.keys( parsed.children )) {
     let cc = parsed.children[c];
     parsed2dump( vz, cc, base_url );
   }
@@ -145,6 +148,15 @@ function parsed2dump( vz, parsed, base_url ) {
      parsed.links[ "p_link_for_output"] = { from: ".->0", to: ".->output", soft_mode: true };
      // soft-mode тут спорно конечно, но..
   }
+
+  
+  // F-ENV-ARGS
+  if (parsed.children.env_args) {
+    debugger;
+  //  parsed.$children_function = 
+  //  parsed.children = [];
+  }
+  
 
   parsed.forcecreate = true;
   parsed.features[ "base_url_tracing" ] = {params: {base_url}};
@@ -590,6 +602,13 @@ export function register_feature( env, envopts ) {
         // и не пойдет во вложенные компаланг-фичи (ибо они там создадут собственный новый скоп)
         let $scopeFor = tenv.$scopes.createScope( "feature "+env.params.name + " for env id "+tenv.$vz_unique_id);
         $scopeFor.$lexicalParentScope = env.$scopes.top();
+/*
+        if (children.env_args) {
+          env.vz.copyEnvArgsToScope( tenv.params, children.env_args, scope )
+          for (let i=0; i<)
+          tenv.params.args_count = 0;
+        }
+*/
 
         for (let cname of Object.keys( children )) {
           var edump = children[cname];

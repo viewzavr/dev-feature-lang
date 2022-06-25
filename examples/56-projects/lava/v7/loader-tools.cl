@@ -46,6 +46,23 @@ feature "load-dir" {
 
       @r1->output | x-modify { x-set-params dir=@files->output active_view=@qqe->active_view; };
 
+      // на этот момент у нас появился loader в памяти.
+
+      best_loader: 
+       find-objects-bf root=@qqe->project features="loader"
+       |
+       m_eval "(loaders,dir) => {
+        let best_i = -1;
+        let best_value = 0;
+        for (let i=0; i<loaders.length; i++) {
+          let res = loaders.criteria( dir );
+          if (res > best_value) { best_value = res; best_i = i; }
+        }
+        return loaders[ best_i ];        
+      }" @.->input @files->output;
+
+      //@best_loader | pause_input |
+
     };
 };
 

@@ -1,0 +1,21 @@
+load files="lib3dv3 csv params io gui render-params df scene-explorer-3d misc";
+
+screen auto_activate {
+  row {
+    bt: button "click me";
+
+    logic: {
+      when @bt "click" {
+        console_log "privet";
+        //debugger;
+        
+        when @bt "click" {
+          console_log "privet 2";
+        };
+
+      };
+    };
+  };
+};
+
+//debugger_screen_r; // hotkey='s';

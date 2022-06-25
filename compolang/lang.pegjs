@@ -80,6 +80,8 @@
            env.children[ cname ] = e;
         }
     }
+    if (envs.env_args)
+      env.children_env_args = envs.env_args;
   }
 
   var envs_stack = [];
@@ -186,6 +188,13 @@ one_env
     var env = new_env( envid );
 
     env.locinfo = getlocinfo();
+
+    // F-ENV-ARGS
+    
+//    if (child_envs && child_envs[0] && child_envs[0].env_args) {
+      //env.child_env_args = child_envs[0].env_args;
+    //}
+    
 
     var linkcounter = 0;
     for (let m of env_modifiers) {
@@ -369,15 +378,28 @@ env_pipe
      return head;
    }
  }
+
+// F-ENV-ARGS 
+env_args_list
+  = "|" ws attrs:(@attr_name ws ","? ws)+ ws "|"
+  { return { attrs: attrs }
+  } 
   
 env_list "environment list"
-  = head:env tail:(__ ";" @env)* { 
+  = args:env_args_list? // F-ENV-ARGS 
+    head:env tail:(__ ";" @env)* { 
     // выяснилось что у нас в tail могут быть пустые окружения
     // и надо их все отфильтровать...
+    
     let res = [head];
     for (let it of tail) {
       if (is_env_real(it)) res.push( it );
     }
+
+    // F-ENV-ARGS
+    if (args) 
+      res.env_args = args;
+
     return res;
 
     //return [head,...tail]; 

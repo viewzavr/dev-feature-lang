@@ -14,7 +14,7 @@ export function m_eval( env ) {
     env.feature("delayed");
     let warn_code_not_found = env.delayed( () => {
         console.warn("m_eval: code not specified",env.getPath(),env );
-    },20);  
+    },20);
 
   function evl() {
 
@@ -46,14 +46,19 @@ export function m_eval( env ) {
     let res = func.apply( env, args );
 
     env.setParam("output",res);
+
+    //console.log("eval emitting done",env,res)
+    env.emit("computed",res);
   }
 
   env.feature("delayed");
   var eval_delayed = env.delayed( evl )
 
   env.on('param_changed', (name) => {
-     if (name != "output")
+     if (name != "output" && name != "recompute") {
+        //console.log("eval scheduled due to param change",name)
         eval_delayed();
+     }
   });
 
   let func;
@@ -78,8 +83,12 @@ export function m_eval( env ) {
 
   env.addCmd("recompute",eval_delayed);
 
-  var eval_delayed2 = env.delayed( evl,2 )
-  eval_delayed2();
+// косяк евала иметь 2й вызов вычисления
+// по сути оно с первым не связано и посему - они оба выполнятся
+// кроме того неясно зачем это выполнять если итак будучи выставив код
+// пойдет вычисление
+//  var eval_delayed2 = env.delayed( evl,2 )
+//  eval_delayed2();
 };
 
 //////////////////////////////////////////////////
