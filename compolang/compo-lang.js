@@ -76,7 +76,7 @@ export function compalang(env)
       // а текущий парсер всегда выдает item 1 штука наверху, поэтому так
 
       env.setParam( "output", dump );
-      console.log("parser ok")
+      //console.log("parser ok")
       env.emit("computed",dump)
       env.emit("finished",dump)
 

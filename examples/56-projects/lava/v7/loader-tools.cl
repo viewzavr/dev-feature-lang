@@ -1,3 +1,5 @@
+feature "loader" {};
+
 feature "load-dir" {
   qqe: visual_process
     title="Загрузка каталога"
@@ -19,6 +21,8 @@ feature "load-dir" {
     {
       files: select-files url=@qqe->url index=0;
 
+      insert_loader: insert_children input=@qqe->project {{ console_log_life }};
+
       logic: {
         when @files "param_output_changed" { |files| 
           console_log "see new files " @files;
@@ -33,13 +37,25 @@ feature "load-dir" {
             when @load_loader "param_output_changed" { |content|
               //console_log "loader.cl content loaded" @content;
 
-              parser: compalang input=@content {{ console_log_life }};
+              parser: compalang input=@content;
 
               // парсер быстрее чем событие. понять что с этим делать..
-              when @parser "finished" {{ console_log_life }}
-              { |parsed_loader|
-                console_log "parsed loader content" @parsed_loader;
+              when_value @parser->output { |parsed_loader|
+                console_log "parsed loader content. inserting" @parsed_loader;
+
+                //ic: insert_children @qqe->project list=@parsed_loader;
+                /*
+                @insert_loader | x-modify {
+                  x-set-params list=@parsed_loader __manual=true;
+                };
+                */
+                set_param target="@insert_loader->list" value=@parsed_loader;
+
+                when @insert_loader "after_deploy" {
+                  loaders_logic dir=@files project=@qqe->project;
+                };
               };
+
             };
 
           };
@@ -49,10 +65,35 @@ feature "load-dir" {
           };
 
         };
-      };  
+      };
       
 
     };
+};
+
+feature "loaders_logic" {
+  logic: {
+    loaders_arr: find-objects-bf features="loader" root=@logic->project | console_log_input "EEE";
+    console_log "welcome to loaders-logic" @best->output;
+
+    best: m_eval "(loaders,dir) => {
+        console.log('computing best loaders',loaders,dir)
+        let best_i = -1;
+        let best_value = 0;
+        for (let i=0; i<loaders.length; i++) {
+          let res = loaders[i].params.criteria( dir );
+          if (res > best_value) { best_value = res; best_i = i; }
+        }
+        return loaders[ best_i ];
+      }" @loaders_arr->output @logic->dir;
+
+    when_value @best->output { |ldr|
+      console_log "best loader determined" @ldr;
+      //insert_children input=@logic->project list=@ldr->load @logic->dir @logic->project;
+      //call @ldr "load" 
+      m_eval "(ldr,dir,project) => ldr.params.load(dir,project)" @ldr @logic->dir @logic->project;
+    };
+  };
 };
 
 /////////////////////////////////////////

@@ -33,7 +33,7 @@ export function when( env ) {
 
   env.onvalues([0,1],(obj,event) => {
     unsub();
-    console.log("when subscribing to evnt",event)
+    //console.log("when subscribing to evnt",event)
     unsub = obj.on( event,(...args) => {
       let parent = env.ns.parent;
       env.ns.parent.ns.removeChildren();
@@ -41,6 +41,45 @@ export function when( env ) {
       
       env.vz.callEnvFunction( env_list, parent, false, env_call_scope, ...args )
     } );
+  })
+
+}
+
+export function when_value( env ) {
+  let env_list;
+  let env_call_scope = env.$scopes.top();
+
+  env.restoreChildrenFromDump = (dump, ismanual,$scopeFor) => {
+    // короче выяснилось, что если у нас создана фича которая основана на repeater,
+    // то у этого repeater свое тело поступает в restoreChildrenFromDump
+    // а затем внешнее тело, которое сообразно затирает собственное тело репитера.
+    if (!env_list) {
+      //console.log("when consuming children",dump.children)
+      env_list = Object.values( dump.children );
+      env_list.env_args = dump.children_env_args;
+      env_call_scope = $scopeFor;
+    }
+    return Promise.resolve("success");
+  }
+
+  env.onvalue("list",(list) => {
+    env_list = list;
+  });
+
+  //env.$vz_children_autocreate_enabled = false;
+
+  let unsub = () => {};
+  env.on("remove",() => {
+    //console.log("when removed", env.getPath())
+    unsub()
+  })
+
+  env.onvalue(0,(value) => {
+    unsub();
+    let parent = env.ns.parent;
+    env.ns.parent.ns.removeChildren();
+    // родителя почистили и переходим в новую стадию
+    env.vz.callEnvFunction( env_list, parent, false, env_call_scope, value )
   })
 
 }
