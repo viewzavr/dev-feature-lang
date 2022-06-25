@@ -25,23 +25,12 @@ feature "load-dir" {
 
           loader_file: find_file @files "loader\.cl";
 
-          // это не контент а файл
-          // todo заменить на find-file тогда уж и его события
-          builtin_loader_content: m_eval "(arr) => {
+          when @loader_file "found" {
+            console_log "loader found";
+          };
 
-            let loader_file = arr.find( elem => elem.name == 'loader.cl' );
-
-            if (!loader_file) {
-              console.warn('loader.cl not found in dir',arr)
-              return null;
-            }
-
-            console.warn('loader.cl is found in dir',loader_file)
-            return loader_file;
-          }" @files;
-
-          when @builtin_loader_content "computed" { |content|
-            console_log "loader content detected " @content; 
+          when @loader_file "not-found" {
+            console_log "loader NOT found";
           };
 
         };
