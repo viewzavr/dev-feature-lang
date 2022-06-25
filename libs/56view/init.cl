@@ -105,7 +105,7 @@ feature "the_view"
       let project = view.params.project;
       let add = '@' + val.getPathRelative( project );
       
-      let filtered = view.params.sources_str.split(',').filter( (v) => v.length>0)
+      let filtered = view.params.sources_str.split(',').filter( (v) => v.length>0 && v.trim() != add)
       let nv = filtered.concat([add]).join(',');
       view.setParam( 'sources_str', nv, true);
     }`);

@@ -336,6 +336,16 @@ feature "auto_activate_view" code=`
   },5);
 `;
 
+feature "add-to-current-view" code=`
+  env.feature("delayed");
+  env.timeout( () => {
+    //console.log("sending activate to project with arg ",env)
+    env.ns.parent.emit("add_visprocess_to_current_view", env)
+  },5);
+`;
+
+
+
 // объект который дает диалог пользвателю 
 // а в output выдает найденный dataframe отмеченный меткой df56
 // todo предикат ф-ю

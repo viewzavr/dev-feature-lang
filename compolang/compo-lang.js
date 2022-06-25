@@ -949,7 +949,6 @@ export function call_cmd( env )
 {
   env.addObjectRef("target");
 
-
   env.addCmd( "apply",(...args) => {
 
       if (!env.params.target) {
