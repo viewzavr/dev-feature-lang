@@ -33,7 +33,7 @@ export function when( env ) {
 
   env.onvalues([0,1],(obj,event) => {
     unsub();
-    //console.log("when subscribing to evnt",event)
+    console.log("when subscribing to evnt",event)
     unsub = obj.on( event,(...args) => {
       let parent = env.ns.parent;
       env.ns.parent.ns.removeChildren();

@@ -25,8 +25,23 @@ feature "load-dir" {
 
           loader_file: find_file @files "loader\.cl";
 
-          when @loader_file "found" {
-            console_log "loader found";
+          when @loader_file "found" { |loader_file|
+            console_log "loader found" @loader_file;
+
+            load_loader: load-file file=@loader_file;
+
+            when @load_loader "param_output_changed" { |content|
+              //console_log "loader.cl content loaded" @content;
+
+              parser: compalang input=@content {{ console_log_life }};
+
+              // парсер быстрее чем событие. понять что с этим делать..
+              when @parser "finished" {{ console_log_life }}
+              { |parsed_loader|
+                console_log "parsed loader content" @parsed_loader;
+              };
+            };
+
           };
 
           when @loader_file "not-found" {
@@ -55,7 +70,7 @@ feature "find-file" {
         }
         obj.emit('found',file);
         return file;
-      }" @r->0 @r->1;
+      }" @r->0 @r->1 @r;
   };
 };
 

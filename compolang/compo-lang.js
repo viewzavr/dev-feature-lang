@@ -57,7 +57,7 @@ export function simple_lang(env)
 export function compalang(env) 
 {
   env.onvalue("input",(code) => {
-
+    //console.log("compalang input",code)
     let opts = { base_url: env.$base_url }; // пока так
     
     try {
@@ -76,11 +76,16 @@ export function compalang(env)
       // а текущий парсер всегда выдает item 1 штука наверху, поэтому так
 
       env.setParam( "output", dump );
+      console.log("parser ok")
+      env.emit("computed",dump)
+      env.emit("finished",dump)
 
     }
     catch (e) 
     {
-
+      console.log("parser err")
+      env.emit("error",e)
+      env.emit("finished",e)
       console.error(e);
       
       if (typeof e.format === "function")
