@@ -12,10 +12,6 @@ feature "load-dir" {
         render-params @qqe filters={ params-hide list="title"; };
       };
     }
-      //url="http://127.0.0.1:8080/vrungel/public_local/Kalima/list.txt"
-      //dictionary_urls=["http://127.0.0.1:8080/vrungel/public_local/Kalima/list.txt"]
-      //url="https://viewlang.ru/assets/lava/Etna/list.txt"
-    //url="http://127.0.0.1:8080/vrungel/public_local/Etna/list.txt"
     url="http://127.0.0.1:8080/vrungel/public_local/Kalima/v2/vtk_8_20/list.txt"
     
     {{ x-param-label-small name="all_files_count"}}
@@ -23,45 +19,12 @@ feature "load-dir" {
     {
       files: select-files url=@qqe->url index=0;
 
-      loader_file_obj: m_eval "(arr) => {
-
-        let loader_file = arr.find( elem => elem.name == 'loader.cl' );
-
-        if (!loader_file) {
-          console.warn('loader.cl not found in dir',arr)
-          return null;
-        }
-
-        console.warn('loader.cl is found in dir',loader_file)
-        return loader_file;
-      }" @files->output;
-
-      loaded_content: load-file file=@loader_file_obj->output;
-
-      parsed: compalang input=@loaded_content->output;
-
-      r1: insert_children 
-              input=@qqe->project 
-              list=@parsed->output;
-
-      @r1->output | x-modify { x-set-params dir=@files->output active_view=@qqe->active_view; };
-
-      // на этот момент у нас появился loader в памяти.
-
-      best_loader: 
-       find-objects-bf root=@qqe->project features="loader"
-       |
-       m_eval "(loaders,dir) => {
-        let best_i = -1;
-        let best_value = 0;
-        for (let i=0; i<loaders.length; i++) {
-          let res = loaders.criteria( dir );
-          if (res > best_value) { best_value = res; best_i = i; }
-        }
-        return loaders[ best_i ];        
-      }" @.->input @files->output;
-
-      //@best_loader | pause_input |
+      logic: {
+        when @files "param_output_changed" { |files| 
+          console_log "see new files " @files;
+        };
+      };  
+      
 
     };
 };

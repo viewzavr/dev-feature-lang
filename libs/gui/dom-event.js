@@ -64,6 +64,8 @@ export function dom_event( obj )
 
 export function on_dom_event( env )
 {
+   //console.log("on-dom-event. env id is",env.$vz_unique_id," my host id is",env.host.$vz_unique_id," and my scope is", env.$scopes.top(), "and host obj is", env.host)
+
    var forget_bound_dom = ()=>{};
    var forget_obj = ()=>{};
 
