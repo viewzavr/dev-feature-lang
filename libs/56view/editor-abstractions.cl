@@ -27,7 +27,7 @@ feature "manage-content" {
      //@ba | x-modify-list list=@mc->add_bt_modifiers;
 
      objects_list:
-     find-objects-bf (@mc->items | geta 0 | get "find") 
+     find-objects-bf (@mc->items | geta 0 | geta "find") 
                      root=@mc->root
                      recursive=false
                      include_root=false 

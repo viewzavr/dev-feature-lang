@@ -23,56 +23,82 @@ feature "load-dir" {
 
       insert_loader: insert_children input=@qqe->project;
 
+      l1: loader_from_dir_logic files_elem=@files;
+
+      l: csp {
+        when @l1 "parsed" { |dir,code|
+            set_param target="@insert_loader->list" value=@code;
+
+            when @insert_loader "after_deploy" { 
+              console_log "point 2";
+              k: loaders_logic dir=@dir project=@qqe->project active_view=@qqe->active_view;
+              when @k "done" {
+                 restart @l;
+              };
+            };
+        };
+        when @l1 "missing" { |dir|
+          console_log "point 2";
+          k: loaders_logic dir=@dir project=@qqe->project active_view=@qqe->active_view;           
+          when @k "done" {
+             restart @l;
+          };
+        };
+      };
+
       // todo попробовать обратно переписать на иф-ах
 
-      logic: {
-        when @files "param_output_changed" { |files|
-          console_log "see new files " @files;
+    };
+};
 
-          loader_file: find_file @files "loader\.cl";
+feature "loader_from_dir_logic" { 
+//  |files_elem, project, active_view, loaders_inserted|
 
-          when @loader_file "found" { |loader_file|
-            console_log "loader found" @loader_file;
-            console_log "files still are" @files;
+  logic: {
+    console_log "welcome to loader_from_dir_logic";
 
-            load_loader: load-file file=@loader_file;
+    when @logic->files_elem "param_output_changed" { |files|
+      console_log "loader_from_dir_logic see new files " @files;
 
-            when @load_loader "param_output_changed" { |content|
-              //console_log "loader.cl content loaded" @content;
+      loader_file: find_file @files "loader\.cl";
 
-              parser: compalang input=@content;
+      when @loader_file "found" { |loader_file|
+        console_log "loader found" @loader_file;
+        console_log "files still are" @files;
 
-              // парсер быстрее чем событие. понять что с этим делать..
-              when_value @parser->output { |parsed_loader|
-                console_log "parsed loader content. inserting" @parsed_loader;
+        load_loader: load-file file=@loader_file;
 
-                //ic: insert_children @qqe->project list=@parsed_loader;
-                /*
-                @insert_loader | x-modify {
-                  x-set-params list=@parsed_loader __manual=true;
-                };
-                */
-                set_param target="@insert_loader->list" value=@parsed_loader;
+        when @load_loader "param_output_changed" { |content|
+          //console_log "loader.cl content loaded" @content;
 
-                when @insert_loader "after_deploy" {
-                  loaders_logic dir=@files project=@qqe->project active_view=@qqe->active_view;
-                };
-              };
+          parser: compalang input=@content;
 
-            };
+          // парсер быстрее чем событие. понять что с этим делать..
+          when_value @parser->output { |parsed_loader|
+            q: m_eval "(obj,dir,parsed) => obj.emit('parsed',dir,parsed)" @logic @files @parsed_loader;
 
-          };
-
-          when @loader_file "not-found" {
-            console_log "loader NOT found";
-            loaders_logic dir=@files project=@qqe->project active_view=@qqe->active_view;
+            when @q "computed" {
+              restart @logic { loader_from_dir_logic files_elem=@logic->files_elem; };
+            };  
           };
 
         };
+
       };
-      
+
+      when @loader_file "not-found" {
+        q: m_eval "(obj,dir) => { obj.emit('missing',dir) }" 
+           @logic @files;  
+
+        when @q "computed" {
+          restart @logic { loader_from_dir_logic files_elem=@logic->files_elem; };   
+        };  
+        //console_log "loader NOT found";
+        //loaders_logic dir=@files project=@logic->project active_view=@logic->active_view;
+      };
 
     };
+  };          
 };
 
 feature "loaders_logic" {
@@ -102,11 +128,19 @@ feature "loaders_logic" {
       }  
       " @ldr @logic->dir @logic->project @logic->active_view;
 
-      //when @mmm "computed" {
-      //   restart @logic { select-files-logic };
-      //};
+      when @mmm "computed" {
+         //restart @logic { select-files-logic };
+         //call @logic "done";
+         m_eval "(obj) => obj.emit('done');" @logic;
+      };
     };
   };
+};
+
+feature "emit" {
+  args: {};
+
+  m_eval "(obj,name) => obj.emit(name);" @args->0 @args->1;
 };
 
 /////////////////////////////////////////

@@ -10,6 +10,17 @@ export function create_envs(env)
 }
 */
 
+export function csp( env ) {
+
+  let orig = env.restoreFromDump;
+
+  env.restoreFromDump = (dump,manualParamsMode, $scopeFor ) => {
+    env.dump_for_restart = dump;
+    return orig( dump, manualParamsMode, $scopeFor );
+  };
+
+};
+
 export function when( env ) {
   let env_list;
   let env_call_scope = env.$scopes.top();
@@ -112,7 +123,20 @@ export function restart( env ) {
   });
 
   env.onvalue(0,(obj) => {
+    console.log("csp restart for",obj)
     let d = env_list[0];
+
+    if (!d) {
+
+      if (obj.dump_for_restart) {
+         obj.ns.removeChildren();
+         console.log("restarting from dump",obj.dump_for_restart)
+         return obj.restoreFromDump( obj.dump_for_restart, false, env.$scopes.top() );  
+      };
+      console.error("csp restart: no list, child and dump_for_restart. Dont know how to restart.", env)
+      return null;  
+    }
+
     d.keepExistingChildren=true;
     // пущай все вычищает
     let parent = env.ns.parent;
@@ -128,6 +152,7 @@ export function restart( env ) {
     //console.log("Restart performing",obj,d)
     
     obj.restoreFromDump( d, false, env.$scopes.top() );
+
   });
 
 };  
