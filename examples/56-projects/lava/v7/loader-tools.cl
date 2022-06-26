@@ -23,27 +23,35 @@ feature "load-dir" {
 
       insert_loader: insert_children input=@qqe->project;
 
-      l1: loader_from_dir_logic files_elem=@files;
+      l0: csp {
+        when @files "param_output_changed" { |dir|
+          l1: loader_from_dir_logic files=@dir;
 
-      l: csp {
-        when @l1 "parsed" { |dir,code|
-            set_param target="@insert_loader->list" value=@code;
+          when @l1 "parsed" { |code|
+             set_param target="@insert_loader->list" value=@code;
 
-            when @insert_loader "after_deploy" { 
-              console_log "point 2";
-              k: loaders_logic dir=@dir project=@qqe->project active_view=@qqe->active_view;
-              when @k "done" {
-                 restart @l;
+             when @insert_loader "after_deploy" { 
+               console_log "point 2";
+               k: loaders_logic dir=@dir project=@qqe->project active_view=@qqe->active_view;
+               when @k "done" {
+
+                 // стираем загрузчик..
+                 set_param target="@insert_loader->list" value=[];
+
+                 restart @l0;
+               };
+             };
+          };   
+
+          when @l1 "missing" {
+
+             console_log "point 2";
+             k: loaders_logic dir=@dir project=@qqe->project active_view=@qqe->active_view;           
+             when @k "done" {
+               restart @l0;
               };
-            };
-        };
-        when @l1 "missing" { |dir|
-          console_log "point 2";
-          k: loaders_logic dir=@dir project=@qqe->project active_view=@qqe->active_view;           
-          when @k "done" {
-             restart @l;
           };
-        };
+        };  
       };
 
       // todo попробовать обратно переписать на иф-ах
@@ -56,11 +64,10 @@ feature "loader_from_dir_logic" {
 
   logic: {
     console_log "welcome to loader_from_dir_logic";
+    
+    console_log "loader_from_dir_logic see new files " @logic->files;
 
-    when @logic->files_elem "param_output_changed" { |files|
-      console_log "loader_from_dir_logic see new files " @files;
-
-      loader_file: find_file @files "loader\.cl";
+    loader_file: find_file @logic->files "loader\.cl";
 
       when @loader_file "found" { |loader_file|
         console_log "loader found" @loader_file;
@@ -75,11 +82,8 @@ feature "loader_from_dir_logic" {
 
           // парсер быстрее чем событие. понять что с этим делать..
           when_value @parser->output { |parsed_loader|
-            q: m_eval "(obj,dir,parsed) => obj.emit('parsed',dir,parsed)" @logic @files @parsed_loader;
+            q: m_eval "(obj,dir,parsed) => obj.emit('parsed',parsed,dir)" @logic @logic->files @parsed_loader;
 
-            when @q "computed" {
-              restart @logic { loader_from_dir_logic files_elem=@logic->files_elem; };
-            };  
           };
 
         };
@@ -88,16 +92,10 @@ feature "loader_from_dir_logic" {
 
       when @loader_file "not-found" {
         q: m_eval "(obj,dir) => { obj.emit('missing',dir) }" 
-           @logic @files;  
-
-        when @q "computed" {
-          restart @logic { loader_from_dir_logic files_elem=@logic->files_elem; };   
-        };  
-        //console_log "loader NOT found";
-        //loaders_logic dir=@files project=@logic->project active_view=@logic->active_view;
+           @logic @logic->files;
       };
 
-    };
+
   };          
 };
 

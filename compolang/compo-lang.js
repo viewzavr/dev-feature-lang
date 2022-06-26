@@ -12,6 +12,8 @@ export function setup(vz, m) {
   M.setup( vz, M);
   A.setup( vz, A);
   C.setup( vz, C);
+
+  add_compalang_to_vz(vz);
 }
 
 import * as P from "./lang-parser.js";
@@ -28,7 +30,7 @@ export function simple_lang(env)
                               base_url: opts.base_url,
                               grammarSource: {lines: code.split('\n'), file: opts.diag_file }
                             }
-                             );
+                            );
       //console.log("parsed",parsed)      
       var dump = parsed2dump( env.vz, parsed, opts.base_url || "" );
       dump.keepExistingChildren = true;
@@ -67,7 +69,7 @@ export function compalang(env)
             base_url:opts.base_url,
             grammarSource: {lines: code.split('\n'), file: opts.diag_file } 
           } 
-            );
+          );
       
       var dump = parsed2dump( env.vz, parsed, opts.base_url || "" );
       //dump.keepExistingChildren = true; 
@@ -97,6 +99,48 @@ export function compalang(env)
 
   })
 }
+
+function add_compalang_to_vz(vz) {
+
+  vz.compalang = function( code, scope_variables={}, opts={} ) {
+    try {
+      var parsed = P.parse( code, 
+          { vz: vz, 
+            base_url: opts.base_url,
+            grammarSource: {lines: code.split('\n'), file: opts.diag_file } 
+          }
+          );
+      
+      var dump = parsed2dump( vz, parsed, opts.base_url || "" );
+      dump = Object.values(dump.children);
+
+      // теперь надо scope приделать
+      let temp = vz.createObj();
+      let scope = temp.$scopes.createAbandonedScope("vz.compalang");
+      for (let n of Object.keys( scope_variables)) {
+        scope.$add( n, scope_variables[n] );
+      }
+      for (let e of dump)
+        e.$scopeFor = scope;
+      temp.remove();
+
+      return dump;
+    }
+    catch (e) 
+    {
+      console.log("parser err")
+      console.error(e);
+      
+      if (typeof e.format === "function")
+          console.log( e.format( [{text:code}] ));
+
+      if (opts.diag_file) console.log("parse error in file ",opts.diag_file)
+
+      return [];  
+    }
+  };  
+
+};
 
 // преобразовать результат парсинга во вьюзавр-дамп
 // результат пишется обратно в аргумент parsed
