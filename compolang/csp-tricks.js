@@ -63,6 +63,7 @@ export function when( env ) {
   })
 }
 
+// при поступлении не-null значения...
 export function when_value( env ) {
   let env_list;
   let env_call_scope = env.$scopes.top();

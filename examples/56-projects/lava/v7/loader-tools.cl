@@ -24,16 +24,18 @@ feature "load-dir" {
       insert_loader: insert_children input=@qqe->project;
 
       l0: csp {
+        console_log "welcome to l0";
+
         when @files "param_output_changed" then={ |dir|
           l1: loader_from_dir_logic files=@dir;
 
-          when @l1 "parsed" { |code|
+          when @l1 "parsed" then={ |code|
              set_param target="@insert_loader->list" value=@code;
 
-             when @insert_loader "after_deploy" { 
+             when @insert_loader "after_deploy" then={ 
                console_log "point 2";
                k: loaders_logic dir=@dir project=@qqe->project active_view=@qqe->active_view;
-               when @k "done" {
+               when @k "done" then={
 
                  // стираем загрузчик..
                  set_param target="@insert_loader->list" value=[];
@@ -43,13 +45,13 @@ feature "load-dir" {
              };
           };   
 
-          when @l1 "missing" {
+          when @l1 "missing" then={
 
              console_log "point 2";
              k: loaders_logic dir=@dir project=@qqe->project active_view=@qqe->active_view;           
-             when @k "done" {
+             when @k "done" then={
                restart @l0;
-              };
+             };
           };
         };  
       };
@@ -69,19 +71,19 @@ feature "loader_from_dir_logic" {
 
     loader_file: find_file @logic->files "loader\.cl";
 
-      when @loader_file "found" { |loader_file|
+      when @loader_file "found" then={ |loader_file|
         console_log "loader found" @loader_file;
         console_log "files still are" @files;
 
         load_loader: load-file file=@loader_file;
 
-        when @load_loader "param_output_changed" { |content|
+        when @load_loader "param_output_changed" then={ |content|
           //console_log "loader.cl content loaded" @content;
 
           parser: compalang input=@content;
 
           // парсер быстрее чем событие. понять что с этим делать..
-          when_value @parser->output { |parsed_loader|
+          when_value @parser->output then={ |parsed_loader|
             q: m_eval "(obj,dir,parsed) => obj.emit('parsed',parsed,dir)" @logic @logic->files @parsed_loader;
 
           };
@@ -90,7 +92,7 @@ feature "loader_from_dir_logic" {
 
       };
 
-      when @loader_file "not-found" {
+      when @loader_file "not-found" then={
         q: m_eval "(obj,dir) => { obj.emit('missing',dir) }" 
            @logic @logic->files;
       };
@@ -115,22 +117,44 @@ feature "loaders_logic" {
         return loaders[ best_i ];
       }" @loaders_arr->output @logic->dir;
 
-    when_value @best->output { |ldr|
-      console_log "best loader determined" @ldr;
-      //insert_children input=@logic->project list=@ldr->load @logic->dir @logic->project;
-      //call @ldr "load" 
-      mmm: m_eval "(ldr,dir,project,av) => {
-        //ldr.params.load(dir,project)
-        // ха вопрос а как оно сотрет когда станет ненадо
-        ldr.vz.callParamFunction( ldr.params.load, project, false, project.$scopes.top(), dir, project, av);
-      }  
-      " @ldr @logic->dir @logic->project @logic->active_view;
+    /// todo: а как в ксп записывается if?
+    /// ну типа значение пришло а надо понять какое оно и от этого плясать
+    /// как вариант when_if (bool expression) data { |data| .... }
+    //// но эт не сработает пока m_eval не рассчитался... ну тогда надо его computed-событие ждать
+    /// и уже анализировать чего там...
 
-      when @mmm "computed" {
-         //restart @logic { select-files-logic };
-         //call @logic "done";
+    when @best "computed" then={ |ldr|
+      console_log "best loader determined" @ldr;
+
+      if (@ldr) then={
+
+          //insert_children input=@logic->project list=@ldr->load @logic->dir @logic->project;
+          //call @ldr "load" 
+          mmm: m_eval "(ldr,dir,project,av) => {
+            //ldr.params.load(dir,project)
+            // ха вопрос а как оно сотрет когда станет ненадо
+            ldr.vz.callParamFunction( ldr.params.load, project, false, project.$scopes.top(), dir, project, av);
+            return 1;
+          }  
+          " @ldr @logic->dir @logic->project @logic->active_view
+          |
+          m_eval "(obj) => obj.emit('done');" @logic;
+          ;
+/*
+          console_log "eee";
+
+          when @mmm "computed" then={
+             //restart @logic { select-files-logic };
+             //call @logic "done";
+             m_eval "(obj) => obj.emit('done');" @logic;
+          };
+*/          
+       }
+       else={
+         // fail
+         console_log "no best loader";
          m_eval "(obj) => obj.emit('done');" @logic;
-      };
+       };  
     };
   };
 };
