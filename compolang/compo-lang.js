@@ -133,6 +133,10 @@ function parsed2dump( vz, parsed, base_url ) {
   for (let pv of (Object.values(parsed.params) || [])) {
      // преобразуем очередной параметр если он окружение
      if (Array.isArray(pv) && pv.length > 0 && pv[0].this_is_env) {
+
+        //console.log("pv",pv.env_args)
+        //if (pv.env_args)          debugger;
+
         for (let penv of pv)
            parsed2dump( vz, penv, base_url );
      }

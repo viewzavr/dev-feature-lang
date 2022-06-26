@@ -2,6 +2,14 @@ export function setup(vz, m) {
   vz.register_feature_set(m);
 }
 
+// create_envs parent envlist-function arg1 arg2 ...
+/*
+export function create_envs(env)
+{
+  env.onvalue( "" )
+}
+*/
+
 export function when( env ) {
   let env_list;
   let env_call_scope = env.$scopes.top();
@@ -42,7 +50,6 @@ export function when( env ) {
       env.vz.callEnvFunction( env_list, parent, false, env_call_scope, ...args )
     } );
   })
-
 }
 
 export function when_value( env ) {

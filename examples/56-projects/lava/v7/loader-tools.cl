@@ -21,16 +21,19 @@ feature "load-dir" {
     {
       files: select-files url=@qqe->url index=0;
 
-      insert_loader: insert_children input=@qqe->project {{ console_log_life }};
+      insert_loader: insert_children input=@qqe->project;
+
+      // todo попробовать обратно переписать на иф-ах
 
       logic: {
-        when @files "param_output_changed" { |files| 
+        when @files "param_output_changed" { |files|
           console_log "see new files " @files;
 
           loader_file: find_file @files "loader\.cl";
 
           when @loader_file "found" { |loader_file|
             console_log "loader found" @loader_file;
+            console_log "files still are" @files;
 
             load_loader: load-file file=@loader_file;
 
@@ -52,7 +55,7 @@ feature "load-dir" {
                 set_param target="@insert_loader->list" value=@parsed_loader;
 
                 when @insert_loader "after_deploy" {
-                  loaders_logic dir=@files project=@qqe->project;
+                  loaders_logic dir=@files project=@qqe->project active_view=@qqe->active_view;
                 };
               };
 
@@ -62,6 +65,7 @@ feature "load-dir" {
 
           when @loader_file "not-found" {
             console_log "loader NOT found";
+            loaders_logic dir=@files project=@qqe->project active_view=@qqe->active_view;
           };
 
         };
@@ -73,8 +77,8 @@ feature "load-dir" {
 
 feature "loaders_logic" {
   logic: {
-    loaders_arr: find-objects-bf features="loader" root=@logic->project | console_log_input "EEE";
-    console_log "welcome to loaders-logic" @best->output;
+    loaders_arr: find-objects-bf features="loader" root=@logic->project;
+    console_log "welcome to loaders-logic. dir is" @logic->dir;
 
     best: m_eval "(loaders,dir) => {
         console.log('computing best loaders',loaders,dir)
@@ -91,7 +95,16 @@ feature "loaders_logic" {
       console_log "best loader determined" @ldr;
       //insert_children input=@logic->project list=@ldr->load @logic->dir @logic->project;
       //call @ldr "load" 
-      m_eval "(ldr,dir,project) => ldr.params.load(dir,project)" @ldr @logic->dir @logic->project;
+      mmm: m_eval "(ldr,dir,project,av) => {
+        //ldr.params.load(dir,project)
+        // ха вопрос а как оно сотрет когда станет ненадо
+        ldr.vz.callParamFunction( ldr.params.load, project, false, project.$scopes.top(), dir, project, av);
+      }  
+      " @ldr @logic->dir @logic->project @logic->active_view;
+
+      //when @mmm "computed" {
+      //   restart @logic { select-files-logic };
+      //};
     };
   };
 };
