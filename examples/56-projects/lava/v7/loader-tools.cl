@@ -24,7 +24,7 @@ feature "load-dir" {
       insert_loader: insert_children input=@qqe->project;
 
       l0: csp {
-        when @files "param_output_changed" { |dir|
+        when @files "param_output_changed" then={ |dir|
           l1: loader_from_dir_logic files=@dir;
 
           when @l1 "parsed" { |code|

@@ -38,7 +38,7 @@ export function when( env ) {
     return Promise.resolve("success");
   }
 
-  env.onvalue("list",(list) => {
+  env.onvalue("then",(list) => {
     env_list = list;
   });
 
@@ -80,7 +80,7 @@ export function when_value( env ) {
     return Promise.resolve("success");
   }
 
-  env.onvalue("list",(list) => {
+  env.onvalue("then",(list) => {
     env_list = list;
   });
 

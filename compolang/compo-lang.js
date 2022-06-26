@@ -100,6 +100,83 @@ export function compalang(env)
   })
 }
 
+// вход 0 - строка на компаланге.
+// непозиционные параметры - пойдут в scope
+// ideas: мб еще input вернуть как вход
+export function compalang2(env) 
+{
+  env.on("param_changed",(name) => {
+    if (name == "output") return;
+    perform_d();
+  });
+
+  env.feature("delayed");
+  let perform_d = env.delayed( perform );
+
+  function perform() {
+  let code= env.params[0];
+  if (!code) {
+    if (env.params.output)
+        env.setParam("output",null);
+    return;
+  }
+
+  //console.log("compalang input",code)
+  let opts = { base_url: env.$base_url }; // пока так
+    
+    try {
+      var parsed = P.parse( code, 
+          { vz: env.vz, 
+            parent: (opts.parent || env), 
+            base_url:opts.base_url,
+            grammarSource: {lines: code.split('\n'), file: opts.diag_file } 
+          } 
+          );
+      
+      var dump = parsed2dump( env.vz, parsed, opts.base_url || "" );
+      //dump.keepExistingChildren = true; 
+      dump = Object.values(dump.children);
+      // мне пока-что надо пропарсенное как массив объектов получить,
+      // а текущий парсер всегда выдает item 1 штука наверху, поэтому так
+
+      // добавим параметров
+      let scope = env.$scopes.createAbandonedScope("compalang2 feature");
+      scope.$lexicalParentScope = env.$scopes.top();
+      let scope_variables = env.params;
+      
+      for (let n of Object.keys( scope_variables )) {
+        if (Number.isInteger(n)) continue;
+        if (n.match(/^\d+$/)) continue; // todo optimize
+        if (n == "output" || n == "args_count") continue;
+
+        scope.$add( n, scope_variables[n] );
+      }
+      for (let e of dump)
+        e.$scopeFor = scope;
+
+      env.setParam( "output", dump );
+      //console.log("parser ok")
+      env.emit("computed",dump)
+      env.emit("finished",dump)
+
+    }
+    catch (e) 
+    {
+      console.log("parser err")
+      env.emit("error",e)
+      env.emit("finished",e)
+      console.error(e);
+      
+      if (typeof e.format === "function")
+          console.log( e.format( [{text:code}] ));
+
+      if (opts.diag_file) console.log("parse error in file ",opts.diag_file)  
+
+    }
+
+  }
+}
+
 function add_compalang_to_vz(vz) {
 
   vz.compalang = function( code, scope_variables={}, opts={} ) {
@@ -141,6 +218,8 @@ function add_compalang_to_vz(vz) {
   };  
 
 };
+
+
 
 // преобразовать результат парсинга во вьюзавр-дамп
 // результат пишется обратно в аргумент parsed
