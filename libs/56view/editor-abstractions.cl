@@ -68,7 +68,7 @@ feature "manage-content" {
 
     }; // column of elements
     
-     if (@mc->items | geta 0 | geta "add") then={
+     if (@mc->items | geta 0 | geta "add" default=null) then={
           ba: button_add_object_t
                add_to=@mc->root
                add_template=(@mc->items | geta 0 | geta "add")

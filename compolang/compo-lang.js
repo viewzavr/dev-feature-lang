@@ -2214,16 +2214,17 @@ export function creator( env )
 // действует как deploy_many но по команде apply
 // и в отличие от creator - удаляет созданное в предыдущей apply
 // вход - list, массив описаний
+// а еще сделано для интереса что может получать аргументы чего делать - в команде
 export function recreator( env, opts )
 {
   env.onvalue("list",(input) => {
      //deploy_normal_env_all(input);
   });
 
-  env.addCmd("apply",() => {
+  env.addCmd("apply",( arg_list=null ) => {
     //console.log("redeploy called",env.getPath())
 
-    deploy_normal_env_all( env.params.list );
+    deploy_normal_env_all( arg_list || env.params.list );
   });
 
  // режим "repeater-mode" - развернуть всех в родителя (хотя может и можно не в родителя)

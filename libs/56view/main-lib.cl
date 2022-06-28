@@ -395,9 +395,10 @@ feature "find-data-source-column" {
     render-params @s1;
     render-params @s2;
   }
+  selected_column=""
   output=@s2->output
   {
      s1: find-data-source input_link=@it->initial_link?;
-     s2: select-source-column input=@s1->output?;
+     s2: select-source-column input=@s1->output? selected_column=@it->selected_column;
   };
 };

@@ -255,7 +255,7 @@ feature "effect3d_delta" {
 add_sib_item @geffect3d "effect3d-colorize" "Раскраска по данным";
 feature "effect3d_colorize" {
   eff: geffect3d
-  dx=1 dy=0 dz=0
+  
     gui={
       //render-params @d;
       dom_group {
@@ -266,7 +266,7 @@ feature "effect3d_colorize" {
   element=@../..
   x-modify {
     x-set-params colors=@arrtocols->output;
-    d: find-data-source-column init_input=(@eff->element | geta "input");
+    d: find-data-source-column init_input=(@eff->element | geta "input") selected_column=@eff->selected_column?;
     arrtocols: arr_to_colors gui_title="Цвета" input=@d->output;
   };
 };

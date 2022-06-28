@@ -87,9 +87,8 @@ feature "astra-source" {
 			  		
 			};
 
-			//astrafiles: select-files url="https://viewlang.ru/assets/astra/data/list.txt";
-			astrafiles: select-files url="http://127.0.0.1:8080/vrungel/public_local/data1/list.txt";
-			
+			//astrafiles: select-files url="http://127.0.0.1:8080/vrungel/public_local/data1/list.txt";
+			astrafiles: select-files url="https://viewlang.ru/assets/astra/data1/list.txt";
 
 			astradata: N=0 
 			    //files=[] 
@@ -179,6 +178,7 @@ feature "astra-camera-rotate" {
 feature "astra-vis-1" {
 	avp: visual_process
 	title="Визуализация звёзд"
+	dust_mode=0
 	gui={
 		
 		//find-objects-by-crit "visual_process" root=@scene recursive=false | render-guis-a;
@@ -191,6 +191,28 @@ feature "astra-vis-1" {
 	    */
 
 	    render-params @astradata;
+
+
+	    text "Раскраска частиц:";
+			ssr_dust_color: 
+			   switch_selector_row
+               index=@avp->dust_mode
+               items=["Плотность","Сложение цветов","Выкл"]
+               style_qq="margin-bottom:15px;" {{ hilite_selected }}
+               {{ m_on "param_index_changed" "(obj,sending_obj,v) => obj.setParam('dust_mode',v,true);" @avp }}
+               ;
+
+/*               
+		  l1: csp {
+		  	when @ssr_dust_color "param_index_changed" { |v|
+		  		//@avp | x-modify {	x: x-set-params __manual=true dust_mode=@v;	};
+		  		x: m_eval "(obj,v) => obj.setParam('dust_mode',v,true);" @avp @v;
+		  		when @x "computed" {
+		  				retry @l1;
+		  		};
+		  	};
+		  }
+*/		  
 
 /*
 			show_sources_params 
@@ -205,6 +227,8 @@ feature "astra-vis-1" {
        vp=@avp
        items=[{"title":"Скалярные слои", "find":"visual-process"}];
 	  };
+
+	  //{{ x-add-cmd2 "сложение_цветов" }}
 	}
 	gui3={
 		render-params @avp;
@@ -218,10 +242,14 @@ feature "astra-vis-1" {
 		scene: node3d visible=@avp->visible force_dump=true
 		{
 
+//			 dust_color_logic: csp {
+//			 	 when @
+//			 }
+
 				//mesh positions=[0,0,0, 10,10,10, 0,10,0 ];
 
 		   // 218 201 93 цвет
-		   @astradata->output | geta 0 | pts_dust: points title="Точки" visual-process editable-addons 
+		   @astradata->output | geta 0 | pts_dust: points title="Частицы" visual-process editable-addons 
 		     radius=0.02 color=[0.85, 0.78, 0.36] 
 		     {{ x-param-slider name="radius" min=0.01 max=0.25 step=0.01 }}
 		     // слайдер сделан специально чтобы не указать слишком больших значений
@@ -244,13 +272,39 @@ feature "astra-vis-1" {
 		     addons={ effect3d-opacity opacity=0.5; }
 		     ;
 
-		   insert_children input=@pts_dust->addons_container active=(is_default @pts_dust->addons_container) list={
-		   	 // F-PIXEL-PRESET
-		   	 effect3d_sprite sprite="disc.png";
-		   	 effect3d_additive;
-		   	 effect3d_zbuffer depth_test=false;
-		   	 effect3d-opacity opacity=0.25 alfa_test=0;
+		   //insert_children input=@pts_dust->addons_container active=(is_default @pts_dust->addons_container) list=@coloring_variants->density;
+
+
+		   insert_children input=@pts_dust->addons_container 
+		      list=( (list @coloring_variants->density @coloring_variants->additive []) | geta @avp->dust_mode);
+
+		   coloring_variants:
+		     additive={ // F-PIXEL-PRESET
+						effect3d_sprite sprite="disc.png";
+		   	 	  effect3d_additive;
+		   	 		effect3d_zbuffer depth_test=false;
+		   	    effect3d-opacity opacity=0.25 alfa_test=0;		     	
+		     }
+		     density={
+		     	  effect3d_colorize selected_column="DENSITY";
+		     	  effect3d_sprite sprite="circle.png";
+		     };
+
+
+/*
+		   m_density: x-modify {
+		   		effect3d_colorize selected_column="DENSITY";
 		   };
+
+		   m_additive: x-modify {
+						effect3d_sprite sprite="disc.png";
+		   	 	  effect3d_additive;
+		   	 		effect3d_zbuffer depth_test=false;
+		   	    effect3d-opacity opacity=0.25 alfa_test=0;
+		   };
+*/		   
+
+		   //k1: recreator input=@pts_dust->addons_container;
 
 /*
 		   insert_children input=@pts_star->addons_container active=(is_default @pts_star->addons_container) list={
