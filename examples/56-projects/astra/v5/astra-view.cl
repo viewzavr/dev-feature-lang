@@ -201,18 +201,16 @@ feature "astra-vis-1" {
                style_qq="margin-bottom:15px;" {{ hilite_selected }}
                {{ m_on "param_index_changed" "(obj,sending_obj,v) => obj.setParam('dust_mode',v,true);" @avp }}
                ;
-
-/*               
+/* тоже рабочий вариант но ненадежный пока
 		  l1: csp {
-		  	when @ssr_dust_color "param_index_changed" { |v|
-		  		//@avp | x-modify {	x: x-set-params __manual=true dust_mode=@v;	};
-		  		x: m_eval "(obj,v) => obj.setParam('dust_mode',v,true);" @avp @v;
-		  		when @x "computed" {
-		  				retry @l1;
-		  		};
+		  	when @ssr_dust_color "param_index_changed" then={ |v|
+		  		a: call @avp "setParam" "dust_mode" @v auto_apply;
+	  			when @a "done" then={
+	  			  restart @l1;
+	  			};
 		  	};
-		  }
-*/		  
+		  };
+*/
 
 /*
 			show_sources_params 

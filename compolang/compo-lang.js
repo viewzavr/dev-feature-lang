@@ -1159,7 +1159,7 @@ export function call( env )
       for (let i=0; i<extra_args.length;i++) 
         args.push( extra_args[i] );
 
-      //console.log("calling ",nam,"args",args)
+      console.log("calling ",to,nam,"args",args)
 
       if (to.hasCmd( nam )) // идея предусмотреть вариант когда объект это не
         to.callCmd( nam, ...args );
@@ -1168,6 +1168,8 @@ export function call( env )
       else
         to.emit( env.params.name, ...args );
         //console.error("call: target has no input thing named",nam,target.getPath());
+
+     env.emit('done');
 
       // вообще идея что можно было бы еще вызвать событие
 
@@ -1207,6 +1209,7 @@ export function emit_event( env )
 
       env.params.object.emit( env.params.name, ...args );
 
+      env.emit("done");
    } )
 }
 
@@ -1214,7 +1217,6 @@ export function emit_event( env )
 
 
 // автоматический вызов команды apply при изменении любых параметров
-// (кстати странно - даже выходных получается)
 export function auto_apply( obj ) {
   function evl() {
     obj.callCmd("apply");
