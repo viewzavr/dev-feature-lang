@@ -20,6 +20,7 @@ export function parse_csv( env ) {
 
 // генерирует текст csv из df
 export function generate_csv( env ) {
+  env.setParam("include_column_names",true);
 
   env.addCmd("apply",perform);
 
@@ -29,10 +30,10 @@ export function generate_csv( env ) {
       console.error( "generate_csv: input is not data-frame",src);
       return;
     }
-    console.log('generate_csv: performing');    
+    //console.log('generate_csv: performing');    
     
     let cols = df.get_column_names( src );
-    let text = cols.join(",");
+    let text = env.params.include_column_names ? cols.join(",") : "";
     let len = df.get_length( src );
 
     for (var i=0; i<len; i++) {
@@ -41,8 +42,39 @@ export function generate_csv( env ) {
       text = text + "\n" + line.join(",");
     }
 
-    console.log('generate_csv: setting output');
-    env.setParam("output","");
+    //console.log('generate_csv: setting output');
+    //env.setParam("output","");
+    env.setParam("output",text);
+  };
+
+}
+
+export function generate_csv2( env ) {
+  env.setParam("include_column_names",true);
+
+  //env.addCmd("apply",perform);
+  env.onvalue( "input", perform );
+
+  function perform() {
+    let src = env.params.input;
+    if (!df.is_df(src)) {
+      console.error( "generate_csv: input is not data-frame",src);
+      return;
+    }
+    //console.log('generate_csv: performing');    
+    
+    let cols = df.get_column_names( src );
+    let text = env.params.include_column_names ? cols.join(",") : "";
+    let len = df.get_length( src );
+
+    for (var i=0; i<len; i++) {
+      // подготовим строку
+      let line = cols.map( (name) =>  df.get_column(src,name)[i] );
+      text = text + "\n" + line.join(",");
+    }
+
+    //console.log('generate_csv: setting output');
+    //env.setParam("output","");
     env.setParam("output",text);
   };
 

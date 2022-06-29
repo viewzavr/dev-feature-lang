@@ -10,7 +10,7 @@ export function setup(vz, m) {
 */
 }
 
-/* df_import_arrays columns=["X,Y,Z,TEXT"];
+/* df_create_from_arrays columns=["X,Y,Z,TEXT"];
 */
 export function df_create_from_arrays(env) {
   env.onvalues(["input","columns"],(value,columns) => {
@@ -117,6 +117,25 @@ export function df_to_rows( env ) {
     let res = [];
     for (let i=0; i<value.length; i++) {
       let output = df.slice( value,i,i+1);
+      res.push( output );
+    }
+    
+    env.setParam("output",res);
+  });
+}
+
+/////////////////// конвертирует df в набор строк
+// т.е. на выходе массив массивов, в каждом из которых 1 строка записана
+export function df_to_rows_arrays( env ) {
+  env.onvalues(["input"],(value) => {
+    if (!df.is_df(value)) {
+      env.setParam("output",[]);
+      return;
+    }
+    
+    let res = [];
+    for (let i=0; i<value.length; i++) {
+      let output = df.get_rows( value,i );
       res.push( output );
     }
     

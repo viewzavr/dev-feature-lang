@@ -272,19 +272,20 @@ register_feature name="render-param-array" {
     button text="Редактировать" {
       dlg: dialog {
         column {
-          text text="Введите массив"; // todo hints
+          //text text="Введите массив"; // todo hints
+
+          text style="max-width:70vh;"
+               ((get_param_option @pf->obj @pf->name "hint") or "Введите массив");
+
           ta: dom tag="textarea" style="width: 70vh; height: 30vh;" 
                 dom_obj_value=(m_eval "(txt) => txt.join ? txt.join(' ') : txt.toString()" @pf->value)
                   ;
           button text="ВВОД" cmd=@commit->apply;
 
-          text style="max-width:70vh;"
-               (get_param_option @pf->obj @pf->name "hint");
-
           commit: func pf=@pf ta=@ta dlg=@dlg code=`
               let v = env.params.ta?.dom?.value;
               let arr = v.split(/[ ,]+/).map(parseFloat);
-              env.params.pf.setParam("value", arr )
+              env.params.pf.setParam("value", arr, true );
               env.params.dlg.close();
           `;
         }
@@ -304,17 +305,20 @@ register_feature name="render-param-text" {
     button text="Редактировать" {
       dlg: dialog {
         column {
-          text text="Введите текст"; // todo hints
+          //text text="Введите текст"; // todo hints
+          text style="max-width:70vh;"
+               ((get_param_option @pf->obj @pf->name "hint") or "Введите массив");
+
           ta: dom tag="textarea" style="width: 70vh; height: 30vh;" 
                   ;
           button text="ВВОД" cmd=@commit->apply;
 
-          text style="max-width:70vh;"
-               (get_param_option @pf->obj @pf->name "hint");
+          //text style="max-width:70vh;"
+          //     (get_param_option @pf->obj @pf->name "hint");
 
           commit: m_lambda `(pf,ta,dlg) => {
                 let v = ta.dom?.value;
-                pf.setParam("value", v )
+                pf.setParam("value", v, true )
                 dlg.close();
             };
           ` @pf @ta @dlg check_params=true;

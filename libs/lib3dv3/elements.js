@@ -136,7 +136,7 @@ export function points( env ) {
   });
 
   env.monitor_values(["colors"],(v) => {
-    
+//colors_mix_mode    
     if (v?.length > 0) {
       geometry.setAttribute( 'color', new THREE.BufferAttribute( new Float32Array(v), 3 ) );
       material.vertexColors = true;

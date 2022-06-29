@@ -34,6 +34,8 @@ function genpromis() {
   return genpromis();
 }
 
+// считает array_list колонками и соединяет их значения построчно сверху вниз
+// на выходе поэлементный массив
 export function combine( arrays_list ) {
   var arr0 = arrays_list[0];
   if (!(Array.isArray(arr0) || arr0 instanceof Float32Array)) {
@@ -55,6 +57,32 @@ export function combine( arrays_list ) {
   }
   return res;
 }
+
+// считает array_list колонками и соединяет их значения построчно сверху вниз
+// на выходе массив строк
+/* todo
+export function columns_to_rows( arrays_list ) {
+  var arr0 = arrays_list[0];
+  if (!(Array.isArray(arr0) || arr0 instanceof Float32Array)) {
+    return [];
+  }
+
+  const len = arr0.length;
+  const len2 = arrays_list.length;  
+  var res = new Float32Array( len * len2 );
+  
+  // F-COMBINE-EMPTY-COLUMNS
+  for (var j=0; j<len2; j++)
+    if (!arrays_list[j]) arrays_list[j] = [];
+
+  var k = 0;
+  for (var i=0; i<len; i++) {
+    for (var j=0; j<len2; j++,k++)
+      res[k] = arrays_list[j][i] || 0; // F-COMBINE-EMPTY-VALUES
+  }
+  return res;
+}
+*/
 
 
 // interpolates two 1-dimensional arrays

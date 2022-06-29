@@ -53,6 +53,45 @@ feature "x-param-editable-combo" {
   };
 };
 
+feature "x-param-df" {
+  xi: x-param-custom 
+     editor={
+  	 edt: param_field {
+
+		    button text="Редактировать" {
+		      dlg: dialog {
+		        column {
+		          text text="Введите данные"; // todo hints
+		          ta: dom tag="textarea" style="width: 70vh; height: 30vh;" 
+		                dom_obj_value=(generate_csv2 include_column_names=false input=(@edt->object | geta @edt->name))
+		                  ;
+		          bt: button text="ВВОД";
+
+		          text style="max-width:70vh;"
+		               (get_param_option @edt->object @edt->name "hint");
+
+		          logic: csp {
+		          	when @bt "click" then={
+
+		          		k: m_eval `(obj,pn,v,dlg) => {
+		          	    obj.setParam( pn,v,true );
+		          		  dlg.close();
+		          	  }` @edt->object 
+		          	     @edt->name 
+		          	     (m_eval "(ta,columns) => columns + '\n' + ta.dom.value" @ta @xi->columns| parse_csv)
+		          	     @dlg;
+		          	  when @k "computed" then={
+		          	  	restart @logic;
+		          	  };
+		          	}; // when clicked
+		          }; // logic
+		        }; // column
+		      }; // dlg
+		    }; // btn
+		  }; //edit
+  }; //param custom
+};
+
 // рабочий вариант
 feature "x-param-objref-3" {
   r: x-patch-r @r->name @r->editor @r->values
@@ -83,7 +122,6 @@ feature "x-param-objref-3" {
 		        ;
 	        };
      };
-
 };
 
 feature "x-param-objref-2" {
@@ -158,7 +196,7 @@ feature "select-files-inet" {
 				      output=@result->output
 						{
 							listing: load-file file=@idata->listing_file 
-							  | m_eval "(txt) => txt && txt.length > 0 ? txt.split('\n') : []" @.->input;
+							  | m_eval "(txt) => txt && txt.length > 0 ? txt.split('\\n') : []" @.->input;
 							listing_resolved: @listing->output | map_geta (m_apply "(dir,item) => dir+'/'+item" @idata->listing_file_dir);
 							result: m_eval "(arr1,arr2) => {
 								  

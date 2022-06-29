@@ -118,7 +118,7 @@ feature "astra-source" {
 		    planet_count = (@planet->output | geta "length")
       {
       	 loaded_data2: load-file file=(@astradata->current_file or null)
-         	| m_eval "() => 'X Z Y DENSITY ID TYPE\n' + env.params.input" // F-CHANGE-DATA-AXES
+         	| + 'X Z Y DENSITY ID TYPE\n' + @.->input // F-CHANGE-DATA-AXES
 			   	| parse_csv separator="\s+" df56;
 
 			   dust: @loaded_data2->output | df_filter "(line) => line.ID < 1000000";
@@ -338,7 +338,7 @@ register_feature name="joinlines" code=`
     let arr = [];
     for (let i=0; i<count; i++)
       arr.push( env.params[ i ] );
-    let res = arr.join( env.params.with || "\n" ); // по умолчанию пустой строкой
+    let res = arr.join( env.params.with || "\\n" ); // по умолчанию пустой строкой
     env.setParam("output",res );
   };
   

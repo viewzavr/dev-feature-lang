@@ -96,7 +96,7 @@ feature "trajectory_editor" {
       	
       	var str = "100," + cp.map( v => v.toString() ).join(",") + "," + cla.map( v => v.toString() ).join(",");
 
-				if (tenv.params.trajectory) str = tenv.params.trajectory + "\n" + str;
+				if (tenv.params.trajectory) str = tenv.params.trajectory + "\\n" + str;
 
         tenv.setParam( "trajectory", str, true );
 
@@ -113,10 +113,10 @@ feature "trajectory_editor" {
 
     x-add-cmd 
       name="start_new" 
-      code=(m-apply `(tenv) => {
+      code=(m_lambda `(tenv) => {
         tenv.setParam( "trajectory",'', true );
             tenv.callCmd("add-current");
-    	}` @avpc);    	
+    	}` @avpc);
     x-param-option name="start_new" option="priority"	value=10; // подальше убрать ее
 
     x-param-text name="trajectory";
@@ -132,7 +132,7 @@ feature "trajectory_editor" {
 	
 	trajectory_time_len=(m_eval (max_time) @avpc->output)
 	output=(
-		     (m_eval '(t) => "TIME_DELTA,X,Y,Z,LOOKAT_X,LOOKAT_Y,LOOKAT_Z\n" + t' @avpc->trajectory) 
+		     ("TIME_DELTA,X,Y,Z,LOOKAT_X,LOOKAT_Y,LOOKAT_Z\n" + @avpc->trajectory)
 		     | parse_csv)
 	;
 };
@@ -204,7 +204,7 @@ feature "max_time" {
     for (var i=1; i<col.length; i++) {
     	t += col[i];
     }
-    console.log("max_time",df,t)
+    //console.log("max_time",df,t)
     return t;
   }`;
 };

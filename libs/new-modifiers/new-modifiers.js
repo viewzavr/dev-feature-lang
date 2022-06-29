@@ -53,10 +53,18 @@ export function setup(vz, m) {
 
 export function x_modify( env ) 
 {
-
-  env.feature("pass_input"); // ну так по приколу - чтобы писать x-modify | x-modify | ...
+  env.feature("delayed");
+  //env.feature("pass_input"); // ну так по приколу - чтобы писать x-modify | x-modify | ...
 
   let modified_objs = {}; // todo: set
+
+  // выдать надо тож полезно
+  function publish_modified_objs() {
+    if (env.removed || env.removing) return;
+    let v = Object.values(modified_objs).map( rec => rec.obj );
+    env.setParam("output",v);
+  }
+  let publish_modified_objs_d = env.delayed( publish_modified_objs );
 
   function getobjid(obj) {
     if (!obj.$vz_unique_id)
@@ -104,6 +112,9 @@ export function x_modify( env )
         }
       }
     };
+
+    //publish_modified_objs();
+    env.setParam("output",i);
   
   });
 
@@ -139,6 +150,8 @@ export function x_modify( env )
         r.modifications[ getobjid(c) ] = true;
         c.emit("attach",obj);
     }
+
+    publish_modified_objs_d();
   })
 
   env.on("detach",(obj) => {
@@ -147,12 +160,14 @@ export function x_modify( env )
     }
 
     delete modified_objs[ getobjid( obj ) ];
+
+    publish_modified_objs_d();
   })
 
   ////////////////////// todo:
   // on appendChild, on forgetChild...
 
-  env.feature("delayed");
+  
   
   env.on("appendChild",(c) => {
     let iter_a = iter; 

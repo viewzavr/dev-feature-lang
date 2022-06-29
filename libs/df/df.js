@@ -236,7 +236,7 @@ export function get_rows( src, index, length_idea=1,columns=null ) {
     columns.forEach( function(name) {
         let coldata = src[name];
         acc.push( coldata[index] );
-    });  
+    });
   }
   else
   {

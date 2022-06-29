@@ -214,3 +214,22 @@ feature "pause_input" code=`
 
   env.onvalue("input",pass);
 `;
+
+feature "joinlines" code=`
+  env.on("param_changed",(name) => {
+    if (name == "output") return;
+    compute();
+  });
+  
+  function compute() {
+
+    let count = env.params.args_count;
+    let arr = [];
+    for (let i=0; i<count; i++)
+      arr.push( env.params[ i ] );
+    let res = arr.join( env.params.with || "\\n" ); // по умолчанию пустой строкой
+    env.setParam("output",res );
+  };
+  
+  compute();
+`;

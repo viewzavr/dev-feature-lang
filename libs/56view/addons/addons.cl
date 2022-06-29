@@ -184,7 +184,7 @@ feature "effect3d_scale" {
   ;
 };
 
-add_sib_item @geffect3d "effect3d-sprite" "Вид точек";
+add_sib_item @geffect3d "effect3d-sprite" "Внешний вид точек";
 feature "effect3d_sprite" {
   eoa: geffect3d
     {{ x-param-combo name="sprite" values=["","spark1.png","ball.png","circle.png","disc.png","particle.png","particleA.png","snowflake1.png","snowflake3.png"]; }}
@@ -263,15 +263,23 @@ feature "effect3d_colorize" {
       };
       render-params @arrtocols;
       // todo здесь флаг надо ли смешивать с цветом color или полностью свой делать
+
+      render-params @eff;
     }
+  //{{ x-param-combo name="color_mix_mode" values=[ false,true ] titles=["Смешать с основным цветом","Не смешивать"] }}
+  {{ x-add-cmd2 "Вывести цвета как есть" (m_lambda "(objs) => (objs || []).forEach( obj => obj.setParam('color',[1,1,1]) )" @eff->output?) }}
 
   element=@../..
   x-modify {
-    x-set-params colors=@arrtocols->output;
+    x-set-params colors=@arrtocols->output ;
+    /*
+    if (@eff->color_mix_mode) then={
+        x-set-params color=[1,1,1];
+    };
+    */
     d: find-data-source-column init_input=(@eff->element | geta "input") 
              selected_column=@eff->selected_column?;
     arrtocols: arr_to_colors gui_title="Цвета" input=@d->output datafunc=@eff->datafunc?
-
     ;
   };
 };
