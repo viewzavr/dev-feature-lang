@@ -283,7 +283,7 @@ feature "effect3d_colorize" {
     ;
 
     x-set-params scene2d=@d2;
-    d2: show_palette values=@arrtocols->minmax;
+    // d2: show_palette values=@arrtocols->minmax;
   };
 };
 
@@ -300,7 +300,7 @@ feature "show_palette"
   d2: column style="border: 1px solid black" 
     values=[0,1]
   {
-       canv: dom tag="canvas" dom_attr_width='300' dom_attr_height=50
+       canv: dom tag="canvas" dom_attr_width='300' dom_attr_height=30
             ;
 
        row style="background: #555555; justify-content: space-between; color: white;" 
