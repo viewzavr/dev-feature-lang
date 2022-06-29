@@ -12,7 +12,7 @@ project: the_project
     av1: astra-vis-1;
     camfly1: camera-fly-vp;
     //axes-view;
-    camrotate: astra-camera-rotate;
+    camrotate: astra-camera-rotate visible=false;
     ab: axes_view size=1;
 
     v1: the-view-uni title="Общий вид" {

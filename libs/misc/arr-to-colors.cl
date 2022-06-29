@@ -2,7 +2,8 @@
 // input - массив
 // color_func - функция раскрашивания
 register_feature name="arr_to_colors" {
-  root: color_func=(color_func_white) 
+  root:  {{ console_log_life "EEE"}}
+     color_func=(color_func_white) 
      output=@color_arr->output 
 
     {{ x-param-option name="recalculate" option="priority" value=110 }}
@@ -10,6 +11,21 @@ register_feature name="arr_to_colors" {
     {{ x-param-vector name="minmax" }}
     {{ x-param-vector name="minmax_computed" }}
     {{ x-param-option name="minmax_computed" option="readonly" value=true }}
+
+    {{ x-param-option name="datafunc" option="priority" value=120 }}
+    {{ x-param-combo name="datafunc" values=["linear","log","sqrt", "sqrt4", "sqrt8"] 
+        titles=["Линейная","Логарифм","Корень","Корень^4","Корень^8"]
+    }}
+    
+    data_func_f =( m_eval "(type) => {
+        let t = { log: (x) => Math.log(1+x),
+         sqrt: (x) => Math.sqrt(x),
+         sqrt4: (x) => Math.sqrt( Math.sqrt(x) ),
+         sqrt8: (x) => Math.sqrt( Math.sqrt( Math.sqrt(x) ))
+        };
+        return t[type] || ((x)=>x);
+      }" @root->datafunc)
+
     minmax_computed=@mm->output
     {
     mm: arr_find_min_max input=@root->input;
@@ -25,22 +41,25 @@ register_feature name="arr_to_colors" {
     
     //param_label name="help" value="Выбор мин и макс<br/>значения для раскраски";
     
-    color_arr: js input=@root->input cf=@root->color_func minmax=@root->minmax code=`
-      env.onvalues(["input","cf","minmax"], (input,cf,minmax) => {
+    color_arr: m_eval `(input,minmax,colorfunc,datafunc) => {
+
         let min = minmax[0];
         let max = minmax[1];
         let diff = max-min;
 
         let acc = new Float32Array( input.length*3 );
         //console.log('minmax',minmax)
+
+        //let f = (x) => Math.log(1+x);
+        let f = (x) => Math.sqrt( Math.sqrt(x) );
+        diff = datafunc(diff);
         
         for (let i=0,j=0; i<input.length; i++,j+=3) {
-          let t = (input[i] - min) / diff;
-          cf( t, acc, j );
+          let t = datafunc(input[i] - min) / diff;
+          colorfunc( t, acc, j );
         }
-        env.setParam( "output", acc );
-      })
-    `;
+        return acc;
+    }` @root->input @root->minmax @root->color_func @root->data_func_f;
 
   };
 

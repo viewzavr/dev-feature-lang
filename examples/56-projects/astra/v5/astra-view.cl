@@ -284,14 +284,15 @@ feature "astra-vis-1" {
 		   	    effect3d-opacity opacity=0.25 alfa_test=0;		     	
 		     }
 		     density={
-		     	  effect3d_colorize selected_column="DENSITY";
-		     	  effect3d_sprite sprite="circle.png";
+		     	  effect3d_colorize selected_column="DENSITY" datafunc="sqrt4";
+		     	  // x-set-params radius=0.015;
+		     	  // effect3d_sprite sprite="circle.png";
 		     };
 
 
 /*
 		   m_density: x-modify {
-		   		effect3d_colorize selected_column="DENSITY";
+		   		effect3d_colorize selected_column="DENSITY" datafunc="sqrt4";
 		   };
 
 		   m_additive: x-modify {
@@ -300,7 +301,7 @@ feature "astra-vis-1" {
 		   	 		effect3d_zbuffer depth_test=false;
 		   	    effect3d-opacity opacity=0.25 alfa_test=0;
 		   };
-*/		   
+*/
 
 		   //k1: recreator input=@pts_dust->addons_container;
 

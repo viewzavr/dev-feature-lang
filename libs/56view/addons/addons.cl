@@ -262,12 +262,17 @@ feature "effect3d_colorize" {
         insert_children input=@.. list=@d->gui;
       };
       render-params @arrtocols;
+      // todo здесь флаг надо ли смешивать с цветом color или полностью свой делать
     }
+
   element=@../..
   x-modify {
     x-set-params colors=@arrtocols->output;
-    d: find-data-source-column init_input=(@eff->element | geta "input") selected_column=@eff->selected_column?;
-    arrtocols: arr_to_colors gui_title="Цвета" input=@d->output;
+    d: find-data-source-column init_input=(@eff->element | geta "input") 
+             selected_column=@eff->selected_column?;
+    arrtocols: arr_to_colors gui_title="Цвета" input=@d->output datafunc=@eff->datafunc?
+
+    ;
   };
 };
 
