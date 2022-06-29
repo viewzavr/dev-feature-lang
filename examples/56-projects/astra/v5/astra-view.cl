@@ -232,10 +232,13 @@ feature "astra-vis-1" {
 		render-params @avp;
 	}
 	scene3d=@scene->output
-
+	scene2d=@scene2d
 	{
 
 		astradata: find-data-source features="astra_source";
+
+		scene2d: dom_group input=(find-objects-bf features="viewzavr-object" root=@scene include_root=false| map_geta "scene2d" default=null | arr_compact)
+		;
 
 		scene: node3d visible=@avp->visible force_dump=true
 		{

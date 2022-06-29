@@ -598,3 +598,20 @@ export function use_dom_children( env ) {
   })
   
 }
+
+export function get_dom_size( env ) {
+  let observer = new ResizeObserver( cb );
+  env.onvalue( 0, (dom_or_arr) => {
+    observer.disconnect();
+    observer.observe( dom_or_arr );
+  });
+
+  function cb(entries){
+    let res = entries.map( r => r.contentRect );
+
+    if (Array.isArray(env.params[0]))
+      env.setParam( "output",res );
+    else
+      env.setParam( "output",res[0] );
+  }
+}

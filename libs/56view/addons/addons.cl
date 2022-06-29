@@ -281,12 +281,92 @@ feature "effect3d_colorize" {
              selected_column=@eff->selected_column?;
     arrtocols: arr_to_colors gui_title="Цвета" input=@d->output datafunc=@eff->datafunc?
     ;
+
+    x-set-params scene2d=@d2;
+    d2: show_palette values=@arrtocols->minmax;
   };
 };
 
 
 add_sib_item @geffect3d "effect3d-debug" "Отладка";
-feature "effect3d_colorize" {
+feature "effect3d_debug" {
   eff: geffect3d
   {{ x-param-cmd name="Запустить js debugger" cmd="debugger" }}
+};
+
+// вход: массив цветов, и массив соответствующих значений
+feature "show_palette" 
+{
+  d2: column style="border: 1px solid black" 
+    values=[0,1]
+  {
+       canv: dom tag="canvas" dom_attr_width='300' dom_attr_height=50
+            ;
+
+       row style="background: #555555; justify-content: space-between; color: white;" 
+       {
+         text (m_eval "(a) => a.toFixed(4)" (@d2->values | geta 0));
+         text (m_eval "(a) => ((a[0]+a[1])/2).toFixed(4)" @d2->values);
+         text (m_eval "(a) => a.toFixed(4)" (@d2->values | geta 1));
+       };
+ 
+/*    
+    arr_to_colors input=@arrtocols->minmax 
+       data_func_f=@arrtocols->data_func_f 
+       color_func_f=@arrtocols->color_func_f;
+*/
+
+    // http://fabricjs.com/demos/   
+    // lottie
+
+    m_eval `(canvas,sz) => {
+        var context = canvas.getContext("2d");
+        var grd = context.createLinearGradient(0, 0, sz.width, 0);
+
+        /// работа с цветом....
+        // c число от 0 до 255
+        function componentToHex(c) {
+            if (typeof(c) === 'undefined') {
+              debugger;
+            }
+            var hex = c.toString(16);
+            return hex.length == 1 ? "0" + hex : hex;
+        }
+            
+        // r g b от 0 до 255
+        function rgbToHex(r, g, b) {
+            return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+        }
+            
+        // triarr массив из трех чисел 0..1
+        function tri2hex( triarr ) {
+           return rgbToHex( Math.floor(triarr[0]*255),Math.floor(triarr[1]*255),Math.floor(triarr[2]*255) )
+        }
+
+        grd.addColorStop(0, tri2hex( [1,0,0] ) );
+        grd.addColorStop(1, tri2hex( [1,0,1] ));
+
+        // Fill with gradient
+        context.fillStyle = grd;
+        
+        //const { w, h } = canvas.getBoundingClientRect();  
+        console.log('opainting',sz)
+        //canvas.width = sz.width;
+        //canvas.height = sz.height;
+        
+        context.fillRect(0, 0, sz.width, sz.height );
+/*
+    // set line stroke and line width
+    context.strokeStyle = 'red';
+    context.lineWidth = 5;
+
+    // draw a red line
+    context.beginPath();
+    context.moveTo(0, 0);
+    context.lineTo(256, 100);
+    context.stroke();
+*/    
+
+    };` @canv->dom (get_dom_size @canv->dom);  
+  };     
 };
