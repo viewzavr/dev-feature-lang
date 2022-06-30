@@ -283,7 +283,7 @@ feature "effect3d_colorize" {
     ;
 
     x-set-params scene2d=@d2;
-    // d2: show_palette values=@arrtocols->minmax;
+    d2: show_palette values=@arrtocols->minmax;
   };
 };
 
