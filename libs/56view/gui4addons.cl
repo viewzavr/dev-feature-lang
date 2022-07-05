@@ -90,7 +90,8 @@ feature "addons_area" {
   aa: column plashka {
 
     column {
-      show_addons input=(@aa->input? | geta "addons_container" | get_children_arr | sort_by_priority);
+      //show_addons input=(@aa->input? | geta "addons_container" | get_children_arr | sort_by_priority);
+      show_addons input=(@aa->input? | geta "addons_list" | sort_by_priority);
     };
 
 	ba: button_add_object add_to=(@aa->input? | geta "addons_container")

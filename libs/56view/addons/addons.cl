@@ -2,6 +2,7 @@
 
 feature "editable-addons" {
    eathing: 
+   addons_list=(@addons_p | get_children_arr) // интерфейс с gui4addons.cl
    addons_container=@addons_p
    addons=[]
    {{
@@ -258,7 +259,8 @@ feature "effect3d_colorize" {
   
     gui={
       //render-params @d;
-      dom_group {
+      dom_group
+      {
         insert_children input=@.. list=@d->gui;
       };
       render-params @arrtocols;
@@ -269,7 +271,12 @@ feature "effect3d_colorize" {
   //{{ x-param-combo name="color_mix_mode" values=[ false,true ] titles=["Смешать с основным цветом","Не смешивать"] }}
   {{ x-add-cmd2 "Вывести цвета как есть" (m_lambda "(objs) => (objs || []).forEach( obj => obj.setParam('color',[1,1,1]) )" @eff->output?) }}
 
-  element=@../..
+  element=@../.. // жуткий хак
+  init_input=(@eff->element | geta "input") 
+  show_input=true
+  output_column_name=@d->output_column_name
+  
+
   x-modify {
     x-set-params colors=@arrtocols->output ;
     /*
@@ -277,8 +284,13 @@ feature "effect3d_colorize" {
         x-set-params color=[1,1,1];
     };
     */
-    d: find-data-source-column init_input=(@eff->element | geta "input") 
-             selected_column=@eff->selected_column?;
+    d: find-data-source-column
+             //init_input=@eff->init_input
+             show_input=@eff->show_input
+             source_df=@eff->init_input
+             selected_column=@eff->selected_column?
+             ;
+
     arrtocols: arr_to_colors gui_title="Цвета" input=@d->output datafunc=@eff->datafunc?
     ;
 

@@ -623,6 +623,8 @@ export function x_auto_detach( env  )
 */
 
 // реализация алгоритма и без всяких фич
+// идея - добавить сюда еще и input.. и полная красота..
+// ну или x-modify пусть подключат? (как фичу)
 export function m_auto_detach_algo( env,attach_func )
 {
 
@@ -687,6 +689,8 @@ export function m_auto_detach_algo( env,attach_func )
 
 // мб на будущее event-name мб массивом 
 
+// отлов событий
+// on-модификатор в стиле m-лямбды
 export function m_on( env  )
 {
   //env.lambda_start_arg = 1;

@@ -33,9 +33,11 @@ feature "text3d_lines_vp" {
 
 feature "points_vp" {
 	vp: visual-process editable-addons title="Точки"
-	  gui={ render-params @vp
+	  gui={
+	  	render-params @vp
 	  	       filters={ params-hide list="title"; }; 
-	    manage-addons @vp; }
+	    manage-addons @vp; 
+	  }
 	  points;
 };
 
