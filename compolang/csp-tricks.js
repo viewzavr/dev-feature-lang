@@ -1,3 +1,8 @@
+/*
+Миша идея - а зачем when объекты то удаляет?
+думаю: в принципе до restart-а можно и не удалять. так-то.
+*/
+
 export function setup(vz, m) {
   vz.register_feature_set(m);
 }
@@ -10,6 +15,7 @@ export function create_envs(env)
 }
 */
 
+// корень для логики csp. смысл сохранить дамп, для рестарта.
 export function csp( env ) {
 
   let orig = env.restoreFromDump;
