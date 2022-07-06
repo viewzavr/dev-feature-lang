@@ -17,7 +17,8 @@ feature "load-dir" {
         render-params @qqe filters={ params-hide list="title"; };
       };
     }
-    url="http://127.0.0.1:8080/vrungel/public_local/Kalima/v2/vtk_8_20/list.txt"
+    //url="http://127.0.0.1:8080/vrungel/public_local/Kalima/v2/vtk_8_20/list.txt"
+    url="https://viewlang.ru/assets/lava/Etna/list.txt"
     
     {{ x-param-label-small name="all_files_count"}}
     all_files_count=(@files->output | geta "length")

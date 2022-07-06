@@ -24,4 +24,4 @@ loader load={ |dir project|
 
 # Запуск
 
-https://viewzavr.com/apps/vrungel/?src=https://viewzavr.com/apps/vrungel/examples/56-projects/lava/v5/main.cl 
+https://viewzavr.com/apps/vrungel/?src=https://viewzavr.com/apps/vrungel/examples/56-projects/lava/v7/main.cl 
