@@ -135,27 +135,45 @@ export function points( env ) {
     geometry.needsUpdate = true;
   });
 
+  env.setParam("have_colors",false);
   env.monitor_values(["colors"],(v) => {
 //colors_mix_mode    
     if (v?.length > 0) {
       geometry.setAttribute( 'color', new THREE.BufferAttribute( new Float32Array(v), 3 ) );
       material.vertexColors = true;
+      //material.color = new THREE.Color( 1,1,1 );
       //env.setParam("color",[1,1,1]); // надо таки сбросить, а то эти цвета начинают на тот перемножаться
+      env.setParam("have_colors",true);
       // но оно и хорошо может быть
     }
     else
     {
       geometry.deleteAttribute( 'color' );
       material.vertexColors = false; 
+      env.setParam("have_colors",false);
+     // env.signalParam("color");
     }
     geometry.needsUpdate = true;
     material.needsUpdate = true;
   })
 
+
+
+  env.monitor_values(["color","have_colors"],(v,hc) => {
+     if (!v) return;
+     if (hc) // если выставляем просто [1,1,1] то threejs начинает глючить, она путается в материалах...
+       material.color = utils.somethingToColor( [1 - Math.random()*0.00001,1,1] );
+     else
+       material.color = utils.somethingToColor(v);
+      material.needsUpdate = true;
+  });
+
+/*
   env.onvalue("color",(v) => {
      material.color = utils.somethingToColor(v);
      material.needsUpdate = true;
   });
+*/
 
   env.onvalue("radius",(v) => {
       material.size = v;

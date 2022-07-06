@@ -1,6 +1,8 @@
 // по входному массива и выбранной колонке строит массив цветов
 // input - массив
+
 // color_func - функция раскрашивания
+// base_color - базовый цвет для смешивания с функцией раскрашивания linear
 feature "arr_to_colors" {
   root: 
      output=@color_arr->output 
@@ -31,6 +33,8 @@ feature "arr_to_colors" {
         titles=["Линейная","Радуга","Синий-зеленый-красный","Своя палитра"]
     }}
 
+    base_color=[0,1,0]
+
     //{{ x-param-df name="custom_palette_df" columns="R,G,B"}}
     {{ x-param-text name="custom_palette_df"}}
     //custom_palette=[ [0,0,0], [1,1,1] ]
@@ -48,12 +52,12 @@ feature "arr_to_colors" {
 
 
     color_func_f = ( 
-                  linear=(color_func_white) 
+                  linear=(color_func_base_color @root->base_color) 
                   one=(coloring_func_tabl palette_table=@palettes->one)
                   bgr=(coloring_func_tabl palette_table=@palettes->bgr)
                   custom=(coloring_func_tabl palette_table=@root->custom_palette)
                   output=@.
-                  | geta @root->colorfunc default=(color_func_white))
+                  | geta @root->colorfunc)
     
 
     minmax_computed=@mm->output
@@ -110,6 +114,17 @@ register_feature name="color_func_white" code=`
      acc[index+2] = t;
   }
   env.setParam("output",f);
+`;
+
+register_feature name="color_func_base_color" code=`
+  env.onvalue( 0, (basecolor) => {
+    let f = function( t, acc, index ) {
+       acc[index] = t * basecolor[0];
+       acc[index+1] = t * basecolor[1];
+       acc[index+2] = t * basecolor[2];
+    }
+    env.setParam("output",f);
+  });
 `;
 
 // идеи - функция из функций, например логарифм и затем раскраска

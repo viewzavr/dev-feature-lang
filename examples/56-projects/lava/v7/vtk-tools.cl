@@ -37,7 +37,6 @@ feature "vtk-vis-file" {
               input=@load->output 
               title=(+ @vis->title " - " @vv2->actual_column)
               selected_column=@vis->default_column
-              color=@vis->color
               show_source=false;
         } 
         default_column="XYZ"
@@ -49,13 +48,16 @@ feature "vtk-vis-file" {
         addons={effect3d-delta dz=5}
         {{ x-param-color "color" }}
         color=[1,0,0]
+        {{ @vis->generated_processes | x-modify {
+            x-set-params color=@vis->color;
+          }
+        }}
         {
 
           vv: vtk-vis-1 
                 input=@load->output
                 title=(+ @vis->title " - " @vv->actual_column)
                 selected_column=@vis->default_column
-                color=@vis->color
                 show_source=false;
           
 

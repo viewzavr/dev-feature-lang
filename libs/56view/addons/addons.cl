@@ -269,10 +269,11 @@ feature "effect3d_colorize" {
       render-params @eff;
     }
   //{{ x-param-combo name="color_mix_mode" values=[ false,true ] titles=["Смешать с основным цветом","Не смешивать"] }}
-  {{ x-add-cmd2 "Вывести цвета как есть" (m_lambda "(objs) => (objs || []).forEach( obj => obj.setParam('color',[1,1,1]) )" @eff->output?) }}
+  //{{ x-add-cmd2 "Вывести цвета как есть" (m_lambda "(objs) => (objs || []).forEach( obj => obj.setParam('color',[1,1,1]) )" @eff->output?) }}
 
   element=@../.. // жуткий хак
   init_input=(@eff->element | geta "input") 
+  base_color=(@eff->element | geta "color" default=[0,1,1]) 
   show_input=true
   output_column_name=@d->output_column_name
   
@@ -291,7 +292,11 @@ feature "effect3d_colorize" {
              selected_column=@eff->selected_column?
              ;
 
-    arrtocols: arr_to_colors gui_title="Цвета" input=@d->output datafunc=@eff->datafunc?
+    arrtocols: arr_to_colors 
+        gui_title="Цвета" 
+        input=@d->output 
+        datafunc=@eff->datafunc?
+        base_color=@eff->base_color
     ;
 
     x-set-params scene2d=@d2;
