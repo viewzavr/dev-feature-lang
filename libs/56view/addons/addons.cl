@@ -4,6 +4,7 @@ feature "editable-addons" {
    eathing: 
    addons_list=(@addons_p | get_children_arr) // интерфейс с gui4addons.cl
    addons_container=@addons_p
+   // addons_tab_expanded=true // времянка
    addons=[]
    {{
      // активация аддонов из addons_p области
@@ -252,6 +253,12 @@ feature "effect3d_delta" {
   };
 };
 
+add_sib_item @geffect3d "effect3d-debug" "Отладка";
+feature "effect3d_debug" {
+  eff: geffect3d
+  {{ x-param-cmd name="Запустить js отладчик" cmd="debugger" }}
+};
+
 /// ну тут вопрос что входы хотелось бы из других объектов..
 add_sib_item @geffect3d "effect3d-colorize" "Раскраска по данным";
 feature "effect3d_colorize" {
@@ -266,20 +273,20 @@ feature "effect3d_colorize" {
       render-params @arrtocols;
       // todo здесь флаг надо ли смешивать с цветом color или полностью свой делать
 
-      render-params @eff;
-
       d4: show_palette 
           style_p = "padding: 0px; margin: 0.1em;"
           values=@arrtocols->minmax 
           colors=(m_eval @arrtocols->colorize_data (generate_arr_from_minmax @arrtocols->minmax))
           title=(@eff->element | geta "title" default="");
+
+      render-params @eff;          
     }
   //{{ x-param-combo name="color_mix_mode" values=[ false,true ] titles=["Смешать с основным цветом","Не смешивать"] }}
   //{{ x-add-cmd2 "Вывести цвета как есть" (m_lambda "(objs) => (objs || []).forEach( obj => obj.setParam('color',[1,1,1]) )" @eff->output?) }}
   {{ x-param-checkbox name="show_palette_on_screen" }}
 
   element=@../.. // жуткий хак
-  init_input=(@eff->element | geta "input") 
+  init_input=(@eff->element | geta "input" default=null) 
   base_color=(@eff->element | geta "color" default=[0,1,1]) 
   show_input=true
   output_column_name=@d->output_column_name
@@ -307,29 +314,18 @@ feature "effect3d_colorize" {
     ;
 
     if (@eff->show_palette_on_screen?) then={
-    x-set-params scene2d=@d2;
-    d2: show_palette 
-          style_p = "padding: 0px; margin: 0.1em;"
-          values=@arrtocols->minmax 
-          colors=(m_eval @arrtocols->colorize_data (generate_arr_from_minmax @arrtocols->minmax))
-          title=(@eff->element | geta "title" default="");
-    };          
-
-    /*
-         colors=(
-            arr_to_colors 
-              datafunc=@arrtocols->datafunc 
-              basecolor=@arrtocols->base_color 
-              colorfunc=@arrtocols->datafunc
-              input=(m_eval "(mm)=> {
-                let res = [];
-                let diff = mm[1]-mm[0];
-                for (let i=0; i<100; i++)
-                  res.push( mm[0] + i * diff / 99 );
-                return res;  
-                }" @arrtocols->minmax)
-         )
-*/    
+      x-set-params scene2d=@d2;
+      d2: show_palette 
+            style_p = "padding: 0px; margin: 0.1em;"
+            values=@arrtocols->minmax 
+            colors=(m_eval @arrtocols->colorize_data (generate_arr_from_minmax @arrtocols->minmax))
+            title=(m_eval `(title,colname) => {
+              title ||= "";
+              if (title.indexOf(colname) < 0)
+                title += ": " + colname;
+              return title;
+            }` (@eff->element | geta "title" default="") @d->output_column_name);
+    };
 
   };
 };
@@ -349,24 +345,6 @@ feature "generate_arr_from_minmax" {
    };
 };
 
-/*
-// типа имперотивный вариант
-feature "generate_arr_from_minmax" { |minmax steps=100|
-  diff: minmax[1]-minmax[0];
-  acc: [];
-  for @steps { |i|
-    @acc->push (minmax[0] + ( (i * @diff) / (@steps-1) ));
-  };
-  return @acc;
-};
-*/
-
-
-add_sib_item @geffect3d "effect3d-debug" "Отладка";
-feature "effect3d_debug" {
-  eff: geffect3d
-  {{ x-param-cmd name="Запустить js debugger" cmd="debugger" }}
-};
 
 // вход:
 // values - массив из 2х, минимальное и максимальное значение
@@ -384,24 +362,21 @@ feature "show_palette"
        canv: dom tag="canvas" dom_attr_width='300' dom_attr_height=30
             ;
 
-       //text @d2->title style="position:absolute; top: 0px";
+       // чет некрасиво плюс сьезжает чет.     
+       //text @d2->title style="color: white; position: absolute; left:1em;";
 
-       row style="background: #555555; justify-content: space-between; color: white;" 
+       row style="background: #555555; justify-content: space-between; color: white; padding-left: 2px; padding-right: 1px;" 
        {
          text (m_eval "(a) => a.toFixed(4)" (@d2->values | geta 0));
          text (m_eval "(a) => ((a[0]+a[1])/2).toFixed(4)" @d2->values);
          text (m_eval "(a) => a.toFixed(4)" (@d2->values | geta 1));
        };
+       
        row style="background: #555555; justify-content: space-around; color: white;" 
        {
-          text @d2->title;        
-       };       
- 
-/*    
-    arr_to_colors input=@arrtocols->minmax 
-       data_func_f=@arrtocols->data_func_f 
-       color_func_f=@arrtocols->color_func_f;
-*/
+          text @d2->title;
+       };
+       
 
     // http://fabricjs.com/demos/   
     // lottie
@@ -446,12 +421,6 @@ feature "show_palette"
 
         // Fill with gradient
         context.fillStyle = grd;
-        
-        //const { w, h } = canvas.getBoundingClientRect();  
-        // console.log('opainting',sz)
-        //canvas.width = sz.width;
-        //canvas.height = sz.height;
-        
         context.fillRect(0, 0, sz.width, sz.height );
 /*
     // set line stroke and line width

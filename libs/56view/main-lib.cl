@@ -352,7 +352,7 @@ feature "add-to-current-view" code=`
 feature "find-data-source" {
    findsource: 
       //data_length=(@findsource->output | geta "length")
-      input_link=(@datafiles->output | geta 0)
+      input_link=(@datafiles_vals->output | geta 0)
       features="df56"
       {{
           datafiles: find-objects-bf features=@findsource->features;
@@ -361,7 +361,7 @@ feature "find-data-source" {
           datafiles_vals: @datafiles->output 
                       | arr_map code="(v) => v.getPath()+'->output'";
           datafiles_titles: @datafiles->output 
-                      | map_geta "title";
+                      | map_geta "title" default=null;
 
           x-param-combo
            name="input_link" 

@@ -235,12 +235,12 @@ feature "astra-vis-1" {
 		render-params @avp;
 	}
 	scene3d=@scene->output
-	scene2d=@scene2d
+	scene2d=@scene2d->output
 	{
 
 		astradata: find-data-source features="astra_source";
 
-		scene2d: dom_group input=(find-objects-bf features="viewzavr-object" root=@scene include_root=false| map_geta "scene2d" default=null | arr_compact)
+		scene2d: dom_group input=(find-objects-bf features="viewzavr-object" root=@scene include_root=false | map_geta "scene2d" default=null | arr_compact)
 		;
 
 		scene: node3d visible=@avp->visible force_dump=true
@@ -254,6 +254,7 @@ feature "astra-vis-1" {
 
 		   // 218 201 93 цвет
 		   @astradata->output | geta 0 | pts_dust: points title="Частицы" visual-process editable-addons 
+		     addons_tab_expanded=true
 		     radius=0.02 color=[0.85, 0.78, 0.36] 
 		     {{ x-param-slider name="radius" min=0.01 max=0.25 step=0.01 }}
 		     // слайдер сделан специально чтобы не указать слишком больших значений
@@ -267,7 +268,7 @@ feature "astra-vis-1" {
 		     {{ x-param-slider name="radius" min=0.01 max=1 step=0.001 }}
 		     //{{ x-param-slider name="radius" min=0.001 max=1 step=0.001 }}
 		     //gui={ render-params @pts_star; manage-addons @pts_star; }
-		     ;  
+		     ;
 
 		     // 107 123 279
 		   @astradata->output | geta 2 | pts_planet: spheres-vp title="Планета"
@@ -290,7 +291,7 @@ feature "astra-vis-1" {
 		   	    effect3d-opacity opacity=0.25 alfa_test=0;		     	
 		     }
 		     density={
-		     	  effect3d_colorize selected_column="DENSITY" datafunc="sqrt4";
+		     	  effect3d_colorize selected_column="DENSITY" datafunc="sqrt4" tab_expanded=true show_palette_on_screen=true;
 		     	  // x-set-params radius=0.015;
 		     	  // effect3d_sprite sprite="circle.png";
 		     };
