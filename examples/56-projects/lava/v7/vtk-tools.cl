@@ -183,8 +183,10 @@ feature "vtk-vis-1" {
   avp: points_vp 
     //title=@k->output_column_name
     actual_column=@k->output_column_name
+  addons_tab_expanded=true  
   addons={
     k: effect3d_colorize 
+       tab_expanded=true
        selected_column=@avp->selected_column
        init_input=@avp->input
        show_input=false

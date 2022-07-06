@@ -2927,7 +2927,7 @@ export function get_child( env )
 
 export function get( env ) {
   let param_tracking = () => {};
-  console.warn("get called", env.getPath());
+  console.warn("warning! obsolete get called", env.getPath());
   env.vz.console_log_diag( env );
 
   env.createLinkTo( {param:"name",from:"~->0",soft:true });
