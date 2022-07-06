@@ -10,7 +10,7 @@
 ## Алгоритм загрузчика
 
 ```
-loader load={ |dir project|
+loader load={ |dir, project|
   ...
 };
 ```
@@ -19,8 +19,8 @@ loader load={ |dir project|
 
 ## Примеры
 * Загрузчик для Этны: [etna/loader.cl](etna/loader.cl)
-* Загрузчик для Калимы: [kalima-v2-vtk-8-20/loader.cl](kalima-v2-vtk-8-20/loader.cl)
-* Загрузчик для Калимы без создания нового экрана: [kalima-v2-vtk-8-20-without-new-screen/loader.cl](kalima-v2-vtk-8-20-without-new-screen/loader.cl)
+* Загрузчик для Калимы: [kalima_vtk_8_20/loader.cl](kalima_vtk_8_20/loader.cl)
+* Загрузчик для Калимы без создания нового экрана: [kalima_vtk_8_20-without-new-screen/loader.cl](kalima_vtk_8_20-without-new-screen/loader.cl)
 
 # Запуск
 
