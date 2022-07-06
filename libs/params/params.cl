@@ -75,6 +75,7 @@ feature "x-add-cmd" {
 */
 
 // x-add-cmd "name" fn;
+// ну т..е отличие ток в передаче аргументов
 feature "x-add-cmd2" {
   r: 
   x-modify {

@@ -227,6 +227,9 @@ feature "astra-vis-1" {
 	  };
 
 	  //{{ x-add-cmd2 "сложение_цветов" }}
+
+
+
 	}
 	gui3={
 		render-params @avp;

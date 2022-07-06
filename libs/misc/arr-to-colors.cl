@@ -61,6 +61,10 @@ feature "arr_to_colors" {
     
 
     minmax_computed=@mm->output
+
+    {{ x-param-option name="colorize_data" option="visible" value=false }}
+    {{ x-add-cmd2 "colorize_data" @colorize_data_l->output; }}
+
     {
     mm: arr_find_min_max input=@root->input;
     
@@ -75,7 +79,10 @@ feature "arr_to_colors" {
     
     //param_label name="help" value="Выбор мин и макс<br/>значения для раскраски";
     
-    color_arr: m_eval `(input,minmax,colorfunc,datafunc) => {
+    color_arr: m_eval @colorize_data_l->output @root->input;
+    //color_arr: m_eval @root->colorize_data @root->input;
+
+    colorize_data_l: m_lambda `(minmax,colorfunc,datafunc,input) => {
 
         let min = minmax[0];
         let max = minmax[1];
@@ -87,14 +94,23 @@ feature "arr_to_colors" {
         //let f = (x) => Math.log(1+x);
         let f = (x) => Math.sqrt( Math.sqrt(x) );
         diff = datafunc(diff);
-        
+
+        if (diff > 0)         
         for (let i=0,j=0; i<input.length; i++,j+=3) {
-          let t = datafunc(input[i] - min) / diff;
-          //if (t)         debugger;
-          colorfunc( t, acc, j );
+            let t = datafunc(input[i] - min) / diff;
+            // теперь t это нечто от 0 до 1 - раскрашиваем палитрою
+            //if (t)         debugger;
+            colorfunc( t, acc, j );
         }
+        else
+        for (let i=0,j=0; i<input.length; i++,j+=3) {
+            colorfunc( 1, acc, j );
+        }
+        //if (!isFinite(acc[0])) debugger;
         return acc;
-    }` @root->input @root->minmax @root->color_func_f @root->data_func_f;
+       }` @root->minmax @root->color_func_f @root->data_func_f check_params=true;
+
+    //service "colorize-data"
 
   };
 

@@ -300,7 +300,37 @@ feature "effect3d_colorize" {
     ;
 
     x-set-params scene2d=@d2;
-    d2: show_palette values=@arrtocols->minmax;
+    d2: show_palette 
+          style_p = "padding: 0px; margin: 0.1em;"
+          values=@arrtocols->minmax 
+          //colors=[0,0,0,1,0,0, 1,1,1] 
+          colors=(m_eval @arrtocols->colorize_data (m_eval "(mm)=> {
+                let res = [];
+                if (! (Array.isArray(mm) && mm.length >= 2) ) return res;
+                let diff = mm[1]-mm[0];
+                if (!isFinite(diff)) return res;
+                for (let i=0; i<100; i++)
+                  res.push( mm[0] + i * diff / 99 );
+                return res;
+                }" @arrtocols->minmax))
+          title=(@eff->element | geta "title" default="");
+
+    /*
+         colors=(
+            arr_to_colors 
+              datafunc=@arrtocols->datafunc 
+              basecolor=@arrtocols->base_color 
+              colorfunc=@arrtocols->datafunc
+              input=(m_eval "(mm)=> {
+                let res = [];
+                let diff = mm[1]-mm[0];
+                for (let i=0; i<100; i++)
+                  res.push( mm[0] + i * diff / 99 );
+                return res;  
+                }" @arrtocols->minmax)
+         )
+*/    
+
   };
 };
 
@@ -311,14 +341,23 @@ feature "effect3d_debug" {
   {{ x-param-cmd name="Запустить js debugger" cmd="debugger" }}
 };
 
-// вход: массив цветов, и массив соответствующих значений
+// вход:
+// values - массив из 2х, минимальное и максимальное значение
+// colors - массив цветов
+// title - надпись поверх палитры
 feature "show_palette" 
 {
-  d2: column style="border: 1px solid black" 
-    values=[0,1]
+  d2: column 
+    style="border: 1px solid black;" 
+    values=[0,1] 
+    colors=[0,0,0, 1,0,1]
+    title=""
   {
+
        canv: dom tag="canvas" dom_attr_width='300' dom_attr_height=30
             ;
+
+       //text @d2->title style="position:absolute; top: 0px";
 
        row style="background: #555555; justify-content: space-between; color: white;" 
        {
@@ -326,6 +365,10 @@ feature "show_palette"
          text (m_eval "(a) => ((a[0]+a[1])/2).toFixed(4)" @d2->values);
          text (m_eval "(a) => a.toFixed(4)" (@d2->values | geta 1));
        };
+       row style="background: #555555; justify-content: space-around; color: white;" 
+       {
+          text @d2->title;        
+       };       
  
 /*    
     arr_to_colors input=@arrtocols->minmax 
@@ -336,7 +379,7 @@ feature "show_palette"
     // http://fabricjs.com/demos/   
     // lottie
 
-    m_eval `(canvas,sz) => {
+    m_eval `(canvas,sz,colors) => {
         var context = canvas.getContext("2d");
         var grd = context.createLinearGradient(0, 0, sz.width, 0);
 
@@ -360,8 +403,19 @@ feature "show_palette"
            return rgbToHex( Math.floor(triarr[0]*255),Math.floor(triarr[1]*255),Math.floor(triarr[2]*255) )
         }
 
-        grd.addColorStop(0, tri2hex( [1,0,0] ) );
-        grd.addColorStop(1, tri2hex( [1,0,1] ));
+        if (colors.length <= 3)
+          grd.addColorStop(0, tri2hex( colors.length == 3 ? colors : [1,1,1] ) );
+        else
+        {  
+          for (let i=0; i<colors.length; i+=3) {
+            grd.addColorStop( 
+                i / (colors.length-3), 
+                tri2hex( [colors[i],colors[i+1],colors[i+2]] )
+                );
+          }
+        }
+        //grd.addColorStop(0, tri2hex( [1,0,0] ) );
+        //grd.addColorStop(1, tri2hex( [1,0,1] ));
 
         // Fill with gradient
         context.fillStyle = grd;
@@ -384,6 +438,6 @@ feature "show_palette"
     context.stroke();
 */    
 
-    };` @canv->dom (get_dom_size @canv->dom);  
+    };` @canv->dom (get_dom_size @canv->dom) @d2->colors;
   };     
 };
