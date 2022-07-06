@@ -1,4 +1,7 @@
-feature "loader" {};
+feature "loader" 
+{
+  criteria=(m_lambda "() => 1");
+};
 
 feature "load-dir" {
   qqe: visual_process

@@ -1,15 +1,10 @@
-loader criteria=(m_lambda "() => 1")
-load={ |dir,project,active_view|
+loader load={ |dir,project,active_view|
 v:
    visual_process auto_gui2
-   auto_gui3
-   //{{ call @v->active_view "append_process" @v; }}
    {{ m_eval "(av,v) => { av.append_process(v) }" @active_view @v }}
-   //{{ m_eval "(av,v) => { av.feature('delayed'); av.timeout( () => av.append_process(v),65 ) }" @v->active_view @v }};
    title="Калима"
    {{ x-param-slider name="N" min=0 max=(( @blocks->output | geta 0 | geta 1 | geta "length") - 1) }}
    N=0
-   dir=[]
 {
 
    vis-group scene2d=@scene2d title="Вывод N на экран" {

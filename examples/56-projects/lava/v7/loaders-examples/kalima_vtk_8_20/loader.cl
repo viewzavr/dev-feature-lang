@@ -1,6 +1,5 @@
-loader criteria=(m_lambda "() => 1")
-load={ |dir,project,active_view|
-
+loader
+  load={ |dir,project,active_view|
 v:
    visual_process auto_gui2
    title="Калима"
@@ -13,7 +12,7 @@ v:
    };
 
    blocks_colors: {"block_0":[0,0,1],"block_1":[0,0,1],"block_2":[0,0,1]};
-   
+
    // найдем различные серии файлов vtk
    blocks: detect-blocks @dir "particledata_(.+)_(\d+)\.vtk$";
 
@@ -42,6 +41,5 @@ s1: the-view-uni title="Вид на Калиму" auto-activate-view
     area sources_str="@v" camera=@cam1;
 
 };
-
 
 };
