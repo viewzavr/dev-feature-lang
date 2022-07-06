@@ -267,9 +267,16 @@ feature "effect3d_colorize" {
       // todo здесь флаг надо ли смешивать с цветом color или полностью свой делать
 
       render-params @eff;
+
+      d4: show_palette 
+          style_p = "padding: 0px; margin: 0.1em;"
+          values=@arrtocols->minmax 
+          colors=(m_eval @arrtocols->colorize_data (generate_arr_from_minmax @arrtocols->minmax))
+          title=(@eff->element | geta "title" default="");
     }
   //{{ x-param-combo name="color_mix_mode" values=[ false,true ] titles=["Смешать с основным цветом","Не смешивать"] }}
   //{{ x-add-cmd2 "Вывести цвета как есть" (m_lambda "(objs) => (objs || []).forEach( obj => obj.setParam('color',[1,1,1]) )" @eff->output?) }}
+  {{ x-param-checkbox name="show_palette_on_screen" }}
 
   element=@../.. // жуткий хак
   init_input=(@eff->element | geta "input") 
@@ -299,21 +306,14 @@ feature "effect3d_colorize" {
         base_color=@eff->base_color
     ;
 
+    if (@eff->show_palette_on_screen?) then={
     x-set-params scene2d=@d2;
     d2: show_palette 
           style_p = "padding: 0px; margin: 0.1em;"
           values=@arrtocols->minmax 
-          //colors=[0,0,0,1,0,0, 1,1,1] 
-          colors=(m_eval @arrtocols->colorize_data (m_eval "(mm)=> {
-                let res = [];
-                if (! (Array.isArray(mm) && mm.length >= 2) ) return res;
-                let diff = mm[1]-mm[0];
-                if (!isFinite(diff)) return res;
-                for (let i=0; i<100; i++)
-                  res.push( mm[0] + i * diff / 99 );
-                return res;
-                }" @arrtocols->minmax))
+          colors=(m_eval @arrtocols->colorize_data (generate_arr_from_minmax @arrtocols->minmax))
           title=(@eff->element | geta "title" default="");
+    };          
 
     /*
          colors=(
@@ -333,6 +333,33 @@ feature "effect3d_colorize" {
 
   };
 };
+
+// текущее
+feature "generate_arr_from_minmax" {
+  root: output=@la->output {
+  la: m_eval "(mm)=> {
+                let res = [];
+                if (! (Array.isArray(mm) && mm.length >= 2) ) return res;
+                let diff = mm[1]-mm[0];
+                if (!isFinite(diff)) return res;
+                for (let i=0; i<100; i++)
+                  res.push( mm[0] + i * diff / 99 );
+                return res;
+           }" @root->0;
+   };
+};
+
+/*
+// типа имперотивный вариант
+feature "generate_arr_from_minmax" { |minmax steps=100|
+  diff: minmax[1]-minmax[0];
+  acc: [];
+  for @steps { |i|
+    @acc->push (minmax[0] + ( (i * @diff) / (@steps-1) ));
+  };
+  return @acc;
+};
+*/
 
 
 add_sib_item @geffect3d "effect3d-debug" "Отладка";
@@ -421,7 +448,7 @@ feature "show_palette"
         context.fillStyle = grd;
         
         //const { w, h } = canvas.getBoundingClientRect();  
-        console.log('opainting',sz)
+        // console.log('opainting',sz)
         //canvas.width = sz.width;
         //canvas.height = sz.height;
         
