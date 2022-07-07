@@ -7,6 +7,7 @@ feature "load-dir" {
   qqe: visual_process
     title="Загрузка каталога"
     project=@..
+    initial_mode=1
     gui={
       column plashka {
         
@@ -23,7 +24,7 @@ feature "load-dir" {
     {{ x-param-label-small name="all_files_count"}}
     all_files_count=(@files->output | geta "length")
     {
-      files: select-files url=@qqe->url index=0;
+      files: select-files url=@qqe->url index=@qqe->initial_mode;
 
       insert_loader: insert_children input=@qqe->project;
       insert_things: insert_children input=@qqe->project;
