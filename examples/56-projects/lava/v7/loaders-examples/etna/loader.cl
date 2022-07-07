@@ -28,7 +28,7 @@ v:
    vis-group title="OBJ-файлы" {
      obj-vis-file file=(find-file @dir "rb_data_0_1") color=[0, 0.5, 0] title="Поверхность";
      obj-vis-file file=(find-file @dir "rb_data_1_1") color=[1, 0.5, 1] title="Источник";
-     /* // другой вариант:
+     /* // другой вариант - найти просто все obj файлы в каталоге и показать
       find-files @dir "\.obj$" | repeater {
         it: obj-vis-file file=(@it->input | geta 1) title=(@it->input | geta 0) color=[0,0.5,0];
       };
