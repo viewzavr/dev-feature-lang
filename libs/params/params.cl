@@ -2,8 +2,13 @@ load "new-modifiers";
 load "params-on-custom.cl";
 
 feature "x-param-combo" {
-  r: x-patch-r @r->name @r->titles? @r->values
-  code="(name,titles,values,obj) => {
+  r: x-patch-r @r->name @r->titles? @r->values? @r->pairs?
+  code="(name,titles,values,pairs,obj) => {
+    if (pairs)
+    {
+      values = pairs.map( p => p[0]);
+      titles = pairs.map( p => p[1]);
+    };
     if (name && values) {
       obj.addComboValue( name, undefined, values );
       // немного криминально
@@ -19,6 +24,7 @@ feature "x-param-combo" {
   }
   ";
 };
+
 
 /*
 feature "x-param-editable-combo" {
@@ -69,6 +75,7 @@ feature "x-add-cmd" {
 */
 
 // x-add-cmd "name" fn;
+// ну т..е отличие ток в передаче аргументов
 feature "x-add-cmd2" {
   r: 
   x-modify {

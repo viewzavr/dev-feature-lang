@@ -26,18 +26,18 @@ register_feature name="compute_magnitude_col" code=`
 `;
 
 feature "vtk-vis-file" {
-    vis: vis-group title="Колонки данных VTK" 
+    vis: vis-group 
+        title="Колонки данных VTK" 
         auto_gui3
         //gui={}
         find="vtk-vis-1" 
         //add="vtk-vis-connected-l"
         add={ 
-           vtk-vis-1 
+           vv2: vtk-vis-1 
               input=@load->output 
-              title=@.->selected_column 
+              title=(+ @vis->title " - " @vv2->actual_column)
               selected_column=@vis->default_column
-              color=@vis->color
-              show_source=false; 
+              show_source=false;
         } 
         default_column="XYZ"
         points_loaded=(@load->output | geta "length")
@@ -48,25 +48,29 @@ feature "vtk-vis-file" {
         addons={effect3d-delta dz=5}
         {{ x-param-color "color" }}
         color=[1,0,0]
+        {{ @vis->generated_processes | x-modify {
+            x-set-params color=@vis->color;
+          }
+        }}
         {
 
-
-          vtk-vis-1 
+          vv: vtk-vis-1 
                 input=@load->output
-                title=@.->selected_column
+                title=(+ @vis->title " - " @vv->actual_column)
                 selected_column=@vis->default_column
-                color=@vis->color
                 show_source=false;
           
 
-          load: load-vtk-file input=@vis->file;
+          load: load-vtk-file input=@vis->file title=@vis->title;
         };
 };
 
 // input - путь к файлу или объект файла
 // output - df-ка с данными
 feature "load-vtk-file" {
-  loader: df56 visual-process title="Загрузчик файла VTK"
+  loader: df56 visual-process 
+        title="Загрузчик файла VTK"
+        //title=(+ "Загрузчик файла VTK " (@loader->input | geta "name"))
         gui={
           column plashka {
             render-params @loader filters={ params-hide list="title"; };
@@ -85,7 +89,7 @@ feature "load-vtk-file" {
 // тут у нас и раскраска и доп.фильтр встроен. ну ладно.
 // и это 1 штучка
 
-feature "vtk-vis-1" {
+feature "vtk-vis-1-orig" {
   avp: visual_process
   //title="Визуализация VTK точек"
   input=@vtkdata->output
@@ -109,40 +113,25 @@ feature "vtk-vis-1" {
       //checkbox "visible" value=@avp->visible
       //{{ x-on "user-changed" "(obj) => obj.setParam('visible',!obj.params.visible, true) " }}
 
-      collapsible "Источник данных" visible=@avp->show_source{
+      collapsible "Источник данных" visible=@avp->show_source {
         render-params @vtkdata;
       };
 
-      render-params-list object=@avp list=["selected_column"];
+//      render-params-list object=@avp list=["selected_column"];
       //render-params @avp;
 
-      collapsible "Раскраска данных" {
+      /*collapsible "Раскраска данных" {
         render-params @arrtocols;
       };
+      */
 
       show_sources_params 
         input=(find-objects-by-crit "visual-process" root=@scene include_root=false recursive=false)
-        auto_expand_first=false
+        auto_expand_first=true
       ;
     };
   }
 
-  gui1={
-    
-    ko: column plashka {
-
-      //render-params-list object=@avp list=["visible"];
-
-      collapsible "Раскраска данных" {
-        render-params @arrtocols;
-      };
-
-      show_sources_params 
-        input=(find-objects-by-crit "visual-process" root=@scene include_root=false recursive=false)
-        auto_expand_first=false
-      ;
-    };
-  } 
 
   gui3={
     render-params @avp;
@@ -165,13 +154,14 @@ feature "vtk-vis-1" {
        @avp->input | pts: points_vp
          radius=1 
          color=@avp->color
-         colors=( @avp->selected_data | arrtocols: arr_to_colors gui_title="Цвета"  ) // color_func=(color_func_white)
+         //colors=( @avp->selected_data | arrtocols: arr_to_colors gui_title="Цвета"  ) // color_func=(color_func_white)
          ;
 
-       //insert_children input=@pts->addons_container active=(is_default @pts->addons_container) list={
+       insert_children input=@pts->addons_container active=(is_default @pts->addons_container) list={
          // F-PIXEL-PRESET
          // effect3d_sprite sprite="disc.png";
-       //};
+         effect3d_colorize selected_column=@avp->selected_column;
+       };
 
        // вообще может оказаться что это будет отдельный визуальный процесс - "антураж"
        //ab: axes_view size=1;
@@ -185,5 +175,21 @@ feature "vtk-vis-1" {
 */       
 
     };
+  };
+};
+
+// actual_column - имя колонки которую выбрал пользователь
+feature "vtk-vis-1" {
+  avp: points_vp 
+    //title=@k->output_column_name
+    actual_column=@k->output_column_name
+  addons_tab_expanded=true  
+  addons={
+    k: effect3d_colorize 
+       tab_expanded=true
+       selected_column=@avp->selected_column
+       init_input=@avp->input
+       show_input=false
+       ;
   };
 };

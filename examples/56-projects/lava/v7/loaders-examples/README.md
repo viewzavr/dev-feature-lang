@@ -5,14 +5,23 @@
 Общий алгоритм:
 * Пользователь выбирает каталог во вкладке `Загрузка каталога`
 * Система сканирует каталог и определяет список файлов в нем, и передает его в loader.cl в параметре dir
-* loader.cl формирует в качестве ответа набор визуальных процессов, камер, и экранов, которые следует создать для визуализации данных.
+* Файл loader.cl должен код загрузчика, которму будет передано управление.
 
-Примечание. Этот алгоритм в будущем изменится - loader.cl должен будет выдавать не содержимое для проекта, а объект loader-а с функцией меры и функцией кода.
+## Алгоритм загрузчика
+
+```
+loader load={ |dir, project|
+  ...
+};
+```
+
+Загрузчик формирует набор визуальных процессов, камер, и экранов, которые следует создать для визуализации данных.
 
 ## Примеры
 * Загрузчик для Этны: [etna/loader.cl](etna/loader.cl)
-* Загрузчик для Калимы: [kalima-v2-vtk-8-20/loader.cl](kalima-v2-vtk-8-20/loader.cl)
+* Загрузчик для Калимы: [kalima_vtk_8_20/loader.cl](kalima_vtk_8_20/loader.cl)
+* Загрузчик для Калимы без создания нового экрана: [kalima_vtk_8_20-without-new-screen/loader.cl](kalima_vtk_8_20-without-new-screen/loader.cl)
 
 # Запуск
 
-https://viewzavr.com/apps/vrungel/?src=https://viewzavr.com/apps/vrungel/examples/56-projects/lava/v5/main.cl 
+https://viewzavr.com/apps/vrungel/?src=https://viewzavr.com/apps/vrungel/examples/56-projects/lava/v7/main.cl 

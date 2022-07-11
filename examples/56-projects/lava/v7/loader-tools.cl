@@ -1,9 +1,13 @@
-feature "loader" {};
+feature "loader" 
+{
+  criteria=(m_lambda "() => 1");
+};
 
 feature "load-dir" {
   qqe: visual_process
     title="Загрузка каталога"
     project=@..
+    initial_mode=1
     gui={
       column plashka {
         
@@ -14,14 +18,16 @@ feature "load-dir" {
         render-params @qqe filters={ params-hide list="title"; };
       };
     }
-    url="http://127.0.0.1:8080/vrungel/public_local/Kalima/v2/vtk_8_20/list.txt"
+    //url="http://127.0.0.1:8080/vrungel/public_local/Kalima/v2/vtk_8_20/list.txt"
+    url="https://viewlang.ru/assets/lava/Etna/list.txt"
     
     {{ x-param-label-small name="all_files_count"}}
     all_files_count=(@files->output | geta "length")
     {
-      files: select-files url=@qqe->url index=0;
+      files: select-files url=@qqe->url index=@qqe->initial_mode;
 
       insert_loader: insert_children input=@qqe->project;
+      insert_things: insert_children input=@qqe->project;
 
       l0: csp {
         console_log "welcome to l0";
@@ -32,17 +38,21 @@ feature "load-dir" {
           when @l1 "parsed" then={ |code|
              set_param target="@insert_loader->list" value=@code;
 
-             when @insert_loader "after_deploy" then={ 
+             when @insert_loader "after_deploy" then={
                console_log "point 2";
                // теперь у нас есть загрузчик и мы можем передать ему управление
                // через loaders logic, как ни странно
                k: loaders_logic dir=@dir project=@qqe->project active_view=@qqe->active_view;
-               when @k "done" then={
+               when @k "done" then={ |code2|
 
                  // стираем загрузчик..
                  set_param target="@insert_loader->list" value=[];
+                 // устанавливаем вещи которые он дал
+                 set_param target="@insert_things->list" value=@code2;
 
-                 restart @l0;
+                 when @insert_things "after_deploy" then={
+                    restart @l0;
+                 };
                };
              };
           };
@@ -50,11 +60,19 @@ feature "load-dir" {
           when @l1 "missing" then={
 
              console_log "point 2";
+
              k: loaders_logic 
                     dir=@dir project=@qqe->project 
                     active_view=@qqe->active_view;
-             when @k "done" then={
-               restart @l0;
+
+             when @k "done" then={ |code2|
+               // устанавливаем вещи которые он дал
+               set_param target="@insert_things->list" value=@code2;              
+
+               when @insert_things "after_deploy" then={
+                    restart @l0;
+               };
+
              };
           };
         };  
@@ -138,12 +156,15 @@ feature "loaders_logic" {
           mmm: m_eval "(ldr,dir,project,av) => {
             //ldr.params.load(dir,project)
             // ха вопрос а как оно сотрет когда станет ненадо
-            ldr.vz.callParamFunction( ldr.params.load, project, false, project.$scopes.top(), dir, project, av);
-            return 1;
+            //ldr.vz.callParamFunction( ldr.params.load, project, false, project.$scopes.top(), dir, project, av);
+            // return 1;
+            let r = ldr.vz.prepareEnvRecords( ldr.params.load, dir, project, av );
+            //console.log(555,r)
+            return r;
           }  
           " @ldr @logic->dir @logic->project @logic->active_view
           |
-          m_eval "(obj) => obj.emit('done');" @logic;
+          m_eval "(obj) => obj.emit('done', env.params.input);" @logic;
           ;
 /*
           console_log "eee";
@@ -158,7 +179,7 @@ feature "loaders_logic" {
        else={
          // fail
          console_log "no best loader";
-         m_eval "(obj) => obj.emit('done');" @logic;
+         m_eval "(obj) => obj.emit('done', []);" @logic;
        };  
     };
   };

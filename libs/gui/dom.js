@@ -556,6 +556,7 @@ export function dom_group( env ) {
     } );
 
     // наш output изменился - надо тыркнуть родителя
+    // это есть точка засады. потому что если dom-группа используется по ссылке, то и приехали.
     if (env.ns.parent) 
         env.ns.parent.callCmd("rescan_children");
   }

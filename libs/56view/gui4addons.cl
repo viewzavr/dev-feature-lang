@@ -1,13 +1,14 @@
 ////////////////////////
 
 
+// input - список аддонов
 feature "show_addons"
 {
   svlist: repeater {
         amm: column style='border:1px solid #050505; border-radius:5px;
              position: relative' // relative чтобы внутри X позиционировать через absolute
            plashka
-           expanded=false
+           expanded=(@amm->input | geta "tab_expanded" default=false)
         {
 
           dom_group {
@@ -62,7 +63,7 @@ feature "show_addons"
 
 // визуальное управление добавками (фичьями)
 // операции: добавить, удалить, ммм... поменять тип?
-// input, channel
+// input - объект
 
 feature "manage_addons" {
   ma: dom_group input=@.->0?
@@ -78,8 +79,10 @@ feature "manage_addons" {
 
    co: collapsible (join "Спецфункции (" @co->addons_count ")")
    addons_count=(@ma->input? | geta "addons_container" | get_children_arr | geta "length" default=0)
-   expanded=false
+   //expanded=false
    //expanded=(@co->addons_count > 0)
+   expanded=(@ma->input | geta "addons_tab_expanded" default=false)
+   //{{ m-on "param_expanded_changed" "(tgt,v) => tgt.setParam('addons_tab_expanded',v)" @ma->input }}
    {
    	 addons_area input=@ma->input;
    };
@@ -90,7 +93,8 @@ feature "addons_area" {
   aa: column plashka {
 
     column {
-      show_addons input=(@aa->input? | geta "addons_container" | get_children_arr | sort_by_priority);
+      //show_addons input=(@aa->input? | geta "addons_container" | get_children_arr | sort_by_priority);
+      show_addons input=(@aa->input? | geta "addons_list" | sort_by_priority);
     };
 
 	ba: button_add_object add_to=(@aa->input? | geta "addons_container")

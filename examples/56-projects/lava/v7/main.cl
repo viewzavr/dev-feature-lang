@@ -55,7 +55,7 @@ project: the_project
     ld: load-dir active_view=@rp->active_view;
     axes: axes-view size=10;
 
-    v1: the-view-uni title="Общий вид" {
+    v1: the-view-uni title="Загрузка данных" {
           area sources_str="@ld, @axes";
           camera pos=[10,10,10];
     };

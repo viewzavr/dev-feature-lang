@@ -352,15 +352,21 @@ feature "add-to-current-view" code=`
 feature "find-data-source" {
    findsource: 
       //data_length=(@findsource->output | geta "length")
-      input_link=(@datafiles->output | geta 0)
+      input_link=(@datafiles_vals->output | geta 0)
       features="df56"
       {{
-          datafiles: find-objects-bf features=@findsource->features 
+          datafiles: find-objects-bf features=@findsource->features;
+                        //| arr_map code="(v) => [ v.getPath()+'->output', v.params.title || v.getPath() ]";
+                        
+          datafiles_vals: @datafiles->output 
                       | arr_map code="(v) => v.getPath()+'->output'";
+          datafiles_titles: @datafiles->output 
+                      | map_geta "title" default=null;
 
           x-param-combo
            name="input_link" 
-           values=@datafiles->output 
+           values=@datafiles_vals->output 
+           titles=@datafiles_titles->output 
            ;
 
           x-param-option
@@ -381,6 +387,7 @@ feature "find-data-source" {
 };
 
 // input - dfка
+// output - колонка (т.е. массив данных)
 feature "select-source-column" {
   s: 
   {{ x-param-combo name="selected_column" values=@s->columns }}
@@ -389,16 +396,23 @@ feature "select-source-column" {
   output=( @s->input | geta @s->selected_column default=[])
 };
 
+// вход:
+// init_input - начальное значение (адрес вида /obj/path->paramname)
+// выход:
+// output - выбранная колонка (т.е. массив)
 feature "find-data-source-column" {
   it:
   gui={
-    render-params @s1;
+    render-params @s1 visible=@it->show_input;
     render-params @s2;
   }
+  show_input=true
   selected_column=""
   output=@s2->output
+  output_column_name=@s2->selected_column
+  source_df=@s1->output?
   {
-     s1: find-data-source input_link=@it->initial_link?;
-     s2: select-source-column input=@s1->output? selected_column=@it->selected_column;
+     s1: find-data-source input_link=@it->init_input?;
+     s2: select-source-column input=@it->source_df selected_column=@it->selected_column;
   };
 };

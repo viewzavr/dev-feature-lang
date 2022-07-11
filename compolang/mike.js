@@ -131,7 +131,9 @@ export function m_apply( env, opts )
   // пусть у лямбды аутпут будет js-функция для вызова
   
   env.setParam("output", (...args) => {
-    return env.callCmd("apply",...args);
+    //return env.callCmd("apply",...args);
+    // ускоренье в тыщу раз:
+    return env.apply(...args);
   })
   
   // изменились параметры - меняем параметр .output
