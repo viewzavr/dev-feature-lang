@@ -34,6 +34,8 @@ feature "load-dir" {
 
              when @insert_loader "after_deploy" then={ 
                console_log "point 2";
+               // теперь у нас есть загрузчик и мы можем передать ему управление
+               // через loaders logic, как ни странно
                k: loaders_logic dir=@dir project=@qqe->project active_view=@qqe->active_view;
                when @k "done" then={
 
@@ -43,12 +45,14 @@ feature "load-dir" {
                  restart @l0;
                };
              };
-          };   
+          };
 
           when @l1 "missing" then={
 
              console_log "point 2";
-             k: loaders_logic dir=@dir project=@qqe->project active_view=@qqe->active_view;           
+             k: loaders_logic 
+                    dir=@dir project=@qqe->project 
+                    active_view=@qqe->active_view;
              when @k "done" then={
                restart @l0;
              };
@@ -61,8 +65,9 @@ feature "load-dir" {
     };
 };
 
+// пытается загрузить loader.cl из папки
+// параметр files
 feature "loader_from_dir_logic" { 
-//  |files_elem, project, active_view, loaders_inserted|
 
   logic: {
     console_log "welcome to loader_from_dir_logic";
@@ -82,10 +87,9 @@ feature "loader_from_dir_logic" {
 
           parser: compalang input=@content;
 
-          // парсер быстрее чем событие. понять что с этим делать..
+          // парсер быстрее чем when. понять что с этим делать..
           when_value @parser->output then={ |parsed_loader|
             q: m_eval "(obj,dir,parsed) => obj.emit('parsed',parsed,dir)" @logic @logic->files @parsed_loader;
-
           };
 
         };
@@ -101,6 +105,7 @@ feature "loader_from_dir_logic" {
   };          
 };
 
+// отвечает за передачу управления загрузчику
 feature "loaders_logic" {
   logic: {
     loaders_arr: find-objects-bf features="loader" root=@logic->project;
