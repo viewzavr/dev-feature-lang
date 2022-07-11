@@ -25,6 +25,7 @@ feature "load-dir" {
     all_files_count=(@files->output | geta "length")
     {
       files: select-files url=@qqe->url index=@qqe->initial_mode;
+      console_log "files output is " @files->output;
 
       insert_loader: insert_children input=@qqe->project;
       insert_things: insert_children input=@qqe->project;
