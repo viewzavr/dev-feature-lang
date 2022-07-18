@@ -301,6 +301,7 @@ export function mesh( env ) {
 
   env.feature("lib3d_visual");
   // 0.004 scale
+  env.feature("node3d",{object3d: sceneObject});
 
   env.feature("mesh_df_input");
 }

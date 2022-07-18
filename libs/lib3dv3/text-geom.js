@@ -119,8 +119,8 @@ export function text3d( env ) {
   }
 
   function apply_colors() {
-    return;
      
+    if (env.params.colors)
      for (var i=0; i<group.children.length; i++) {
         var m = group.children[i];
         var i3 = 3*i;

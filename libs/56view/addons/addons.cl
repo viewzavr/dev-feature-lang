@@ -233,7 +233,7 @@ feature "effect3d_delta" {
   {{ x-param-slider name="dx" min=-10.0 max=10 step=0.1 }}
   {{ x-param-slider name="dy" min=-10.0 max=10 step=0.1 }}
   {{ x-param-slider name="dz" min=-10.0 max=10 step=0.1 }}
-  dx=1 dy=0 dz=0
+  dx=0 dy=0 dz=0
     gui={
       render-params @eff; 
     }
@@ -241,8 +241,10 @@ feature "effect3d_delta" {
   element=@../..
   // нужен x-insert-children. тогда
   {
-  find-objects-bf root=@eff->element features="node3d" recursive=false include_root=false
-    | filter_geta "visible" 
+  //find-objects-bf root=@eff->element features="node3d" recursive=false include_root=false
+  find-objects-by-crit "node3d, lib3d_visual" root=@eff->element recursive=false include_root=false
+    | filter_geta "visible"
+    | console_log_input "EEE"
     | repeater {
         rep: x-modify {
           effect3d-pos 

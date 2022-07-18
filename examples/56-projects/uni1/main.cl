@@ -8,7 +8,7 @@ project: the_project
 {
   insert_children input=@project manual=true active=(is_default @project) list={
 
-    ld: load-dir active_view=@rp->active_view;
+    ld: load-dir active_view=@rp->active_view initial_mode=0;
     axes: axes-view size=10;
 
     v1: the-view-uni title="Загрузка данных" {
@@ -48,5 +48,5 @@ insert_children {
 };
 
 feature "load-dir-uni" {
-  load-dir active_view=@rp->active_view project=@project;
+  load-dir active_view=@rp->active_view project=@project initial_mode=0;
 };

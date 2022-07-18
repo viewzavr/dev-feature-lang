@@ -285,3 +285,11 @@ feature "arr_flat" {
   m_eval "(arr) => flat(5)" output=[] {{ x-param-alias name=1 from="input" }};
 };
 */
+
+// input массив, первый аргумент - коэффичиент прореживания
+// пример: @arr | arr-skip 2; - взять каждый 2й элемент
+feature "arr_skip" {
+  k: output=@r->output {
+    r: m_eval "(arr,i) => arr.filter( (elem,index) => index%i == 0 )" @k->input @k->0;
+  };
+};

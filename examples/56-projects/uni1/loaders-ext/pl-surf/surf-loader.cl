@@ -6,15 +6,17 @@ loader
     return f ? 1 : 0
   }")
   load={ |dir,project,active_view|
+
 v:
    visual_process auto_gui2
    title="Поверхность фронта"
+   N=0
    {{ x-param-slider name="N" min=0 max=(( @fils->output | geta "length") - 1) }}
    //{{ x-param-label name="curfile" show="(f)=>f.name"}}
    curfile=(@fils->output | geta @v->N)
    curfilename=(@v->curfile | geta "name")
    {{ x-param-label name="curfilename"}}
-   N=0
+   
 {
 
    vg: vis-group scene2d=@scene2d title="Вывод N на экран" 
@@ -75,6 +77,166 @@ v:
      };
    };
 */   
+
+};
+
+axes: axes-view size=10;
+
+//cam1: camera title="Камера лавы" pos=[-10,45,80] center=[-7,30,0];
+
+s1: the-view-uni title="Вид на фронты" auto-activate-view
+{
+    area sources_str="@v,@axes" ; //camera=@cam1;
+};
+
+};
+
+/// ...........................................
+/// ...........................................
+/// ...........................................
+
+
+loader
+  crit=(m_lambda "(dir) => {
+    let r1 = /^\d+\.txt$/;
+    let f = dir.find( (elem) => r1.test( elem.name ) );
+    return f ? 2 : 0
+  }")
+  load={ |dir,project,active_view|
+
+v:
+   vis-group
+   title="Поверхность фронта"
+   addons={ effect3d-delta dz=5 }
+{
+   
+   fils: find-files @dir "^\d+\.txt$" | sort-files "^(\d+)\.txt$";
+
+   //k: load-file file=@v->curfile | parse_csv;
+   //mmm: mesh-vp input=@k->output;
+
+  repeater input=@fils->output {
+     r: output=@m->output {
+       k: load-file file=@r->input | parse_csv;
+       m: mesh-vp input=@k->output title=(@r->input | geta "name");
+       //text3d_one text=(@r->input | geta "name") positions=[5,5,0] color=[0,1,0];
+       //text3d lines=(m_eval "(s) => [s]" (@r->input | geta "name"))  positions=[5,5,0] color=[0,1,0];
+     };
+   };
+
+/*
+   repeater input=@fils->output {
+     r: vis-group title=(@r->input | geta "name") {
+       k: load-file file=@r->input | parse_csv;
+       m: mesh-vp input=@k->output title=(@r->input | geta "name");
+       //text3d_one text=(@r->input | geta "name") positions=[5,5,0] color=[0,1,0];
+       text3d lines=(m_eval "(s) => [s]" (@r->input | geta "name")) 
+              positions=[5,5,0] colors=[0,1,0];
+     };
+   };
+*/   
+
+};
+
+axes: axes-view size=10;
+
+//cam1: camera title="Камера лавы" pos=[-10,45,80] center=[-7,30,0];
+
+s1: the-view-uni title="Вид на фронты" auto-activate-view
+{
+    area sources_str="@v,@axes" ; //camera=@cam1;
+};
+
+};
+
+
+/*
+loader
+  crit=(m_lambda "(dir) => {
+    let r1 = /^\d+\.txt$/;
+    let f = dir.find( (elem) => r1.test( elem.name ) );
+    return f ? 3 : 0
+  }")
+  load={ |dir,project,active_view|
+
+v:
+   vis-group
+   title="С прореживанием"
+   addons={ effect3d-delta dz=5 }
+   skip=1
+   {{ x-param-slider name="skip" min=1 max=(( @fils0->output | geta "length") - 1) }}   
+   gui0={
+     render-params plashka @v filters={ params-hide list="title visible"; };
+   }  
+{
+   
+   fils0: find-files @dir "^\d+\.txt$" | sort-files "^(\d+)\.txt$";
+   fils: @fils0->output | arr_skip @v->skip;
+
+   //k: load-file file=@v->curfile | parse_csv;
+   //mmm: mesh-vp input=@k->output;
+
+  repeater input=@fils->output {
+     r: output=@m->output {
+       k: load-file file=@r->input | parse_csv;
+       m: mesh-vp input=@k->output title=(@r->input | geta "name");
+       //text3d_one text=(@r->input | geta "name") positions=[5,5,0] color=[0,1,0];
+       //text3d lines=(m_eval "(s) => [s]" (@r->input | geta "name"))  positions=[5,5,0] color=[0,1,0];
+     };
+   };
+
+};
+
+axes: axes-view size=10;
+
+//cam1: camera title="Камера лавы" pos=[-10,45,80] center=[-7,30,0];
+
+s1: the-view-uni title="Вид на фронты" auto-activate-view
+{
+    area sources_str="@v,@axes" ; //camera=@cam1;
+};
+
+};
+
+*/
+
+/////////////////////////////////////////////////////
+
+loader
+  crit=(m_lambda "(dir) => {
+    let r1 = /^\d+\.txt$/;
+    let f = dir.find( (elem) => r1.test( elem.name ) );
+    return f ? 3 : 0
+  }")
+  load={ |dir,project,active_view|
+
+v:
+   vis-group
+   title="С прореживанием"
+   addons={ effect3d-delta dz=5 }
+   skip=1
+   {{ x-param-slider name="skip" min=1 max=(( @fils0->output | geta "length") - 1) }}   
+   gui0={
+     render-params plashka @v filters={ params-hide list="title visible"; };
+   }  
+{
+   
+   fils0: find-files @dir "^\d+\.txt$" | sort-files "^(\d+)\.txt$";
+   fils: @fils0->output | arr_skip 1;
+
+   //k: load-file file=@v->curfile | parse_csv;
+   //mmm: mesh-vp input=@k->output;
+
+  repeater input=@fils->output {
+     r: output=@m->output {
+       k: load-file file=@r->input | parse_csv;
+       m: mesh-vp input=@k->output title=(@r->input | geta "name")
+          visible=(m_eval "(index,skip) => index%skip == 0" @r->input_index @v->skip)
+       ;
+       //text3d_one text=(@r->input | geta "name") positions=[5,5,0] color=[0,1,0];
+       //text3d lines=(m_eval "(s) => [s]" (@r->input | geta "name"))  positions=[5,5,0] color=[0,1,0];
+     };
+   };
 
 };
 
