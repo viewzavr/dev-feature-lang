@@ -40,14 +40,13 @@ insert_children {
 
     bt: button_add_object "Загрузка каталога" 
          add_to=@..->project 
-         add_type="load-dir"
+         add_type="load-dir-uni"
          curview=@..->curview
          {{
            created_add_to_current_view curview=@bt->curview;
-           m_on "created" "(xxx,obj) => xxx.emit('attach',obj)" @xxx;
          }};
 };
 
-xxx: x-modify {
-  x-set-params active_view=@rp->active_view;
+feature "load-dir-uni" {
+  load-dir active_view=@rp->active_view project=@project;
 };

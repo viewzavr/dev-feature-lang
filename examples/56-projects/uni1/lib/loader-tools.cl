@@ -40,11 +40,12 @@ feature "load-dir" {
              set_param target="@insert_loader->list" value=@code;
 
              when @insert_loader "after_deploy" then={
-               console_log "point 2";
+               console_log "point 1";
                // теперь у нас есть загрузчик и мы можем передать ему управление
                // через loaders logic, как ни странно
                k: loaders_logic dir=@dir project=@qqe->project active_view=@qqe->active_view;
                when @k "done" then={ |code2|
+
 
                  // стираем загрузчик..
                  set_param target="@insert_loader->list" value=[];
@@ -63,10 +64,13 @@ feature "load-dir" {
              console_log "point 2";
 
              k: loaders_logic 
-                    dir=@dir project=@qqe->project 
+                    dir=@dir 
+                    project=@qqe->project 
                     active_view=@qqe->active_view;
 
              when @k "done" then={ |code2|
+               console_log "loaders_logic done, code is" @code2;
+
                // устанавливаем вещи которые он дал
                set_param target="@insert_things->list" value=@code2;              
 
@@ -83,6 +87,71 @@ feature "load-dir" {
 
     };
 };
+
+
+// отвечает за передачу управления загрузчику
+feature "loaders_logic" {
+  logic: {
+    loaders_arr: find-objects-bf features="loader"; // root=@logic->project;
+    console_log "welcome to loaders-logic. dir is" @logic->dir;
+
+    best: m_eval "(loaders,dir) => {
+        console.log('computing best loaders',loaders,dir)
+        let best_i = -1;
+        let best_value = 0;
+        for (let i=0; i<loaders.length; i++) {
+          let res = loaders[i].params.crit( dir );
+          if (res > 0 && res > best_value) { best_value = res; best_i = i; }
+        }
+        console.log( 'loader compute done',{best_value,best_i})
+        return loaders[ best_i ];
+      }" @loaders_arr->output @logic->dir;
+
+    /// todo: а как в ксп записывается if?
+    /// ну типа значение пришло а надо понять какое оно и от этого плясать
+    /// как вариант when_if (bool expression) data { |data| .... }
+    //// но эт не сработает пока m_eval не рассчитался... ну тогда надо его computed-событие ждать
+    /// и уже анализировать чего там...
+
+    when @best "computed" then={ |ldr|
+      console_log "best loader determined" @ldr @logic->dir @logic->project @logic->active_view;
+
+      if (@ldr) then={
+
+          //insert_children input=@logic->project list=@ldr->load @logic->dir @logic->project;
+          //call @ldr "load" 
+          mmm: m_eval "(ldr,dir,project,av) => {
+            //ldr.params.load(dir,project)
+            // ха вопрос а как оно сотрет когда станет ненадо
+            //ldr.vz.callParamFunction( ldr.params.load, project, false, project.$scopes.top(), dir, project, av);
+            // return 1;
+            let r = ldr.vz.prepareEnvRecords( ldr.params.load, dir, project, av );
+            console.log(555,r, ldr)
+            return r;
+          } 
+          " @ldr @logic->dir @logic->project @logic->active_view
+          |
+          m_eval "(obj) => { console.log('emitting done, inp is ', env.params.input); obj.emit('done', env.params.input); }" @logic;
+          ;
+/*
+          console_log "eee";
+
+          when @mmm "computed" then={
+             //restart @logic { select-files-logic };
+             //call @logic "done";
+             m_eval "(obj) => obj.emit('done');" @logic;
+          };
+*/
+       }
+       else={
+         // fail
+         console_log "no best loader";
+         m_eval "(obj) => obj.emit('done', []);" @logic;
+       };
+    };
+  };
+};
+
 
 // пытается загрузить loader.cl из папки
 // параметр files
@@ -122,69 +191,6 @@ feature "loader_from_dir_logic" {
 
 
   };          
-};
-
-// отвечает за передачу управления загрузчику
-feature "loaders_logic" {
-  logic: {
-    loaders_arr: find-objects-bf features="loader"; // root=@logic->project;
-    console_log "welcome to loaders-logic. dir is" @logic->dir;
-
-    best: m_eval "(loaders,dir) => {
-        console.log('computing best loaders',loaders,dir)
-        let best_i = -1;
-        let best_value = 0;
-        for (let i=0; i<loaders.length; i++) {
-          let res = loaders[i].params.crit( dir );
-          if (res > 0 && res > best_value) { best_value = res; best_i = i; }
-        }
-        console.log( 'loader compute done',{best_value,best_i})
-        return loaders[ best_i ];
-      }" @loaders_arr->output @logic->dir;
-
-    /// todo: а как в ксп записывается if?
-    /// ну типа значение пришло а надо понять какое оно и от этого плясать
-    /// как вариант when_if (bool expression) data { |data| .... }
-    //// но эт не сработает пока m_eval не рассчитался... ну тогда надо его computed-событие ждать
-    /// и уже анализировать чего там...
-
-    when @best "computed" then={ |ldr|
-      console_log "best loader determined" @ldr;
-
-      if (@ldr) then={
-
-          //insert_children input=@logic->project list=@ldr->load @logic->dir @logic->project;
-          //call @ldr "load" 
-          mmm: m_eval "(ldr,dir,project,av) => {
-            //ldr.params.load(dir,project)
-            // ха вопрос а как оно сотрет когда станет ненадо
-            //ldr.vz.callParamFunction( ldr.params.load, project, false, project.$scopes.top(), dir, project, av);
-            // return 1;
-            let r = ldr.vz.prepareEnvRecords( ldr.params.load, dir, project, av );
-            //console.log(555,r)
-            return r;
-          }  
-          " @ldr @logic->dir @logic->project @logic->active_view
-          |
-          m_eval "(obj) => obj.emit('done', env.params.input);" @logic;
-          ;
-/*
-          console_log "eee";
-
-          when @mmm "computed" then={
-             //restart @logic { select-files-logic };
-             //call @logic "done";
-             m_eval "(obj) => obj.emit('done');" @logic;
-          };
-*/          
-       }
-       else={
-         // fail
-         console_log "no best loader";
-         m_eval "(obj) => obj.emit('done', []);" @logic;
-       };  
-    };
-  };
 };
 
 feature "emit" {

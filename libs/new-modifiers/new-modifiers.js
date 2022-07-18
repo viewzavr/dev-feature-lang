@@ -691,6 +691,7 @@ export function m_auto_detach_algo( env,attach_func )
 
 // отлов событий
 // on-модификатор в стиле m-лямбды
+// m_on "event-name" "code" arg1 arg2;
 export function m_on( env  )
 {
   //env.lambda_start_arg = 1;
@@ -714,9 +715,9 @@ export function m_on( env  )
       name ||= name0;
 
       u1();
-      console.log("m-on: subscribing to event" , name, obj.getPath() )
+      console.log("m-on: subscribing to event" , name, "of obj",obj.getPath() )
       u1 = obj.on( name ,(...args) => {
-        //console.log("m-on: passing event" , name )
+        console.log("m-on: passing event" , name, "of obj",obj.getPath() )
 
         let fargs = [ obj ].concat( args );
         // получается мы вызываем m-lambda приписав к вызову.. справа..
@@ -727,13 +728,7 @@ export function m_on( env  )
       //console.log("on: connected",name,env.getPath())
         env.emit("connected", obj);
      }
-
-     detach[ obj.$vz_unique_id ] = () => { 
-        k1(); k2(); u1();
-        delete detach[ obj.$vz_unique_id ];
-     };
-
-     return detach[ obj.$vz_unique_id ] 
+     
   });
 
 }
