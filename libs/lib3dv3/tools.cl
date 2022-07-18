@@ -107,6 +107,40 @@ register_feature name="compute_bbox" code=`
    }
 `;
 
+utils: import_js (resolve_url "utils.js");
+feature "tri2hex" {
+  k: output=@mmm->output input=@.->0 {
+    mmm: m_eval "(c,utils) => utils.tri2hex(c)" @k->input @utils->output;
+  };
+};
+
+/*
+feature "tri2hex" {
+  k: output=@me->output {
+    me: m_eval `(c) => {
+      function componentToHex(c) {
+            if (typeof(c) === 'undefined') {
+              debugger;
+            }
+            var hex = c.toString(16);
+            return hex.length == 1 ? "0" + hex : hex;
+        }
+            
+        // r g b от 0 до 255
+        function rgbToHex(r, g, b) {
+            return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+        }
+            
+        // triarr массив из трех чисел 0..1
+        function tri2hex( triarr ) {
+           return rgbToHex( Math.floor(triarr[0]*255),Math.floor(triarr[1]*255),Math.floor(triarr[2]*255) )
+        }
+        return tri2hex( c );
+          }` @k->input;
+ };
+};
+*/
+
 //THREEJS: import_js (resolve_url "three.js/build/three.module.js");
 
 register_feature name="get_coords_bbox" 

@@ -233,3 +233,21 @@ export function somethingToColor( theColorData )
   {
     return theColorData?.length >= 3 ? new THREE.Color( theColorData[0], theColorData[1], theColorData[2] ) : new THREE.Color(theColorData);
   }
+
+export function componentToHex(c) {
+    if (typeof(c) === 'undefined') {
+      debugger;
+    }
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+}
+    
+// r g b от 0 до 255
+export function rgbToHex(r, g, b) {
+    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+    
+// triarr массив из трех чисел 0..1
+export function tri2hex( triarr ) {
+   return rgbToHex( Math.floor(triarr[0]*255),Math.floor(triarr[1]*255),Math.floor(triarr[2]*255) )
+}

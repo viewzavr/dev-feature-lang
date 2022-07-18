@@ -18,14 +18,37 @@ v:
    N=0
 {
 
-   vis-group scene2d=@scene2d title="Вывод N на экран" {
-     scene2d: dom tag="h2" style="color: white; margin: 0" innerText=(join "N=" @v->N);
+   vg: vis-group scene2d=@scene2d title="Вывод N на экран" 
+   {{ x-param-color name='color' }}
+   gui0={ 
+    //render-params-list object=@vg list=["color"]; 
+    render-params @vg filters={ params-hide ["visible","title"] };
+   }
+   color=[1,1,1]
+   {
+     scene2d: 
+        dom tag="h2" style="margin: 0;" 
+        innerText=(join "N=" @v->N)
+        dom_style_color=(tri2hex @vg->color)
+        ;
+
+        //dom_style_color=(tri2hex @mmm->color);
    };
+
+   @vg | x-modify {
+     x-param-checkbox name="surf_color" title="цвет поверхности";
+   };
+   if (@vg->surf_color) then={
+     @vg | x-modify {
+        //x-set-params dom_style_color=(tri2hex @mmm->color);
+        x-set-params color=@mmm->color;
+     };
+   }; 
 
    fils: find-files @dir "^\d+\.txt$" | sort-files "^(\d+)\.txt$";
 
    k: load-file file=@v->curfile | parse_csv;
-   mesh-vp input=@k->output;
+   mmm: mesh-vp input=@k->output;
 
 /*
    @fils->output | geta @v->N | repeater {
