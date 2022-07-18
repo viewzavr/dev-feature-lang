@@ -17,7 +17,9 @@ feature "editable-addons" {
    };
 };
 
-geffect3d: feature {
+feature "geffect3d_table" {};
+
+geffect3d: feature geffect3d_table {
   ef: sibling_titles=@geffect3d->sibling_titles
       sibling_types=@geffect3d->sibling_types
 
@@ -35,7 +37,6 @@ add_sib_item @geffect3d "effect3d-blank" "-";
 feature "effect3d_blank" {
   geffect3d;
 };
-
 
 add_sib_item @geffect3d "effect3d-additive" "Аддитивный рендеринг";
 feature "effect3d_additive" 

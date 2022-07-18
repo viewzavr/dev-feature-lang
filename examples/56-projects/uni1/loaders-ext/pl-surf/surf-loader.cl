@@ -1,5 +1,4 @@
 
-
 loader
   crit=(m_lambda "(dir) => {
     let r1 = /^\d+\.txt$/;
@@ -45,6 +44,24 @@ v:
      };
    }; 
 
+  
+/*
+  find-objects-bf features="geffect3d" root=@vg recursive=false { |obj|
+     add_sib_item @obj "effect3d-follow-mesh" "Цвет как у поверхности";    
+  };
+  */
+
+/* тут мы юзаем имя фичи а это неправильно. она должна быть безымянной. а по описанию тупо
+   а иначе почухня получается.. мешы цвета смешаются... но тогда как это будет сохраняться? тож непонятно
+  add_sib_item (find-objects-bf features="geffect3d_table") "effect3d-follow-mesh" "Цвет как у поверхности";
+  feature "effect3d-follow-mesh" {
+    geffect3d
+    x-modify {
+      x-set-params color=@mmm->color;
+    };
+  };
+*/  
+   
    fils: find-files @dir "^\d+\.txt$" | sort-files "^(\d+)\.txt$";
 
    k: load-file file=@v->curfile | parse_csv;
