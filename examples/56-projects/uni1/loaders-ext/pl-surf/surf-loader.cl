@@ -1,3 +1,5 @@
+
+
 loader
   crit=(m_lambda "(dir) => {
     let r1 = /^\d+\.txt$/;
@@ -20,7 +22,7 @@ v:
      scene2d: dom tag="h2" style="color: white; margin: 0" innerText=(join "N=" @v->N);
    };
 
-   fils: find-files @dir "^\d+\.txt$";
+   fils: find-files @dir "^\d+\.txt$" | sort-files "^(\d+)\.txt$";
 
    k: load-file file=@v->curfile | parse_csv;
    mesh-vp input=@k->output;

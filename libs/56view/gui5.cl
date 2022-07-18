@@ -67,7 +67,7 @@ feature "created_mark_manual" {
 // добавка
 // curview параметр обязательный, процесс приезжает в аргументе
 feature "created_add_to_current_view" {
-  x-on "created" 
+  x-on "created"
      code=`
          let item = arg2;
          env.params.curview.append_process( item );

@@ -13,13 +13,17 @@ feature "compute_title" {
   };
 };
 
+feature "manage_universal_vp_co" {}; // тпу
+
 feature "manage_universal_vp" {
   ma: 
       project=@..->project
       curview=@..->active_view
 
   collapsible "Универсальное" {
-    column plashka {
+    column plashka manage_universal_vp_co 
+       curview=@ma->curview project=@ma->project
+    {
       text "Добавить:";
 
       button_add_object "Полёт камеры" 
@@ -79,7 +83,7 @@ feature "manage_universal_vp" {
          add_type="universal_vp"
          {{
            created_add_to_current_view curview=@ma->curview;
-         }};         
+         }};
 
     };
   };
@@ -112,7 +116,7 @@ feature "linesetc-file" {
     {
       //f1_info: param_label "Укажите текстовый файл с данными";
       f1:  param_file;
-      lines_loaded: param_label (@loaded_data->output | get name="length");
+      lines_loaded: param_label (@loaded_data->output | geta "length" default=0);
 
       loaded_data: load-file file=@fileparams->f1
              | parse_csv separator=@fileparams->separator;

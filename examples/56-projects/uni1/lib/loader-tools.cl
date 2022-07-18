@@ -259,3 +259,25 @@ feature "detect_blocks" {
       }" @r->0 @r->1;
   };
 };
+
+// вход input массив файлов, arg0 = маска с регулярным выражением где 1-я скобочка дает число
+// выход output
+feature "sort_files" {
+  r: output=@mm->output {
+  mm: m_eval "(arr,crit) => {
+        let regexp = new RegExp( crit,'i' );
+        let blocks = {};
+        arr.forEach( elem => {
+          let filename = elem.name;
+          let res = filename.match( regexp );
+          if (res && res[1]) {
+            // сохраним чиселку для сортировки
+            elem.num = parseFloat( res[1] );
+          }
+          else elem.num = 0;
+        });
+        arr = arr.sort( (a,b) => a.num - b.num );
+        return arr;
+      }" @r->input @r->0;
+  };
+};

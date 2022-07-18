@@ -204,6 +204,9 @@ export function m_apply( env, opts )
   * не страшно выглядит если мы будем просто все входящие параметры широковещать обоим да и все
     если будет внутри объект реагировать ну ок, если нет - то и ладно
 
+ update: вроде как по факту у нас это все уже есть в отдельных операциях.
+ сборка выходов: @arr | map_geta "some-name"
+ сборка входов: @arr | x-modify { x-set-params alfa=5 beta=7 };
 */
 export function compose_p(env) {
   let uu = create_unsub_list(env);

@@ -20,9 +20,34 @@ project: the_project
 
 };
 
-
 //////////////////////////////////////////////////////// главное окно программы
 
 screen1: screen auto-activate  {
   rp: render_project @project active_view_index=0;
+};
+
+////////////////////////////
+
+find-objects-bf features="manage_universal_vp_co" recursive=false 
+|
+insert_children { 
+
+/*
+    template name="Загрузка каталога" {
+       load_dir bbbbb {{ m_on "created" { add_to_current_view ..... }}}
+    };
+*/    
+
+    bt: button_add_object "Загрузка каталога" 
+         add_to=@..->project 
+         add_type="load-dir"
+         curview=@..->curview
+         {{
+           created_add_to_current_view curview=@bt->curview;
+           m_on "created" "(xxx,obj) => xxx.emit('attach',obj)" @xxx;
+         }};
+};
+
+xxx: x-modify {
+  x-set-params active_view=@rp->active_view;
 };
