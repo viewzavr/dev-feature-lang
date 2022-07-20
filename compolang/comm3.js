@@ -427,6 +427,32 @@ export function feature_create_cell( env ) {
 // m_lambda хороша тут, но на output выдает функцыю.. а хорошо бы - значения или йачейку..
 
 export function c_on( env ) {
+  env.feature("simple_lang");
+  
+  let dump = env.compalang( `
+  output=@ee->output {
+    get-cell-value input=@q->input | ee: m_eval @q->0 @q->1? @q->2? @q->3? @q->4? allow_undefined=true allow_undefined_input=false react_only_on_input=true;
+  };
+  `, {parent: env.ns.parent,base_url:"?"});
+
+  let $scopeFor = env.$scopes.createScope("parseSimpleLang"); // F-SCOPE
+  $scopeFor.$add( "q",env);
+  let res = env.restoreFromDump( Object.values(dump.children)[0],false,$scopeFor );
+
+  /*
+  let $scopeFor = env.$scopes.createScope("parseSimpleLang"); // F-SCOPE
+  $scopeFor.$add( "q",env);
+  let d = Object.values(dump.children)[0];
+  d.keepExistingParams=true;
+  d.$scopeFor = $scopeFor;
+  debugger;
+  env.vz.createSyncFromDump( d,env );
+  */
+};  
+
+
+/*
+export function c_on( env ) {
   let unsub = [];
   function call_unsub() { unsub.map( f => f() ); unsub=[]; }
 
@@ -461,3 +487,4 @@ export function c_on( env ) {
 
   env.on("remove", call_unsub)
 };
+*/

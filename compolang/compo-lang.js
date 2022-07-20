@@ -36,9 +36,10 @@ export function simple_lang(env)
       //console.log("parsed",parsed)      
       var dump = parsed2dump( env.vz, parsed, opts.base_url || "" );
       dump.keepExistingChildren = true;
-      let $scopeFor = env.$scopes.createScope("parseSimpleLang"); // F-SCOPE
 
-      return env.restoreFromDump( dump,false,$scopeFor );
+      return dump;
+      //let $scopeFor = env.$scopes.createScope("parseSimpleLang"); // F-SCOPE
+      //return env.restoreFromDump( dump,false,$scopeFor );
     }
     catch (e) 
     {
@@ -52,6 +53,7 @@ export function simple_lang(env)
 
     }
   }
+
   env.compalang = env.parseSimpleLang;
 }
 
@@ -398,7 +400,9 @@ export function load(env,opts)
          //subenv.setParam("source_file", file );
 
          //console.log("interpreting file", file )
-         let p1 = subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url, diag_file: file } );
+         let dp1 = subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url, diag_file: file } );
+         let $scopeFor = env.$scopes.createScope("load"); // F-SCOPE
+         let p1 = subenv.restoreFromDump( dp1,false,$scopeFor )
 
          // было
          //subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url} );

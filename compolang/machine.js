@@ -31,7 +31,9 @@ export function compolang_machine(obj) {
   
   function interpret() {
     obj.ns.removeChildren();
-    let res = obj.parseSimpleLang( obj.params.text, {base_url: obj.params.base_url, diag_file: obj.params.diag_file } );
+    let dump = obj.parseSimpleLang( obj.params.text, {base_url: obj.params.base_url, diag_file: obj.params.diag_file } );
+    let $scopeFor = obj.$scopes.createScope("parseSimpleLang"); // F-SCOPE
+    let res = obj.restoreFromDump( dump,false,$scopeFor );
 
     Promise.resolve(res).then( (res) => {
       obj.emit("machine_done",res);

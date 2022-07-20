@@ -16,7 +16,7 @@ screen auto_activate {
     
     bt2: button "me too";
     // @bt2 | get-event-cell "click" | c-on (m_lambda "(evt,cb) => console.log('you click me too',cb)" @cb->value);
-    @bt2 | get-event-cell "click" | c-on0 "(evt,cb) => console.log('you click me too',cb)" @cb->value;
+    @bt2 | get-event-cell "click" | c-on "(evt,cb) => console.log('you click me too',cb)" @cb->value;
   };
 };
 
@@ -32,6 +32,9 @@ feature "algo1" {
 };
 
 
+// input - одна или более ячеек
+// 0 - функция вызова
+// 1 и далее - доп аргументы для функции
 feature "c_on0" {
   q: output=@ee->output {
     //get-cell-value input=@q->input | m_eval {{ copy_positional_args @q }};
