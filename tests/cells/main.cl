@@ -16,7 +16,7 @@ screen auto_activate {
     
     bt2: button "me too";
     // @bt2 | get-event-cell "click" | c-on (m_lambda "(evt,cb) => console.log('you click me too',cb)" @cb->value);
-    @bt2 | get-event-cell "click" | c-on "(evt,cb) => console.log('you click me too',cb)" @cb->value;
+    @bt2 | get-event-cell "click" | c-on0 "(evt,cb) => console.log('you click me too',cb)" @cb->value;
   };
 };
 

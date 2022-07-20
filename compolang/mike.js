@@ -68,6 +68,9 @@ export function m_eval( env ) {
   env.on('param_changed', (name) => {
      if (name != "output" && name != "recompute") {
         //console.log("eval scheduled due to param change",name)
+
+        if (env.params.react_only_on_input && name != "input") return;
+
         eval_delayed();
      }
   });
