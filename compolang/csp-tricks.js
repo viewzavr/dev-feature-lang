@@ -151,7 +151,7 @@ export function when_cell( env ) {
       console.error('cell arg is not a cell')
       return;
     }
-    console.log("cell.is_value_assigned()",cell.is_value_assigned())
+    //console.log("cell.is_value_assigned()",cell.is_value_assigned())
     unsub = cell.on( "assigned",fn );
 
     if (env.params.existing && cell.is_value_assigned())
