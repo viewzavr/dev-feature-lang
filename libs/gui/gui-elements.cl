@@ -308,6 +308,8 @@ register_feature name="combobox" {
 		 var main = env.ns.parent;
 	   main.onvalue("index",(i) => {
 	   	 setup_index();
+	   	 // новооведение
+	   	 main.setParam("value",main.params.values[ i ], main.getParamManualFlag( "value"));
 	   });
 	   main.onvalue("values",() => {
 	     setup_values();
@@ -369,10 +371,13 @@ register_feature name="combobox" {
     ///////////////////////////////////////////////
     // мостик из dom в cl
 		dom_event name="change" code=`
-      //console.log("dom onchange")
+      
       let object = env.params.object;
+      console.log("dom onchange",object.dom.selectedIndex )
+
 		  if (object.params.values) {
 		  	//object.setParam("output",object.params.values[ object.dom.selectedIndex ]);
+		  	console.log('setting value to',object.params.values[ object.dom.selectedIndex ],'current is', object.params.value)
 			  object.setParam("value",object.params.values[ object.dom.selectedIndex ], true);
 
 			  object.emit("user_changed_value", object.params.value );

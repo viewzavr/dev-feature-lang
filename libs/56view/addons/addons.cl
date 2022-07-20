@@ -13,7 +13,8 @@ feature "editable-addons" {
      insert-children input=@addons_p list=@eathing->addons;
    }}
    {
-     addons_p: {}; // целенаправленно в children ибо оно сохранится в dump
+     addons_p: {
+     }; // целенаправленно размещаются addon-ы в children, ибо оно сохранится в dump
    };
 };
 
@@ -39,7 +40,7 @@ feature "effect3d_blank" {
 };
 
 add_sib_item @geffect3d "effect3d-additive" "Аддитивный рендеринг";
-feature "effect3d_additive" 
+feature "effect3d_additive" // {{ addon "Аддитивный рендеринг" "(obj) => obj.material" }}
   //{{ import "" "THREE"; }}
   //{{ load THREE="../../../lib3d/three.js/build/three.module.js" }}
 {
@@ -293,7 +294,6 @@ feature "effect3d_colorize" {
   base_color=(@eff->element | geta "color" default=[0,1,1]) 
   show_input=true
   output_column_name=@d->output_column_name
-  
 
   x-modify {
     x-set-params colors=@arrtocols->output ;

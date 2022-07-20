@@ -33,4 +33,4 @@ load "vp/camera-fly-vp.cl";
 
 //////////////////////////////
 // добавки
-load "addons/addons.cl";
+load "addons2/addons.cl";

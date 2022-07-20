@@ -14,6 +14,10 @@ register_feature name="arr_filter_by_features"
   }";
 };
 
+feature "arr_compact" {
+  arr_filter code="(val) => val != null";
+};
+
 
 //////// arr_filter
 // вход:
@@ -25,9 +29,6 @@ register_feature name="arr_filter_by_features"
 
 // пример: @arrsource | arr_filter code="(val,index) => index%3 == 0" | console_log
 
-feature "arr_compact" {
-  arr_filter code="(val) => val != null";
-};
 
 register_feature name="arr_filter"
   code=`

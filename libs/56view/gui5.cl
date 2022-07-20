@@ -313,6 +313,9 @@ detect_type: feature {
   eval code="(obj,types) => {
     //console.log('detect_type:',obj,types)
     if (obj && types) {
+
+      if (types.length == 0) return null; // но это и не ошибка
+
       for (let f of types)
         //if (obj.$features_applied[f]) 
         if (obj.is_feature_applied(f)) 

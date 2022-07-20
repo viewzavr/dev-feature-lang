@@ -202,6 +202,7 @@ s1: the-view-uni title="Вид на фронты" auto-activate-view
 
 /////////////////////////////////////////////////////
 
+/*
 loader
   crit=(m_lambda "(dir) => {
     let r1 = /^\d+\.txt$/;
@@ -232,6 +233,83 @@ v:
        k: load-file file=@r->input | parse_csv;
        m: mesh-vp input=@k->output title=(@r->input | geta "name")
           visible=(m_eval "(index,skip) => index%skip == 0" @r->input_index @v->skip)
+       ;
+       //text3d_one text=(@r->input | geta "name") positions=[5,5,0] color=[0,1,0];
+       //text3d lines=(m_eval "(s) => [s]" (@r->input | geta "name"))  positions=[5,5,0] color=[0,1,0];
+     };
+   };
+
+};
+
+axes: axes-view size=10;
+
+//cam1: camera title="Камера лавы" pos=[-10,45,80] center=[-7,30,0];
+
+s1: the-view-uni title="Вид на фронты" auto-activate-view
+{
+    area sources_str="@v,@axes" ; //camera=@cam1;
+};
+
+};
+
+*/
+
+// | arr_filter_by_features features="lib3d_visual"
+addon "prorej-visible" "Видимость элементов";
+feature "prorej-visible" {
+  k: geffect3d 
+    //visibles=(@k->element | get_children_arr | map_geta "get_param_cell" "visible" )
+    visibles=(find-objects-bf features="visual-process" root=@k->element recursive=false include_root=false | map_geta "get_param_cell" "visible" )
+    step=1
+    {{ x-param-slider name="step" min=1 max=(@k->visibles | geta "length" )}}
+  {
+    m_eval "(arr,step) => {
+      
+      for (let i=0; i<arr.length; i++)
+        arr[i].set( i%step == 0 ? true : false );
+
+    }" @k->visibles @k->step;
+  };
+};
+
+loader
+  crit=(m_lambda "(dir) => {
+    let r1 = /^\d+\.txt$/;
+    let f = dir.find( (elem) => r1.test( elem.name ) );
+    return f ? 3 : 0
+  }")
+  load={ |dir,project,active_view|
+
+v:
+   vis-group
+   title="С прореживанием"
+   addons={ effect3d-delta dz=5; prorej-visible step=1; }
+   gui={
+    column style="padding-left:0em;" {
+
+      manage-addons @v;
+      
+      manage-content @v 
+         vp=@v->show_settings_vp
+         title=""
+         items=(m_eval `(t,t2) => { return [{title:"Скалярные слои", find:t, add:t2}]}` 
+                @v->find @v->add)
+         ;
+
+    };
+  }
+{
+   
+   fils0: find-files @dir "^\d+\.txt$" | sort-files "^(\d+)\.txt$";
+   fils: @fils0->output | arr_skip 1;
+
+   //k: load-file file=@v->curfile | parse_csv;
+   //mmm: mesh-vp input=@k->output;
+
+  repeater input=@fils->output {
+     r: output=@m->output {
+       k: load-file file=@r->input | parse_csv;
+       m: mesh-vp input=@k->output title=(@r->input | geta "name")
        ;
        //text3d_one text=(@r->input | geta "name") positions=[5,5,0] color=[0,1,0];
        //text3d lines=(m_eval "(s) => [s]" (@r->input | geta "name"))  positions=[5,5,0] color=[0,1,0];

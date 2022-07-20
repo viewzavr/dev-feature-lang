@@ -25,8 +25,19 @@ export function m_eval( env ) {
     }
     warn_code_not_found.stop();
 
-
     let args = [];
+
+    // надо бы и инпут подсобрать
+    if (env.hasParam("input") || env.hasLinksToParam( "input")) {
+      let v = env.params.input;
+      if (!env.params.allow_undefined && typeof(v) == "undefined") { // ну пока так.. хотя странно все это..
+        return env.params.default;      
+      }  
+      if (!env.params.allow_undefined_input && typeof(v) == "undefined") { // ну пока так.. хотя странно все это..
+        return env.params.default;      
+      }  
+      args.push( v );
+    };
 
     for (let i=1; i<env.params.args_count;i++) 
     {
