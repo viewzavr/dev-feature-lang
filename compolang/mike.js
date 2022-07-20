@@ -60,6 +60,7 @@ export function m_eval( env ) {
 
     //console.log("eval emitting done",env,res)
     env.emit("computed",res);
+     // env.emit("done",res);
   }
 
   env.feature("delayed");

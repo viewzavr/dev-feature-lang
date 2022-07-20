@@ -57,6 +57,12 @@ function add_onvalue_etc( cell )
     });
   }
   cell.is_value_assigned = () => value_assigned;
+
+  cell.monitor_new = (fn) => {
+    return cell.on("changed",(v) => {
+       fn(v);
+    });
+  }
   /*
   cell.is_value_assigned = () => false;
   cell.on('assigned',(v) => {
@@ -68,7 +74,7 @@ function add_onvalue_etc( cell )
 // создает "параметр" (коммуникационную ячейку)
 export function create_cell() {
 
-  let cell = {};
+  let cell = { is_cell: true };
 
   cell.set = (value) => {
     let different = (cell.value != value);
@@ -109,7 +115,7 @@ export function create_multi_cell( joining_func ) {
 
   joining_func ||= Object.values;
 
-  let cell = { v: {} };
+  let cell = { v: {}, is_cell: true  };
 
   cell.set = (name,value) => { // тут вопрос конечно. прикольно сделать value, name - тогда она будет вести себя как ячейка cell..
     if (!value) {
@@ -120,7 +126,7 @@ export function create_multi_cell( joining_func ) {
 
     let vv = cell.get();
     cell.emit('assigned',vv); // это делает ячейку - каналом. тупо пишем и можем узнавать об этом.
-    cell.emit('changed',vv);     
+    cell.emit('changed',vv);
   };
   
   cell.get = () => { return joining_func( cell.v ) };
@@ -141,7 +147,7 @@ export function create_multi_cell( joining_func ) {
 // не знаю зачем но мине нравится
 export function create_table_cell() {
 
-  let cell = { v: {} };
+  let cell = { v: {}, is_cell: true  };
 
   cell.set = (name,value) => {
     let different = (cell.v[name] != value);
@@ -251,6 +257,8 @@ export function get_param_cell( target, name ) {
   let c = get_or_create_cell( target, name, target.getParam(name) );
 
   if (!c.attached_to_params) {
+    c.attached_to_params = true;
+
     let setting;
     c.on("assigned",(v) => { // мониторим assigned чтобы там свои changed отработали
        if (setting) return;
@@ -291,6 +299,8 @@ export function get_event_cell( target, name ) {
   let c = get_or_create_cell( target, "event:" + name, target.getParam(name) );
 
   if (!c.attached_to_compalang) {
+    c.attached_to_compalang = [target,name];
+
     let setting;
 
     c.on("assigned",(v) => {
@@ -302,6 +312,7 @@ export function get_event_cell( target, name ) {
          setting = false;
        }
     })
+
 
     target.on( name, (...v) => {
        if (setting) return;
@@ -426,10 +437,11 @@ export function feature_create_cell( env ) {
 // m_eval реагирует на доп. параметры, а не надо
 // m_lambda хороша тут, но на output выдает функцыю.. а хорошо бы - значения или йачейку..
 
+let con_dump;
 export function c_on( env ) {
   env.feature("simple_lang");
   
-  let dump = env.compalang( `
+  con_dump ||= env.compalang( `
   output=@ee->output {
     get-cell-value input=@q->input | ee: m_eval @q->0 @q->1? @q->2? @q->3? @q->4? allow_undefined=true allow_undefined_input=false react_only_on_input=true;
   };
@@ -437,9 +449,11 @@ export function c_on( env ) {
 
   let $scopeFor = env.$scopes.createScope("parseSimpleLang"); // F-SCOPE
   $scopeFor.$add( "q",env);
-  let res = env.restoreFromDump( Object.values(dump.children)[0],false,$scopeFor );
+  let res = env.restoreFromDump( Object.values(con_dump.children)[0],false,$scopeFor );
+  
+};
 
-  /*
+/*
   let $scopeFor = env.$scopes.createScope("parseSimpleLang"); // F-SCOPE
   $scopeFor.$add( "q",env);
   let d = Object.values(dump.children)[0];
@@ -447,8 +461,7 @@ export function c_on( env ) {
   d.$scopeFor = $scopeFor;
   debugger;
   env.vz.createSyncFromDump( d,env );
-  */
-};  
+*/
 
 
 /*

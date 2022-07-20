@@ -27,6 +27,7 @@ export function csp( env ) {
 
 };
 
+// when @obj "event" then={ ..... }
 export function when( env ) {
   let env_list;
   let env_call_scope = env.$scopes.top();
@@ -107,6 +108,64 @@ export function when_value( env ) {
     env.vz.callEnvFunction( env_list, parent, false, env_call_scope, value )
   })
 
+}
+
+// when_cell @cell then={ ..... }
+// см comm3.js
+// но эт ток на новых событиях... кстати... или кстати нет? да, ток на новых...
+// т.е. это не промиса как бы... а хочется еще и с промисой попробовать...
+
+export function when_cell( env ) {
+  let env_list;
+  let env_call_scope = env.$scopes.top();
+
+  env.restoreChildrenFromDump = (dump, ismanual,$scopeFor) => {
+    // короче выяснилось, что если у нас создана фича которая основана на repeater,
+    // то у этого repeater свое тело поступает в restoreChildrenFromDump
+    // а затем внешнее тело, которое сообразно затирает собственное тело репитера.
+    if (!env_list) {
+      //console.log("when consuming children",dump.children)
+      env_list = Object.values( dump.children );
+      env_list.env_args = dump.children_env_args;
+      env_call_scope = $scopeFor;
+    }
+    return Promise.resolve("success");
+  }
+
+  env.onvalue("then",(list) => {
+    env_list = list;
+  });
+
+  //env.$vz_children_autocreate_enabled = false;
+
+  let unsub = () => {};
+  env.on("remove",() => {
+    //console.log("when removed", env.getPath())
+    unsub()
+  })
+
+  env.onvalues([0],(cell) => {
+    unsub();
+    //console.log("when_cell subscribing to evnt of cell",cell);
+    if (!cell || !cell.is_cell) {
+      console.error('cell arg is not a cell')
+      return;
+    }
+    console.log("cell.is_value_assigned()",cell.is_value_assigned())
+    unsub = cell.on( "assigned",fn );
+
+    if (env.params.existing && cell.is_value_assigned())
+        fn( cell.get() );
+
+    function fn (...args) {
+      let parent = env.ns.parent;
+      env.ns.parent.ns.removeChildren();
+      // родителя почистили и переходим в новую стадию
+      
+      env.vz.callEnvFunction( env_list, parent, false, env_call_scope, ...args )
+    }
+    
+  })
 }
 
 // вот эта штука рестартует указанный объект с новой логикой

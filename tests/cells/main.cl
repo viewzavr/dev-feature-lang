@@ -17,6 +17,22 @@ screen auto_activate {
     bt2: button "me too";
     // @bt2 | get-event-cell "click" | c-on (m_lambda "(evt,cb) => console.log('you click me too',cb)" @cb->value);
     @bt2 | get-event-cell "click" | c-on "(evt,cb) => console.log('you click me too',cb)" @cb->value;
+
+    c1: create_cell;
+    @c1->output | set-cell-value 0;
+    text (list "counter" (@c1->output | get-cell-value) "mememe");
+
+    l1: csp {
+      when_cell (@bt2 | get-event-cell "click") {
+        console_log "333";
+        mev: m_eval "(c) => { console.log('computing', c.get()); c.set( c.get()+1 ); return true; }" @c1->output;
+
+	when_cell (get-param-cell input=@mev "output") existing=true
+        {
+          restart @l1;
+        };
+      };
+    };
   };
 };
 
