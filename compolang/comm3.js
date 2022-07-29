@@ -6,14 +6,16 @@ export function setup(vz, m) {
      get_cell_value: get_cell_value,
      get_param_cell: feature_get_param_cell,
      get_event_cell: feature_get_event_cell,
+     get_cell: feature_get_cell,
      create_cell: feature_create_cell,
      c_on : c_on
    });
 
+
   vz.chain( "create_obj", function (obj,options) {
       obj.get_event_cell = (name) => get_event_cell( obj, name );
-
       obj.get_param_cell = (name) => get_param_cell( obj, name );
+      obj.get_cell_universal = (name) => get_cell_universal( obj, name );
 
       obj.get_existing_param_cell = (name) => {
          if (obj.hasParam( name ))
@@ -296,7 +298,9 @@ export function get_param_cells( target, names )
 
 // мб надо создать отдельный вид ячейки.. но пока вроде и такой прокатит
 export function get_event_cell( target, name ) {
-  let c = get_or_create_cell( target, "event:" + name, target.getParam(name) );
+  //let c = get_or_create_cell( target, "event:" + name, target.getParam(name) );
+  // пущай в одном пр-ве имен попробуют жить
+  let c = get_or_create_cell( target, name, target.getParam(name) );
 
   if (!c.attached_to_compalang) {
     c.attached_to_compalang = [target,name];
@@ -314,6 +318,52 @@ export function get_event_cell( target, name ) {
     })
 
 
+    target.on( name, (...v) => {
+       if (setting) return;
+       setting = true;
+       try {
+         c.push( v );
+       } finally { 
+         setting = false;
+       }   
+       setting = false;
+    });
+
+  };
+
+  return c;
+};
+
+export function get_cell_universal( target, name ) {
+  let c = get_or_create_cell( target, name, target.getParam(name) );
+
+  if (!c.attached_to_params) {
+    c.attached_to_params = true;
+
+    let setting;
+    c.on("assigned",(v) => { // мониторим assigned чтобы там свои changed отработали
+       if (setting) return;
+       try {
+         setting = true;
+         target.setParam( name, v );
+       } finally { 
+         setting = false;
+       }
+    })
+
+    target.trackParam( name, (v) => {
+       if (setting) return;
+       setting = true;
+       try {
+         c.set( v );
+       } finally { 
+         setting = false;
+       }   
+       setting = false;
+    });
+
+    // тут похоже надо уровнень абстракции ячейки ввести.. ну пока так..
+    // хотя впрочем это то интерфейс от emit к ячейкам..
     target.on( name, (...v) => {
        if (setting) return;
        setting = true;
@@ -419,6 +469,23 @@ export function feature_get_event_cell( env ) {
         res.push( null);
       else
         res.push( obj.get_event_cell( param_name ) );
+    });
+    
+    env.setParam( "output", single_elem_mode ? res[0] : res );
+    // single_elem_mode - это плохо или это норм? так-то сигнатура выхода меняется...
+  }); 
+}
+
+export function feature_get_cell( env ) {
+  env.onvalues( ["input",0], (arr, param_name) => {
+    let single_elem_mode = !Array.isArray(arr);
+    if (single_elem_mode) arr=[arr];
+    let res = [];
+    arr.forEach( (obj) => {
+      if (!obj)
+        res.push( null);
+      else
+        res.push( obj.get_cell_universal( param_name ) );
     });
     
     env.setParam( "output", single_elem_mode ? res[0] : res );

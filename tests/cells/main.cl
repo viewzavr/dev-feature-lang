@@ -6,28 +6,28 @@ screen auto_activate {
     cb: combobox values=["alfa","beta","teta"];
     bt: button "press me";
     //@bt | get-event-cell "click" | m-on "(args) => console.log(args)";
-    @bt | get-event-cell "click" | console-log-input "e1" | get-cell-value | console-log-input "click";
+    @bt | get-cell "click" | console-log-input "e1" | get-cell-value | console-log-input "click";
     //@cb | get-event-cell "user_changed_value" | console-log-input "e2" | get-cell-value | console-log-input "cb";
-    @cb | get-param-cell "index" | console-log-input "e3" | get-cell-value | console-log-input "cb-index";
+    @cb | get-cell "index" | console-log-input "e3" | get-cell-value | console-log-input "cb-index";
     
-    algo1 (@bt | get-event-cell "click") (@cb | get-param-cell "index");
+    algo1 (@bt | get-cell "click") (@cb | get-cell "index");
     
     console_log "control. cb-index param is" @cb->index "cb-value is" @cb->value;
     
     bt2: button "me too";
     // @bt2 | get-event-cell "click" | c-on (m_lambda "(evt,cb) => console.log('you click me too',cb)" @cb->value);
-    @bt2 | get-event-cell "click" | c-on "(evt,cb) => console.log('you click me too',cb)" @cb->value;
+    @bt2 | get-cell "click" | c-on "(evt,cb) => console.log('you click me too',cb)" @cb->value;
 
     c1: create_cell;
     @c1->output | set-cell-value 0;
     text (list "counter" (@c1->output | get-cell-value) "mememe");
 
     l1: csp {
-      when_cell (@bt2 | get-event-cell "click") {
+      when_cell (@bt2 | get-cell "click") {
         console_log "333";
         mev: m_eval "(c) => { console.log('computing', c.get()); c.set( c.get()+1 ); return true; }" @c1->output;
 
-	when_cell (get-param-cell input=@mev "output") existing=true
+      when_cell (get-cell input=@mev "output") existing=true
         {
           restart @l1;
         };
