@@ -4,9 +4,15 @@ screen auto_activate {
   row {
     text "privet";
     cb: combobox values=["alfa","beta","teta"];
-    bt: button "press me";
+    bt: button "press me"; // вариант мог бы быть: {{ get-cell "click" | c-on "(e) => ...." }};
+    
+    clicka: (@bt | get-cell "click");
+    
+    //@clicka | c-on "(lele) => .... ";
+    // идея ловить on- типа удобно. button "mumu" on-click="(obj) => ....";
+    
     //@bt | get-event-cell "click" | m-on "(args) => console.log(args)";
-    @bt | get-cell "click" | console-log-input "e1" | get-cell-value | console-log-input "click";
+    @clicka | console-log-input "e1" | get-cell-value | console-log-input "click";
     //@cb | get-event-cell "user_changed_value" | console-log-input "e2" | get-cell-value | console-log-input "cb";
     @cb | get-cell "index" | console-log-input "e3" | get-cell-value | console-log-input "cb-index";
     

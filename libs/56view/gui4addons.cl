@@ -63,12 +63,12 @@ feature "show_addons"
 
 // визуальное управление добавками (фичьями)
 // операции: добавить, удалить, ммм... поменять тип?
-// input - объект
+// 0, input - объект
 
 feature "manage_addons" {
-  ma: dom_group input=@.->0?
+  ma: dom_group input=@.->0? title="Спецфункции"
   {
-  	/*
+   /*
    button "Добавки" //cmd="@addons_dialog->show"
    {
      //setter target="@addons_dialog->container" value=( @ma->input | geta "addons_container");
@@ -77,7 +77,7 @@ feature "manage_addons" {
    };
    */
 
-   co: collapsible (join "Спецфункции (" @co->addons_count ")")
+   co: collapsible (join @ma->title " (" @co->addons_count ")")
    addons_count=(@ma->input? | geta "addons_container" | get_children_arr | geta "length" default=0)
    //expanded=false
    //expanded=(@co->addons_count > 0)

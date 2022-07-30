@@ -15,7 +15,7 @@ export function setup(vz, m) {
   vz.chain( "create_obj", function (obj,options) {
       obj.get_event_cell = (name) => get_event_cell( obj, name );
       obj.get_param_cell = (name) => get_param_cell( obj, name );
-      obj.get_cell_universal = (name) => get_cell_universal( obj, name );
+      obj.get_cell = (name) => get_cell( obj, name );
 
       obj.get_existing_param_cell = (name) => {
          if (obj.hasParam( name ))
@@ -334,7 +334,8 @@ export function get_event_cell( target, name ) {
   return c;
 };
 
-export function get_cell_universal( target, name ) {
+// универсальное - и для событий и для параметров
+export function get_cell( target, name ) {
   let c = get_or_create_cell( target, name, target.getParam(name) );
 
   if (!c.attached_to_params) {
@@ -485,7 +486,7 @@ export function feature_get_cell( env ) {
       if (!obj)
         res.push( null);
       else
-        res.push( obj.get_cell_universal( param_name ) );
+        res.push( obj.get_cell( param_name ) );
     });
     
     env.setParam( "output", single_elem_mode ? res[0] : res );

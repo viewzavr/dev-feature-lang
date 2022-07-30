@@ -1,3 +1,96 @@
+feature "front_addon" {
+  addon crit=(m_lambda "(obj) => {
+    let dir = obj.params.output;
+    if (!Array.isArray(dir)) return 0;
+    let r1 = /^\d+\.txt$/;
+    let f = dir.find( (elem) => r1.test( elem.name ) );
+    return f ? 1 : 0
+  }");  
+};
+
+front_addon "surf1" "Визуализация фронтов 1";
+
+feature "surf1" {
+  x: addon_base
+  title="Визуализация фронтов 1a"
+  {
+   fils: find-files (@x->element | geta "output") "^\d+\.txt$" | sort-files "^(\d+)\.txt$";
+
+   k: load-file file=@v->curfile | parse_csv;
+
+   v: visual_process 
+      auto_gui2
+      title="Поверхность фронта"
+      N=0
+      {{ x-param-slider name="N" min=0 max=(( @fils->output | geta "length") - 1) }}      
+      curfile=(@fils->output | geta @v->N)
+      curfilename=(@v->curfile | geta "name")
+      {{ x-param-label name="curfilename"}}
+      {
+         mmm: mesh-vp input=@k->output;
+      }
+      ;
+
+   axes: axes-view size=10;
+
+   cam1: camera title="Камера на фронты" pos=[0,5,20] center=[0,0,0];
+
+   s1: the-view-uni title="Вид на фронты" auto-activate-view
+   {
+       area sources_str="@v,@axes" camera=@cam1;
+   };
+  };
+};
+
+front_addon "surf2_prorej" "Визуализация фронтов 2";
+feature "surf2_prorej" {
+  x: addon_base
+  title="Визуализация фронтов 2a"
+  {
+
+   v:
+    vis-group
+       title="С прореживанием"
+       addons={ effect3d-delta dz=5; prorej-visible step=1; }
+       gui={
+        column style="padding-left:0em;" {
+
+          manage-addons @v;
+          
+          manage-content @v 
+             vp=@v->show_settings_vp
+             title=""
+             items=(m_eval `(t,t2) => { return [{title:"Скалярные слои", find:t, add:t2}]}` 
+                    @v->find @v->add)
+             ;
+
+        };
+      } // gui
+    {
+       
+       fils0: find-files (@x->element | geta "output") "^\d+\.txt$" | sort-files "^(\d+)\.txt$";
+       fils: @fils0->output | arr_skip 1;
+
+      repeater input=@fils->output {
+         r: output=@m->output {
+            k: load-file file=@r->input | parse_csv;
+            m: mesh-vp input=@k->output title=(@r->input | geta "name");
+         };
+      };
+
+    };
+
+   axes: axes-view size=10;
+
+   cam1: camera title="Камера на фронты" pos=[0,5,20] center=[0,0,0];
+
+   s1: the-view-uni title="Вид на фронты прореж." auto-activate-view
+   {
+       area sources_str="@v,@axes" camera=@cam1;
+   };
+  };
+};
+
 
 loader
   crit=(m_lambda "(dir) => {
@@ -8,7 +101,8 @@ loader
   load={ |dir,project,active_view|
 
 v:
-   visual_process auto_gui2
+   visual_process 
+   auto_gui2
    title="Поверхность фронта"
    N=0
    {{ x-param-slider name="N" min=0 max=(( @fils->output | geta "length") - 1) }}
@@ -266,7 +360,8 @@ feature "prorej-visible" {
     m_eval "(arr,step) => {
       
       for (let i=0; i<arr.length; i++)
-        arr[i].set( i%step == 0 ? true : false );
+        if (arr[i])
+            arr[i].set( i%step == 0 ? true : false );
 
     }" @k->visibles @k->step;
   };
@@ -297,7 +392,7 @@ v:
          ;
 
     };
-  }
+  } // gui
 {
    
    fils0: find-files @dir "^\d+\.txt$" | sort-files "^(\d+)\.txt$";

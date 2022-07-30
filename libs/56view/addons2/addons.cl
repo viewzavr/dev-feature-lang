@@ -48,12 +48,21 @@ geffect3d: feature {
   ;
 };
 
+addon_base: feature 
+{
+  geffect3d;
+};
+
+feature "addon3d" {
+  addon crit=(m_lambda "(obj) => obj.is_feature_applied('lib3d_visual')");
+};
+
 addon "effect3d_blank" "-";
 feature "effect3d_blank" {
   geffect3d;
 };
 
-addon "effect3d_additive" "Аддитивный рендеринг";
+addon3d "effect3d_additive" "Аддитивный рендеринг";
 
 feature "effect3d_additive" 
   //addon title="Аддитивный рендеринг" //"(obj) => obj.material"
@@ -85,7 +94,7 @@ feature "effect3d_additive"
   ;
 };
 
-addon "effect3d-opacity" "Прозрачность";
+addon3d "effect3d-opacity" "Прозрачность";
 feature "effect3d_opacity" {
   eo: geffect3d
     {{ x-param-slider name="opacity" min=0 max=1 step=0.01; }}
@@ -113,7 +122,7 @@ feature "effect3d_opacity" {
   ;
 };
 
-addon "effect3d-zbuffer" "Настройки z-буфера";
+addon3d "effect3d-zbuffer" "Настройки z-буфера";
 feature "effect3d_zbuffer" {
   eo: geffect3d
     {{ x-param-checkbox name="depth_test"; }}
@@ -143,7 +152,7 @@ feature "effect3d_zbuffer" {
   ;
 };
 
-addon "effect3d-pos" "Положение";
+addon3d "effect3d-pos" "Положение";
 feature "effect3d_pos" {
   eo: geffect3d
     {{ x-param-float name="x"; }}
@@ -177,7 +186,7 @@ feature "effect3d_pos" {
   ;
 };
 
-addon "effect3d-scale" "Масштаб";
+addon3d "effect3d-scale" "Масштаб";
 feature "effect3d_scale" {
   eo: geffect3d
     {{ x-param-float name="x"; }}
@@ -204,7 +213,7 @@ feature "effect3d_scale" {
   ;
 };
 
-addon "effect3d-sprite" "Внешний вид точек";
+addon3d "effect3d-sprite" "Внешний вид точек";
 feature "effect3d_sprite" {
   eoa: geffect3d
     {{ x-param-combo name="sprite" values=["","spark1.png","ball.png","circle.png","disc.png","particle.png","particleA.png","snowflake1.png","snowflake3.png"]; }}
@@ -220,7 +229,7 @@ feature "effect3d_sprite" {
 };
 
 /// ну тут вопрос что входы хотелось бы из других объектов..
-addon "effect3d-script" "Скрипт";
+addon3d "effect3d-script" "Скрипт";
 feature "effect3d_script" {
   script: geffect3d
     {{ x-param-float name="input1" }}
@@ -272,14 +281,14 @@ feature "effect3d_delta" {
   };
 };
 
-addon "effect3d-debug" "Отладка";
+addon3d "effect3d-debug" "Отладка";
 feature "effect3d_debug" {
   eff: geffect3d
   {{ x-param-cmd name="Запустить js отладчик" cmd="debugger" }}
 };
 
 /// ну тут вопрос что входы хотелось бы из других объектов..
-addon "effect3d-colorize" "Раскраска по данным";
+addon3d "effect3d-colorize" "Раскраска по данным";
 feature "effect3d_colorize" {
   eff: geffect3d
   

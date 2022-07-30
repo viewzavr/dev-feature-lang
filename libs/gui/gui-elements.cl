@@ -309,7 +309,8 @@ register_feature name="combobox" {
 	   main.onvalue("index",(i) => {
 	   	 setup_index();
 	   	 // новооведение
-	   	 main.setParam("value",main.params.values[ i ], main.getParamManualFlag( "value"));
+	   	 if (main.params.values)
+	   	     main.setParam("value",main.params.values[ i ], main.getParamManualFlag( "value"));
 	   });
 	   main.onvalue("values",() => {
 	     setup_values();
