@@ -319,7 +319,7 @@ feature "render_project" {
                 show_visual_tab input=(@rend->project | get_param "views" | geta 6 default=null);
                 show_visual_tab input=(@rend->project | get_param "views" | geta 7 default=null);
                 show_visual_tab input=(@rend->project | get_param "views" | geta 8 default=null);
-                show_visual_tab input=(@rend->project | get_param "views" | geta 9 default=null);                
+                show_visual_tab input=(@rend->project | get_param "views" | geta 9 default=null);
               }
               {{ one-of-keep-state; one_of_all_dump; }}
               ;
