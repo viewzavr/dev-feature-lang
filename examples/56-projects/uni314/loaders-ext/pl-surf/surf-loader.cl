@@ -11,8 +11,9 @@ feature "front_addon" {
 
 front_addon "surf1" "Визуализация фронтов 1";
 
-feature "surf1" {
-  v: addon_base
+feature "surf1" {{ uni-visual-process "Визуализация фронтов" }}
+{
+  v:  addon_base
       visual_process 
       auto_gui2
       title="Поверхность фронта"
