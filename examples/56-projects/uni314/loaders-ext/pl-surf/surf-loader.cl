@@ -1,6 +1,5 @@
 feature "front_addon" {
-  addon crit=(m_lambda "(obj) => {
-    let dir = obj.params.output;
+  addon crit=(m_lambda "(dir) => {
     if (!Array.isArray(dir)) return 0;
     let r1 = /^\d+\.txt$/;
     let f = dir.find( (elem) => r1.test( elem.name ) );

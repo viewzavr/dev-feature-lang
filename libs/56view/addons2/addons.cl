@@ -54,7 +54,7 @@ addon_base: feature
 };
 
 feature "addon3d" {
-  addon crit=(m_lambda "(obj) => obj.is_feature_applied('lib3d_visual')");
+  addon crit=(m_lambda "(obj) => obj.is_feature_applied &&  obj.is_feature_applied('lib3d_visual')");
 };
 
 addon "effect3d_blank" "-";

@@ -144,3 +144,51 @@ feature "manage-content2" {
      
     }; // main col
 };
+
+feature "show-inner-objects" {
+
+     mc: column root=@mc->0 vp=@mc->root
+     {{
+
+     objects_list:
+     find-objects-bf features=@mc->find
+                     root=@mc->root
+                     recursive=false
+                     include_root=false 
+                    | sort_by_priority | console_log_input;
+     }}                    
+     {
+          @objects_list->output | repeater {
+          rep: row 
+
+             item_gui = {
+                column plashka {
+                    dom tag="h3" innerText=(@rep->input | geta "title")
+                      style="margin:0px; color: white;";
+                    insert_children input=@.. list=(@rep->input | geta "gui")
+                }
+             }
+           {
+               button (@rep->input | geta "title") 
+                  style='min-width:220px;
+    background: #70ddff;
+    border-radius: 5px;
+    border: 1px solid black;
+    margin: 2px;
+                '
+               {
+                 m_lambda "(obj,g2) => { obj.emit('show-settings',g2) }" 
+                   @mc->vp @rep->item_gui;
+               };
+               k: checkbox-c value=(@rep->input | geta "visible")
+                  {{ x-on 'user-changed' {
+                      m_lambda "(obj,obj2,val) => {
+                        //console.log('setting visible to obj',obj,val );
+                        obj.setParam('visible', val, true);
+                      }" @rep->input;
+                  } }};
+          };
+     };
+     
+    }; // main col
+};

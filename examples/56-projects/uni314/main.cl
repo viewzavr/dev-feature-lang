@@ -28,7 +28,9 @@ feature "addvis" {
              obj=obj[0]; // todo че за массив
           if (Array.isArray(obj)) 
              obj=obj[0]; // todo че за массив 2   
-          obj.setParam('element',art);
+          //obj.setParam('element',art);
+          obj.setParam('input',art.params.output);
+          //obj.setParam('input',art.params.output);
         }" @curart;
 
         curart: (@artefacts->output | geta @cb->index );
@@ -39,7 +41,7 @@ feature "addvis" {
             let res = list.filter( it => it.params.crit( elem ) )
             console.log('filtered',res)
             return res;
-          }" @addons_list @curart;
+          }" @addons_list (@curart | geta "output");
       };
     }
     {{
@@ -57,13 +59,7 @@ project: the_project
     av: addvis active_view=@rp->active_view;
     axes: axes-view size=10;
 
-    v1: the-view-uni title="Набор данных" 
-    {
-          area sources_str="@ld, @axes";
-          camera pos=[10,10,10];
-    };
-
-    v2: the-view-uni title="Визуализация" 
+    v1: the-view-uni title="Визуализация" 
       {
           area sources_str="@ld,@av,@axes";
           camera pos=[10,10,10];

@@ -7,7 +7,13 @@ feature "dataset" {
   x: visual_process title="Набор данных"
     gui={
       column plashka {
-        manage-content2 @x find="load-dir" add={ load-dir };
+        //manage-content2 @x find="load-dir" add={ load-dir };
+        ba: button_add_object
+              add_to=@x
+              add_type="load-dir"
+              ;
+
+        show-inner-objects @x find="load-dir";
       };
     };
 };
