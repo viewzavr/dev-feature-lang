@@ -10,27 +10,37 @@ feature "addvis" {
     gui={
       column plashka gap="0.4em" {
         text "Артефакт данных";
-        cb: combobox titles=(@artefacts->output | map_geta "title") values=(@artefacts->output | map_geta "getPath");
+        cb: combobox 
+              titles=(@artefacts->output | map_geta "title") 
+              values=(@artefacts->output | map_geta "getPath")
+              index=0;
         text "Образ";
-        ct: combobox titles=(@compatible_visual_processes->output | map_geta "title")
-                 values=(@compatible_visual_processes->output | map_geta "type")
+        ct: combobox 
+                titles=(@compatible_visual_processes->output | map_geta "title")
+                values=(@compatible_visual_processes->output | map_geta "type")
+                index=0
         ;
         //button "Добавить";
         ba: button_add_object "Добавить" 
            add_to=@project
            add_type=@ct->value
+           dom_obj_disabled=(not @ct->value )
            {{
              created_add_to_current_view curview=@x->active_view;
            }};
         @ba | get_cell "created" | c-on "(obj,art) => {
-          debugger;
+          
           if (Array.isArray(obj)) 
              obj=obj[0]; // todo че за массив
           if (Array.isArray(obj)) 
              obj=obj[0]; // todo че за массив 2   
           //obj.setParam('element',art);
-          obj.setParam('input',art.params.output);
           //obj.setParam('input',art.params.output);
+          //obj.setParam('input',art.params.output);
+          obj.linkParam( 'input',art.getPath() + '->output',false, true);
+          // и это кстати создаст нам запомнит стрелочку в составе проекта
+          // но вообще по идее - obj.bindParam но это не сохранится.. плюс там нужна идентификация ячеек
+          // так что это тож самое что linkParam
         }" @curart;
 
         curart: (@artefacts->output | geta @cb->index );

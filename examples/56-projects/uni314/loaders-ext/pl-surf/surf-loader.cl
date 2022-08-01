@@ -1,5 +1,6 @@
 feature "front_addon" {
   addon crit=(m_lambda "(dir) => {
+    //let dir = obj.params.output;
     if (!Array.isArray(dir)) return 0;
     let r1 = /^\d+\.txt$/;
     let f = dir.find( (elem) => r1.test( elem.name ) );
@@ -21,7 +22,7 @@ feature "surf1" {
       curfilename=(@v->curfile | geta "name")
       {{ x-param-label name="curfilename"}}
       {
-         fils: find-files (@v->element | geta "output") "^\d+\.txt$" | sort-files "^(\d+)\.txt$";
+         fils: find-files @v->input "^\d+\.txt$" | sort-files "^(\d+)\.txt$";
          k: load-file file=@v->curfile | parse_csv;
          mmm: mesh-vp input=@k->output;
       }

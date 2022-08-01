@@ -182,3 +182,7 @@ register_feature name="or" {
 register_feature name="and" {
   eval code="(a,b) => a && b" allow_undefined=true;
 };
+
+register_feature name="not" {
+  eval code="(a) => ! a" allow_undefined=true;
+};
