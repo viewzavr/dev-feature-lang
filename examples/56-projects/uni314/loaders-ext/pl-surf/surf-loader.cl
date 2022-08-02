@@ -1,5 +1,5 @@
-feature "front_addon" {
-  addon crit=(m_lambda "(dir) => {
+feature "front_vis" {
+  vis crit=(m_lambda "(dir) => {
     //let dir = obj.params.output;
     if (!Array.isArray(dir)) return 0;
     let r1 = /^\d+\.txt$/;
@@ -9,11 +9,11 @@ feature "front_addon" {
   }");  
 };
 
-front_addon "surf1" "Визуализация фронтов 1";
+front_vis "surf1" "Визуализация фронтов 1";
 
-feature "surf1" {{ uni-visual-process "Визуализация фронтов" }}
+feature "surf1"
 {
-  v:  addon_base
+  v:  
       visual_process 
       auto_gui2
       title="Поверхность фронта"
@@ -30,13 +30,9 @@ feature "surf1" {{ uni-visual-process "Визуализация фронтов" 
       ;
 };
 
-front_addon "surf2_prorej" "Визуализация фронтов 2";
+front_vis "surf2_prorej" "Визуализация фронтов 2";
 feature "surf2_prorej" {
-  x: addon_base
-  title="Визуализация фронтов 2a"
-  {
-
-   v:
+  v:
     vis-group
        title="С прореживанием"
        addons={ effect3d-delta dz=5; prorej-visible step=1; }
@@ -56,7 +52,7 @@ feature "surf2_prorej" {
       } // gui
     {
        
-       fils0: find-files (@x->element | geta "output") "^\d+\.txt$" | sort-files "^(\d+)\.txt$";
+       fils0: find-files @v->input "^\d+\.txt$" | sort-files "^(\d+)\.txt$";
        fils: @fils0->output | arr_skip 1;
 
       repeater input=@fils->output {
@@ -65,17 +61,7 @@ feature "surf2_prorej" {
             m: mesh-vp input=@k->output title=(@r->input | geta "name");
          };
       };
-
-    };
-
-   axes: axes-view size=10;
-
-   cam1: camera title="Камера на фронты" pos=[0,5,20] center=[0,0,0];
-
-   s1: the-view-uni title="Вид на фронты прореж." auto-activate-view
-   {
-       area sources_str="@v,@axes" camera=@cam1;
-   };
+   
   };
 };
 

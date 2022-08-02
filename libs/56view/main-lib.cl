@@ -128,7 +128,8 @@ feature "show_sources_params"
              // вот мы вставили гуи
           };
 
-          cbv: checkbox value=(@mm->input | geta "visible");
+          cbv: checkbox value=(@mm->input | geta "visible") visible=@sv->show_visible_cb?;
+
           x-modify input=@mm->input {
             x-set-params visible=@cbv->value? __manual=true;
             x-on "show-settings" {

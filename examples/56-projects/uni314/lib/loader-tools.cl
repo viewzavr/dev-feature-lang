@@ -4,7 +4,7 @@ feature "loader"
 };
 
 feature "dataset" {
-  x: visual_process title="Набор данных"
+  x: visual_process title="Добавить данные"
     gui={
       column plashka {
         //manage-content2 @x find="load-dir" add={ load-dir };

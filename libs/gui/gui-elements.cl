@@ -360,11 +360,19 @@ register_feature name="combobox" {
 
 	   	  // после этого комбобокс дом сбивается, и надо его перенастроить
 	   	  // единственное проблема - может оказаться что value еще неподходящий (еще не прислали, потом пришлют)
+	   	  
 	   	  // поэтому тут мы отрабатываем случай если value подходящий
 	   	  let index = (main.params.values || []).indexOf( main.params.value );
 	   	  //console.log("cb interma, ",main.params.value,main.params.values ,index)
 	   	  if (index >= 0)
 	   	  	main.params.dom.selectedIndex = index;
+	   	  else {
+	   	  	if (main.params.index >= 0) {
+	   	  		main.signalParam("index");
+	   	  	  //main.params.dom.selectedIndex = main.params.index;
+	   	  	}
+	   	  	// но вообще это все стремная сложная тупорогая модель, надо другую  
+	   	  }
 
 	   }
     ';	

@@ -1,12 +1,19 @@
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d new-modifiers imperative";
 load "56view";
 load "lib/init.cl";
+
+feature "vis" {
+  ai: type=@.->0
+      title=( @ai->1? or @ai->type )
+      crit=(m_lambda "() => true");
+};
+
 load "loaders-ext/init.cl";
 
-addons_list: (find-objects-bf features="addon");
+vis_list: (find-objects-bf features="vis");
 
 feature "addvis" {
-  x: visual_process title="Добавить образ"
+  x: visual_process title="Добавить визуализацию"
     gui={
       column plashka gap="0.4em" {
         text "Артефакт данных";
@@ -18,13 +25,13 @@ feature "addvis" {
         ct: combobox 
                 titles=(@compatible_visual_processes->output | map_geta "title")
                 values=(@compatible_visual_processes->output | map_geta "type")
-                index=0
+                index=0 {{ console_log_params}}
         ;
         //button "Добавить";
         ba: button_add_object "Добавить" 
            add_to=@project
            add_type=@ct->value
-           dom_obj_disabled=(not @ct->value )
+           dom_obj_disabled=(not @ct->value  )
            {{
              created_add_to_current_view curview=@x->active_view;
            }};
@@ -48,10 +55,10 @@ feature "addvis" {
 
         compatible_visual_processes: m_eval "(list,elem) => {
             if (!elem) return [];
-            let res = list.filter( it => it.params.crit( elem ) )
+            let res = list.filter( it => { let qq=it.params.crit( elem ); console.log(qq); return qq;} )
             console.log('filtered',res)
             return res;
-          }" @addons_list (@curart | geta "output");
+          }" @vis_list (@curart | geta "output");
       };
     }
     {{
@@ -69,9 +76,15 @@ project: the_project
     av: addvis active_view=@rp->active_view;
     axes: axes-view size=10;
 
-    v1: the-view-uni title="Визуализация" 
+    v1: the-view-uni title="Визуализация"
+      actions = { 
+        show_sources_params input=(list @ld @av) show_visible_cb=false;
+        text tag="h3" "Визуализация" style="color: white;";
+        //button "Добавить данные"; button "Добавить визуализацию"; text tag="h3" "Визуализация";
+      }
       {
-          area sources_str="@ld,@av,@axes";
+          //area sources_str="@ld,@av,@axes";
+          area sources_str="@axes";
           camera pos=[10,10,10];
       };
 

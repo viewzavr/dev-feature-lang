@@ -192,7 +192,7 @@ feature "show_visual_tab_uni" {
       screenshot_dom = @rrviews->dom
    {
 
-    actions_co: column plashka visible=(@svr->input | geta "actions" default=null) 
+    actions_co: column visible=(@svr->input | geta "actions" default=null) 
     ;
     insert_children input=@actions_co list=(@svr->input | geta "actions" default=null);
 
