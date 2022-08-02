@@ -8,6 +8,7 @@ load "plugins/show-visual-processes.cl";
 // load "plugins/table-views-processes.cl";
 
 load "plugins/view-tab-uni.cl";
+load "plugins/view-tab-recursive.cl";
 //load "plugins/view-mix3d.cl";
 //load "plugins/view-tab-row.cl";
 //load "plugins/view-tab-uni-grid.cl";

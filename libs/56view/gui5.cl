@@ -87,7 +87,7 @@ feature "button_add_object" {
         cre: creator input={}
           {{ onevent 
              name="created" 
-             newf=@bt_root->add_type
+             newf=@bt_root->add_type?
              btroot=@bt_root
              code=`
                  arg1.manuallyInserted=true;
@@ -154,7 +154,7 @@ feature "button_add_object_t" {
 // titles - список названий
 feature "object_change_type"
 {
-   cot: text="Образ: " {};
+   cot: dom_group text="Образ: " {
 
    text @cot->text;
 
@@ -172,11 +172,13 @@ feature "object_change_type"
                 let dump = obj.dump();
 
                 let origparent = obj.ns.parent;
+                let pos = origparent.ns.getChildren().indexOf( obj );
                 obj.remove();
 
                 //console.log("dump is",dump)
 
-                let newobj = obj.vz.createObj({parent: origparent});
+                let newobj = obj.vz.createObj();
+                origparent.ns.appendChild( newobj,'item',true,pos );
                 Promise.allSettled( newobj.manual_feature( v ) ).then( () => {
                   newobj.manuallyInserted=true;
 
@@ -199,6 +201,7 @@ feature "object_change_type"
 
            }
            }}; // on user changed
+   }; // dom group           
 
 };
 

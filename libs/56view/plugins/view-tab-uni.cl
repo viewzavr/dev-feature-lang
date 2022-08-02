@@ -2,7 +2,7 @@
 
 find-objects-bf features="the_view_types" recursive=false 
 |
-insert_children { 
+insert_children {
   value="the_view_uni" title="Слева на право (uni)"; 
 };
 

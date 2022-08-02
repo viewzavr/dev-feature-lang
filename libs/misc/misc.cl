@@ -233,3 +233,8 @@ feature "joinlines" code=`
   
   compute();
 `;
+
+
+feature "data" {
+  data: output=@data->0;
+};

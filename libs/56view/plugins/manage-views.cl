@@ -10,6 +10,7 @@ feature "manage_views" {
       active_view=@..->active_view
 
       collapsible "Настройка экрана" 
+      style="min-width: 256px"
       {
 
            co: column plashka 
@@ -17,20 +18,26 @@ feature "manage_views" {
                 input=@mv->active_view 
             {
 
-              button_add_object "Добавить новый экран" add_to=@mv->project add_type="the_view_uni";  
+              
 
+/*
               column visible=( (@co->input | pause_input | geta "sibling_types" | geta "length") > 1) {
                 object_change_type text="Способ отображения:"
                    input=@co->input
                    types=(@co->input | pause_input | geta "sibling_types" )
                    titles=(@co->input | pause_input | geta "sibling_titles");
               };
+*/
 
               column {
                 insert_siblings list=(@co->input | get_param name="gui");
               };
 
-              button "Удалить экран" //style="position:absolute; top:0px; right:0px;" 
+              button_add_object "Добавить новый экран" add_to=@mv->project add_type="the_view_recursive";  
+
+              button "Удалить экран" 
+                //dom_disabled=true
+              //style="position:absolute; top:0px; right:0px;" 
               {
                 lambda @co->input code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
               };

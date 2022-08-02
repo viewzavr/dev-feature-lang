@@ -30,8 +30,8 @@ feature "addvis" {
         //button "Добавить";
         ba: button_add_object "Добавить" 
            add_to=@project
-           add_type=@ct->value
-           dom_obj_disabled=(not @ct->value  )
+           add_type=@ct->value?
+           dom_obj_disabled=(not @ct->value?)
            {{
              created_add_to_current_view curview=@x->active_view;
            }};
@@ -76,15 +76,15 @@ project: the_project
     av: addvis active_view=@rp->active_view;
     axes: axes-view size=10;
 
-    v1: the-view-uni title="Визуализация"
+    v1: the_view_recursive title="Визуализация"
       actions = { 
         show_sources_params input=(list @ld @av) show_visible_cb=false;
         text tag="h3" "Визуализация" style="color: white;";
         //button "Добавить данные"; button "Добавить визуализацию"; text tag="h3" "Визуализация";
       }
       {
-          //area sources_str="@ld,@av,@axes";
-          area sources_str="@axes";
+          // area sources_str="@ld,@av,@axes";
+          // area sources_str="@axes";
           camera pos=[10,10,10];
       };
 
