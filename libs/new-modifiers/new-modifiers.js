@@ -499,6 +499,11 @@ export function x_patch_r( env  )
 
 //////////////////////
 
+// синоним
+export function x_js( env ) {
+  x_patch_r2( env );
+}
+
 // reactive - перевызывает код при изменении аргументов
 // x-patch-r2 "(env) => что хотим делаем с env" arg1 arg2;
 export function x_patch_r2( env  )

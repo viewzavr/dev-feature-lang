@@ -4,9 +4,11 @@ layout.js
 screen.js
 style.js
 dom-event.js
+dom-event-cell.js
 gui-elements.cl
 gui-events.cl
 dialog/dialog.js
+
 `;
 
 register_feature name="two_side_columns" {

@@ -1,5 +1,4 @@
 export function setup( vz, m ) {
-
   vz.register_feature_set( m );
 }
 

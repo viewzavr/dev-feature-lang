@@ -150,7 +150,9 @@ register_feature name="input_vector_c" {
      cmd - вызывается когда кликнули
 */
 register_feature name="radio_button" {
-	dom tag="label" {
+	dom tag="label" 
+	 //{{ dom-event-cell "click" | c-on @d->cmd }}
+	{
 		dom tag="input" dom_type="radio" dom_name=@..->group_id;
 		text text=@..->text;
 		dom_event object=@.. name="click" cmd=@..->cmd;
@@ -193,7 +195,22 @@ register_feature name="slider" {
 		 setter value=@..->max target="..->dom_max" auto_apply;
 		 setter value=@..->step target="..->dom_step" auto_apply;
 		 r: setter value=@..->value target="..->dom_obj_value" auto_apply;
-		 
+
+		 if (@the_slider->sliding) then={
+			 @the_slider | dom_event_cell "input" | c_on `(event_data,valcell) => {
+			 		let k = event_data[0];
+			 		valcell.set( parseFloat( k.target.value ) )
+			 }` (@the_slider | get_cell "value" manual=@the_slider->manual);
+		 };
+
+		 @the_slider | dom_event_cell "change" | c_on `(event_data,valcell) => {
+		 		let k = event_data[0];
+
+		 		valcell.set( parseFloat( k.target.value ) )
+		 }` (@the_slider | get_cell "value" manual=@the_slider->manual);
+
+/* было
+
 		 dom_event name="input" code=`
 		  let object = env.params.object;
 		  //console.log("slider input",object.params.dom.value)
@@ -203,11 +220,13 @@ register_feature name="slider" {
 		 		  object.setParam("value", v, object.params.manual );
 		  }		  
 		 `;
+
 		 dom_event name="change" code=`
 		   let object = env.params.object;
 		   //console.log("slider change",object.params.dom.value) 
-		 		  object.setParam("value", parseFloat( object.params.dom.value ), object.params.manual );
+		 	  object.setParam("value", parseFloat( object.params.dom.value ), object.params.manual );
 		 `;
+*/		 
 
   };
 };
@@ -300,12 +319,12 @@ register_feature name="select_color" {
     но в общем пока так.
 */
 register_feature name="combobox" {
-	cbroot: dom tag="select" {
+	cbroot: dom tag="select" {{
 
-    ///////////////////////////////////////////////
-    // мостик из CL в dom
-	 js code='
-		 var main = env.ns.parent;
+   ///////////////////////////////////////////////
+   // мостик из CL в dom
+
+	 x-js '(main) => {
 	   main.onvalue("index",(i) => {
 	   	 setup_index();
 	   	 // новооведение
@@ -375,27 +394,22 @@ register_feature name="combobox" {
 	   	  }
 
 	   }
-    ';	
+    }';	
 
     ///////////////////////////////////////////////
     // мостик из dom в cl
-		dom_event name="change" code=`
-      
-      let object = env.params.object;
+    @cbroot | dom_event_cell "change" | c_on `(event_data,object) => {
       console.log("dom onchange",object.dom.selectedIndex )
 
 		  if (object.params.values) {
 		  	//object.setParam("output",object.params.values[ object.dom.selectedIndex ]);
 		  	console.log('setting value to',object.params.values[ object.dom.selectedIndex ],'current is', object.params.value)
 			  object.setParam("value",object.params.values[ object.dom.selectedIndex ], true);
-
 			  object.emit("user_changed_value", object.params.value );
 		  }
-		` {
-			//emit @root "user_change_value" 
-		};
+		}` @cbroot;
 	  
-	};
+	}};
 };
 
 ///////////////////////////////////////////////////// editablecombo

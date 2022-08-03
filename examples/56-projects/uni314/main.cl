@@ -14,6 +14,7 @@ vis_list: (find-objects-bf features="vis");
 
 feature "addvis" {
   x: visual_process title="Добавить визуализацию"
+
     gui={
       column plashka gap="0.4em" {
         text "Артефакт данных";

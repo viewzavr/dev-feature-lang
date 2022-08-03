@@ -16,6 +16,7 @@ export function setup(vz, m) {
       obj.get_event_cell = (name) => get_event_cell( obj, name );
       obj.get_param_cell = (name) => get_param_cell( obj, name );
       obj.get_cell = (name) => get_cell( obj, name );
+      //obj.get_or_create_new_cell
 
       obj.get_existing_param_cell = (name) => {
          if (obj.hasParam( name ))
@@ -276,6 +277,8 @@ export function get_param_cell( target, name ) {
        if (setting) return;
        setting = true;
        try {
+         //c.set( v, target.getParamManualFlag(name) );
+         // вроде не надо
          c.set( v );
        } finally { 
          setting = false;
@@ -335,8 +338,9 @@ export function get_event_cell( target, name ) {
 };
 
 // универсальное - и для событий и для параметров
-export function get_cell( target, name ) {
+export function get_cell( target, name, ismanual ) {
   let c = get_or_create_cell( target, name, target.getParam(name) );
+  c.ismanual = ismanual; // todo разделить эти 2 вида йачеек в таблице.. мб по именам
 
   if (!c.attached_to_params) {
     c.attached_to_params = true;
@@ -346,8 +350,8 @@ export function get_cell( target, name ) {
        if (setting) return;
        try {
          setting = true;
-         target.setParam( name, v );
-       } finally { 
+         target.setParam( name, v, c.ismanual );
+       } finally {
          setting = false;
        }
     })
@@ -400,7 +404,7 @@ export function set_cell_value( env ) {
 };
 
 // чтение массива ячеек
-// input
+// input - массив ячеек
 // todo вопрос мб если входная это ячейка а не массив то выдавать значение а не массив значений?
 export function get_cell_value( env ) {
   let unsub = [];
@@ -477,16 +481,20 @@ export function feature_get_event_cell( env ) {
   }); 
 }
 
+// берет ячейку у массива объектов
 export function feature_get_cell( env ) {
-  env.onvalues( ["input",0], (arr, param_name) => {
+  if (!env.hasParam("manual"))
+       env.setParam("manual",false);
+
+  env.onvalues( ["input",0,"manual"], (arr, param_name,manual) => {
     let single_elem_mode = !Array.isArray(arr);
     if (single_elem_mode) arr=[arr];
     let res = [];
     arr.forEach( (obj) => {
       if (!obj)
-        res.push( null);
+        res.push( null );
       else
-        res.push( obj.get_cell( param_name ) );
+        res.push( obj.get_cell( param_name, manual ) );
     });
     
     env.setParam( "output", single_elem_mode ? res[0] : res );
