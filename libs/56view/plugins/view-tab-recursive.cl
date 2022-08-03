@@ -278,7 +278,10 @@ feature "show_area_3d" {
 feature "show_area_empty" {
   area_rect: dom style="flex: 1 1 0; position: relative;"
   {
-     text "select area type"
+           object_change_type text="Укажите тип:"
+              input=@area_rect->input
+              types=(@area_rect->input | geta "sibling_types")
+              titles=(@area_rect->input | geta "sibling_titles");
   }; // area-rect
 };
 
