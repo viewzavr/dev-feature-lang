@@ -90,8 +90,18 @@ feature "render_process_hierarchy" {
         column {
           insert_children input=@.. list=(@co->input? | geta "gui3");
         };
-        button "Клонировать" {
-          m_apply "(obj,curview,cbsel) => {
+        button "Клонировать" 
+        {
+          make-func @co->input? @rh->active_view @cbsel { |obj curview cbsel|
+             clone: clone_obj @obj;
+             when_value @clone->output { |nobj|
+               res: @curview | geta "append_process" @nobj;
+               when_value @res->output { 
+                 @cbsel | get-cell "index" | set-cell-value ((@cbsel | geta "values" | geta "length") - 1);
+               };
+          }
+
+          m_lambda "(obj,curview,cbsel) => {
              let n = obj.clone();
              n.then(nobj => {
               curview.append_process( nobj );

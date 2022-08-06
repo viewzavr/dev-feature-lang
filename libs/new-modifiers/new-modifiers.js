@@ -525,7 +525,11 @@ export function x_patch_r2( env  )
     for (let rec of Object.values( attached_list )) {
        let obj = rec.obj;
        // console.log('x-patch-r: re-patch object', obj.getPath())
-       if (rec.unsub) rec.unsub();
+       if (rec.unsub) {
+         if (rec.unsub.bind)
+             rec.unsub();
+         // todo - make-func результаты  
+       }  
        rec.unsub = env.callCmd("apply",obj );
 
        // да хрен с ним, не будем менять пока unsub..

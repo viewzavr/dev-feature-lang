@@ -56,7 +56,15 @@ export function m_eval( env ) {
 
     let res = func.apply( env, args );
 
-    env.setParam("output",res);
+    // make-function
+    if (res.make_func_result)
+    {
+       res.then( (result) => {
+          env.setParam("output",result);
+       });
+    }
+    else
+       env.setParam("output",res);
 
     //console.log("eval emitting done",env,res)
     env.emit("computed",res);
@@ -110,7 +118,8 @@ export function m_eval( env ) {
 // процесс, возвращающий функцию. код написан на языке js
 
 // m_js 'name-or-code'
-// из идей - приделать сюда тоже позиционную передачу аргументов..
+// из идей - приделать сюда тоже позиционную передачу аргументов..  и чтобы env было равно родителю так-то
+// см также x-js
 
 export function m_js( env ) {
   env.onvalue( 0, (code) => {
@@ -156,7 +165,8 @@ export function m_apply( env, opts )
     if (name == "output") return;
     //console.log("mapplay update-func 2")
     env.setParam("output", (...args) => {
-      return env.callCmd("apply",...args);
+      //return env.callCmd("apply",...args);
+      return env.apply(...args);
     });
   });
 

@@ -6,4 +6,5 @@ load files=`
  positional-methods.cl
  find-objects.cl
  geta.js
+ make-func.js
 `;
