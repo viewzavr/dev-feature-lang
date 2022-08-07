@@ -33,11 +33,11 @@ screen auto_activate {
              (make-func { |x y z| output=(+ @x @y @z 2); }) 
               10 20 10);
 
-    text "3. result = ";
-    text (m_eval 
-             (make-func { |x y z| 
-               output=(+ @x @mul1->output 2); 
-               mul1: @z * @y
+    text "3. result (212?) = ";
+    text (m_eval
+             (make-func { |x y z|
+               output=(+ @x @mul1 2);
+               var mul1=(@z * @y);
               }) 
               10 20 10);
 
