@@ -1,16 +1,32 @@
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d misc";
 //load "make-func.js";
 
-// create-adder "adder" title="result==";
+create-adder "adder2" title="result==";
+
+feature "bbb" {
+  dom_group { text "aaabbb"; };
+};
 
 screen auto_activate {
   column {
+  
+    //bbb;
+   
+    adder2 { text "333"; };
+    
+    /*
+    adder2 {
+     text "555";
+     text (m_eval (make-func {
+       output=(2 + 2);
+     }));
+    };
+    */
     
     text "1. result = ";
     text (m_eval (make-func {
-      output=(2 + 2);
-    }));
-    
+       output=(2 + 2);
+     }));
 
     text "2. result = ";
     text (m_eval 
@@ -107,15 +123,41 @@ screen auto_activate {
 */
 
 create-adder: feature {
- ff: feature 
-      cnt=0 
+ ff: feature
+     cnt=0
  {
-   t: text (join (@t->my_cnt @ff->title)) 
-   {{
-     x-js (make-func { |cnt, mycnt|
-          list @mycnt @cnt | set-cell-value	(once { (get-cell-value @cnt) + 1 });
-         }) (@ff | get-cell "cnt") (@t | get-cell "mycnt");
-   }}
+   t: dom_group
+      {
+        text "5555555";
+      }
    ;
  }
 };
+
+/*
+create-adder: feature {
+ ff: feature
+     cnt=0
+ {
+   t: dom_group my_cnt=(once { @ff | get-cell "cnt" | set-cell-value (@ff->cnt + 1) })
+      {
+        text
+          (join @t->my_cnt @ff->title);
+      }
+   ;
+ }
+};
+*/
+
+/*
+create-adder: feature {
+ ff: feature
+     cnt=0
+ {
+   t: text
+        my_cnt=(once { @ff | get-cell "cnt" | set-cell-value (@ff->cnt + 1) })
+        (join (@t->my_cnt @ff->title))
+   ;
+ }
+};
+*/

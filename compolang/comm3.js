@@ -340,7 +340,8 @@ export function get_event_cell( target, name ) {
 // универсальное - и для событий и для параметров
 export function get_cell( target, name, ismanual ) {
   let c = get_or_create_cell( target, name, target.getParam(name) );
-  c.ismanual = ismanual; // todo разделить эти 2 вида йачеек в таблице.. мб по именам
+  c.ismanual = ismanual; 
+  // todo разделить эти 2 вида йачеек в таблице.. мб по именам
 
   if (!c.attached_to_params) {
     c.attached_to_params = true;
@@ -398,8 +399,11 @@ export function set_cell_value( env ) {
     if (!Array.isArray(arr)) arr=[arr];
     arr.forEach( (cell) => {
       if (!cell) return;
+      //console.log("set cell value",cell,val)
       cell.set( val );
     })
+    //env.setParam("output",arr); // чтобы можно было цепочки строить | 
+    env.setParam("output",val); // чтобы можно было цепочки строить | 
   });
 };
 

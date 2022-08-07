@@ -235,6 +235,49 @@ feature "joinlines" code=`
 `;
 
 
-feature "data" {
+// F-SCOPE-PARAMS
+// теперь у нас data юзается еще и чтобы именованные параметры пихать в scope
+// решил назвать var. еще было вариант cell но там сложно - get-cell-value, alfa->cell и это cell они ж все разные
+// посему пока var
+feature "var" code=`
+  env.on('param_changed',(name,value) => {
+
+    if (Number.isInteger(parseFloat(name)) || name == "args_count")
+      return;
+
+    let $scopeFor = env.$scopes [env.$scopes.length-2]; 
+
+    if ($scopeFor[ name ]) {
+       // тут варианты
+       // может это мы ранее сами добавляли
+       // а может другое имя
+       // а если другое - то может мы можем перезатереь и это даж хорошо
+       if ($scopeFor[ name ].created_by_data_env === env)
+       // все хорошо это мы - ничего не делаем
+       {
+
+       }
+       else // поругаемся но мб в будущем что-то другое
+       console.error("scopes: data param duplicated name!",name,'me=',env,'cell ',name,'existing=',$scopeFor[ name ])
+       //if (dump.locinfo)
+       //    console.log( dump.locinfo );
+    }
+    else
+    {
+      let cell = env.get_cell(name);
+      cell.created_by_data_env = env;
+      $scopeFor.$add( name, cell );
+      //console.log("data: added name to scope",name,$scopeFor)
+    }   
+
+    //console.log('pc',name, env.$scopes [env.$scopes.length-2] );
+  });
+`
+{
+  data: output=@data->0?;
+};
+
+feature "data"
+{
   data: output=@data->0;
 };
