@@ -81,6 +81,7 @@ export function x_modify( env )
   let iter = 0;
   env.onvalue("input",(i) => {
     iter++;
+    let orig_i = i;
 
     if (!Array.isArray(i)) i = [i];
 
@@ -114,7 +115,9 @@ export function x_modify( env )
     };
 
     //publish_modified_objs();
-    env.setParam("output",i);
+    // будем выдавать как пришло исходно - если там 1 штучка без массива то и ок
+    // это позволяет делать так: let k = (create-blank-object | x-modify ....);
+    env.setParam("output",orig_i);
   
   });
 

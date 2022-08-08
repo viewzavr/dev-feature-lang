@@ -37,7 +37,7 @@ screen auto_activate {
     text (m_eval
              (make-func { |x y z|
                output=(+ @x @mul1 2);
-               var mul1=(@z * @y);
+               let mul1=(@z * @y);
               }) 
               10 20 10);
 

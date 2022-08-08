@@ -239,7 +239,8 @@ feature "joinlines" code=`
 // теперь у нас data юзается еще и чтобы именованные параметры пихать в scope
 // решил назвать var. еще было вариант cell но там сложно - get-cell-value, alfa->cell и это cell они ж все разные
 // посему пока var
-feature "var" code=`
+// но вместе с var сложно такое мыслить: var a = import_js(...); лучше уж let a = ...;
+feature "let" code=`
   env.on('param_changed',(name,value) => {
 
     if (Number.isInteger(parseFloat(name)) || name == "args_count")

@@ -34,7 +34,7 @@ export function make_func( env )
 
   let f = (...args) => {
     // теперь.. что мы вернем
-    console.log("call of f",...args)
+    //console.log("call of f",...args)
     let spawn_obj = env.vz.createObj( { parent: env, name: "spawn" });
 
     let k = new Promise( (resolve,reject) => {
@@ -44,6 +44,13 @@ export function make_func( env )
         spawn_obj.ns.getChildren()[0].onvalue("output",finish);
 
         function finish( res ) {
+           // выяснилось что они во время удаления могут себе чистить output..
+           // поэтому эту ситуацию мы отловим особо
+           // может быть стоит просто однократно output читать, либо отписываться тут
+           // от onvalue - тоже вариант
+           if (spawn_obj.removed || spawn_obj.removing)
+             return;
+           //console.log("call of f finish, res=",res, env.getPath())
            spawn_obj.remove();
            resolve( res );
         }

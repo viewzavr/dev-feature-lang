@@ -1,7 +1,15 @@
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d misc";
 //load "make-func.js";
 
-var alfa=5 beta=(@alfa + 1);
+let alfa=5 beta=(@alfa + 1);
+
+// вложенное имя
+// посмотрим что тут будет
+// сейчас оно не регистрируется из-за alfa.. пойдет
+b: {
+  let alfa=44; 
+  console_log "B alfa is " @alfa;
+};
 
 screen auto_activate {
   column {
@@ -31,6 +39,9 @@ screen auto_activate {
 
     text "3. result = ";
     text (2 * @alfa);
+    
+    text "4. result = ";
+    text (@beta * @alfa);
 
 };
 };

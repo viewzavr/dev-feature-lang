@@ -30,10 +30,15 @@ export function m_eval( env ) {
     // надо бы и инпут подсобрать
     if (env.hasParam("input") || env.hasLinksToParam( "input")) {
       let v = env.params.input;
+      
+      /* пусть тема инпута контролируется ток одним
       if (!env.params.allow_undefined && typeof(v) == "undefined") { // ну пока так.. хотя странно все это..
+        console.warn("m-eval: return default / have undefined arg input");
         return env.params.default;      
-      }  
+      }
+      */
       if (!env.params.allow_undefined_input && typeof(v) == "undefined") { // ну пока так.. хотя странно все это..
+        console.warn("m-eval: return default / no input");
         return env.params.default;      
       }  
       args.push( v );
@@ -46,6 +51,7 @@ export function m_eval( env ) {
       // todo
       if (!env.params.allow_undefined && typeof(v) == "undefined") { // ну пока так.. хотя странно все это..
         /// 
+        console.warn("m-eval: return default / have undefined arg");
         return env.params.default;
         return;
       }
@@ -57,9 +63,12 @@ export function m_eval( env ) {
     let res = func.apply( env, args );
 
     // make-function
+    console.log("m-eval res=",res)
     if (res.make_func_result)
     {
+       //console.log("m-eval res is make_func_result, waiting output",res)
        res.then( (result) => {
+          //console.log("m-eval res is make_func_result, got output",result)
           env.setParam("output",result);
        });
     }
@@ -74,9 +83,20 @@ export function m_eval( env ) {
   env.feature("delayed");
   var eval_delayed = env.delayed( evl )
 
+/*
+  var eval_delayed0 = env.delayed( evl )
+  var eval_delayed = () => { 
+    debugger;
+    eval_delayed0();
+  }
+*/  
+
   env.on('param_changed', (name) => {
      if (name != "output" && name != "recompute") {
         //console.log("eval scheduled due to param change",name)
+
+        if (name == 0 || name == "0")
+          update_code();
 
         if (env.params.react_only_on_input && name != "input") return;
 
@@ -98,11 +118,14 @@ export function m_eval( env ) {
     }
   }
 
+/* вроде как это не надо - param-changed хватает. ну и там 0 отдельную реакцию повесили
+   а то получается что 2 раза отрабатываем - там сразу и тут на след такте
   env.onvalues_any([0],() => {
      update_code();
      eval_delayed();
      // итоого у нас уже вызов некий произойдет
   })
+*/  
 
   env.addCmd("recompute",eval_delayed);
 

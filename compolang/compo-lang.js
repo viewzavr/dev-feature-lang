@@ -705,6 +705,11 @@ export function register_feature( env, envopts ) {
     if (env.params.code) {
       // я бы предложил делать код явно.. т.е. требовать что там функция должна быть
 
+      if (env.params.code.bind) {
+        js_part = env.params.code;
+        return;
+      }
+
       // @idea - может нафиг такую генерацию кода? пусть сразу функцию присылают
       // ну или хотя бы текст в форме лямбды. но функция лучше - можно на любом коде писать
       // хоть на комполанге хоть на лиспе хоть на xml ксатти
@@ -829,11 +834,15 @@ export function register_feature( env, envopts ) {
     env.vz.register_feature( env.params.name, (e,...args) => {
       return apply_feature(e,...args)
     } );
+
+    env.setParam('output',apply_feature);
   }
 
-  //env.onvalue("code",compile );
+  //env.onvalues_any(["code",0],compile );
 
+  // чо ето?
   env.on("parsed",() => {
+    debugger;
     env.remove();
   })
 }
