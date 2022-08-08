@@ -691,7 +691,15 @@ export function register_feature( env, envopts ) {
   });
 */  
 
+  var js_part = () => {};
+  var compalang_part = () => {};
+
+  var registered = false;
+
   function compile() {
+    js_part = () => {};
+    compalang_part = () => {};
+
     // маленький хак
     env.params.name ||= env.params[0] || env.ns.name;
     env.params.code ||= env.params[1];
@@ -701,38 +709,40 @@ export function register_feature( env, envopts ) {
       return;
     }
 
-    var js_part = () => {};
+
     if (env.params.code) {
       // я бы предложил делать код явно.. т.е. требовать что там функция должна быть
 
       if (env.params.code.bind) {
+        //console.log('feat')
         js_part = env.params.code;
-        return;
       }
+      else
+      {
+        // @idea - может нафиг такую генерацию кода? пусть сразу функцию присылают
+        // ну или хотя бы текст в форме лямбды. но функция лучше - можно на любом коде писать
+        // хоть на комполанге хоть на лиспе хоть на xml ксатти
+        // feature "foo" (from-xml "<points/>");
 
-      // @idea - может нафиг такую генерацию кода? пусть сразу функцию присылают
-      // ну или хотя бы текст в форме лямбды. но функция лучше - можно на любом коде писать
-      // хоть на комполанге хоть на лиспе хоть на xml ксатти
-      // feature "foo" (from-xml "<points/>");
-
-      var code = "(env,feature_env,...args) => { " + env.params.code + "}";
-      /* ерунда это все - мы код прямо сейчас eval-им.
-      var code = `(env,args) => { 
+        var code = "(env,feature_env,...args) => { " + env.params.code + "}";
+        /* ерунда это все - мы код прямо сейчас eval-им.
+        var code = `(env,args) => { 
+          try {
+            ${env.params.code}
+          } catch(err) {
+            console.error("REGISTER-FEATURE: error while evaluating js!",err,"feature_name=${env.params.name}");
+          }
+        }`;
+        */
         try {
-          ${env.params.code}
+          //console.log(code)
+          js_part = eval( code );
         } catch(err) {
-          console.error("REGISTER-FEATURE: error while evaluating js!",err,"feature_name=${env.params.name}");
+          console.error("REGISTER-FEATURE: error while compiling js!",err,"\n********* code=",code);
         }
-      }`;
-      */
-      try {
-        //console.log(code)
-        js_part = eval( code );
-      } catch(err) {
-        console.error("REGISTER-FEATURE: error while compiling js!",err,"\n********* code=",code);
-      }
+      };
     }
-    var compalang_part = () => {};
+    
     if (Object.keys( children ).length > 0) {
       
       compalang_part = (tenv) => {
@@ -821,6 +831,9 @@ export function register_feature( env, envopts ) {
     }
 
     apply_feature = (e,...args) => {
+      // теперь фича выдает аутпут. его могут вызывать как функцию всякие товарищи dom
+      if (!e) return;
+
       if (e.removed) {
         debugger;
         return Promise.all("removed");
@@ -828,17 +841,24 @@ export function register_feature( env, envopts ) {
       
       let r1 = js_part( e,env, ...args);
       let r2 = compalang_part( e,...args);
+
+      console.log("emitting apply of feature", env.params.name)
+      env.emit('applied',e);
+
       return Promise.all( [Promise.resolve(r1), Promise.resolve(r2)] );
     }
 
-    env.vz.register_feature( env.params.name, (e,...args) => {
-      return apply_feature(e,...args)
-    } );
+    if (!registered) {
+      registered = true;
+      env.vz.register_feature( env.params.name, (e,...args) => {
+        return apply_feature(e,...args)
+      } );
+    };
 
     env.setParam('output',apply_feature);
   }
 
-  //env.onvalues_any(["code",0],compile );
+  env.onvalues_any(["code",0],compile );
 
   // чо ето?
   env.on("parsed",() => {

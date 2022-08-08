@@ -40,6 +40,14 @@ screen auto_activate {
                let mul1=(@z * @y);
               }) 
               10 20 10);
+              
+    text "3+. result (212?) = ";
+    text (m_eval
+             (make-func { |x y z|
+               m_eval (make-func { |a b c| + @a @b @c }) @x @mul1 2;
+               let mul1=(@z * @y);
+              }) 
+              10 20 10);              
 
     row {
       x1: dom tag="input" {{ 

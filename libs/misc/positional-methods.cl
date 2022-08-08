@@ -82,8 +82,10 @@ register_feature name="+" code=`
     
     let count = env.params.args_count;
     let acc = env.params[0];
-    for (let i=1; i<count; i++)
+    for (let i=1; i<count; i++) {
+      // if (env.params[i] == null) return; // ждем..
       acc = acc + env.params[ i ];
+    }
     env.setParam("output",acc );
   };
   

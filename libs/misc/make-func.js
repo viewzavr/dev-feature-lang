@@ -41,9 +41,15 @@ export function make_func( env )
 
       let p = env.vz.callEnvFunction( env_list, spawn_obj, false, env_call_scope, ...args );
       p.then( () => {
+        // короче такая защита чтобы дать еще 1 цикл для счета...
+        // изначально было вообще смотреть расчеты в дереве
+        // еще идея - delayed-restart т.е. если еще раз прислали output то подождать еще циклов
+        env.feature("delayed");
+        let finish = env.delayed( finish0 );
+
         spawn_obj.ns.getChildren()[0].onvalue("output",finish);
 
-        function finish( res ) {
+        function finish0( res ) {
            // выяснилось что они во время удаления могут себе чистить output..
            // поэтому эту ситуацию мы отловим особо
            // может быть стоит просто однократно output читать, либо отписываться тут

@@ -38,7 +38,7 @@ export function m_eval( env ) {
       }
       */
       if (!env.params.allow_undefined_input && typeof(v) == "undefined") { // ну пока так.. хотя странно все это..
-        console.warn("m-eval: return default / no input");
+        //console.warn("m-eval: return default / no input");
         return env.params.default;      
       }  
       args.push( v );
@@ -64,7 +64,7 @@ export function m_eval( env ) {
 
     // make-function
     console.log("m-eval res=",res)
-    if (res.make_func_result)
+    if (res && res.make_func_result)
     {
        //console.log("m-eval res is make_func_result, waiting output",res)
        res.then( (result) => {
@@ -95,8 +95,7 @@ export function m_eval( env ) {
      if (name != "output" && name != "recompute") {
         //console.log("eval scheduled due to param change",name)
 
-        if (name == 0 || name == "0")
-          update_code();
+        //if (name == 0 || name == "0") update_code();
 
         if (env.params.react_only_on_input && name != "input") return;
 
@@ -120,12 +119,20 @@ export function m_eval( env ) {
 
 /* вроде как это не надо - param-changed хватает. ну и там 0 отдельную реакцию повесили
    а то получается что 2 раза отрабатываем - там сразу и тут на след такте
+*/   
+/*
   env.onvalues_any([0],() => {
      update_code();
      eval_delayed();
      // итоого у нас уже вызов некий произойдет
   })
 */  
+  // ну или ладно сделаем хотя бы monitor-values а не onvalues
+  env.monitor_values([0],() => {
+     update_code();
+     eval_delayed();
+     // итоого у нас уже вызов некий произойдет
+  })
 
   env.addCmd("recompute",eval_delayed);
 

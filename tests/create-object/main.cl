@@ -62,7 +62,7 @@ let h = (m_eval (make-func { |teta|
 let feat1 = (make-func { |env|
   @env | x-modify {
     x-set-params sigma=33 __manual=true;
-    x-js "(env) => { env.setParam('hello-from-feat1',551); }";
+    x-js "(env) => { console.log('hello from x-js of feat1'); env.setParam('hello-from-feat1',551); }";
   }
 });
 
@@ -74,8 +74,27 @@ let m2 = (create-object @feat2);
 feat3: feature code=`env.setParam('hello-from-feat3',true)`;
 m3: feat3;
 
+/*
 feat4: feature code=@feat1;
+@feat4 | get-cell "applied" | c-on "(tgt_env) => console.log('feat4 applied to',tgt_env)";
+*/
+// вот эта часть у нас пока не сильно работает. но вроде пока особой потребности не чувствуется..
+// причина - фича не поспевает за кодом. фича есть - она применяется. а потом уже код инициализируется.
+feat4: feature code=@feat1 {{
+  ;
+  @feat4 | get-cell "applied" | c-on "(tgt_env) => console.log('feat4 applied to',tgt_env)" {{ console_log "monitoring TTT" }};
+}};
 m4: feat4;
+
+feat5: feature code=(make-func { |env|
+  @env | x-modify {
+    x-set-params sigma=55 __manual=true;
+    x-js "(env) => { console.log('hello from x-js of feat5'); env.setParam('hello-from-feat1',551); }";
+  }
+});
+
+m5: feat5;
+
 
 screen auto_activate {
   column {
@@ -92,6 +111,11 @@ screen auto_activate {
     console_log "m2=" @m2;
     console_log "m3=" @m3;
     console_log "m4=" @m4;
+    console_log "m5=" @m5;
     
+    bt: button "btn";
+    //@bt | dom-event-cell "click" | c-on "() => console.log('clicked')";
+    //@bt | get-cell "click" | c-on "() => console.log('clicked2')";
+    @bt | get-cell "click" | c-on (make-func { create-object @feat4->output });
   };
 };
