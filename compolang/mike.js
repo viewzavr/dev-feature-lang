@@ -51,7 +51,7 @@ export function m_eval( env ) {
       // todo
       if (!env.params.allow_undefined && typeof(v) == "undefined") { // ну пока так.. хотя странно все это..
         /// 
-        console.warn("m-eval: return default / have undefined arg");
+        //console.warn("m-eval: return default / have undefined arg");
         return env.params.default;
         return;
       }
@@ -63,7 +63,7 @@ export function m_eval( env ) {
     let res = func.apply( env, args );
 
     // make-function
-    console.log("m-eval res=",res)
+    //console.log("m-eval res=",res)
     if (res && res.make_func_result)
     {
        //console.log("m-eval res is make_func_result, waiting output",res)

@@ -26,7 +26,7 @@ feature "addvis" {
         ct: combobox 
                 titles=(@compatible_visual_processes->output | map_geta "title")
                 values=(@compatible_visual_processes->output | map_geta "type")
-                index=0 {{ console_log_params}}
+                index=0; // {{ console_log_params}}
         ;
         //button "Добавить";
         ba: button_add_object "Добавить" 
@@ -52,12 +52,12 @@ feature "addvis" {
         }" @curart;
 
         curart: (@artefacts->output | geta @cb->index );
-        console_log "curart" @curart;
+        //console_log "curart" @curart;
 
         compatible_visual_processes: m_eval "(list,elem) => {
             if (!elem) return [];
-            let res = list.filter( it => { let qq=it.params.crit( elem ); console.log(qq); return qq;} )
-            console.log('filtered',res)
+            let res = list.filter( it => { let qq=it.params.crit( elem ); /*console.log(qq);*/ return qq;} )
+            // console.log('filtered',res)
             return res;
           }" @vis_list (@curart | geta "output");
       };

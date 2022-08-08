@@ -155,7 +155,7 @@ feature "show-inner-objects" {
                      root=@mc->root
                      recursive=false
                      include_root=false 
-                    | sort_by_priority | console_log_input;
+                    | sort_by_priority;
      }}                    
      {
           @objects_list->output | repeater {

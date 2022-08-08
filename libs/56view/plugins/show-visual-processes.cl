@@ -31,33 +31,16 @@ feature "manage_visual_processes" {
      	};
 };
 
-feature "render_process_hierarchy" {
-
+feature "render_process_hierarchy"
+{
     rh: objects=[] // список объектов верхних процессов
-
     column //text=@.->title?
-    style="min-width:250px;" plashka
+    style="min-width:250px;" 
+    plashka
     style_h = "max-height:80vh;"
     
     {
-
-    	// button "Добавить";
-     //link to="@ba->add_to" from=(@rl_root->items | get @s->index | get "add_to");
-     //ba: button_add_object 
-     //      add_type=(@rl_root->items | get @s->index | get "add");
-     // вообще вопрос нужна ли такая кнопка или другая такая кнопка с добавкой по типу.
-     // потому что мб добавка дбыть методом плагина - добавлять конкретно что надо.
-     // а не с выбором типа      
-
      /// верхний и след уровни...
-
-/*
-     objects_list0: (eval @rh->objects code="(objects) => {
-     	  return objects.map( o => {
-     	  	 return { id: o.$vz_unique_id, title: o.params.title } 
-     	  } )
-     }");
-     */
 
      objects_list: (@rh->objects | repeater target_parent=@~ { 
      	 q: repeater_output=(concat @l1 @l2?) {
@@ -73,7 +56,7 @@ feature "render_process_hierarchy" {
      	          ;
      	        });
      	  };
-        } | pause_input | map_geta "repeater_output" | geta "flat" | arr_compact);
+     } | pause_input | map_geta "repeater_output" | geta "flat" | arr_compact);
 
      cbsel: combobox style="margin: 5px;" dom_size=10
        values=(@objects_list | map_geta "id")
@@ -92,6 +75,7 @@ feature "render_process_hierarchy" {
         };
         button "Клонировать" 
         {
+          /*
           make-func @co->input? @rh->active_view @cbsel { |obj curview cbsel|
              clone: clone_obj @obj;
              when_value @clone->output { |nobj|
@@ -99,7 +83,9 @@ feature "render_process_hierarchy" {
                when_value @res->output { 
                  @cbsel | get-cell "index" | set-cell-value ((@cbsel | geta "values" | geta "length") - 1);
                };
-          }
+             };  
+          };
+          */
 
           m_lambda "(obj,curview,cbsel) => {
              let n = obj.clone();

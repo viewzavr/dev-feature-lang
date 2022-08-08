@@ -848,7 +848,7 @@ export function register_feature( env, envopts ) {
       let r1 = js_part( e,env, ...args);
       let r2 = compalang_part( e,...args);
 
-      console.log("emitting apply of feature", env.params.name)
+      //console.log("emitting apply of feature", env.params.name)
       env.emit('applied',e);
 
       return Promise.all( [Promise.resolve(r1), Promise.resolve(r2)] );
@@ -1919,6 +1919,7 @@ export function console_log_input( env, options )
 
   function print() {
     console.log( "console_log_input",env.params.text || "", env.params.input );
+    env.vz.console_log_diag( env );
   }
 
   env.onvalue("input",(input) => {
