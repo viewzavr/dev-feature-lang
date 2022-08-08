@@ -670,6 +670,12 @@ export function register_feature( env, envopts ) {
 
     children = dump.children;
     compile();
+    
+    //env.monitor_values(["code",0],compile );
+    // теперь разик скомпилировались - будем мониторить еще и code переназначения
+    env.trackParam( "code", compile );
+    env.trackParam( 0, compile );
+
     return Promise.resolve("success");
   }
   
@@ -858,7 +864,8 @@ export function register_feature( env, envopts ) {
     env.setParam('output',apply_feature);
   }
 
-  env.onvalues_any(["code",0],compile );
+  //env.onvalues_any(["code",0],compile );
+  // todo optimize сейчас это ведет к двойной компиляции - при парсинге чилдренов и при мониторинге вот этого вот
 
   // чо ето?
   env.on("parsed",() => {

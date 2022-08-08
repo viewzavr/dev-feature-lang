@@ -37,7 +37,9 @@ feature "apply-feature" code=`
 // 0 - функция фичи
 feature "create-object" {
   //co: output=(create-new-object | apply-feature @co->0);
-  apply-feature input=(create-blank-object);
+  q: apply-feature input=(create-blank-object target_parent=@q->target_parent?);
+  // это должно робить но фичи чето не применяются:
+  //q: create-blank-object {{ apply-feature input=@q @q->0 }};
 };
 
 let b = (create-blank-object | apply-feature "foo");
@@ -116,6 +118,8 @@ screen auto_activate {
     bt: button "btn";
     //@bt | dom-event-cell "click" | c-on "() => console.log('clicked')";
     //@bt | get-cell "click" | c-on "() => console.log('clicked2')";
-    @bt | get-cell "click" | c-on (make-func { create-object @feat4->output });
+    // чето не робит
+    //@bt | get-cell "click" | c-on (make-func { create-object @feat4->output target_parent=@/ | console_log_input "created obj" });
+    @bt | get-cell "click" | c-on (make-func { create-object @feat4 target_parent=@/ }) | console_log_input "created obj";
   };
 };
