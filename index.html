@@ -36,7 +36,7 @@
     vzPlayer.feature("packages_load packages_table save_state_to_window_hash");
 
     var htmldir = vz.getDir(import.meta.url)  
-    
+
     vzPlayer.addPackage( {code:"lib3d",url:(htmldir + "./libs/lib3d/lib3d.js")});
     vzPlayer.addPackage( {code:"csv",url:(htmldir + "./libs/csv/features.js")});
 
@@ -73,10 +73,19 @@
       return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
     };
 
+    // эта функция есть и в compolang.js бо взята оттуда
+    function add_dir_if( path, dir ) {
+      if (path[0] == "/") return path;
+      if (path.match(/\w+\:\/\//)) return path;
+      if (path[0] == "." && path[1] == "/") path = path.substring( 2 );
+      if (path.trim() == "") return null; // if blank path specified, that means no data should be displayed. F-BLANK
+      return dir + path;
+    }    
+
     var file = getParameterByName("src") || (vz.getDir( import.meta.url ) + "code.txt" );
-    var filedir = vz.getDir( file );
-    //console.log( file,filedir)
-    //debugger;
+    var filedir = add_dir_if( vz.getDir( file ), htmldir );
+    // история заключается в том что если у файла путь ../../такой то все-равно надо к абсолютному привести
+    // чтобы потом относительные ссылки загружались как надо
 
     fetch( file ).then( (res) => res.text() ).then( (txt) => {
         //console.log(txt)

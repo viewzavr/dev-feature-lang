@@ -364,11 +364,30 @@ export function load(env,opts)
 */
 
   function loadfile(file) {
+    try {
+      //console.log('env base path',env.$base_url,file)
+      let p = loadfile0( file );
+      if (p && p.catch)
+        p.catch( (err) => {
+          console.warn("compolang load: error:",err.message);
+          env.vz.console_log_diag( env );    
+        })
+      return p;
+    } catch (err) {
+      console.warn("compolang load: error",err.message);
+      //console.log("compolang load: file",file,"error",err.message);
+      env.vz.console_log_diag( env );
+      return null;
+    }
+  }
+
+  function loadfile0(file) {
      if (!file) return;
      //console.log("compalang loadfile",file)
 
      if (file.endsWith( ".js")) {
        var file2 = env.compute_path( file );
+       //console.log('env base path',env.$base_url)
        //console.log("loading package",file,"=>",file2);
        return vzPlayer.loadPackage( file2 )
      }
@@ -387,11 +406,11 @@ export function load(env,opts)
      };    
 
      let new_base_url = env.vz.getDir( file );
-     //console.log("load: loading",file)
+     //console.log("load: loading",file, "while env path is",env.$base_url);
 
      // будем возвращать промису когда там все загрузится
      let prom = new Promise( (resolve,reject) => {
-
+      
        fetch( file ).then( (res) => res.text() ).then( (txt) => {
          // нужна sub-env для отслеживания base-url
          var subenv = env.create_obj( {} );
