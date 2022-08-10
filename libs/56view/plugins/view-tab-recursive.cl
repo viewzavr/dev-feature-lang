@@ -15,6 +15,7 @@ feature "walk_objects" {
 */
 
 // 0 корневой объект 1 имя параметра с "детьми" depth глубина
+// возвращает массив записей о найденных детях
 feature "walk_objects" {
    k: 
      output=(concat @my_result->output @my_items_result->output)
@@ -42,6 +43,7 @@ feature "the_view_recursive"
     show_view={
       show_visual_tab_recursive input=@tv;
     }
+    active_area = null
     gui={ 
       render-params @tv;
 
@@ -50,7 +52,9 @@ feature "the_view_recursive"
                    index=0 dom_size=5
       ;
 
-      selected_object: data (@tv->list_of_areas | geta @cb->index default=null | geta "obj");
+      let selected_object = (@tv->list_of_areas | geta @cb->index default=null | geta "obj");
+
+      @tv | get-cell "active_area" | set-cell-value @selected_object;
 
       //render-params @curobj;
 
@@ -59,26 +63,49 @@ feature "the_view_recursive"
         column {
           //text "Параметры";
           //text ()
-          insert_children input=@.. list=(@selected_object->output | geta "gui" default=null);
+          insert_children input=@.. list=(@selected_object | geta "gui" default=null);
         };
 
         button "x" style="position:absolute; top:0px; right:0px;" 
         {
-          lambda @selected_object->output code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
+          lambda @selected_object code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
         };
 
      };
 
     }
     //primary_container=(find-objects-bf features="recursive_area" recursive=false root=@tv {{ console_log_params "PCO"}})
+    // верхний контейнер
     primary_container=(@tv | get_children_arr | arr_filter_by_features features="recursive_area" | geta 0 default=null)
     list_of_areas=(walk_objects @tv->primary_container "subitems")
     {{ insert_children input=@tv manual=true active=(is_default @tv) list={
          area_3d;
       };
     }}
+    {{ x-param-option name="append_process" option="visible" value=false }}
+    {{ x-add-cmd name="append_process" code=(m_lambda `(active_area,first_cont_area,proc) => {
+
+        if (active_area && active_area.append_process)
+            active_area.append_process( proc )
+           else   
+        if (first_cont_area && first_cont_area.append_process)
+            first_cont_area.append_process( proc )
+           else 
+           {
+             console.warn("no active area - process is not appended");
+           }
+
+      }` @tv->active_area (find-objects-bf features="area_content" root=@tv | geta 0));
+    }}
+    // перебьем стандартные sources от the-view на поиск сурсов от контентных областей
+    // sources=(find-objects-bf features="area_content" root=@tv | map_geta "sources")
    ;
 };
+/* тодо очень не хватает что-то типа cond.. мб жуж-подход..
+      }` (cond {
+              (@tv->active_area | geta "append_process") @tv->active_area)
+              ]};
+*/
 
 // по сути то экран..
 feature "recursive_area" 
@@ -159,6 +186,24 @@ feature "area_content" {
 
        {{ x-add-cmd2 "split-horiz" (split-screen @it 'area_container_horiz') }}
        {{ x-add-cmd2 "split-vert" (split-screen @it 'area_container_vert') }}
+
+       {{ x-param-option name="append_process" option="visible" value=false }}
+       {{ x-add-cmd name="append_process" code=(m_lambda `(view,val) => {
+            view.params.sources ||= [];
+            view.params.sources_str ||= '';
+            if (!val) return;
+            
+            let curind = view.params.sources.indexOf( val );
+            if (curind >= 0) return;
+
+            let project = view.params.project;
+            let add = '@' + val.getPathRelative( project );
+            
+            let filtered = view.params.sources_str.split(',').filter( (v) => v.length>0 && v.trim() != add)
+            let nv = filtered.concat([add]).join(',');
+            view.setParam( 'sources_str', nv, true);
+          }` @it);
+       }}
 
 };
 
