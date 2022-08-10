@@ -19,13 +19,13 @@ feature "addvis" {
       column plashka gap="0.4em" {
         text "Артефакт данных";
         cb: combobox 
-              titles=(@artefacts->output | map_geta "title") 
-              values=(@artefacts->output | map_geta "getPath")
+              titles=(@artefacts | map_geta "title") 
+              values=(@artefacts | map_geta "getPath")
               index=0;
         text "Образ";
         ct: combobox 
-                titles=(@compatible_visual_processes->output | map_geta "title")
-                values=(@compatible_visual_processes->output | map_geta "type")
+                titles=(@compatible_visual_processes->output | map_geta "title" default=[])
+                values=(@compatible_visual_processes->output | map_geta "type" default=[])
                 index=0; // {{ console_log_params}}
         ;
         //button "Добавить";
@@ -51,19 +51,22 @@ feature "addvis" {
           // так что это тож самое что linkParam
         }" @curart;
 
-        curart: (@artefacts->output | geta @cb->index );
+        curart: (@artefacts | geta @cb->index default=null);
         //console_log "curart" @curart;
 
         compatible_visual_processes: m_eval "(list,elem) => {
+            console.log('evl called',elem)
             if (!elem) return [];
             let res = list.filter( it => { let qq=it.params.crit( elem ); /*console.log(qq);*/ return qq;} )
             // console.log('filtered',res)
             return res;
-          }" @vis_list (@curart | geta "output");
+          }" @vis_list (@curart | geta "output" | console_log_input "TT1");
+
+          @compatible_visual_processes->output | console_log_input 'eeee';
       };
     }
     {{
-       artefacts: find-objects-bf features="load-dir" root=@project;
+       let artefacts =(concat "-" (find-objects-bf features="load-dir" root=@project));
     }};
 };
 
