@@ -4,6 +4,7 @@ import * as packages_api from "./player-stuff/packages-api.js";
 import * as save_state_to_window_hash from "./player-stuff/window-hash-p.js";
 import * as timers from "./player-stuff/timers.js";
 
+// коды инициализации Vrungel/Compalang
 export function init() {
 
     var vz = Viewzavr.create();
@@ -67,6 +68,8 @@ export function init() {
   return { vz, vzPlayer };
 }
 
+// наполнение таблицы пакетов стандартной библиотеки
+// возможно стоит перенести просто в файл в каталоге libs
 export function register_packages( htmldir ) {
 
     vzPlayer.addPackage( {code:"lib3d",url:(htmldir + "./libs/lib3d/lib3d.js")});

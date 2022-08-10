@@ -399,11 +399,11 @@ register_feature name="combobox" {
     ///////////////////////////////////////////////
     // мостик из dom в cl
     @cbroot | dom_event_cell "change" | c_on `(event_data,object) => {
-      console.log("dom onchange",object.dom.selectedIndex )
+      //console.log("dom onchange",object.dom.selectedIndex )
 
 		  if (object.params.values) {
 		  	//object.setParam("output",object.params.values[ object.dom.selectedIndex ]);
-		  	console.log('setting value to',object.params.values[ object.dom.selectedIndex ],'current is', object.params.value)
+		  	//console.log('setting value to',object.params.values[ object.dom.selectedIndex ],'current is', object.params.value)
 			  object.setParam("value",object.params.values[ object.dom.selectedIndex ], true);
 			  object.emit("user_changed_value", object.params.value );
 		  }

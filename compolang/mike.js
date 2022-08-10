@@ -40,7 +40,7 @@ export function m_eval( env ) {
       if (!env.params.allow_undefined_input && typeof(v) == "undefined") { // ну пока так.. хотя странно все это..
         //console.warn("m-eval: return default / no input");
         return env.params.default;      
-      }  
+      }
       args.push( v );
     };
 

@@ -273,6 +273,7 @@ feature "let" code=`
 
     //console.log('pc',name, env.$scopes [env.$scopes.length-2] );
   });
+  //console.log("LET init",env.params)
 `
 {
   data: output=@data->0?;

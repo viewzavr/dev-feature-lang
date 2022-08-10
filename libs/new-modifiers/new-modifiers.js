@@ -508,7 +508,8 @@ export function x_js( env ) {
 }
 
 // reactive - перевызывает код при изменении аргументов
-// x-patch-r2 "(env) => что хотим делаем с env" arg1 arg2;
+// x-patch-r2 "(env,arg1,arg2) => что хотим делаем с env" arg1 arg2;
+// warning сейчас наоборот идет и это неправильно
 export function x_patch_r2( env  )
 {
   env.feature("m_lambda");

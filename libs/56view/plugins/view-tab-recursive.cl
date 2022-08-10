@@ -131,6 +131,11 @@ feature "area_content" {
        subitems=[]
        sources_str=""
        sources=(find-objects-by-pathes input=@it->sources_str root=@it->project)
+
+       // это нам надо чтобы - посылать визпроцессам сигналы какие вьюшки их смотрят
+       // а это надо чтобы те могли камеру получить
+       {{ @it->sources | get-cell "view-attached" | set-cell-value @it }}
+
        visible_sources = (@it->sources | filter_geta "visible")
        show={
           show_area_empty input=@it;
@@ -183,6 +188,8 @@ feature "split-screen" {
 
 feature "area_3d" {  
   it: area_content title="3d"
+      show_stats=false
+      {{ x-param-checkbox name="show_stats" title="Показать FPS"}}
   show={
       show_area_3d input=@it;
   }
@@ -211,7 +218,7 @@ feature "area_3d" {
 
             };
 
-            render-params-list object=@it list=["title","weight"];
+            render-params-list object=@it list=["title","weight","show_stats"];
        }
        {
          //def_camera;
@@ -263,13 +270,19 @@ feature "show_area_3d" {
         scene3d=(@area_rect->input | geta "visible_sources" | map_geta "scene3d" default=[])
         camera=(@area_rect->input | geta "camera")
         style="width:100%; height:99%;"
+        {{ @area_rect->input | geta "sources" | get-cell "show-view-attached" | set-cell-value @process_rect }}
     ;
 
     extra_screen_things: 
-        column style="padding-left:2em; position:absolute; bottom: 1em; left: 1em;" 
+        column style="padding-left:0em; position:absolute; bottom: 1em; left: 1em;" 
         class='vz-mouse-transparent-layout extra-screen-thing'
         {
-             dg: dom_group input=(@area_rect->input | geta "visible_sources" | map_geta "scene2d" default=[]);
+             dg: dom_group input=(@area_rect->input | geta "visible_sources" | map_geta "scene2d" default=[])
+             {
+               if (@area_rect->input | geta "show_stats" default=false) then={
+                 show_render_stats renderer=@process_rect->renderer;
+               }; 
+             }
         };
 
  }; // area-rect

@@ -88,7 +88,7 @@ feature "user_template" {
 // можно переделать будет на раздельное питание
 feature "show_3d_scene" {
   scene_3d_view: 
-    view3d style="width:100%; height:100%; " 
+    view3d style="width:100%; height:100%; " renderer=@r1 // тпУ
     { // max-height: 100vh;
       // max-height 100vh багфиксит грида
     
@@ -104,7 +104,7 @@ feature "show_3d_scene" {
 
           orbit_control;
       };
-   };      
+   };
    
 };
 
@@ -196,6 +196,8 @@ i-call-js
         //console.log('nv',nv)
         
         view.setParam( 'sources_str', nv, true);
+
+        //env.params.process.emit('view-attached',view);
       }
         // видимо придется как-то к кодам каким-то прибегнуть..
         // или к порядковым номерам, или к путям.. (массив objref тут так-то)
@@ -216,6 +218,8 @@ i-call-js
           arr.splice( curind_in_str,1 );
           view.setParam( 'sources_str', arr.join(','), true)
         };
+
+        env.params.process.emit('view-detached',view);
       }
     };
   };";
