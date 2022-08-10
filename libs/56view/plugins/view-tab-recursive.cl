@@ -98,7 +98,11 @@ feature "the_view_recursive"
       }` @tv->active_area (find-objects-bf features="area_content" root=@tv | geta 0));
     }}
     // перебьем стандартные sources от the-view на поиск сурсов от контентных областей
-    // sources=(find-objects-bf features="area_content" root=@tv | map_geta "sources")
+    sources=(find-objects-bf features="area_content" root=@tv 
+        | console_log_input "FFF1"
+        | map_geta "sources"
+        | arr_flat
+        | arr_uniq )
    ;
 };
 /* тодо очень не хватает что-то типа cond.. мб жуж-подход..
