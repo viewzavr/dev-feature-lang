@@ -1,6 +1,6 @@
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d new-modifiers imperative";
 load "56view";
-load "lib/init.cl";
+//load "lib/init.cl";
 
 load "uni-lib.cl";
 load "loaders-ext/init.cl";
