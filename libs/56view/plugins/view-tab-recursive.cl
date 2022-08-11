@@ -100,7 +100,7 @@ feature "the_view_recursive"
     // перебьем стандартные sources от the-view на поиск сурсов от контентных областей
     sources=(find-objects-bf features="area_content" root=@tv 
         | console_log_input "FFF1"
-        | map_geta "sources"
+        | map_geta "sources" default=[]
         | arr_flat
         | arr_uniq )
    ;

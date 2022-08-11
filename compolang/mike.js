@@ -208,6 +208,7 @@ export function m_apply( env, opts )
   env.onvalues_any([ env.lambda_start_arg ],update_func);
 
    //console.log( "feature_func: installing apply cmd",env.getPath());
+   env.setParamOption("apply","visible",false);
    env.addCmd( "apply",(...extra_args) => {
       if (env.removed) {
          console.log("lambda remove ban - it is removed", env.getPath())

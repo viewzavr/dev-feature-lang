@@ -172,7 +172,7 @@ export function map_geta( env )
         if (env.single_geta_mode)
           console.warn( "geta: result is null, arg=[", env.params[0],"] input=[",env.params.input,"]", env.getPath());
         else
-          console.warn( "map_geta: element result is null, arg=[", env.params[0],
+          console.warn( "map_geta: query result is null, arg=[", env.params[0],
                "] input=[",env.params.input,"] index=", index, env.getPath()); 
         env.vz.console_log_diag( env );
       }

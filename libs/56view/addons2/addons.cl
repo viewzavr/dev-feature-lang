@@ -193,7 +193,7 @@ feature "effect3d_scale" {
     {{ x-param-float name="y"; }}
     {{ x-param-float name="z"; }}
     gui={render-params @eo; }
-    x-patch-r code=`(tenv) => {
+    x-js `(tenv) => {
           tenv.onvalue('output',(threejsobj)=> {
               let x = env.params.x;
               let y = env.params.y;

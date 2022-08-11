@@ -408,7 +408,6 @@ export function x_active( env ) {
 export function x_patch_r( env  )
 {
   env.feature("lambda");
-  env.setParamOption("apply","visible",false);
 
   // env.addCheckbox("active",true);
   // env.feature("m-apply");

@@ -1,3 +1,5 @@
+feature "data-artefact" {};
+
 feature "loader"
 {
   crit=(m_lambda "() => 0");

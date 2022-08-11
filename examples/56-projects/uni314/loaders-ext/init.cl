@@ -1,2 +1,5 @@
-load "lava/loader.cl";
-load "pl-surf/surf-loader.cl";
+load "
+lava/loader.cl
+pl-surf/surf-loader.cl
+test-empty/test-empty.cl
+";
