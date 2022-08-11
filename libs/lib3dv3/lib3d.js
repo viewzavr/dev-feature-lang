@@ -172,6 +172,7 @@ export function render3d( env ) {
         if (Array.isArray(item))
           item.forEach( add );
       else {
+        // общемто зачем нам это
         if (w_counter++ < 100)
             console.error("render3d: wrong input item", env.getPath(), "item=",item)  
       }

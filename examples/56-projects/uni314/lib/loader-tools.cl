@@ -27,6 +27,7 @@ feature "load-dir" {
     project=@..
     initial_mode=1
     output=@files->output
+    data-artefact
     gui={
       column plashka {
         
