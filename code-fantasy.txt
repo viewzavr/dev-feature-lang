@@ -44,3 +44,5 @@ sl1: slider name="Y" min=10 max=50
 // идея номер 1 это скопировать тело pts
 // идея номер 2 это вставить ссылку на @pts и добавить типа project-on-xyz0 или тот же set...
 //pts-on-ground: points input=@dat->output set( Y=0 )
+
+//test
