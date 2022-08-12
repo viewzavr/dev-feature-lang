@@ -22749,6 +22749,7 @@ function WebGLTextures( _gl, extensions, state, properties, capabilities, utils,
 
 				}
 
+				//if (image.data) // PV
 				state.texSubImage3D( 35866, 0, 0, 0, 0, image.width, image.height, image.depth, glFormat, glType, image.data );
 
 			} else {
@@ -26328,8 +26329,8 @@ function WebGLRenderer( parameters = {} ) {
 		//
 
 		if ( index === null ) {
-
-			if ( position === undefined || position.count === 0 ) return;
+			if (!object.isVertexID) // pv
+				if ( position === undefined || position.count === 0 ) return;
 
 		} else if ( index.count === 0 ) {
 
@@ -26364,7 +26365,9 @@ function WebGLRenderer( parameters = {} ) {
 
 		//
 
-		const dataCount = ( index !== null ) ? index.count : position.count;
+		//const dataCount = ( index !== null ) ? index.count : position.count;
+		// pv
+		const dataCount = index !== null ? index.count : (position ? position.count : 0)
 
 		const rangeStart = geometry.drawRange.start * rangeFactor;
 		const rangeCount = geometry.drawRange.count * rangeFactor;
@@ -26372,10 +26375,19 @@ function WebGLRenderer( parameters = {} ) {
 		const groupStart = group !== null ? group.start * rangeFactor : 0;
 		const groupCount = group !== null ? group.count * rangeFactor : Infinity;
 
-		const drawStart = Math.max( rangeStart, groupStart );
+		//const drawStart = Math.max( rangeStart, groupStart );
+		var drawStart = Math.max( rangeStart, groupStart );
 		const drawEnd = Math.min( dataCount, rangeStart + rangeCount, groupStart + groupCount ) - 1;
 
-		const drawCount = Math.max( 0, drawEnd - drawStart + 1 );
+		//const drawCount = Math.max( 0, drawEnd - drawStart + 1 );
+		var drawCount = Math.max( 0, drawEnd - drawStart + 1 );
+
+		// pv
+	    if (object.isVertexID) {
+          drawStart = rangeStart;
+          drawCount = rangeCount;
+        }
+
 
 		if ( drawCount === 0 ) return;
 
