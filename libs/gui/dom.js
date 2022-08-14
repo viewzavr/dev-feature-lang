@@ -602,6 +602,9 @@ export function use_dom_children( env ) {
 
 export function get_dom_size( env ) {
   let observer = new ResizeObserver( cb );
+
+  env.setParam("output",{ width:0, height:0}); // значение по умолчанию
+
   env.onvalue( 0, (dom_or_arr) => {
     observer.disconnect();
     observer.observe( dom_or_arr );

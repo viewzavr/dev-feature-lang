@@ -198,13 +198,13 @@ register_feature name="slider" {
 
 		 if (@the_slider->sliding) then={
 			 @the_slider | dom_event_cell "input" | c_on `(event_data,valcell) => {
-			 		let k = event_data[0];
+			 		let k = event_data;
 			 		valcell.set( parseFloat( k.target.value ) )
 			 }` (@the_slider | get_cell "value" manual=@the_slider->manual);
 		 };
 
 		 @the_slider | dom_event_cell "change" | c_on `(event_data,valcell) => {
-		 		let k = event_data[0];
+		 		let k = event_data;
 
 		 		valcell.set( parseFloat( k.target.value ) )
 		 }` (@the_slider | get_cell "value" manual=@the_slider->manual);

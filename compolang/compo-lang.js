@@ -1894,15 +1894,29 @@ export function console_log( env, options )
 {
   function print() {
     let acc=[];
+    let h={};
     for (let i=0; i<env.params.args_count; i++) {
       acc.push( env.params[i] );
+      h[i]=true;
+      h[i.toString()] = true;
     }
+    // также напечатаем все остальное
+    for (let n of Object.keys(env.params)) {
+      if (h[n]) continue;
+      if (n == "args_count") continue;
+      acc.push( n ); acc.push( "="); acc.push( env.params[n])
+    }
+
     console.log( ...acc );
   }
 
   env.feature("delayed");
   let printd = env.delayed(print);
-  env.on("param_changed",print);
+  env.on("param_changed",printd);
+
+  env.onvalue("input",(input) => {
+    env.setParam("output",input); // доп-фича - консоле-лог пропускает дальше данные
+  });  
 }
 
 /*

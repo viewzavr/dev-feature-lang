@@ -499,7 +499,7 @@ export function feature_get_cell( env ) {
     if (single_elem_mode) arr=[arr];
     let res = [];
     arr.forEach( (obj) => {
-      if (!obj)
+      if (!obj || !obj.get_cell)
         res.push( null );
       else
         res.push( obj.get_cell( param_name, manual ) );
