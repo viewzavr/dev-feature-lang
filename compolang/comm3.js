@@ -409,7 +409,7 @@ export function set_cell_value( env ) {
 
 // чтение массива ячеек
 // input - массив ячеек
-// todo вопрос мб если входная это ячейка а не массив то выдавать значение а не массив значений?
+// если входная это ячейка а не массив то выдавать 1 значение а не массив значений
 export function get_cell_value( env ) {
   let unsub = [];
   function call_unsub() { unsub.map( f => f() ); unsub=[]; }
@@ -417,7 +417,11 @@ export function get_cell_value( env ) {
   env.feature("delayed");
 
   env.onvalues( ["input"], (arr) => {
-    if (!Array.isArray(arr)) arr=[arr];
+    let single_mode=false;
+    if (!Array.isArray(arr)) {
+        arr=[arr];
+        single_mode=true;
+    }   
 
     let fnd = env.delayed( fn ); // не факт кстати что это надо будет - мб надо сразу для скорости
 
@@ -433,7 +437,7 @@ export function get_cell_value( env ) {
       })
 
       if (has_assigned_values) // будем так
-          env.setParam( "output",res );
+          env.setParam( "output", single_mode ? res[0] : res );
     };
 
     fn();

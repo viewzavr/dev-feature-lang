@@ -236,8 +236,10 @@ feature "split-screen" {
 
 feature "area_3d" {  
   it: area_content title="3d"
+      show_fps=false
+      {{ x-param-checkbox name="show_fps" title="Показать FPS"}}
       show_stats=false
-      {{ x-param-checkbox name="show_stats" title="Показать FPS"}}
+      {{ x-param-checkbox name="show_stats" title="Показать статистику"}}
   show={
       show_area_3d input=@it;
   }
@@ -266,7 +268,7 @@ feature "area_3d" {
 
             };
 
-            render-params-list object=@it list=["title","weight","show_stats"];
+            render-params-list object=@it list=["title","weight","show_fps","show_stats"];
        }
        {
          //def_camera;
@@ -327,6 +329,9 @@ feature "show_area_3d" {
         {
              dg: dom_group input=(@area_rect->input | geta "visible_sources" | map_geta "scene2d" default=[])
              {
+               if (@area_rect->input | geta "show_fps" default=false) then={
+                 show_render_fps renderer=@process_rect->renderer;
+               };               
                if (@area_rect->input | geta "show_stats" default=false) then={
                  show_render_stats renderer=@process_rect->renderer;
                }; 

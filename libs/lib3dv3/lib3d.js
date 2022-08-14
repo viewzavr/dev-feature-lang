@@ -108,7 +108,7 @@ export function render3d( env ) {
 
     env.renderer.render( env.scene, cam );
 
-    env.emit("frame"); // ТПУ
+    env.emit("frame",env.renderer); // ТПУ
   }
   animate(); // поехали с орехами..
 
@@ -447,35 +447,3 @@ export function orbit_control( env ) {
   }
 
 }
-
-// надо фиче show_stats
-import Stats from './three.js/examples/jsm/libs/stats.module.js';
-// вход: renderer выход: dom-узел красивое
-export function show_render_stats( env ) {
-  env.feature("dom");
-  const stats = Stats()
-  stats.dom.style.position='';
-  env.dom.appendChild( stats.dom );
-
-  let unbind=()=>{};
-  env.onvalue("renderer",(r) => {
-    unbind();
-    unbind=r.on('frame',() => {
-       stats.update();
-    })
-  });
-  env.on("remove",unbind)
-};
-
-/*
-feature 'show-stats'
-  {{ import Stats='./three.js/build/examples/jsm/libs/stats.module.js' }}
-{
-  d: dom 
-  {{
-    @d->renderer? | get-cell "frame" | c-on "(s) => s.update()" @stats;
-    let stats=(m_eval "(Stats) => Stats()" @d->Stats);
-    @stats | m_eval "(s,dom) => dom.appendChild(s)" @dom->output;
-  }}
-};
-*/

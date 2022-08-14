@@ -13,4 +13,5 @@ tools.cl
 axesv1/axes.cl
 curve.cl
 spheres.cl
+show-stats/init.cl
 `;
