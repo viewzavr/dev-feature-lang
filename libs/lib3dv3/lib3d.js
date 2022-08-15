@@ -11,6 +11,8 @@ export function view3d( env ) {
   //env.setParam("dom_style_zIndex",-1) 
 }
 
+///let vz_renderers_counter=0;
+
 export function render3d( env ) {
 
   let w_counter=0;
@@ -58,6 +60,9 @@ export function render3d( env ) {
          logarithmicDepthBuffer: true  // без этого наши точки глючат..
          // Early Fragment Test
         }); // alpha: true
+      
+      //env.renderer.$vz_renderer_id = vz_renderers_counter++;
+
       env.setParam("renderer",env.renderer);
       //animate(); -- вынесено наружу, всегда рисуем
   });

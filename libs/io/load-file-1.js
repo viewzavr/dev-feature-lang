@@ -125,6 +125,7 @@ function loadFileBase( file_or_path, istext, handler, errhandler, setFileProgres
             // нет слов.. чтобы работало payload, надо слать с post
             xhr.open( payload ? 'POST' : 'GET', file_or_path, true);
             xhr.responseType = istext ? 'text' : 'arraybuffer';
+            xhr.withCredentials = true;
             // тоже нет слов.. это чтобы оно хотя бы с etag консультировалось
             //xhr.setRequestHeader("Cache-Control", "no-cache");
 
