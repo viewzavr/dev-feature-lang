@@ -1903,7 +1903,8 @@ export function console_log( env, options )
     // также напечатаем все остальное
     for (let n of Object.keys(env.params)) {
       if (h[n]) continue;
-      if (n == "args_count") continue;
+      if (n == "args_count" || n == "output") continue;
+      // не выводим output потому что там input ему равен
       acc.push( n ); acc.push( "="); acc.push( env.params[n])
     }
 
