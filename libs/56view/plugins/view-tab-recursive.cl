@@ -317,6 +317,7 @@ feature "show_area_3d" {
   area_rect: dom style_k="border: 1px solid grey;" show_area_base
   {
     process_rect: show_3d_scene
+        //camera_control={ map-control }
         scene3d=(@area_rect->input | geta "visible_sources" | map_geta "scene3d" default=[])
         camera=(@area_rect->input | geta "camera")
         style="width:100%; height:99%;"

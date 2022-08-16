@@ -352,14 +352,23 @@ export function camera3d( env ) {
   env.setParam("output",cam );
 }
 
-import {OrbitControls} from "./three.js/examples/jsm/controls/OrbitControls.js";
+import {OrbitControls,MapControls} from "./three.js/examples/jsm/controls/OrbitControls.js";
+
+export function map_control( env ) {
+  env.setParam('type','map');
+  env.feature('orbit_control');
+}
 
 export function orbit_control( env ) {
   // смотрим на камеру верхнего окружения
   env.linkParam("camera","..->camera");
-
   env.onvalue("camera",update);
-  env.ns.parent.onvalue("target_dom",update);
+  //env.ns.parent.onvalue("target_dom",update); // чо за криминал
+  env.addComboValue("type","orbit",["orbit","map"])
+  env.onvalues(["type","camera"],update);
+  // напрашивается: onvalue где первый аргумент массив или 1 строка
+  // и далее - опция - надо ли вызывать первый раз и в каком режиме
+  env.linkParam("target_dom","..->target_dom"); // т.е. там рендерер подразумевается или кто..
 
   var cc;
   let unsub = () => {};
@@ -371,7 +380,7 @@ export function orbit_control( env ) {
     var c = env.params.camera;
     if (c?.params)
         c = c.params.output;
-    var dom = env.ns.parent.params.target_dom;
+    var dom = env.params.target_dom;
     //if (typeof(dom) == "function") dom = dom(); // фишка такая
     // т.е. родителем должен быть некто
     if (!dom) {
@@ -384,7 +393,10 @@ export function orbit_control( env ) {
 
     //console.log('making orbit controls over camera c',c, 'and dom ',dom);
 
-    cc = new OrbitControls( c, dom );
+    if (env.params.type == 'map')
+      cc = new MapControls( c, dom );
+    else
+      cc = new OrbitControls( c, dom );
 
     //console.log("made",cc)
 

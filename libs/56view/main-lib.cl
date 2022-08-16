@@ -89,6 +89,7 @@ feature "user_template" {
 feature "show_3d_scene" {
   scene_3d_view: 
     view3d style="width:100%; height:100%; " renderer=@r1 // тпУ
+    camera_control={ orbit-control }
     { // max-height: 100vh;
       // max-height 100vh багфиксит грида
     
@@ -102,7 +103,8 @@ feature "show_3d_scene" {
       {
           //camera3d pos=[-400,350,350] center=[0,0,0];
 
-          orbit_control;
+          //orbit_control;
+          @r1 | insert-children list=@scene_3d_view->camera_control;
       };
    };
    
