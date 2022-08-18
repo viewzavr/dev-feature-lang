@@ -29,13 +29,20 @@ register_feature name="file" {
 register_feature name="files" {
 	dom tag="input" dom_type="file" dom_attr_multiple=true {
 		dom_event object=@.. name="change" code=`
-		  let arr = [];
 		  let files = env.params.object.dom.files;
+		  /*
+		  let arr = [];
 		  for (let i=0; i<files.length; i++)
 		  	arr.push( [files[i].name, files[i]] );
-		   
+		  */	
+		  let arr = [];
+		  for (let i=0; i<files.length; i++)
+		  	arr.push( files[i] );
+		  
 		  env.params.object.setParam("value",arr,true);
 		  env.params.object.setParam("output",arr,true);
+		   
+		  
 		`;
 	};
 };
@@ -362,9 +369,9 @@ register_feature name="combobox" {
 
 	   	  if (!values?.map)
 	   	  {
-	   	  		console.log("values are empty")
+	   	  		//console.log("values are empty")
 	   	  	  if (main.params.titles) {
-	   	  	  	console.log("using titles",main.params.titles)
+	   	  	  	//console.log("using titles",main.params.titles)
 	   	  			values = [...Array(main.params.titles.length).keys()];
 	   	  	  }
 	   	  		else

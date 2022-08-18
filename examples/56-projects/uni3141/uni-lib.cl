@@ -55,7 +55,7 @@ feature "addvis" {
         //console_log "curart" @curart;
 
         let compatible_visual_processes = (m_eval "(list,elem) => {
-            console.log('evl called',elem,list)
+            // console.log('evl called',elem,list)
             // if (!elem) return [];
             let res = list.filter( it => { let qq=it.params.crit( elem ); /*console.log(it,qq);*/ return qq;} )
             // console.log('filtered',res)

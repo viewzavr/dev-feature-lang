@@ -86,7 +86,8 @@ feature "grow-artefacts" {
         let compatible_artefact_generators = (or (m_eval "(list,elem,level) => {
             // защита
             if (level > 3) return [];
-            let res = list.filter( it => it.params.crit( elem ) );
+            let res = list.filter( it => it.params.crit( elem ) > 0 );
+            // console.log('gro arts res',res)
             return res;
           }" @art_generators_list @artefact_output @x->level) []);
 
@@ -126,7 +127,7 @@ feature "data-entity" {
     {{ x-param-files name="files" }}
     {{ x-param-switch name="src" values=["URL","Файл с диска","Папка"] }}
     src=0
-    output=( (list @qqe->url @qqe->files) | geta @qqe->src default=null)
+    output=( (list @qqe->url @qqe->files) | geta @qqe->src default=null | console-log "entity output")
     data-artefact
 
     gui={
@@ -246,6 +247,7 @@ feature "find-files" {
   mm: m_eval "(arr,crit) => {
         let regexp = new RegExp( crit,'i' );
         if (!arr) return [];
+        if (!Array.isArray(arr)) return [];
         let files = arr.filter( elem => elem.name.match( regexp ) );
         return files;
       }" @r->0 @r->1;
