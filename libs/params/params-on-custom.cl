@@ -10,8 +10,12 @@
 
    хотя должно бы поидее являться начальным входом этого процесса, а результат работы
     процесса должен по идее пропускаться через функцию проверки или произвольной реакции.
+
+   update - хоть бы выставляла параметры окружению типа editor={  |object name cell| }  
 */
 
+// name - имя
+// editor - компаланг код редактора
 feature "x-param-custom" {
   r: x-patch-r @r->name @r->editor
     code=`(name,editor_code, obj) => {
@@ -26,6 +30,16 @@ feature "x-param-custom" {
 feature "x-param-label-small" {
   xi: x-param-custom editor={
   	 edt: text (join @edt->name " = " (@edt->object | geta @edt->name default=null));
+  };
+};
+
+feature "x-param-switch" {
+  xi: x-param-custom editor={
+  	 edt: switch_selector_row 
+  	        items=@xi->values
+  	        index=(@edt->object | geta @edt->name)
+  	        {{ hilite_selected }}
+  	        {{ @edt->object | get-cell @edt->name manual=true | set-cell-value @edt->index }};
   };
 };
 
@@ -266,6 +280,7 @@ feature "select-files"
 	xedt: 
 	  index=1
 	  output=( (list @l1 @l2) | geta @xedt->index | geta "output" default=[])
+	  url=""
 	  gui={
 		  dom_group {
 	  		sa: switch_selector_row index=@xedt->index
@@ -300,7 +315,7 @@ feature "select-files"
 	{
 		l1: select-files-dir;
 		l2: select-files-inet listing_file=@xedt->url;
-	}  
+	}
 };
 
 /* ...

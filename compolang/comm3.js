@@ -15,7 +15,7 @@ export function setup(vz, m) {
   vz.chain( "create_obj", function (obj,options) {
       obj.get_event_cell = (name) => get_event_cell( obj, name );
       obj.get_param_cell = (name) => get_param_cell( obj, name );
-      obj.get_cell = (name) => get_cell( obj, name );
+      obj.get_cell = (name,ismanual) => get_cell( obj, name,ismanual );
       //obj.get_or_create_new_cell
 
       obj.get_existing_param_cell = (name) => {

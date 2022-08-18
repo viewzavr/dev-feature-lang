@@ -568,7 +568,7 @@ register_feature name="tabview" {
 };
 
 register_feature name="tab" {
-	 dom;
+	 dom text=@.->0?;
 };
 
 ////////////// новые табы
