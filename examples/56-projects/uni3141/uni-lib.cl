@@ -24,14 +24,14 @@ feature "addvis" {
         text "Образ";
         ct: combobox 
                 titles=(@compatible_visual_processes | map_geta "title" default=[])
-                values=(@compatible_visual_processes | map_geta "type" default=[])
                 index=0; // {{ console_log_params}}
         ;
+        let active_template = (@compatible_visual_processes | geta @ct->index | geta "code" default=null);
         //button "Добавить";
-        ba: button_add_object "Добавить" 
+        ba: button_add_object_t "Добавить" 
            add_to=@x->project
-           add_type=@ct->value?
-           dom_obj_disabled=(not @ct->value?)
+           add_template=@active_template?
+           dom_obj_disabled=(not @active_template?)
            {{
              created_add_to_current_view curview=@x->active_view;
            }};
@@ -44,7 +44,8 @@ feature "addvis" {
           //obj.setParam('element',art);
           //obj.setParam('input',art.params.output);
           //obj.setParam('input',art.params.output);
-          obj.linkParam( 'input',art.getPath() + '->output',false, true);
+          if (art)
+              obj.linkParam( 'input',art.getPath() + '->output',false, true);
           // и это кстати создаст нам запомнит стрелочку в составе проекта
           // но вообще по идее - obj.bindParam но это не сохранится.. плюс там нужна идентификация ячеек
           // так что это тож самое что linkParam

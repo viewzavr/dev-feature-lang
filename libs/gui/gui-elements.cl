@@ -357,20 +357,30 @@ register_feature name="combobox" {
 	   function setup_values() {
 	   	  if (!main.params.dom) return;
 	   	  // todo idea может номера тогда?
-	   	  if (!main.params.values?.map) 
+	   	  let values = main.params.values;
+	   	  //console.log("setup values",main)
+
+	   	  if (!values?.map)
 	   	  {
+	   	  		console.log("values are empty")
+	   	  	  if (main.params.titles) {
+	   	  	  	console.log("using titles",main.params.titles)
+	   	  			values = [...Array(main.params.titles.length).keys()];
+	   	  	  }
+	   	  		else
+	   	  		  return;	
 	   	  		// если задали ток заголовки то покажем их...
 	   	  		// а воообще это больная логика - ну мало ли values у меня какие, хоть дублирующиеся
 	   	  		// а нет, тут же требуется чтобы values были различны..
 	   	  		// хотя может это чисто наш прибабах, кстати. да это чисто наш
 	   	  	  //if (main.params.titles) {} else 
-	   	  	  return;
+	   	  	  // return;
 	   	  };
 	   	  var t = "";
 
 	   	  let titles = main.params.titles || [];
 
-	   	  main.params.values.map( (v,index) => {
+	   	  values.map( (v,index) => {
 	   	  	 var title = titles[index] || v;
 	         var s = `<option value="${v}">${title}</option>\n`;
 	         t = t+s;
@@ -381,7 +391,7 @@ register_feature name="combobox" {
 	   	  // единственное проблема - может оказаться что value еще неподходящий (еще не прислали, потом пришлют)
 	   	  
 	   	  // поэтому тут мы отрабатываем случай если value подходящий
-	   	  let index = (main.params.values || []).indexOf( main.params.value );
+	   	  let index = (values || []).indexOf( main.params.value );
 	   	  //console.log("cb interma, ",main.params.value,main.params.values ,index)
 	   	  if (index >= 0)
 	   	  	main.params.dom.selectedIndex = index;

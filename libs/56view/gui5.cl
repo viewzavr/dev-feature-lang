@@ -133,9 +133,11 @@ feature "button_add_object_t" {
                  //let s = "linestr";
 
                  //let s = env.params.newf;
-                 //arg1.setParam("manual_features",s,true)
                  
-                 console.log("created",arg1)
+                 let k = env.params.btroot.params.add_template;
+                 let s = Object.keys( k[0].features ).filter( f => f != "base_url_tracing");
+                 arg1.setParam("manual_features",s,true)
+                 //console.log("created",arg1)
 
                  env.params.btroot.emit("created", arg1 );
              `
