@@ -9,7 +9,7 @@ feature "loader"
 };
 
 feature "dataset" {
-  x: visual_process title="Добавить данные"
+  x: visual_process title="Набор данных"
     gui={
       column plashka {
         

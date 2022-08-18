@@ -97,7 +97,7 @@ feature "render_process_hierarchy"
           }" @co->input? @rh->active_view @cbsel;
         };
 
-        button "x" style="position:absolute; top:0px; right:0px;" 
+        button "Удалить" //style="position:absolute; top:0px; right:0px;" 
         {
           lambda @co->input? code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
         };

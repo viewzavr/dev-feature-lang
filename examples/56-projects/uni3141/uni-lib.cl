@@ -63,7 +63,16 @@ feature "addvis" {
       };
     }
     {{
-       let artefacts =(concat @empty_artefact (find-objects-bf features="data-artefact" root=@x->project));
+       let artefacts0 =(concat @empty_artefact (find-objects-bf features="data-artefact" root=@x->project));
+       // фича фильтрации - оставляем ток те артефакты для которых есть что прицепить (визуализацию)
+       let artefacts= (@artefacts0 | m_eval '(arts,outputs, list) => {
+          return arts.filter( (art,index) => {
+            let elem = outputs[index]; // данные артефакта
+            // список применений
+            let res = list.filter( it => { let qq=it.params.crit( elem ); /*console.log(it,qq);*/ return qq;} )
+            return res.length > 0;
+          } );
+       }' (@artefacts0 | map_geta "output" default=null) @vis_list);
     }};
 };
 
