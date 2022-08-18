@@ -2996,7 +2996,23 @@ export function get_child( env )
   env.onvalues(["input","name"],source_param_changed); 
 }
 
+export function get_parent( env )
+{
+  let param_tracking = () => {};
 
+  function source_param_changed (input) {
+
+    let v = input ? input.ns.parent : undefined;
+    env.setParam("output",v );
+    param_tracking();
+    param_tracking = input.on("parent_change",source_param_changed );
+    // todo тут надо delayed на случай если там много детей будут пачками добавляться
+    // и еще надо ренейм у детей ловить, name_changed
+  }
+  env.on("remove",param_tracking);
+
+  env.onvalues(["input"],source_param_changed); 
+}
 
 //////////////// get
 // плохой дизайн - реагировать в зависимости от аргумента...
