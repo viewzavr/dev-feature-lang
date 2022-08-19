@@ -24,7 +24,7 @@ feature "addvis" {
         text "Образ";
         ct: combobox 
                 titles=(@compatible_visual_processes | map_geta "title" default=[])
-                index=0; // {{ console_log_params}}
+                index=0
         ;
         let active_template = (@compatible_visual_processes | geta @ct->index | geta "code" default=null);
         //button "Добавить";
@@ -46,6 +46,8 @@ feature "addvis" {
           //obj.setParam('input',art.params.output);
           if (art)
               obj.linkParam( 'input',art.getPath() + '->output',false, true);
+
+          console.log('vis created obj',obj)    
           // и это кстати создаст нам запомнит стрелочку в составе проекта
           // но вообще по идее - obj.bindParam но это не сохранится.. плюс там нужна идентификация ячеек
           // так что это тож самое что linkParam

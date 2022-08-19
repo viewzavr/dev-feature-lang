@@ -587,6 +587,8 @@ export function pipe(env)
 // F-PARAM-EXPRESSION-COMPUTE
 export function computer(env) 
 {
+
+
   let unsub=()=>{};
   function unsub_and_forget() { unsub();unsub = ()=>{}; }
   function set_unsub( v ) { unsub = v };
@@ -792,7 +794,12 @@ export function register_feature( env, envopts ) {
           var edump = children[cname];
           edump.keepExistingChildren = true; // смехопанорама
           // но иначе применение фичи может затереть созданное другими фичами или внешним клиентом
-          edump.keepExistingParams = true;
+
+          // а вот это не надо. у нас порядок определен - сначала работают внутренние фичи разворачиваются, потом внешние
+          // и мы сейчас как раз внешняя - к хренам стираем там все вложенными фичами выставленное в случае конфликта
+          // update это все-таки надо. потому что унас фичи щас разворачиваются почему-то сверху вниз.
+          // т.е. сначала полностью одна, а потом уже переход к развороту ее тела.. это странно кстати..
+          // edump.keepExistingParams = true;
 
           // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
           // todo тут надо scope env делать и детям назначать, или вроде того
@@ -821,7 +828,15 @@ export function register_feature( env, envopts ) {
           let res;
           if (first) { // это код для целевого окружения где примененена фича
             first = false;
-            res = tenv.restoreFromDump( edump, false, $scopeFor );
+            let feats = tenv.vz.restoreFeatures( edump, tenv, false, $scopeFor);
+            // вот они там все наделали а теперь придем мы и сотрем к хренам
+
+            res = new Promise( ( resolve, reject ) => {
+              feats.then( () => {
+                let res2 = tenv.restoreFromDump( edump, false, $scopeFor );
+                res2.then( () => resolve( tenv ) );
+              });
+            });
           }
           else {
             // а последующие вещи - это доп дети сиблинги для целевого окружения
@@ -846,8 +861,6 @@ export function register_feature( env, envopts ) {
             
           }
           promarr.push( Promise.resolve(res) ); 
-
-
          }; 
             
         //tenv.vz.createChildrenByDump( dump, obj, manualParamsMode );
@@ -1826,6 +1839,7 @@ export function console_log_params( env, options )
 {
   env.host.on("param_changed",(n,v) => {
     console.log( "console_log_params:",env.params.text || env.params[0] || "", env.host.getPath(), "->",n,":",v )
+    env.vz.console_log_diag( env );
   });
 }
 

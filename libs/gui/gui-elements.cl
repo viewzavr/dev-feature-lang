@@ -417,6 +417,7 @@ register_feature name="combobox" {
     // мостик из dom в cl
     @cbroot | dom_event_cell "change" | c_on `(event_data,object) => {
       //console.log("dom onchange",object.dom.selectedIndex )
+      object.setParam("index",object.dom.selectedIndex);
 
 		  if (object.params.values) {
 		  	//object.setParam("output",object.params.values[ object.dom.selectedIndex ]);
