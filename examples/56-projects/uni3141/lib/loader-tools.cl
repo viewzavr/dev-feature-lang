@@ -229,9 +229,10 @@ feature "find-file" {
   r: output=@mm->output {
 
   mm: m_eval "(arr,crit,obj) => {
-
+        if (!arr) return null;
+        if (!Array.isArray(arr)) arr=[arr];
         let regexp = new RegExp( crit,'i' );
-        let file = arr.find( elem => elem.name.match( regexp ) );
+        let file = arr.find( elem => elem?.name?.match( regexp ) );
         if (!file) {
           obj.emit('not-found');
           return null;
@@ -245,10 +246,11 @@ feature "find-file" {
 feature "find-files" {
   r: output=@mm->output {
   mm: m_eval "(arr,crit) => {
-        let regexp = new RegExp( crit,'i' );
+    debugger;
         if (!arr) return [];
-        if (!Array.isArray(arr)) return [];
-        let files = arr.filter( elem => elem.name.match( regexp ) );
+        if (!Array.isArray(arr)) arr=[arr];
+        let regexp = new RegExp( crit,'i' );
+        let files = arr.filter( elem => elem?.name?.match( regexp ) );
         return files;
       }" @r->0 @r->1;
   };
