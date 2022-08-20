@@ -840,6 +840,12 @@ export function register_feature( env, envopts ) {
             res = new Promise( ( resolve, reject ) => {
               feats.then( () => {
                 clearTimeout(k);
+
+                if (tenv.removed) { // пока суть да дело объект могли и удалить
+                  reject();
+                  return;
+                } 
+
                 let res2 = tenv.restoreFromDump( edump, false, $scopeFor );
                 res2.then( () => resolve( tenv ) );
               });
@@ -877,7 +883,8 @@ export function register_feature( env, envopts ) {
          }; 
             
         //tenv.vz.createChildrenByDump( dump, obj, manualParamsMode );
-        return Promise.all( promarr );
+        //return Promise.all( promarr );
+        return Promise.allSettled( promarr );
       }
     }
 
