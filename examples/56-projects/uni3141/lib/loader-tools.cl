@@ -40,8 +40,9 @@ feature "art"
 };
 
 art title="Каталог" crit=(m_lambda "(url) => {
-  if (typeof(url) == 'string' && url.indexOf('list.txt') > 0) return 1;
-  return 0;
+  if (!url.find) return 0;
+  let k = url.find( elem => elem?.indexOf && elem.indexOf('list.txt') > 0 );
+  return k ? 1: 0;
   }") code={art-load-list-txt};
 
 feature "art-load-list-txt" {
@@ -49,7 +50,7 @@ feature "art-load-list-txt" {
     title="Каталог файлов"
     output=@result
    {
-    let listing_file_url=@x->input;
+    let listing_file_url=(@x->input | geta 0);
     let listing = (load-file file=@listing_file_url 
                    | m_eval "(txt) => txt && txt.length > 0 ? txt.split('\\n') : []" @.->input);
     let listing_file_dir = (m_eval "(str) => str ? str.split('/').slice(0,-1).join('/') : ''" @listing_file_url);
@@ -127,7 +128,14 @@ feature "data-entity" {
     {{ x-param-files name="files" }}
     {{ x-param-switch name="src" values=["URL","Файл с диска","Папка"] }}
     src=0
-    output=( (list @qqe->url? @qqe->files?) | geta @qqe->src default=null | console-log "entity output")
+    //output=( (list (list @qqe->url?) @qqe->files?) | geta @qqe->src default=null | console-log "entity output")
+    output=(m_eval "(a,b,index) => {
+      if (index == 0) {
+        if (a) return [a];
+        return [];
+      }
+      return b;
+      }" @qqe->url? @qqe->files? @qqe->src allow_undefined=true)
     data-artefact
 
     gui={
@@ -246,7 +254,7 @@ feature "find-file" {
 feature "find-files" {
   r: output=@mm->output {
   mm: m_eval "(arr,crit) => {
-    debugger;
+    
         if (!arr) return [];
         if (!Array.isArray(arr)) arr=[arr];
         let regexp = new RegExp( crit,'i' );
