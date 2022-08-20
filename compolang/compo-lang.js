@@ -828,15 +828,28 @@ export function register_feature( env, envopts ) {
           let res;
           if (first) { // это код для целевого окружения где примененена фича
             first = false;
+            //if (tenv.getPath().indexOf("_addon3d")>0)
+            //  debugger;
             let feats = tenv.vz.restoreFeatures( edump, tenv, false, $scopeFor);
             // вот они там все наделали а теперь придем мы и сотрем к хренам
 
+            let k = setTimeout( () => {
+                console.error("promise timeout",tenv)
+                //debugger;
+              },1000)
             res = new Promise( ( resolve, reject ) => {
               feats.then( () => {
+                clearTimeout(k);
                 let res2 = tenv.restoreFromDump( edump, false, $scopeFor );
                 res2.then( () => resolve( tenv ) );
               });
+              feats.catch( () => {
+                clearTimeout(k);
+                reject();
+                //debugger;
+              })
             });
+
           }
           else {
             // а последующие вещи - это доп дети сиблинги для целевого окружения

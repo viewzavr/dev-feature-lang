@@ -127,8 +127,7 @@ feature "data-entity" {
     {{ x-param-files name="files" }}
     {{ x-param-switch name="src" values=["URL","Файл с диска","Папка"] }}
     src=0
-    files=[]
-    output=( (list @qqe->url @qqe->files) | geta @qqe->src default=null | console-log "entity output")
+    output=( (list @qqe->url? @qqe->files?) | geta @qqe->src default=null | console-log "entity output")
     data-artefact
 
     gui={
