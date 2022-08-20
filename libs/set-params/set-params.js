@@ -29,6 +29,8 @@ export function x_set_params( env )
 {
   let detach = {};
 
+  //console.warn("x-set-params start monitoring attach",env.getPath())
+
   env.on("attach",(obj) => {
       //console.log("x-set-params attach",env.getPath(),obj.getPath())
 
@@ -37,8 +39,10 @@ export function x_set_params( env )
       let channel = obj.create_subchannel();
 
       env.on('param_changed',(name,value) => { // todo optimize
-         if (name !== "__manual")
+         if (name !== "__manual") {
+            //console.log('passing ',name,value,channel)
             channel.setParam( name, value, env.params.__manual ); 
+         };   
       });
       
       for (let c of env.getParamsNames()) {

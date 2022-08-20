@@ -35,6 +35,7 @@ export function setup( vz, m ) {
 // здесь f это функция создания dom-элемента
 export function dom( obj, options={} )
 {
+  obj.dom_generator=true;
   let rescan_counter=0;
 
   /////// собственный html-код
@@ -281,6 +282,7 @@ export function dom( obj, options={} )
 
     for (let c of inputs) {
       if (c.protected) continue;
+      if (!c.dom_generator) continue;
 
       var od = c.params.output;
       if (typeof(od) === "function") od = od();
@@ -435,6 +437,7 @@ addStyle(".vz_gui_hide { display: none !important; }")
 */
 export function shadow_dom( obj, options )
 {
+  obj.dom_generator=true;
   // 1 модифицировать у парента поведение выбора чего добавлять в дом
   // а нам надо сделать так чтобы он добавлять стал нас а не детей своих
   obj.inputObjectsList = () => obj.ns.children;
@@ -482,6 +485,8 @@ export function shadow_dom( obj, options )
 
 export function dom_group( env ) {
 
+  env.dom_generator=true;
+
   env.feature("delayed");
   let rescan_delayed = env.delayed( rescan );
   env.on("childrenChanged",rescan_delayed);
@@ -495,6 +500,7 @@ export function dom_group( env ) {
       let acc = [];
       env.ns.children.forEach( 
           (c) => {
+            if (!c.dom_generator) return;
             let od = c.params.output;
             if (typeof(od) === "function") od = od();
             if (Array.isArray(od)) od.forEach( (el) => acc.push(el) )

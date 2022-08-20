@@ -833,7 +833,7 @@ export function register_feature( env, envopts ) {
             first = false;
             //if (tenv.getPath().indexOf("_addon3d")>0)
             //  debugger;
-            let res = tenv.restoreFromDump( edump, false, $scopeFor );  
+            res = tenv.restoreFromDump( edump, false, $scopeFor );  
 
           }
           else {
@@ -1128,32 +1128,41 @@ export function feature_lambda( env )
   }
   env.onvalues_any(["code"],update_func);
 
-   //console.log( "feature_func: installing apply cmd",env.getPath());
-   env.addCmd( "apply",(...extra_args) => {
-      if (env.removed) {
-         console.log("lambda remove ban - it is removed", env.getPath())
-         return;
-      }
+  let configured = false;
+  env.onvalues_any(["code"],() => {
+    if (configured) return;
+    configured = true;
+    
 
-      // получается нам apply может прилететь пока мы даже еще onvalues не обработали.. нормально..
-      if (!func) update_func();
-      if (!func) {
-        console.error("lambda: code is not defined but apply is called", env.getPath());
-        return;
-      }
-      //console.log("lambda apply",env.getPath())
+    //console.log( "feature_func: installing apply cmd",env.getPath());
+       env.addCmd( "apply",(...extra_args) => {
+          if (env.removed) {
+             console.log("lambda remove ban - it is removed", env.getPath())
+             return;
+          }
 
-      let args = [];
-      for (let i=0; i<env.params.args_count;i++) 
-        args.push( env.params[i] );
+          // получается нам apply может прилететь пока мы даже еще onvalues не обработали.. нормально..
+          if (!func) update_func();
+          if (!func) {
+            console.error("lambda: code is not defined but apply is called", env.getPath());
+            return;
+          }
+          //console.log("lambda apply",env.getPath())
 
-      for (let i=0; i<extra_args.length;i++) 
-        args.push( extra_args[i] );
+          let args = [];
+          for (let i=0; i<env.params.args_count;i++) 
+            args.push( env.params[i] );
 
-      //args = args.concat( extra_args );
+          for (let i=0; i<extra_args.length;i++) 
+            args.push( extra_args[i] );
 
-      return func.apply( env,args )
-   } );
+          //args = args.concat( extra_args );
+
+          return func.apply( env,args )
+       } );    
+  });
+
+   
 }
 
 // вариант: вызывает содержимое после задержки
@@ -1849,6 +1858,7 @@ export function console_log_life( env, options )
        "param changed", "->",n,":",v,
        env.host.getPath(), env.host
         )
+    env.vz.console_log_diag( env );
   });
   {
     let g = env.host.addGui;
@@ -1857,6 +1867,7 @@ export function console_log_life( env, options )
         "addGui",...args,
         env.host.getPath(), env.host
           )
+      env.vz.console_log_diag( env );
       return g.apply( env.host, args);
     }
     env.on("remove",() => {
@@ -1871,6 +1882,7 @@ export function console_log_life( env, options )
         "cmd called",...args,
         env.host.getPath(), env.host
           )
+      env.vz.console_log_diag( env );
       return g.apply( env.host, args);
     }
     env.on("remove",() => {
@@ -1888,6 +1900,7 @@ export function console_log_life( env, options )
           "event",...args,
           env.host.getPath(), env.host
              )
+        env.vz.console_log_diag( env );
       };
       return g.apply( env.host, args);
     }
@@ -1898,6 +1911,7 @@ export function console_log_life( env, options )
 
   env.on("remove",() => {
     console.log("console_log_life: env removed!", env.params.text || env.params[0] || "", env.host.getPath());
+    env.vz.console_log_diag( env );
   });
 }
 

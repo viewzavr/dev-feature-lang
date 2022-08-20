@@ -289,8 +289,11 @@ feature "show_areas" {
 };
 
 feature "show_area_base" {
-  k: style=(m_eval "(r) => `flex: ${r} 1 0; position: relative;`" (@k->input | geta "weight"))
+  k: x-set-params
+     style=(m_eval "(r) => `flex: ${r} 1 0; position: relative;`" (@k->input | geta "weight"))
      visible=(@k->input | geta "visible")
+     
+     //{{ @k | get-cell "attach" | c-on "(env) => {debugger};"}}
   ;
 
   // ыдея
@@ -298,7 +301,7 @@ feature "show_area_base" {
 };
 
 feature "show_area_container_horiz" {
-  area_rect: row show_area_base
+  area_rect: row {{ show_area_base input=@area_rect->input }}
   {
      show_areas target=@area_rect input=(@area_rect->input | get_children_arr);
      //insert_children input=@area_rect list=(@area_rect->input | get_children_arr | map_geta "show")
@@ -306,7 +309,7 @@ feature "show_area_container_horiz" {
 };
 
 feature "show_area_container_vert" {
-  area_rect: column show_area_base
+  area_rect: column {{ show_area_base input=@area_rect->input }}
   {
      show_areas target=@area_rect input=(@area_rect->input | get_children_arr);
      //insert_children input=@area_rect list=(@area_rect->input | get_children_arr | map_geta "show")
@@ -314,7 +317,8 @@ feature "show_area_container_vert" {
 };
 
 feature "show_area_3d" {
-  area_rect: dom style_k="border: 1px solid grey;" show_area_base
+  area_rect: dom style_k="border: 1px solid grey;" 
+             {{ show_area_base input=@area_rect->input }}
   {
     process_rect: show_3d_scene
         //camera_control={ map-control }

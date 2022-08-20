@@ -88,7 +88,8 @@ feature "user_template" {
 // можно переделать будет на раздельное питание
 feature "show_3d_scene" {
   scene_3d_view: 
-    view3d style="width:100%; height:100%; " renderer=@r1 // тпУ
+    view3d style="width:100%; height:100%; " 
+    renderer=@r1 // тпУ
     camera_control={ orbit-control }
     { // max-height: 100vh;
       // max-height 100vh багфиксит грида
