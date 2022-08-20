@@ -799,7 +799,10 @@ export function register_feature( env, envopts ) {
           // и мы сейчас как раз внешняя - к хренам стираем там все вложенными фичами выставленное в случае конфликта
           // update это все-таки надо. потому что унас фичи щас разворачиваются почему-то сверху вниз.
           // т.е. сначала полностью одна, а потом уже переход к развороту ее тела.. это странно кстати..
-          // edump.keepExistingParams = true;
+          // update - причина такого дизайна, кверх ногами, когда мы сначала выставляем свои парметры
+          // и ссылки а потом идем внизины во вложенные фичи - это чтобы лишний раз не создавать
+          // и затем не удалять создаваемые ими ссылки и вычислительные окружения
+           edump.keepExistingParams = true;
 
           // делаем идентификатор для корня фичи F-FEAT-ROOT-NAME
           // todo тут надо scope env делать и детям назначать, или вроде того
@@ -830,31 +833,7 @@ export function register_feature( env, envopts ) {
             first = false;
             //if (tenv.getPath().indexOf("_addon3d")>0)
             //  debugger;
-            let feats = tenv.vz.restoreFeatures( edump, tenv, false, $scopeFor);
-            // вот они там все наделали а теперь придем мы и сотрем к хренам
-
-            let k = setTimeout( () => {
-                console.error("promise timeout",tenv)
-                //debugger;
-              },1000)
-            res = new Promise( ( resolve, reject ) => {
-              feats.then( () => {
-                clearTimeout(k);
-
-                if (tenv.removed) { // пока суть да дело объект могли и удалить
-                  reject();
-                  return;
-                } 
-
-                let res2 = tenv.restoreFromDump( edump, false, $scopeFor );
-                res2.then( () => resolve( tenv ) );
-              });
-              feats.catch( () => {
-                clearTimeout(k);
-                reject();
-                //debugger;
-              })
-            });
+            let res = tenv.restoreFromDump( edump, false, $scopeFor );  
 
           }
           else {
