@@ -87,7 +87,7 @@ feature "grow-artefacts" {
         let compatible_artefact_generators = (or (m_eval "(list,elem,level) => {
             // защита
             if (level > 3) return [];
-            let res = list.filter( it => it.params.crit( elem ) > 0 );
+            let res = list.filter( it => !!it.params.crit( elem ) );
             // console.log('gro arts res',res)
             return res;
           }" @art_generators_list @artefact_output @x->level) []);
