@@ -39,9 +39,9 @@ feature "art"
   ;
 };
 
-art title="Каталог" crit=(m_lambda "(url) => {
+art title="Каталог файлов" crit=(m_lambda "(url) => {
   if (!url.find) return 0;
-  let k = url.find( elem => elem?.indexOf && elem.indexOf('list.txt') > 0 );
+  let k = url.find( elem => elem?.name=='list.txt' );
   return k ? 1: 0;
   }") code={art-load-list-txt};
 
@@ -53,7 +53,7 @@ feature "art-load-list-txt" {
     let listing_file_url=(@x->input | geta 0);
     let listing = (load-file file=@listing_file_url 
                    | m_eval "(txt) => txt && txt.length > 0 ? txt.split('\\n') : []" @.->input);
-    let listing_file_dir = (m_eval "(str) => str ? str.split('/').slice(0,-1).join('/') : ''" @listing_file_url);
+    let listing_file_dir = (m_eval "(str) => str?.url ? str.url.split('/').slice(0,-1).join('/') : ''" @listing_file_url);
     let listing_resolved = (@listing | map_geta (m_apply "(dir,item) => dir+'/'+item" @listing_file_dir));
     let result = (m_eval "(arr1,arr2) => {
                   if (arr1.length != arr2.length) return;
@@ -131,7 +131,11 @@ feature "data-entity" {
     //output=( (list (list @qqe->url?) @qqe->files?) | geta @qqe->src default=null | console-log "entity output")
     output=(m_eval "(a,b,index) => {
       if (index == 0) {
-        if (a) return [a];
+        if (a) {
+           let sp = a.split('/');
+           if (sp.at(-1) == '') sp.pop();
+           return [{name:sp.at(-1),url:a}];
+        }   
         return [];
       }
       return b;
