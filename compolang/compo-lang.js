@@ -872,7 +872,7 @@ export function register_feature( env, envopts ) {
       if (!e) return;
 
       if (e.removed) {
-        debugger;
+        //debugger;
         return Promise.all("removed");
       }
       

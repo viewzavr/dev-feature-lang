@@ -18,7 +18,7 @@ feature "dataset" {
               add_type="data-entity"
               ;
 
-        show-inner-objects @x find="data-entity";
+        show-inner-objects @x find="data-artefact";
         /*
         find-objects-bf "data-entity" root=@x | repeater {
           b: button (@b->input | geta "title") {
