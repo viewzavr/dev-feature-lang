@@ -52,13 +52,13 @@ screen auto_activate {
     row {
       x1: dom tag="input" {{ 
         @data | get-cell "d1" | set-cell-value (
-          @x1 | dom_event_cell "change" | c-on "(evt) => parseFloat( evt[0].target.value )" 
+          @x1 | dom_event_cell "change" | c-on "(evt) => parseFloat( evt.target.value )" 
         )
         }};
       text "+";
       x2: dom tag="input" {{ 
         @data | get-cell "d2" | set-cell-value (
-          @x2 | dom_event_cell "change" | c-on "(evt) => parseFloat( evt[0].target.value )" 
+          @x2 | dom_event_cell "change" | c-on "(evt) => parseFloat( evt.target.value )" 
         )
        }};
       text "=";
@@ -75,7 +75,7 @@ screen auto_activate {
       feature "pass_val" {
         k: 
         {{
-          @k->output | set-cell-value (@k->input | c-on "(evt) => parseFloat( evt[0].target.value )")
+          @k->output | set-cell-value (@k->input | c-on "(evt) => parseFloat( evt.target.value )")
         }};
       };
 
@@ -125,7 +125,7 @@ screen auto_activate {
   F4 заменить на функцию/фичу+
 
   @data | get-cell "d1" | set-cell-value (
-          @x1 | dom_event_cell "change" | c-on "(evt) => parseFloat( evt[0].target.value )" 
+          @x1 | dom_event_cell "change" | c-on "(evt) => parseFloat( evt.target.value )" 
         )
   ну.. наверное вход это канал события а выход.. тож канал... куды писать
 */

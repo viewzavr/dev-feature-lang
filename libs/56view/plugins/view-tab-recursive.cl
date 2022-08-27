@@ -95,7 +95,7 @@ feature "the_view_recursive"
              console.warn("no active area - process is not appended");
            }
 
-      }` @tv->active_area (find-objects-bf features="area_content" root=@tv | geta 0));
+      }` @tv->active_area (find-objects-bf features="area_content" root=@tv | geta 0 default=null));
     }}
     // перебьем стандартные sources от the-view на поиск сурсов от контентных областей
     sources=(find-objects-bf features="area_content" root=@tv 

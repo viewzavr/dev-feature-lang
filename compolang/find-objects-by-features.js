@@ -18,7 +18,8 @@ export function find_objects_bf( env  ) {
 
   env.addObjectRef("root","/");
 
-  env.createLinkTo( {param:"features",from:"~->0",soft:true });
+  if (!env.hasParam("features") && !env.hasLinksToParam("features"))
+       env.createLinkTo( {param:"features",from:"~->0",soft:true });
 
   // субфича - явный флаг recursive для поиска внутри найденных объектов
   if (!env.hasParam("recursive"))

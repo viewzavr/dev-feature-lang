@@ -241,12 +241,14 @@ feature "joinlines" code=`
 // посему пока var
 // но вместе с var сложно такое мыслить: var a = import_js(...); лучше уж let a = ...;
 feature "let" code=`
-  env.on('param_changed',(name,value) => {
+// NHACK - на первом проходе в register_feature для js скоп еще не создан
+let $scopeFor = env.$scopes [env.$scopes.length-1]; 
+function process_param (name,value) {
 
     if (Number.isInteger(parseFloat(name)) || name == "args_count")
       return;
 
-    let $scopeFor = env.$scopes [env.$scopes.length-2]; 
+    //let $scopeFor = env.$scopes [env.$scopes.length-2]; 
 
     if ($scopeFor[ name ]) {
        // тут варианты
@@ -272,8 +274,15 @@ feature "let" code=`
     }   
 
     //console.log('pc',name, env.$scopes [env.$scopes.length-2] );
-  });
+  };
   //console.log("LET init",env.params)
+
+  // будем реагировать на будущие изменения
+  env.on('param_changed',process_param );
+  // и на то что есть сейчас
+  for (let k of env.getParamsNames()) {
+    process_param( k, env.getParam(k));
+  };
 `
 {
   data: output=@data->0?;

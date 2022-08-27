@@ -12,14 +12,14 @@ feature "find-one-object" {
 */
 
 feature "find-one-object" code=`
+  env.feature("delayed");
+  let refind = { stop: ()=>{} };
+
   env.onvalues_any(["input","root"],(i,r) => {
      stop_process();
      if (i && i[0] == "@") i = i.slice(1); // приведем к порядку - ссылки у нас внутрях без @ идут.
      start_process( i,r );
   })
-
-  env.feature("delayed");
-  let refind = { stop: ()=>{} };
 
   function start_process( path, root,retry=100 ) {
   	if (retry < 0) {

@@ -19,6 +19,7 @@ feature "dataset" {
               ;
 
         show-inner-objects @x find="data-artefact";
+
         /*
         find-objects-bf "data-entity" root=@x | repeater {
           b: button (@b->input | geta "title") {
@@ -117,6 +118,8 @@ find-objects-bf "data-artefact" limit=100 | get-compatible-generators | repeater
 };
 */
 
+// это наша базовая сущность
+// а artefact это уже взгляд на нее.
 feature "data-entity" {
   qqe: visual_process
     editable-addons

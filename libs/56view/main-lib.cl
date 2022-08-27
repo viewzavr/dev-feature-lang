@@ -247,7 +247,7 @@ feature "show_visual_tab" {
   sv: dom_group 
         screenshot_dom=(@ic->output | pause_input | geta 0 | geta "screenshot_dom") 
   {
-    ic: insert_children input=@sv list=(@sv->input | get_param "show_view")
+    ic: insert_children input=@sv list=(@sv->input | geta "show_view")
     ;
   };
 };
@@ -318,16 +318,16 @@ feature "render_project" {
        of: one_of 
               index=@ssr->index
               list={ 
-                show_visual_tab input=(@rend->project | get_param "views" | geta 0); // так то.. так то.. показывай просто текущий, согласно project[index].. но параметры сохраняй...
-                show_visual_tab input=(@rend->project | get_param "views" | geta 1 default=null);
-                show_visual_tab input=(@rend->project | get_param "views" | geta 2 default=null);
-                show_visual_tab input=(@rend->project | get_param "views" | geta 3 default=null);
-                show_visual_tab input=(@rend->project | get_param "views" | geta 4 default=null);
-                show_visual_tab input=(@rend->project | get_param "views" | geta 5 default=null); // так то.. так то.. показывай просто текущий, согласно project[index].. но параметры сохраняй...
-                show_visual_tab input=(@rend->project | get_param "views" | geta 6 default=null);
-                show_visual_tab input=(@rend->project | get_param "views" | geta 7 default=null);
-                show_visual_tab input=(@rend->project | get_param "views" | geta 8 default=null);
-                show_visual_tab input=(@rend->project | get_param "views" | geta 9 default=null);
+                show_visual_tab input=(@rend->project | geta "views" | geta 0 default=null); // так то.. так то.. показывай просто текущий, согласно project[index].. но параметры сохраняй...
+                show_visual_tab input=(@rend->project | geta "views" | geta 1 default=null);
+                show_visual_tab input=(@rend->project | geta "views" | geta 2 default=null);
+                show_visual_tab input=(@rend->project | geta "views" | geta 3 default=null);
+                show_visual_tab input=(@rend->project | geta "views" | geta 4 default=null);
+                show_visual_tab input=(@rend->project | geta "views" | geta 5 default=null); // так то.. так то.. показывай просто текущий, согласно project[index].. но параметры сохраняй...
+                show_visual_tab input=(@rend->project | geta "views" | geta 6 default=null);
+                show_visual_tab input=(@rend->project | geta "views" | geta 7 default=null);
+                show_visual_tab input=(@rend->project | geta "views" | geta 8 default=null);
+                show_visual_tab input=(@rend->project | geta "views" | geta 9 default=null);
               }
               {{ one-of-keep-state; one_of_all_dump; }}
               ;

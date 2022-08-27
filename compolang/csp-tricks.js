@@ -18,9 +18,9 @@ export function create_envs(env)
 // корень для логики csp. смысл сохранить дамп, для рестарта.
 export function csp( env ) {
 
-  let orig = env.restoreFromDump;
+  let orig = env.restoreChildrenFromDump;
 
-  env.restoreFromDump = (dump,manualParamsMode, $scopeFor ) => {
+  env.restoreChildrenFromDump = (dump,manualParamsMode, $scopeFor ) => {
     env.dump_for_restart = dump;
     return orig( dump, manualParamsMode, $scopeFor );
   };

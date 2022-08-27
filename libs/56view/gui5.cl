@@ -441,7 +441,8 @@ feature "one_of_keep_state" {
     x-patch {
       lambda code=`(env) => {
 
-        env.restoreFromDump = function ( edump, manualParamsMode, $scopeFor ) {
+        let orig = env.restoreChildrenFromDump;
+        env.restoreChildrenFromDump = function ( edump, manualParamsMode, $scopeFor ) {
           
           if (env.params.output) { 
              let obj = env.params.output;
@@ -461,7 +462,8 @@ feature "one_of_keep_state" {
                }
              }
           }
-          return env.vz.restoreObjFromDump( edump, env, manualParamsMode, $scopeFor );
+          //return env.vz.restoreObjFromDump( edump, env, manualParamsMode, $scopeFor );
+          return orig( edump, manualParamsMode, $scopeFor )
         }         
        }`;
     };

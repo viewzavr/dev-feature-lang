@@ -344,8 +344,8 @@ export function load(env,opts)
     //env.setParam("pending",proms);
   });
 */
-  env.trackParam( "files", process_file_params );
-  env.trackParam( 0, process_file_params );
+  env.onvalue( "files", process_file_params );
+  env.onvalue( 0, process_file_params );
 
   function process_file_params() {
     //files ||= files0;
@@ -683,12 +683,9 @@ export function register_feature( env, envopts ) {
   //env.createLinkTo( {param:"code",from:"~->1",soft:true });
 
   var children = {};
-  env.restoreFromDump = (dump,manualParamsMode, $scopeFor ) => {
-    env.vz.restoreParams( dump, env,manualParamsMode, $scopeFor );
-    env.vz.restoreLinks( dump, env,manualParamsMode, $scopeFor );
-    env.vz.restoreFeatures( dump, env,manualParamsMode, $scopeFor );
-    // тут , $scopeFor внешний
 
+  //let orig_rs = restoreChildrenFromDump;  
+  env.restoreChildrenFromDump = (dump, ismanual, $scopeFor) => {
     children = dump.children;
     compile();
     
@@ -698,7 +695,7 @@ export function register_feature( env, envopts ) {
     env.trackParam( 0, compile );
 
     return Promise.resolve("success");
-  }
+  };
   
   var apply_feature = () => {};
 
@@ -2099,8 +2096,8 @@ export function on( env  )
 
   //env.onvalues_any( ["name",0], connect );
   // типа надо без пропуска тактов..
-  env.trackParam("name",(n) => connect(n));
-  env.trackParam(0,(n) => connect(n));
+  env.onvalue("name",(n) => connect(n));
+  env.onvalue(0,(n) => connect(n));
 
   function connect(name,name0) {
     name ||= name0;
