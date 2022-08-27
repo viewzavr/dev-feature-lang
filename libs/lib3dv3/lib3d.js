@@ -57,7 +57,7 @@ export function render3d( env ) {
       env.renderer = new THREE.WebGLRenderer( 
         {canvas: dom, 
          preserveDrawingBuffer : true // надо для скриншотов
-         //,logarithmicDepthBuffer: false  // без этого наши точки глючат..
+         ,logarithmicDepthBuffer: true  // без этого наши точки глючат..
          // Early Fragment Test
         }); // alpha: true
       
@@ -302,7 +302,14 @@ export function renderer_bg_color( env ) {
 
 export function camera3d( env ) {
   // значение znear 0.00000001 дает любопытнейший глюк збуфера
-  var cam = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.001, 100000 );
+  // значение znear 0.001 ТОЖЕ дает любопытнейший глюк збуфера
+  //var cam = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.001, 100000 );
+  var cam = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 1000*1000 );
+  /*
+  let width = window.innerWidth;
+  let height = window.innerHeight;
+  var cam = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 0.01, 1000*1000 );
+  */
   cam.vrungel_camera_env = env;
   let a1, a2;
   
