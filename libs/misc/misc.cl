@@ -16,26 +16,30 @@ code="
     {
       // важный момент
       // -2 это выход наружу if, на внешний скоп.. пипец..
+
       c.$use_scope_for_created_things = env.$scopes[ env.$scopes.length -2 ];
     }
     cnt++;
     if (cnt > 1 
-        && c.ns.name.indexOf('arg_link_to')<0 // тупняк конечно - чтобы разрешить условия вида if @alfa
+        && c.ns.name !== 't' && c.ns.name.indexOf('arg_link_to')<0 // тупняк конечно - чтобы разрешить условия вида if @alfa
         )
       console.warn('if: extra children found!',c.getPath());
   });
 "
 {
   i: 
-    {
+    output=@t->output {
       //insert input=@i->..
-      insert_siblings_to_parent
-       list=(eval @i->0? @i->then? @i->else? @i allow_undefined=true
-             code="(cond,t,e,env) => {
+      t: insert_siblings_to_parent
+       list=(eval @i @i->0? @i->then? @i->else? @i allow_undefined=true
+             code="(if_env, cond,t,e,env) => {
                if (cond && !t) {
                     console.error('if: no then section!');
                     env.vz.console_log_diag( env );                
                }
+               // если вычисления еще не было то лесом выходим ничего не делаем..
+               if (!if_env.hasParam(0))
+                return null;
 
                return cond ? t : e
              };");

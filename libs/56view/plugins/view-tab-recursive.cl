@@ -322,10 +322,22 @@ feature "show_area_3d" {
   {
     process_rect: show_3d_scene
         //camera_control={ map-control }
-        scene3d=(@area_rect->input | geta "visible_sources" | map_geta "scene3d" default=[])
+        scene3d=(@area_rect->input | geta "visible_sources" | map_geta "scene3d" default=[] 
+          | repeater target_parent=@area_rect{
+          k: if (m_eval "(item) => { return item?.env_args ? true : false }" @k->input)
+              then={
+                computing_env input=@k->input @process_rect;
+              }
+              else={
+                data @k->input;
+              };
+          } | map_geta "output" default=null 
+            | map_geta 0 default=null 
+            | map_geta "output" default=null 
+            )
         camera=(@area_rect->input | geta "camera")
         style="width:100%; height:99%;"
-        {{ @area_rect->input | geta "sources" | get-cell "show-view-attached" | set-cell-value @process_rect }}
+        // {{ @area_rect->input | geta "sources" | get-cell "show-view-attached" | set-cell-value @process_rect }}
     ;
 
     extra_screen_things: 

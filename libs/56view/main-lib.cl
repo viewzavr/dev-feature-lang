@@ -100,7 +100,7 @@ feature "show_3d_scene" {
           target=@scene_3d_view
           input=@scene_3d_view->scene3d // кстати идея так-то сделать аналог и для 2д - до-бирать детей отсель
           camera=@scene_3d_view->camera
-          //{{ console_log_params "UUU" }}
+          //{{ console_log_params "UUURRR" }}
       {
           //camera3d pos=[-400,350,350] center=[0,0,0];
 

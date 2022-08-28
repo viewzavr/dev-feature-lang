@@ -1939,6 +1939,8 @@ export function console_log( env, options )
   let printd = env.delayed(print);
   env.on("param_changed",printd);
 
+  print();
+
   env.onvalue("input",(input) => {
     env.setParam("output",input); // доп-фича - консоле-лог пропускает дальше данные
   });  
@@ -3241,3 +3243,61 @@ export function attach_scope(env) {
 }
 
 
+// вход: input описание в стиле { |args| .... }, и позиционные аргументы
+// выход: output - результат работы созданного окружения
+// действие - разворачивает окружение согласно описанию, передает в него позиционные параметры
+export function computing_env(env){
+
+  // соединяет позиционные аргументы computing_env с ||-аргументами scope
+  function fill_scope_with_args(newscope,attrs) {
+    for (let i=0; i<attrs.length;i++)
+    {
+        let argname = attrs[i];
+        let cell = env.get_cell(i);
+        newscope.$add( argname, cell );
+    };
+  };
+
+  let cleanup = () => {};
+  env.on("remove",() => cleanup());
+
+  env.onvalue("input",(env_list) => {
+    cleanup();
+
+    //if (!env_list?.env_args)
+    if (!(Array.isArray(env_list) && env_list[0].features))
+    {
+      console.log("wrong argument to computing_env", env_list)
+      return;
+    }
+
+    let newscope = env.$scopes.createAbandonedScope("computing_env");
+    newscope.$lexicalParentScope = env_list[0].$scopeFor;
+    if (env_list.env_args)
+      fill_scope_with_args( newscope, env_list.env_args.attrs );
+
+    // прошить им всем доступ в эту скопу.. странно все это, 
+    // ибо зачем тогда scope-аргумент в createObjectsList .. но ладно.. взято из callEnvFunction
+
+    if (env_list[0].$scopeFor)
+      for (let e of env_list)
+          e.$scopeFor = newscope;
+
+    let spawn_obj = env.vz.createObj( { parent: env, name: "spawn" });
+    cleanup = () => { spawn_obj.remove(); cleanup = () => {}; }
+
+    let p = env.vz.createObjectsList( env_list, spawn_obj, false, newscope );
+
+    p.then( (objects) => {
+      if (spawn_obj.removed) {
+        objects.forEach( obj => obj.remove() )
+        return;
+      }
+
+      spawn_obj.ns.getChildren()[0].onvalue("output",finish);
+      function finish( res ) {
+        env.setParam("output",res);
+      }
+    });    
+  });
+};
