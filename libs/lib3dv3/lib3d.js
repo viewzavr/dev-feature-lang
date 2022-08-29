@@ -80,6 +80,8 @@ export function render3d( env ) {
     if (!cam || !cam.isCamera) return;
 
     cam.add( private_camera ); // рулите мноею
+
+    //cam.updateWorldMatrix(true,true);
   })
   
   function animate() {
@@ -349,7 +351,10 @@ export function camera3d( env ) {
     // console.log("camera onval pos",v,cam)
     if (v !== a1 && v) {
       if (isFinite(v[0]) && isFinite(v[1]) && isFinite(v[2]))
+      {
         cam.position.set( v[0],v[1],v[2] );
+//        cam.updateWorldMatrix(true,true);
+      }
       //cam.lookAt( new THREE.Vector3( 0,0,0 ) );
       //cam.updateProjectionMatrix(); 
     }
@@ -357,8 +362,10 @@ export function camera3d( env ) {
   env.onvalue( "center", (v) => {
     //console.log("onval center",v)
     if (v !== a2 && v) {
-       if (isFinite(v[0]) && isFinite(v[1]) && isFinite(v[2]))
+       if (isFinite(v[0]) && isFinite(v[1]) && isFinite(v[2])) {
          cam.lookAt( new THREE.Vector3( v[0],v[1],v[2] ) );
+//         cam.updateWorldMatrix(true,true);
+       }
        //cam.updateProjectionMatrix();
      }
   })
