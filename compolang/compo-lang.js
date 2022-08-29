@@ -3279,9 +3279,12 @@ export function computing_env(env){
     // прошить им всем доступ в эту скопу.. странно все это, 
     // ибо зачем тогда scope-аргумент в createObjectsList .. но ладно.. взято из callEnvFunction
 
+    newscope.skip_dump_scopes = true;
+    /*
     if (env_list[0].$scopeFor)
       for (let e of env_list)
           e.$scopeFor = newscope;
+    */
 
     let spawn_obj = env.vz.createObj( { parent: env, name: "spawn" });
     cleanup = () => { spawn_obj.remove(); cleanup = () => {}; }

@@ -105,8 +105,15 @@ export function render3d( env ) {
       env.renderer.setSize( installed_w,installed_h, false );
     }  
     // если делаем на каждом такте то ном, однако..
+    // непонятно зачем делать это на каждом шаге..
+    // и плюс выяснилось нужна проверка что там не 0, а то ломается матрица проецирования
+    // выяснилось - понятно зачем. потому что может быть несколько рендереров, а камера одна
+    /*
     cam.aspect = installed_w / installed_h;
+    if (isNaN( cam.aspect))
+      debugger;
     cam.updateProjectionMatrix();  
+    */
 
     // хак временных (хыхы)
     update_scene();

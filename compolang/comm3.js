@@ -399,7 +399,7 @@ export function set_cell_value( env ) {
     if (!Array.isArray(arr)) arr=[arr];
     arr.forEach( (cell) => {
       if (!cell) return;
-      //console.log("set cell value",cell,val)
+      console.log("set cell value",cell,val)
       cell.set( val );
     })
     //env.setParam("output",arr); // чтобы можно было цепочки строить | 
