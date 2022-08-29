@@ -23,7 +23,9 @@ export function render3d( env ) {
   // хотя может он и рендерер должен выдавать.. (но он и выдает..)
 
   // todo ориентироваться на dom-размеры..
-  var default_camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.001, 10000000 );
+  var default_camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 10000000 );
+  var private_camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 10000000 );
+  env.setParam('private_camera',private_camera);
   /*
   if (!env.params.camera) {
     env.setParam("camera",default_camera);
@@ -49,6 +51,8 @@ export function render3d( env ) {
   });
   env.on("remove",unsub_target);
 
+
+
   ///////////////////////////////////////
   env.onvalue("target_dom",(dom) => {
       
@@ -69,16 +73,27 @@ export function render3d( env ) {
   env.on("remove",() => {
     if (env.renderer) env.renderer.dispose();    
   })
+
+  env.onvalue('camera',(cam) => {
+    if (cam?.params) 
+        cam = cam.params.output; // случай когда камеру залинковали на объект
+    if (!cam || !cam.isCamera) return;
+
+    cam.add( private_camera ); // рулите мноею
+  })
   
   function animate() {
     requestAnimationFrame( animate );
     if (!env.renderer) return; // нечего рисовать то
 
+/*
     var cam = env.params.camera;
     if (cam?.params) 
         cam = cam.params.output; // случай когда камеру залинковали на объект
     if (!cam || !cam.isCamera) 
          cam=default_camera;
+*/         
+    let cam = private_camera;
     // т.е render3d camera=@somecam
 
     // фича - управление размерами. Альтернативно можно сделать Resize Observer Api
@@ -114,6 +129,10 @@ export function render3d( env ) {
       debugger;
     cam.updateProjectionMatrix();  
     */
+    //cam.updateMatrixWorld();
+    cam.updateWorldMatrix(true);
+    // todo - оптимизировать это, там стока не надо умножений
+    // передать final-camera во фрустум куллер
 
     // хак временных (хыхы)
     update_scene();
