@@ -367,6 +367,7 @@ feature "show_3d_scene_r" {
   scene_3d_view: 
     dom style="width:100%; height:100%;" tag="div"
     // renderer=@r1 // тпУ
+    private_camera=@r1->private_camera // это на выход
     camera_control={ orbit-control }
     { // max-height: 100vh;
       // max-height 100vh багфиксит грида
@@ -457,7 +458,6 @@ feature "show_visual_tab_recursive" {
     ;
       // хитро. надо прописать renderer всем вьюшкам 3д, чтобы они могли это передавать в визуальные процессы..
       find-objects-bf "show_3d_scene_r" root=@rrviews 
-        | console-log-input ">>>>>>>>> show_3d_scene_r"
         | x-modify { x-set-params renderer = @main_render_area->renderer };
 
 
