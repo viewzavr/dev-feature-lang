@@ -92,7 +92,7 @@ feature "the_view_recursive"
             first_cont_area.append_process( proc )
            else 
            {
-             console.warn("no active area - process is not appended");
+             console.warn("no active area nor content area - process is not appended");
            }
 
       }` @tv->active_area (find-objects-bf features="area_content" root=@tv | geta 0 default=null));
@@ -122,6 +122,10 @@ feature "recursive_area"
        {{ x-param-checkbox name="visible" }}
        {{ x-param-slider name="weight" min=0.1 max=5 step=0.1; }}
        weight=1
+        {{ x-add-cmd2 "split-horiz" (split-screen @it 'area_container_horiz') }}
+        {{ x-add-cmd2 "split-vert" (split-screen @it 'area_container_vert') }}
+        {{ x-param-option name="split-horiz" option="visible" value=false }}
+        {{ x-param-option name="split-vert" option="visible" value=false }}       
        ;
 };
 
@@ -133,8 +137,15 @@ feature "area_container" {
         }}
         gui={
           render-params @it;
+
+          param_field name="Разделить" {
+           button "Горизонтально" cmd=@it->split-horiz;
+           button "Вертикально" cmd=@it->split-vert;
+          };
+
           button_add_object "Добавить область" add_to=@it add_type="area_content";  
         }
+
         ;
 };
 
@@ -187,8 +198,6 @@ feature "area_content" {
 
        {{ x-param-option name="sources_str" option="manual" value=true }}
 
-       {{ x-add-cmd2 "split-horiz" (split-screen @it 'area_container_horiz') }}
-       {{ x-add-cmd2 "split-vert" (split-screen @it 'area_container_vert') }}
 
        {{ x-param-option name="append_process" option="visible" value=false }}
        {{ x-add-cmd name="append_process" code=(m_lambda `(view,val) => {

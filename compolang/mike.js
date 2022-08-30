@@ -17,6 +17,8 @@ export function m_eval( env ) {
     },20);
 
   function evl() {
+    if (env.params.debug)
+       debugger;
 
     if (!func) update_code();
     if (!func) {

@@ -336,7 +336,7 @@ env
 env_pipe
  = pipeid:(attr_name __ ":")? __ input_link:link tail:(__ "|" @one_env)+
  {
-   // случай вида @objid | a | b | c тогда @objid считается как @objid->output
+   // случай вида @objid | a | b | c тогда @objid идет на вход пайпе
    // и заодно случай вида @objid->paramname | a | b | c
    
    //console.log("found env pipe with input link:",input_link,tail)

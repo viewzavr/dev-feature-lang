@@ -569,12 +569,17 @@ export function pipe(env)
           
       // input первому ставим на инпут пайпы
 
+      /* 30.08.22 зачем это? */
       if (cfirst) {
           //if (!cfirst.hasLinksToParam("input") && !cfirst.hasParam("input"))
           // заменяем наличие параметра на наличие непустого значения параметра
           if (!cfirst.hasLinksToParam("input") && !cfirst.getParam("input"))
-            created_links.push( cfirst.linkParam("input",`..->input`,true) );
+          {
+            if (env.hasLinksToParam("input")) // если у пайпы есть input..
+                created_links.push( cfirst.linkParam("input",`..->input`,true) );
+          }
       }
+      
 
       pipe_is_generating_links = false;
    }

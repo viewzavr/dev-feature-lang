@@ -71,7 +71,10 @@ export function render3d( env ) {
       //animate(); -- вынесено наружу, всегда рисуем
   });
   env.on("remove",() => {
-    if (env.renderer) env.renderer.dispose();    
+    if (env.renderer) {
+      console.log('disposing renderer',env.renderer)
+      env.renderer.dispose();    
+    }
   })
 
   env.onvalue('camera',(cam) => {
