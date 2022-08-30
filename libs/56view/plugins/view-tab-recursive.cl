@@ -325,14 +325,78 @@ feature "show_area_container_vert" {
   };
 };
 
+///////////////////////////////////////////////////////// главное и неглавное рендеринг
+
+feature "show_3d_scene_main" {
+  scene_3d_view: 
+    view3d style="width:100%; height:100%; " 
+    renderer=@r1 // тпУ
+    camera_control={ orbit-control }
+    scene3d=[]
+    { // max-height: 100vh;
+      // max-height 100vh багфиксит грида
+    
+    // если вытащить его в хвост фичи (замкнуть view3d) то оно перестает видеть scene_3d_View почему-то
+    r1: render3d
+          bgcolor=[0.1,0.2,0.3]
+          target=@scene_3d_view
+          //input=@scene_3d_view->scene3d // кстати идея так-то сделать аналог и для 2д - до-бирать детей отсель
+          //camera=@scene_3d_view->camera
+          subrenderers=@scene_3d_view->subrenderers
+          //{{ console_log_params "UUURRR" }}
+      {
+          //camera3d pos=[-400,350,350] center=[0,0,0];
+
+          //orbit_control;
+          //@r1 | insert-children list=@scene_3d_view->camera_control;
+      };
+   };
+
+   ////
+   /* может это явно зато?
+   connections {
+    scene3d_view->subrenders => renderes->subrenderers;
+   }
+   */
+   
+};
+
+// вход - scene3d, camera, scene2d (надписи)
+// можно переделать будет на раздельное питание
+feature "show_3d_scene_r" {
+  scene_3d_view: 
+    dom style="width:100%; height:100%;" tag="div"
+    // renderer=@r1 // тпУ
+    camera_control={ orbit-control }
+    { // max-height: 100vh;
+      // max-height 100vh багфиксит грида
+    
+    // если вытащить его в хвост фичи (замкнуть view3d) то оно перестает видеть scene_3d_View почему-то
+    r1: subrenderer
+          bgcolor=[0.1,0.2,0.3]
+          target=@scene_3d_view
+          input=@scene_3d_view->scene3d // кстати идея так-то сделать аналог и для 2д - до-бирать детей отсель
+          camera=@scene_3d_view->camera
+          //{{ console_log_params "UUURRR" }}
+      {
+          //camera3d pos=[-400,350,350] center=[0,0,0];
+
+          //orbit_control;
+          @r1 | insert-children list=@scene_3d_view->camera_control;
+      };
+   };
+   
+};
+
 feature "show_area_3d" {
   area_rect: dom style_k="border: 1px solid grey;" 
              {{ show_area_base input=@area_rect->input }}
   {
-    process_rect: show_3d_scene
+    process_rect: show_3d_scene_r
         //camera_control={ map-control }
+        // renderer - установим снаружи..
         scene3d=(@area_rect->input | geta "visible_sources" | map_geta "scene3d" default=[] 
-          | repeater target_parent=@area_rect{
+          | repeater target_parent=@area_rect {
           k: if (m_eval "(item) => { return item?.env_args ? true : false }" @k->input)
               then={
                 computing_env input=@k->input @process_rect;
@@ -388,10 +452,20 @@ feature "show_visual_tab_recursive" {
 
     show_sources_params input=(@svr->input | geta "sources");
 
+    main_render_area: show_3d_scene_main subrenderers=(find-objects-bf "subrenderer" root=@rrviews)
+      style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2"
+    ;
+      // хитро. надо прописать renderer всем вьюшкам 3д, чтобы они могли это передавать в визуальные процессы..
+      find-objects-bf "show_3d_scene_r" root=@rrviews 
+        | console-log-input ">>>>>>>>> show_3d_scene_r"
+        | x-modify { x-set-params renderer = @main_render_area->renderer };
+
+
     rrviews: 
-      row style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2;
+      row style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-1;
         justify-content: center;" class="view56_visual_tab"
     {
+
       show_areas input=(list (@svr->input | geta "primary_container")) target=@rrviews;
 
     }; // global row rrviews

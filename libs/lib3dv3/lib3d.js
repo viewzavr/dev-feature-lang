@@ -144,8 +144,15 @@ export function render3d( env ) {
 
     env.renderer.render( env.scene, cam );
 
+    // а теперь добавим вот чо
+    if (env.params.subrenderers) {
+      for (let r of env.params.subrenderers)
+        r.subrender( env.renderer );
+    }
+
     env.emit("frame",env.renderer); // ТПУ
   }
+
   animate(); // поехали с орехами..
 
   env.feature("renderer_bg_color");
@@ -229,6 +236,215 @@ export function render3d( env ) {
   // todo вот тут надо подумать, сцена тут на входе или что
   // короче на вход сцена идет или кто
 
+}
+
+export function subrenderer( env,opts )
+{
+  env.scene = new THREE.Scene();
+  env.setParam( "output",env.scene ); // вот, теперь у нас render3d выдает на выход сцену,
+  // и это можно тоже где-то использовать - пожалуйста.. (непонятно зачем но забавно)
+  // хотя может он и рендерер должен выдавать.. (но он и выдает..)
+
+  // todo ориентироваться на dom-размеры..
+  var default_camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 10000000 );
+  var private_camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 10000000 );
+  env.setParam('private_camera',private_camera);
+
+  ////////////////////////////////////// тема камеры
+  env.onvalue('camera',(cam) => {
+    if (cam?.params) 
+        cam = cam.params.output; // случай когда камеру залинковали на объект
+    if (!cam || !cam.isCamera) return;
+
+    cam.add( private_camera ); // рулите мноею
+
+    //cam.updateWorldMatrix(true,true);
+  })  
+
+  let installed_w=1,installed_h=1;
+
+  env.subrender = function (external_renderer)
+  {
+    if (!env.params.target_dom) return;
+    let element = env.params.target_dom;
+
+    let cam = private_camera;
+    // т.е render3d camera=@somecam
+
+    // фича - управление размерами. Альтернативно можно сделать Resize Observer Api
+    // и опять вечный вопрос компоновки. вот жеж оно опять вылазиет
+    // пишем фичу - и надо сюда вписать и код выше. надо бы как-то по-другому..
+    // хотя бы башню функций с приоритетами или что.. кстати почему у меня до сих пор такой нет
+    // были начатки в cu..
+    let de = element;
+    if (de.clientWidth != installed_w || de.clientHeight != installed_h) {
+    //if (Math.abs(de.clientWidth - installed_w) + Math.abs(de.clientHeight-installed_h) > 100) {
+      installed_w = de.clientWidth;
+      installed_h = de.clientHeight;
+
+      // вот тут криминал - мы пишем в камеру которую могут использовать и другие рендереры
+      // но можно конечно переписывать каждый раз мы не гордые
+
+      if (installed_h > 0) {
+        cam.aspect = installed_w / installed_h;
+        // console.log("updated cam aspect", cam.aspect)
+        cam.updateProjectionMatrix();  
+      }
+      //console.log("renderer setsize",installed_w,installed_h,de, de.offsetWidth)
+    }  
+    // если делаем на каждом такте то ном, однако..
+    // непонятно зачем делать это на каждом шаге..
+    // и плюс выяснилось нужна проверка что там не 0, а то ломается матрица проецирования
+    // выяснилось - понятно зачем. потому что может быть несколько рендереров, а камера одна
+    /*
+    cam.aspect = installed_w / installed_h;
+    if (isNaN( cam.aspect))
+      debugger;
+    cam.updateProjectionMatrix();  
+    */
+    //cam.updateMatrixWorld();
+
+    cam.updateWorldMatrix(true);
+    // todo - оптимизировать это, там стока не надо умножений
+    // передать final-camera во фрустум куллер
+
+    // хак временных (хыхы)
+    update_scene();
+
+  
+    ///////////////////////// установка окна    
+
+
+
+          // get its position relative to the page's viewport
+          const rect = element.getBoundingClientRect();
+
+/*
+          // check if it's offscreen. If so skip it
+          if ( rect.bottom < 0 || rect.top > renderer.domElement.clientHeight ||
+             rect.right < 0 || rect.left > renderer.domElement.clientWidth ) {
+
+            return; // it's off screen
+
+          }
+          */
+
+          // set the viewport
+          const width = rect.right - rect.left;
+          const height = rect.bottom - rect.top;
+          const left = rect.left;
+          const bottom = external_renderer.domElement.clientHeight - rect.bottom;
+          
+          external_renderer.getViewport(orig_vp);
+          external_renderer.getScissor(orig_sc);
+          external_renderer.setViewport( left, bottom, width, height );
+          let orig_sc_b = external_renderer.getScissorTest();
+          external_renderer.setScissorTest( true );
+          external_renderer.setScissor( left, bottom, width, height );
+          
+          external_renderer.render( env.scene, cam );
+
+
+          external_renderer.setViewport( orig_vp );
+          external_renderer.setScissorTest( orig_sc_b );
+          external_renderer.setScissor( orig_sc );
+  }
+  let orig_vp = new THREE.Vector4(), orig_sc = new THREE.Vector4();
+
+
+
+  /////////////////////////////////////// кандидат на вылет
+
+  var unsub_target=()=>{};
+  env.onvalue("target",(target) => {
+    unsub_target();
+    // тут еще пока вопросы, на что подписываться - на output (и там ф-я) или на dom (но это типа внутреннее же)
+    unsub_target = target.onvalue("dom",(dom) => {
+      //var dom = target?.params?.output || dom;
+      
+      if (dom.apply) dom=dom(); // там может быть функция сидит
+      env.setParam("target_dom",dom); // это будет использоваться всяким orbit-control кроме всего
+    });
+  });
+  env.on("remove",unsub_target);
+
+  //////////////////////////////////////
+
+  env.feature("renderer_bg_color");
+
+  // фича - собрать объекты вложенные в render3d
+  //env.feature("node3d",{output_name:"nested_object3d"});
+  var nested_items = new THREE.Object3D();
+  //env.feature("node3d",{object3d:nested_items});
+
+
+  var mon = env.feature("f_monitor_children_output");
+  //env.monitor_children_output;
+  mon( (o) => {
+    if (o.isCamera) {
+      env.setParam("camera",o);
+      return;
+    }
+    if (o.isObject3D)
+      nested_items.add(o);
+
+    // todo можно будет сделать что render выдает свою scene
+
+  }, () => {
+    nested_items.clear();
+
+    // времянка - шобы свет мешей работал
+    
+    const pointLight = new THREE.PointLight( 0xffffff, 1.5 );
+    pointLight.position.set( 0, 100, 90 );
+    nested_items.add( pointLight );        
+    
+    var light = new THREE.AmbientLight( 0x444444 );
+    //var light = new THREE.AmbientLight( 0xffffff );
+    nested_items.add( light );
+    
+  } )
+
+  // фича - рендерить объект (сцену) указанную в параметре
+  // пусть это будет параметр input для примера
+  env.onvalue("input",update_scene)
+  //env.onvalue("scene",update_scene)
+
+  function update_scene() {
+    env.scene.clear();
+    // это то что рендерера просят нарисовать, вложив в нево объекты
+    env.scene.add( nested_items );
+    // это то что рендерера попросили нарисовать явно
+    if (env.params.input?.isObject3D)
+        env.scene.add( env.params.input );
+    // и еще списком - но может это стоит в node3d отдать..
+
+    function add( item ) {
+      if (!item) return;
+
+      if (item.isObject3D)
+        env.scene.add(item);
+      else
+        if (Array.isArray(item))
+          item.forEach( add );
+      else {
+        // общемто зачем нам это
+        if (w_counter++ < 100)
+            console.error("render3d: wrong input item", env.getPath(), "item=",item)  
+      }
+    }
+    add( env.params.input );
+
+    /*
+    if (Array.isArray(env.params.input)) {
+      for (let q of env.params.input)
+        if (q?.isObject3D)
+           env.scene.add( q );
+    }      
+    */
+  }
+
+  update_scene();
 }
 
 // сиречь узел. занимается тем что собирает вложенные окружения.
