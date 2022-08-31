@@ -408,6 +408,8 @@ feature "show_area_3d" {
           } | map_geta "output" default=null 
             | map_geta 0 default=null 
             | map_geta "output" default=null 
+              // уберем содержимое сцены если область экрана отключена
+            | pass_input_if (@area_rect->input | geta "visible") default=null
             )
         camera=(@area_rect->input | geta "camera")
         style="width:100%; height:99%;"

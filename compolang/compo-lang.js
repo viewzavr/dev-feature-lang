@@ -3233,6 +3233,17 @@ export function pass_input(env){
   })
 };
 
+// эдакий иф для пайпа.. но вообще найти бы общее между этим всем..
+// ну и он значения передает, не окружения...
+export function pass_input_if(env){
+  env.onvalues_any(["input",0],(i,cond) => {
+    if (cond)
+       env.setParam("output",i);
+    else
+       env.setParam("output", env.params.default );
+  })
+};
+
 // модификатор
 export function force_dump(env) {
   env.on("attach",(obj) => {
