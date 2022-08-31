@@ -238,6 +238,20 @@ export function render3d( env ) {
 
 }
 
+/*
+  выяснилось что если много рендереров то браузер ломается (тормоза сильные и webglcontext lost)
+  поэтому новая идея - делает 1 renderer большой на фон и несколько псевдо-рендереров
+  в духе примера threejs  https://threejs.org/examples/webgl_multiple_elements.html
+
+  получается такая картина:
+  a: view3d/render3d - ставится на фон
+  b: dom/subrenderer - размещаются где нужны рендер "окна" поверх view3d
+  и ставится связь: a subrenderers=*b
+
+  todo тут можно отнаследоваться от renderer и заменить только функцию рендеринга
+  интересно как это связано с composition over inher, когда объекты получают на управление другие
+  объекты (сиречь пачку каналов)..
+*/
 export function subrenderer( env,opts )
 {
   env.scene = new THREE.Scene();
