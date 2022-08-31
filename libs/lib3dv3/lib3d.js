@@ -64,7 +64,10 @@ export function render3d( env ) {
          ,logarithmicDepthBuffer: true  // без этого наши точки глючат..
          // Early Fragment Test
         }); // alpha: true
-      
+
+      // надо для renderstats с учетом subrenderers
+      env.renderer.info.autoReset = false;
+
       //env.renderer.$vz_renderer_id = vz_renderers_counter++;
 
       env.setParam("renderer",env.renderer);
@@ -141,6 +144,10 @@ export function render3d( env ) {
 
     // хак временных (хыхы)
     update_scene();
+
+    // мы перешли на ручной учет статистики, https://threejs.org/docs/#api/en/renderers/WebGLRenderer.info
+    // сейчас она общая для всех окошек стала
+    env.renderer.info.reset();
 
     env.renderer.render( env.scene, cam );
 
