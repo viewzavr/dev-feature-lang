@@ -41,7 +41,7 @@ feature "art"
 };
 
 art title="Каталог файлов" crit=(m_lambda "(url) => {
-  if (!url.find) return 0;
+  if (!url?.find) return 0;
   let k = url.find( elem => elem?.name=='list.txt' );
   return k ? 1: 0;
   }") code={art-load-list-txt};

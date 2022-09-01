@@ -153,12 +153,19 @@ register_feature name="render-one-param" {
       x-on "param_name_changed" cmd="@x->apply";
       x: func {{ delay_execution }} cmd="@dm->apply";
 
+      /*
       mmm: modify input=@dg->obj {
         on (join "gui-changed-" @dg->name) cmd="@x->apply" // cmd="@dm->apply"
         {{
            on "connected" cmd="@x->apply"; //cmd="@dm->apply"
         }};
       }
+      что-то это перестало работать.. перепишем на ячейках
+      */
+
+      //@dg->obj | get-cell (join "gui-changed-" @dg->name) | c-on "(pname, x) => x ? x() : null" @x->apply;
+      @dg->obj | get-cell (join "gui-changed-" @dg->name) | c-on @x->apply;
+      
 
     }}
     {

@@ -182,7 +182,7 @@ feature "camera_computer" {
 		  if (typeof(arr1[0]) == "string" || typeof(arr2[0]) == "string") return arr1;
 		  
 		  const count = arr1.length;
-		  var acc = new Float32Array( count );
+		  var acc = new Float32Array( count ); 
 		  for (var i=0; i<count; i++) {
 		      acc[i] = arr1[i] + w * (arr2[i] - arr1[i]);
 		  }

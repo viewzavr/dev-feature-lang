@@ -152,6 +152,7 @@ feature "x-param-slider" {
   code="(name,min,max,step,sliding, obj) => {
 
     if (!name) return;
+    
     obj.addSlider( name, undefined, min, max, step );
     obj.setParamOption( name, 'sliding', sliding );
   }
