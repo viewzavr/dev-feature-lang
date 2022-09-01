@@ -261,6 +261,8 @@ export function render3d( env ) {
 */
 export function subrenderer( env,opts )
 {
+   let w_counter = 0;
+   
   env.scene = new THREE.Scene();
   env.setParam( "output",env.scene ); // вот, теперь у нас render3d выдает на выход сцену,
   // и это можно тоже где-то использовать - пожалуйста.. (непонятно зачем но забавно)
