@@ -1864,10 +1864,18 @@ export function mapping( env, options )
 
 export function console_log_params( env, options )
 {
-  env.host.on("param_changed",(n,v) => {
-    console.log( "console_log_params:",env.params.text || env.params[0] || "", env.host.getPath(), "->",n,":",v )
-    env.vz.console_log_diag( env );
-  });
+  env.host.on("param_changed",f);
+  function f(n,v,msg){
+    if (env.params.list) {
+      if (env.params.list.indexOf(n) < 0) return;
+    }
+    console.log( "console_log_params:", (msg || ""), (env.params.text || env.params[0] || ""), env.host.getPath(), "->",n,":",v )
+    env.vz.console_log_diag( env,true );
+  }
+  for (let k of env.host.getParamsNames()) {
+    f(k,env.host.getParam(k),"[INIT]");
+  }
+
 }
 
 export function console_log_life( env, options )

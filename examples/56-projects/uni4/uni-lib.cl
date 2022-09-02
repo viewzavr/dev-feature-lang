@@ -1,12 +1,5 @@
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d new-modifiers imperative";
 load "56view";
-load "lib/init.cl";
-
-feature "vismaker";
-
-let vis_makers_list=(find-objects-bf features="vismaker");
-let vis_makers_codes=(@vis_makers_list | map_geta "code");
-
 
 feature "compatible_visual_processes_for" {
   k: curart=@.->0 output=(
@@ -24,6 +17,14 @@ feature "compatible_visual_processes_for" {
     filter_geta "possible"
    );
 };
+
+load "lib/init.cl";
+
+feature "vismaker";
+
+let vis_makers_list=(find-objects-bf features="vismaker");
+let vis_makers_codes=(@vis_makers_list | map_geta "code");
+
 
 // обязательный параметр project
 feature "addvis" {
@@ -53,13 +54,14 @@ feature "addvis" {
 
         let curart=(@artefacts | geta @cb->index default=null);
         //console-log "QQQQQQQQ curart=" @curart "compat procs=" @compatible_visual_processes;
-        let compatible_visual_processes = (compatible_visual_processes_for @curart);
+        //let compatible_visual_processes = (compatible_visual_processes_for @curart);
+        let compatible_visual_processes=(@curart | geta "vis_makers");
       };
     }
     {{
        let artefacts0 =(concat @empty_artefact (find-objects-bf features="data-artefact" root=@x->project));
 
-       let artefacts=@artefacts0;
+       //let artefacts=@artefacts0;
 
        //console-log "EEEE artefacts0" @artefacts0 "found procs" @all_art_compatible_visual_processes "passed artefacts" @artefacts;
 
@@ -72,6 +74,10 @@ feature "addvis" {
        let artefacts = (m_eval "(arts,procs_arr) => arts.filter( (x,index) => procs_arr[index]?.length > 0)" 
                                @artefacts0 @all_art_compatible_visual_processes);
        */
+       let all_art_compatible_visual_processes = (@artefacts0 | map_geta "vis_makers" default=null);
+
+       let artefacts = (m_eval "(arts,procs_arr) => arts.filter( (x,index) => procs_arr[index]?.length > 0)" 
+                               @artefacts0 @all_art_compatible_visual_processes);
     }};
 };
 

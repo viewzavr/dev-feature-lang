@@ -12,6 +12,9 @@
     процесса должен по идее пропускаться через функцию проверки или произвольной реакции.
 
    update - хоть бы выставляла параметры окружению типа editor={  |object name cell| }  
+
+   update - вообще теперь идея что "параметры" это да, некие ассоциированыне вещи но не входящие в объект.
+   а у нас задействуется спец-структура (поле .gui)
 */
 
 // name - имя
@@ -107,29 +110,35 @@ feature "x-param-df" {
 };
 
 // рабочий вариант
+// x-param-objref-3 name=.... values=.... где values это набор объектов
 feature "x-param-objref-3" {
   r: x-patch-r @r->name @r->editor @r->values
     code=`(name,editor_code, values, obj) => {
       if (name) {
-        obj.addGui( {name:name, type: "custom"} );
+      	//console.log("objref-3 init: name=",name,"cur val=",obj.params[name],"obj=",obj.getPath(),obj.dump())
+      	obj.setReference( name );
+        obj.addGui( {name:name, type: "custom",value: obj.params[name]} );
         obj.setParamOption( name,"editor",editor_code );
-        obj.setReference( name );
 
         // ну вот тоже как-то так.. пусть хоть что-то выбирает
+        // причем это надо для камеры.. шоб выбиралась..
+
         if (values && values[0] && !obj.params[name]) {
         	obj.setParam( name, values[0] );
         }
+        
       }
     }
     `
      editor={
   	 edt: param_field {
 	  	      combobox
-		        	value=(@edt->object | geta @edt->name | geta "getPath" ) // считается что там объект сидит благодаря
+		        	value=(@edt->object | geta @edt->name default=null | geta "getPath" ) // считается что там объект сидит благодаря
 		        	values=(@r->values | map_geta (m_apply "(obj) => obj.getPath()"))
 		        	titles=(@r->values | map_geta "title")
 		        	{{ x-on "user_changed_value" 
 	                  code=(m_apply "(area,param_var, b,c,val) => {
+	                  	console.log('>>>>>>>>>>>>>>>>',param_var,val)
 	                       area.setParam(param_var,val,true);
 	                       }" @edt->object @edt->name);
 	            }}

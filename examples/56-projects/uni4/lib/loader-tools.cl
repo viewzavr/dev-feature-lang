@@ -1,7 +1,11 @@
 feature "data-artefact" {
   x:
     title_path=(join (@x | get_parent | geta "title_path" default="") @x->title with=' / ')
+    vis_makers=(compatible_visual_processes_for @x)
 };
+
+// оказалось фишка в том что vismakers держат scope и он меняется вслед за сменой активного артефакта
+// поэтому полезно их просто один раз создать для каждого артефакта всей пачкой да ивсе.
 
 feature "dataset" {
   x: visual_process title="Набор данных"
