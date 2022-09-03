@@ -162,7 +162,8 @@ feature_addition
   
 // ------ A3. attr_name
 Word
-  = [a-zA-Zа-яА-Я0-9_\-\.]+ { return text(); } // разрешили точку в имени.. хм... ну пока так..
+  = [a-zA-Zа-яА-Я0-9_-]+ { return text(); } // убрали точку из имени.. будем делать аксессоры из них
+  // = [a-zA-Zа-яА-Я0-9_\-\.]+ { return text(); } // разрешили точку в имени.. хм... ну пока так..
   //= [a-zA-Zа-яА-Я0-9_-]+ { return text(); }
 
 attr_name
@@ -172,8 +173,11 @@ feature_name  // разрешим еще больше в имени чтобы �
   = [a-zA-Zа-яА-Я0-9_\-\.\+\-\/\*\<\>\[\]\=\&!]+ { return text(); } 
   / [\|][\|] { return text(); }  // символ || особый случай т.к. | занят пайпом
 
+//  = [a-zA-Zа-яА-Я0-9_\-\.\+\-\/\*\<\>\[\]\=\&!]+ { return text(); }   
+
 obj_id
-  = [a-zA-Zа-яА-Я0-9_]+ { return text(); }
+  = [a-zA-Zа-яА-Я_][a-zA-Zа-яА-Я0-9_]* { return text(); }
+  //= [a-zA-Zа-яА-Я0-9_]+ { return text(); }
 
 obj_path
   = [\.\/~]+ { return text(); } 
@@ -265,8 +269,6 @@ one_env
         else
         {  // массив
         */
-
-          
 
           //  F-PARAM-EXPRESSION-COMPUTE
 
@@ -425,6 +427,48 @@ link "link value"
     return { link: true, value: path + "->.", locinfo: getlocinfo() }
   }
 
+// F_ACCESSORS 
+
+accessor
+  = "@" first_attr:obj_id attrs:( "." @attr_name @qmark:("?")?)+
+  {
+     // пока оставлена ведущая @ но в принципе уже можно и без нее
+     // оставлена потому что если например без аксессора надо просто сослаться на объект
+     // то как бы непонятно становится, как это отличать от фич, которые у нас все еще разрешены в изобилии
+     // но может быть стоит фичи сделать как-то типа так: some .extra .other ну например..
+     // ... ну пока так попробуем.. и еще сейчас нытья нету, это может оказаться плохо
+     // может быть стоит добавить как со ссылками, ? к именам и это означает что тут можно default убрать
+     // добавлено. к имени аттрибута, начиная со второго, можно приписывать ?
+     // а что если туда же писать дефолт значения? т.е. alfa=@b.c?(3) не, это сложный синтаксис.
+
+     // console.log("making accessor",first_attr, attrs)
+     // debugger;
+
+     let pipe = new_env();
+     pipe.features["pipe"] = true;
+     let locinfo = getlocinfo();
+     pipe.links["pipe_input_link"] = { to: "~->input", from: "@" + first_attr, locinfo: locinfo }
+
+     let arr = [];
+     for (let i=0; i<attrs.length; i++)
+     {
+       let a = attrs[i][0];
+       let g = new_env();
+       g.features["geta"]=true;
+       //g.params[0] = { positional_param: true, value: a }
+       g.params[0] = a;
+       if (attrs[i][1]) // отметка "?"
+         g.params['default'] = null;
+       g.positional_params_count=1;
+       g.params[ "args_count" ] = 1;
+       g.locinfo = locinfo;
+       arr.push( g )
+     }
+     append_children_envs( pipe, arr );
+
+     return { env_expression: [pipe], locinfo: locinfo }
+  }
+
 
 // ----- 3. Values -----
 
@@ -434,6 +478,7 @@ positional_value
   = false
   / null
   / true
+  / accessor
   / object
   / array
   / number
@@ -451,6 +496,7 @@ value
   = false
   / null
   / true
+  / accessor
   / object
   / array
   / number
@@ -462,6 +508,7 @@ value
     // attr expression
     return { env_expression: env_list, locinfo: getlocinfo() }
   }
+  
 
 false = "false" { return false; }
 null  = "null"  { return null;  }
