@@ -33,8 +33,11 @@ export function simple_lang(env)
                               grammarSource: {lines: code.split('\n'), file: opts.diag_file }
                             }
                             );
-      //console.log("parsed",parsed)      
+      
+      //console.log(code);
+      //console.log("parsed",parsed);      
       var dump = parsed2dump( env.vz, parsed, opts.base_url || "" );
+      //console.log("dump",dump)
       dump.keepExistingChildren = true;
 
       return dump;
@@ -185,6 +188,7 @@ function add_compalang_to_vz(vz) {
 
   vz.compalang = function( code, scope_variables={}, opts={} ) {
     try {
+      //console.log(code)
       var parsed = P.parse( code, 
           { vz: vz, 
             base_url: opts.base_url,
@@ -286,6 +290,7 @@ function parsed2dump( vz, parsed, base_url ) {
   }
 
   
+  /////////////////
   // F-ENV-ARGS
   if (parsed.children.env_args) {
     debugger;
@@ -296,6 +301,32 @@ function parsed2dump( vz, parsed, base_url ) {
 
   parsed.forcecreate = true;
   parsed.features[ "base_url_tracing" ] = {params: {base_url}};
+
+  /////////////////
+  // F_PARAM_EVENTS
+  // активируем фичу ток если есть on_-параметры в статике
+  // + оказалось что on_some=(....) это features_list[i].links.output_link_0.to.startsWith(".->on_") уже и там 
+  
+  for (let n of (Object.keys(parsed.params) || [])) {
+      if (n.startsWith("on_")) {
+        parsed.features[ "connect_params_to_events" ] = true;
+        break;
+      };
+  };
+
+  if (!parsed.features[ "connect_params_to_events" ])
+  for (let i=0; i<parsed?.features_list?.length; i++) {
+    let f = parsed.features_list[i];
+    if (f.links.output_link_0?.to.startsWith(".->on_"))
+      {
+        parsed.features[ "connect_params_to_events" ] = true;
+        break;
+      };
+  }
+  
+  //parsed.features[ "connect_params_to_events" ] = true;
+  /////////////////
+  
 
   //feature("base_url_tracing",{base_url});
   return parsed;
@@ -3458,3 +3489,31 @@ export function create_objects(env){
     });    
   });
 };
+
+// F_PARAM_EVENTS
+// idea - только зарегистрированные параметры, а остальным отлуп
+export function connect_params_to_events(env) {
+  env.on("param_changed",f);
+
+  let bound_vars = {};
+  function f(n,v,msg) {
+    if (!n.startsWith("on_")) return;
+
+    if (bound_vars[n]) bound_vars[n]();
+
+    let event_name = n.substring(3);
+    bound_vars[n] = env.on(event_name,(...args) => {
+      let code = env.params[n];
+      if (code.bind) {
+          code.apply( env, ...args );
+      } 
+    });
+  }
+
+  for (let k of env.host.getParamsNames()) {
+    f(k,env.host.getParam(k));
+  }
+
+  // очищать вроде не надо - объект же на свои параметры зацеплен
+
+}

@@ -73,3 +73,11 @@ circle x=somelang( и тут что угодно... );
 // еще идеи:
 // console_log text=_js_"FILTERED OBJECTS of pattern " + @root->pattern }}};
 // console_log text=_in_"FILTERED OBJECTS of pattern @root->pattern";
+
+-------------------------------------
+
+F_SCOPE_ACCESS
+Новая идея. В кодах скриптов допустить такое: scope.name и это будет доступ к скопу, т.е. наружу.
+ну только надо понять, scope.name.get() или scope.name а если так то что делать с установкой? хотя можно оператор = тоже ловить...
+
+Сделано... хм...

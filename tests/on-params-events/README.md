@@ -1,0 +1,3 @@
+Тестируем прицепку событий button on_some_name=....
+
+F_PARAM_EVENTS

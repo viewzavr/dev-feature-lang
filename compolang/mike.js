@@ -114,8 +114,10 @@ export function m_eval( env ) {
       // возможность прямо код сюды вставлять
       if (typeof( code ) == 'function')
          func = code;
-      else
+      else {
+        var scope = js_access_compalang_scope( env );
         func = eval( code );
+      }
     }
   }
 
@@ -177,6 +179,25 @@ export function m_lambda( env,opts ) {
   env.feature("m_apply",opts);
 }
 
+function js_access_compalang_scope( env ) {
+  return new Proxy({}, {
+    set: function(target, prop, value, receiver) {
+      //target[prop] = value
+      env.$scopes[0].$add( prop, value );
+      //console.log('property set: ' + prop + ' = ' + value)
+      return true
+     },
+    get: function(target, prop, receiver) {
+      let item = env.$scopes[0][prop];
+      if (!item) return false;
+
+      if (item.setParam) return item.params[0];
+      return item.get();
+      //return Reflect.get(...arguments);
+    } 
+    })
+}
+
 export function m_apply( env, opts )
 {
    //env.lambda_start_arg ||= 0;
@@ -205,6 +226,9 @@ export function m_apply( env, opts )
   let func;
   function update_func() {
     let code = env.params[ env.lambda_start_arg ];
+
+    var scope = js_access_compalang_scope( env );
+
     func = eval( code );
   }
   env.onvalues_any([ env.lambda_start_arg ],update_func);
@@ -240,6 +264,7 @@ export function m_apply( env, opts )
         args.push( extra_args[i] );
 
       //args = args.concat( extra_args );
+
 
       return func.apply( env,args )
    } );
