@@ -83,9 +83,22 @@ feature "addvis" {
 
 ////////////////
 
+feature "an-empty-artefact";
+
 empty_artefact:
       title="Не выбран"
       output=null
+      an-empty-artefact
       data-artefact;
 
 //compatible_visual_processes_for @empty_artefact | console-log-input "TEST1";
+
+feature "x-art-ref" {
+  k: x-modify crit="data-artefact" {
+    x-param-objref-3 name=@k->name values=
+    (concat @empty_artefact (find-objects-by-crit @k->crit))
+    // root=@x->project
+    // (find-objects-by-crit @k->crit);
+    x-param-option name=@k->name option="always_manual" value=true;
+  };
+};
