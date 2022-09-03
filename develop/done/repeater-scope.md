@@ -4,3 +4,5 @@
 repeater { |a|
   text @a;
 };
+
+F_REPEATER_SCOPE
