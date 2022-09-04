@@ -117,6 +117,7 @@ feature "recursive_area"
        project=@..->project
        view=@..
        visible=true
+       effective_visible=@it.visible // надстройка над визиблом
        {{ x-param-string name="title" }}
        {{ x-param-checkbox name="visible" }}
        {{ x-param-slider name="weight" min=0.1 max=5 step=0.1; }}
@@ -125,6 +126,7 @@ feature "recursive_area"
         {{ x-add-cmd2 "split-vert" (split-screen @it 'area_container_vert') }}
         {{ x-param-option name="split-horiz" option="visible" value=false }}
         {{ x-param-option name="split-vert" option="visible" value=false }}       
+
        ;
 };
 
@@ -133,6 +135,7 @@ feature "area_container" {
        sibling_types=["area_container_horiz","area_container_vert"] 
        sibling_titles=["Горизонтальный","Вертикальный"]
        subitems=(@it | get_children_arr | arr_filter_by_features features="recursive_area")
+
         {{
            //x-param-slider name="ratio";
         }}
@@ -178,6 +181,7 @@ feature "area_content" {
        title="Пустой"
        sibling_types=["area_empty","area_3d","area_3d_list"] 
        sibling_titles=["Пустой","3d","3d list"]
+       effective_visible=(and @it.visible (@it.visible_sources?.length? > 0))
 
        subitems=[]
        sources_str=""
@@ -244,12 +248,15 @@ feature "split-screen" {
        Promise.allSettled( newcontainer.manual_feature( v ) ).then( () => {
            newcontainer.manuallyInserted=true;    
            newcontainer.ns.appendChild( obj,'area' ); // переезд в новый контейнер
-           let newcontent = obj.vz.createObj({parent: newcontainer}); 
 
-           Promise.allSettled( newcontent.manual_feature( 'area_empty//*' ) ).then( () => {
-              
-              newcontent.manuallyInserted=true;    
-           });
+           // теперь добавим новое
+           if (!obj.is_feature_applied('area_3d_list')) // кривокосо внедрились - не создавать подобласти если идет операция над списком
+           {
+             let newcontent = obj.vz.createObj({parent: newcontainer}); 
+             Promise.allSettled( newcontent.manual_feature( 'area_empty' ) ).then( () => {
+                newcontent.manuallyInserted=true;    
+             });
+           }''
        });
     }" @k->0 @k->1);
 };
@@ -261,9 +268,11 @@ feature "area_3d_list" {
   subitems=@r->output
   show={
     //show_areas target=@area_rect input=(@area_rect->input | get_children_arr);
-    @r->output | repeater { |a|
-      show_area_3d input=@a;
-    }
+    dom_group { // наличие тут domgroup обеспечивает что области рисуются в прав порядке по сравнению с соседними
+      @r->output | repeater { |a|
+        show_area_3d input=@a;
+      }
+    };
   }
   gui={
            object_change_type text="тип:"
@@ -296,10 +305,9 @@ feature "area_3d_list" {
             render-params-list object=@it list=["title","weight"];
   }   // gui
   {
-    @it->sources | console-log-input "ITSOURCES" |
+    @it->sources |
     r: repeater { |s|
-      area_3d sources=(list @s) {{ console-log-params "GERE" list=["sources"] }}
-       {{ console-log "s=" @s}}
+      area_3d sources=(list @s)
     };
   };
 };
@@ -367,7 +375,12 @@ feature "show_areas" {
 feature "show_area_base" {
   k: x-set-params
      style=(m_eval "(r) => `flex: ${r} 1 0; position: relative;`" (@k->input | geta "weight"))
-     visible=(@k->input | geta "visible")
+     //visible=(@k->input | geta "visible")
+     // фишка - не показываем область если в ней нет ассоциированных источников..
+     // ну посмотрим.. может быть это и спорно.. может по другому будем делать..
+     // а если приживется то вынести мб в effective_visible выражение в область k->input
+     //effective_visible=(and @k.input.visible (@k.input.visible_sources?.length? > 0))
+     visible=@k.input.effective_visible?
      
      //{{ @k | get-cell "attach" | c-on "(env) => {debugger};"}}
   ;

@@ -1642,7 +1642,7 @@ export function repeater( env, fopts, envopts ) {
 
           if (use_scope_for_passing_input)
           {
-              console.log("rep: actualizing ",i,"to ",model[i])
+              //console.log("rep: actualizing ",i,"to ",model[i])
               fill_scope_with_args( child_env.$scopes[0], scope_attrs, [model[i], i] );
           }
           else
