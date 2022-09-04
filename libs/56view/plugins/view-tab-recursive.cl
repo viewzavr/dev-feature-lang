@@ -84,7 +84,6 @@ feature "the_view_recursive"
     }}
     {{ x-param-option name="append_process" option="visible" value=false }}
     {{ x-add-cmd name="append_process" code=(m_lambda `(active_area,first_cont_area,proc) => {
-
         if (active_area && active_area.append_process)
             active_area.append_process( proc )
            else   
@@ -131,11 +130,18 @@ feature "recursive_area"
 
 feature "area_container" {
   it: recursive_area
-        subitems=(@it | get_children_arr | arr_filter_by_features features="recursive_area")
+       sibling_types=["area_container_horiz","area_container_vert"] 
+       sibling_titles=["Горизонтальный","Вертикальный"]
+       subitems=(@it | get_children_arr | arr_filter_by_features features="recursive_area")
         {{
            //x-param-slider name="ratio";
         }}
         gui={
+           object_change_type text="тип:"
+              input=@it
+              types=@it->sibling_types
+              titles=@it->sibling_titles;
+
           render-params @it;
 
           param_field name="Разделить" {
@@ -143,7 +149,7 @@ feature "area_container" {
            button "Вертикально" cmd=@it->split-vert;
           };
 
-          button_add_object "Добавить область" add_to=@it add_type="area_content";  
+          button_add_object "Добавить область" add_to=@it add_type="area_empty";  
         }
 
         ;
@@ -163,11 +169,15 @@ feature "area_container_vert" {
    }
 };
 
+feature "area_empty" {
+    area_content;
+};
+
 feature "area_content" {
   it:  recursive_area 
        title="Пустой"
-       sibling_types=["area_content","area_3d"] 
-       sibling_titles=["Пустой","3d"]
+       sibling_types=["area_empty","area_3d","area_3d_list"] 
+       sibling_titles=["Пустой","3d","3d list"]
 
        subitems=[]
        sources_str=""
@@ -176,6 +186,7 @@ feature "area_content" {
        // это нам надо чтобы - посылать визпроцессам сигналы какие вьюшки их смотрят
        // а это надо чтобы те могли камеру получить
        {{ @it->sources | get-cell "view-attached" | set-cell-value @it }}
+       // но в целом это устаревшее
 
        visible_sources = (@it->sources | filter_geta "visible")
        show={
@@ -235,7 +246,7 @@ feature "split-screen" {
            newcontainer.ns.appendChild( obj,'area' ); // переезд в новый контейнер
            let newcontent = obj.vz.createObj({parent: newcontainer}); 
 
-           Promise.allSettled( newcontent.manual_feature( 'area_content' ) ).then( () => {
+           Promise.allSettled( newcontent.manual_feature( 'area_empty//*' ) ).then( () => {
               
               newcontent.manuallyInserted=true;    
            });
@@ -243,8 +254,59 @@ feature "split-screen" {
     }" @k->0 @k->1);
 };
 
+// вид области которая формирует список областей из своих источников
+feature "area_3d_list" {
+  it: area_content
+  title="3d list"
+  subitems=@r->output
+  show={
+    //show_areas target=@area_rect input=(@area_rect->input | get_children_arr);
+    @r->output | repeater { |a|
+      show_area_3d input=@a;
+    }
+  }
+  gui={
+           object_change_type text="тип:"
+              input=@it
+              types=@it->sibling_types
+              titles=@it->sibling_titles;
+
+            param_field name="Разделить" {
+              button "Горизонтально" cmd=@it->split-horiz;
+              button "Вертикально" cmd=@it->split-vert;
+            };
+
+            render-params-list object=@it list=["visible"];
+
+            text "Включить процессы:";
+
+            column {
+
+              @it->project | geta "processes" | repeater //target_parent=@qoco 
+              {
+                 i: checkbox text=(@i->input | geta "title") 
+                       value=(@it | geta "sources" | arr_contains @i->input)
+                    {{ x-on "user-changed" {
+                        toggle_visprocess_view_assoc2 process=@i->input view=@it;
+                    } }};
+              };
+
+            };
+
+            render-params-list object=@it list=["title","weight"];
+  }   // gui
+  {
+    @it->sources | console-log-input "ITSOURCES" |
+    r: repeater { |s|
+      area_3d sources=(list @s) {{ console-log-params "GERE" list=["sources"] }}
+       {{ console-log "s=" @s}}
+    };
+  };
+};
+
 feature "area_3d" {  
-  it: area_content title="3d"
+  it: area_content 
+      title="3d"
       show_fps=false
       {{ x-param-checkbox name="show_fps" title="Показать FPS"}}
       show_stats=false
@@ -255,6 +317,11 @@ feature "area_3d" {
   {{ x-param-objref-3 name="camera" values=(@it->project | geta "cameras"); }}
 
        gui={
+           object_change_type text="Укажите тип:"
+              input=@it
+              types=@it->sibling_types
+              titles=@it->sibling_titles;
+
             param_field name="Разделить" {
               button "Горизонтально" cmd=@it->split-horiz;
               button "Вертикально" cmd=@it->split-vert;
@@ -313,6 +380,7 @@ feature "show_area_container_horiz" {
   area_rect: row {{ show_area_base input=@area_rect->input }}
   {
      show_areas target=@area_rect input=(@area_rect->input | get_children_arr);
+     //@area_rect | get_children_arr | console-log-input "ARECT C";
      //insert_children input=@area_rect list=(@area_rect->input | get_children_arr | map_geta "show")
   };
 };

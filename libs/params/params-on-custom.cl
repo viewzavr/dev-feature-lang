@@ -112,10 +112,12 @@ feature "x-param-df" {
 // рабочий вариант
 // x-param-objref-3 name=.... values=.... где values это набор объектов
 feature "x-param-objref-3" {
-  r: x-patch-r @r->name @r->editor @r->values
+  r: x-patch-r @r->name @r->editor @r->values // {{ l: console-log-life; debug_input input=@l }}
     code=`(name,editor_code, values, obj) => {
       if (name) {
       	//console.log("objref-3 init: name=",name,"cur val=",obj.params[name],"obj=",obj.getPath(),obj.dump())
+      	//console.log("objref-3 init: name=",name,"cur val=",obj.params[name],"obj=",obj.getPath(), values );
+      	//debugger;
       	obj.setReference( name );
         obj.addGui( {name:name, type: "custom",value: obj.params[name]} );
         obj.setParamOption( name,"editor",editor_code );

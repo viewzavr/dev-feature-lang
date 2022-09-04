@@ -1642,6 +1642,7 @@ export function repeater( env, fopts, envopts ) {
 
           if (use_scope_for_passing_input)
           {
+              console.log("rep: actualizing ",i,"to ",model[i])
               fill_scope_with_args( child_env.$scopes[0], scope_attrs, [model[i], i] );
           }
           else
@@ -1660,7 +1661,7 @@ export function repeater( env, fopts, envopts ) {
         let argname = attrs[i];
         // console.log('fill_scope_with_args: argname=',argname,'i=',i)
         // let cell = env.get_cell(i);
-        newscope.$add( argname, values[i] );
+        newscope.$add( argname, values[i], true );
     };
   };  
 
@@ -1944,12 +1945,14 @@ export function console_log_params( env, options )
 
 export function console_log_life( env, options )
 {
+  let counter=0;
   env.host.on("param_changed",(n,v) => {
     console.log( "console_log_life: ",env.params.text || env.params[0] || "", 
        "param changed", "->",n,":",v,
        env.host.getPath(), env.host
-        )
+        );
     env.vz.console_log_diag( env );
+    env.setParam("output",counter++)
   });
   {
     let g = env.host.addGui;
@@ -1959,8 +1962,10 @@ export function console_log_life( env, options )
         env.host.getPath(), env.host
           )
       env.vz.console_log_diag( env );
+      env.setParam("output",counter++)
       return g.apply( env.host, args);
     }
+
     env.on("remove",() => {
       env.host.addGui = g;
     })
@@ -1974,6 +1979,7 @@ export function console_log_life( env, options )
         env.host.getPath(), env.host
           )
       env.vz.console_log_diag( env );
+      env.setParam("output",counter++)
       return g.apply( env.host, args);
     }
     env.on("remove",() => {
@@ -1991,7 +1997,9 @@ export function console_log_life( env, options )
           "event",...args,
           env.host.getPath(), env.host
              )
+
         env.vz.console_log_diag( env );
+        env.setParam("output",counter++)
       };
       return g.apply( env.host, args);
     }
@@ -2003,6 +2011,7 @@ export function console_log_life( env, options )
   env.on("remove",() => {
     console.log("console_log_life: env removed!", env.params.text || env.params[0] || "", env.host.getPath());
     env.vz.console_log_diag( env );
+    env.setParam("output",counter++)
   });
 }
 
@@ -2101,7 +2110,7 @@ export function feature_debug_input( env )
     console.log( env.params.text || "", env.params.input || "" );
   }
   
-  env.onvalue("input",(input) => {
+  env.trackParam("input",(input) => {
     print();
     // фича номер два это остановка потому что input поменялся - удобно ловить
     // хотя это можно было и в консоли делать

@@ -103,6 +103,8 @@ export function map_geta( env )
     if (!Array.isArray(input_arr)) {
       console.error("map_geta: input is not array!",input_arr);
       env.setParam( "output",env.single_geta_mode ? null : [] );
+      // qqq
+      env.vz.console_log_diag( env );
       return;
     }
 
