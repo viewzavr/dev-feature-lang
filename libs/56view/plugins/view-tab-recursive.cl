@@ -132,8 +132,8 @@ feature "recursive_area"
 
 feature "area_container" {
   it: recursive_area
-       sibling_types=["area_container_horiz","area_container_vert"] 
-       sibling_titles=["Горизонтальный","Вертикальный"]
+       sibling_types=["area_container_horiz","area_container_vert","area_container_opacity_switch"] 
+       sibling_titles=["Горизонтальный","Вертикальный","Выбор прозрачности"]
        subitems=(@it | get_children_arr | arr_filter_by_features features="recursive_area")
 
         {{
@@ -154,7 +154,6 @@ feature "area_container" {
 
           button_add_object "Добавить область" add_to=@it add_type="area_empty";  
         }
-
         ;
 };
 
@@ -169,6 +168,15 @@ feature "area_container_vert" {
    it: area_container title="Вертикальный"
    show={
       show_area_container_vert input=@it;
+   }
+};
+
+feature "area_container_opacity_switch" {
+   it: area_container title="Выбор прозрачности"
+   opacity_coef=0.0
+   {{ x-param-slider name="opacity_coef" min=0.0 max=1.0 step=0.01 }}
+   show={
+      show_area_container_opacity_switch input=@it opacity_coef=@it->opacity_coef;
    }
 };
 
@@ -319,6 +327,8 @@ feature "area_3d" {
       {{ x-param-checkbox name="show_fps" title="Показать FPS"}}
       show_stats=false
       {{ x-param-checkbox name="show_stats" title="Показать статистику"}}
+      {{ x-param-slider name="opacity_3d" min=0.0 max=1.0 step=0.01 }}
+      opacity_3d=1.0
   show={
       show_area_3d input=@it;
   }
@@ -335,7 +345,7 @@ feature "area_3d" {
               button "Вертикально" cmd=@it->split-vert;
             };
 
-            render-params-list object=@it list=["visible","camera"];
+            render-params-list object=@it list=["visible","opacity_3d","camera"];
 
             text "Включить процессы:";
 
@@ -367,8 +377,8 @@ feature "area_3d" {
 ///////////////////////// 
 
 feature "show_areas" {
-  q: {
-    insert_children input=@q->target list=(@q->input | map_geta "show" default=null | arr_flat | arr_compact) 
+  q: output=@ic->output {
+    ic: insert_children input=@q->target list=(@q->input | map_geta "show" default=null | arr_flat | arr_compact) 
   };
 };
 
@@ -405,6 +415,40 @@ feature "show_area_container_vert" {
      //insert_children input=@area_rect list=(@area_rect->input | get_children_arr | map_geta "show")
   };
 };
+
+// короче это работает но... дальше уже глючит 3d..
+feature "show_area_container_opacity_switch" {
+  area_rect: dom tag="div" {{ show_area_base input=@area_rect->input }}
+  {
+     ars: show_areas target=@area_rect input=(@area_rect->input | get_children_arr);
+
+     @ars->output | x-modify { x-set-params style_w="width:100%; height:100%"; };
+     //@ars->output | console-log-input "IIIIIIIIIIIIIIIIIIII";
+
+     m_eval "(opcoef, opcells) => {
+       //debugger;
+       if (!opcells) return;
+       if (opcells.length == 0) return;
+       if (opcells.length == 1) return opcells[0].set(1);
+       let d = 1.0 / (opcells.length-1);
+       for (let i=0; i<opcells.length; i++) {
+          let md = i * d;
+          let mt = 0; // вычисляем лесенку
+          if (opcoef >= md-d && opcoef <= md+d) { // мы в области опреления
+            let q = (opcoef-(md-d)) / (d);
+            // это доля от 0 до 2 где апогей должен быть в 1
+            // проще всего синус чем доли мучать
+            mt = Math.sin( Math.PI * q / 2);
+          }
+          // console.log(i,mt)
+          opcells[i].set(mt);
+       };
+     }" @area_rect.input.opacity_coef 
+        (@area_rect->input | get_children_arr | arr_filter_by_features features="area_content" | get-cell "opacity_3d");
+     //insert_children input=@area_rect list=(@area_rect->input | get_children_arr | map_geta "show")
+  };
+};
+
 
 ///////////////////////////////////////////////////////// главное и неглавное рендеринг
 
@@ -481,7 +525,7 @@ feature "show_area_3d" {
           | repeater target_parent=@area_rect {
           k: if (m_eval "(item) => { return item?.env_args ? true : false }" @k->input)
               then={
-                computing_env input=@k->input @process_rect;
+                computing_env input=@k->input @process_rect @area_rect.input.opacity_3d;
               }
               else={
                 data @k->input;
