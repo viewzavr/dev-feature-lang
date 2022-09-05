@@ -189,7 +189,7 @@ feature "area_container_opacity_switch" {
 feature "area_container_one_switch" {
    it: area_container title="Выбор одного"
    selected=0
-   {{ x-param-slider name="selected" min=0 max=(@it.subitems.length - 1) step=1 }}
+   {{ x-param-slider name="selected" min=0 max=(@it.subitems?.length - 1) step=1 }}
    show={
       show_area_container_one_switch input=@it selected=@it.selected;
    }
@@ -216,7 +216,7 @@ feature "area_container_one_switch" {
 
    }
    {{
-     @it.subitems | get-cell "visible" | m_eval "(cells,selected) => {
+     @it.subitems? | get-cell "visible" | m_eval "(cells,selected) => {
         if (!Array.isArray(cells)) return;
         for (let i=0; i<cells.length; i++)
           cells[i].set( i == selected ? true : false );
@@ -599,8 +599,11 @@ feature "show_area_3d" {
         column style="padding-left:0em; position:absolute; bottom: 1em; left: 1em;" 
         class='vz-mouse-transparent-layout extra-screen-thing'
         {
-             dg: dom_group input=(@area_rect->input | geta "visible_sources" | map_geta "scene2d" default=[])
+             //dg: dom_group input=(@area_rect->input | geta "visible_sources" | map_geta "scene2d" default=[])
+             dg: dom_group
              {
+               @dg | insert_children list=(@area_rect->input | geta "visible_sources" | map_geta "scene2d" default=[] | arr_flat);
+
                if (@area_rect->input | geta "show_fps" default=false) then={
                  show_render_fps renderer=@process_rect->renderer;
                };               
@@ -627,7 +630,7 @@ feature "show_visual_tab_recursive" {
    svr: dom_group
    {
     rrviews: 
-    row style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-1;
+    row style="position: absolute; top: 0; left: 0; width:100%; height: 100%; 
         justify-content: center;"
     {
       show_areas input=(list (@svr->input | geta "primary_container")) target=@rrviews;
