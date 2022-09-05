@@ -133,8 +133,8 @@ feature "recursive_area"
 
 feature "area_container" {
   it: recursive_area
-       sibling_types=["area_container_horiz","area_container_vert","area_container_opacity_switch"] 
-       sibling_titles=["Горизонтальный","Вертикальный","Выбор прозрачности"]
+       sibling_types=["area_container_horiz","area_container_vert","area_container_one_switch", "area_container_opacity_switch"] 
+       sibling_titles=["Горизонтальный","Вертикальный","Выбор одного", "Выбор по прозрачности"]
        subitems=(@it | get_children_arr 
                      // | restart_input ( @it | get_children_arr | get-cell "feature-applied-recursive-area" | get-cell-value)
                      | arr_filter_by_features features="recursive_area")
@@ -181,6 +181,26 @@ feature "area_container_opacity_switch" {
    show={
       show_area_container_opacity_switch input=@it opacity_coef=@it->opacity_coef;
    }
+};
+
+feature "area_container_one_switch" {
+   it: area_container title="Выбор одного"
+   selected=0
+   {{ x-param-slider name="selected" min=0 max=(@it.subitems.length - 1) step=1 }}
+   show={
+      show_area_container_one_switch input=@it selected=@it.selected;
+   }
+   show_gui={
+    
+    render-params-list object=@it list=["selected"]; 
+   }
+   {{
+     @it.subitems | get-cell "visible" | m_eval "(cells,selected) => {
+        if (!Array.isArray(cells)) return;
+        for (let i=0; i<cells.length; i++)
+          cells[i].set( i == selected ? true : false );
+     }" @it.selected;
+   }}
 };
 
 feature "area_empty" {
@@ -419,6 +439,16 @@ feature "show_area_container_vert" {
   };
 };
 
+feature "show_area_container_one_switch" {
+  area_rect: column {{ show_area_base input=@area_rect->input }}
+  {
+     //render-params-list object=@area_rect.input list=["selected"]; //qqq
+     // показываем всех. будем им visible менять.
+     show_areas target=@area_rect input=(@area_rect->input | get_children_arr);
+     //show_areas target=@area_rect input=(list (@area_rect.input.subitems | geta @area_rect.input.selected));
+  };
+};
+
 // короче это работает но... дальше уже глючит 3d..
 feature "show_area_container_opacity_switch" {
   area_rect: dom tag="div" {{ show_area_base input=@area_rect->input }}
@@ -576,6 +606,18 @@ feature "show_visual_tab_recursive" {
    svr: dom_group
       screenshot_dom = @rrviews_group->dom
    {
+
+    containers_params: column; 
+    insert-children input=@containers_params list=@svr.input.primary_container.show_gui?;
+         //list=(find-objects-bf features="area_container" root=@svr->input | map_geta "show_gui");
+    /*
+    insert-children input=@containers_params 
+         list=(find-objects-bf features="area_container" root=@svr->input | map_geta "show_gui");
+         */
+    // подумать быть может отдать им в управление и пусть там сами ходят по своим visible-subitems...
+    // и вовсе быть может отдать им также в управленрие show-sources-params
+    // ну т.е. сейчас мы как бы вытащили оное все.. а теперь хотим взад..
+    // либо поступить как с 3д - через computing env пусть добавляют что хотят..
 
     actions_co: column visible=(@svr->input | geta "actions" default=null) 
     ;
