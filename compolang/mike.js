@@ -188,8 +188,18 @@ function js_access_compalang_scope( env ) {
       return true
      },
     get: function(target, prop, receiver) {
-      let item = env.$scopes[0][prop];
-      if (!item) return false;
+      let s = env.$scopes[0];
+      let item = s[prop];
+      if (!item)
+           return false;
+      /* можно поползать
+      if (!item) {
+        s=s.$lexicalParentScope; // ну хотя бы раз надо заползти... хотя это дорого начинается..
+        item = s[prop]
+        if (!item)
+           return false;
+      }  
+      */
 
       if (item.setParam && item.is_feature_applied('is_positional_env')) // там сидит позиционное
           return item.params[0];

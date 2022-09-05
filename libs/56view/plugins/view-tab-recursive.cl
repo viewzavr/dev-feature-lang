@@ -194,8 +194,26 @@ feature "area_container_one_switch" {
       show_area_container_one_switch input=@it selected=@it.selected;
    }
    show_gui={
-    
-    render-params-list object=@it list=["selected"]; 
+     ssr: switch_selector_row 
+             index=@it.selected
+             items=(@it.subitems | map_geta "title")
+             on_user_change=(m_lambda "(value) => { scope.it.setParam('selected',value); }")
+             {{ hilite_selected }}
+             ;
+     // варианты красоты:        
+     // @it | get-cell "selected" | set-cell-value (@ssr | get-cell "user_change" | get-cell-value);
+     // bind-cells @ssr "user_change" @it "selected";
+     // bind-cells (@ssr | get-cell "user_change") (@it | get-cell "selected");
+     // bind-cells (get-cell @ssr "user_change") (get-cell @it "selected");
+     // bind-cells @ssr=>user_change @it=>selected; // тут мы вводим синтаксис => как доступ к ячейкам
+     // bind-cells @ssr.cells.user_change @it.cells.selected;
+     // bind-cells @ssr.cells.user_change "(val) => scope.it.setParam('selected',value)"
+     // c-on @ssr.cells.user_change "(val) => scope.it.setParam('selected',value)"
+
+     render-params-list object=@it list=["selected"]; 
+
+     dom style="height: 1em";
+
    }
    {{
      @it.subitems | get-cell "visible" | m_eval "(cells,selected) => {

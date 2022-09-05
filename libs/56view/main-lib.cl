@@ -298,7 +298,6 @@ feature "render_project" {
        ssr: switch_selector_row 
                index=@rend->active_view_index
                items=(@rend->sorted_views | map_geta "title")
-
                style_qq="margin-bottom:15px;" {{ hilite_selected }}
                 ;
 

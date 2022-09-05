@@ -317,14 +317,16 @@ function parsed2dump( vz, parsed, base_url ) {
   if (!parsed.features[ "connect_params_to_events" ])
   for (let i=0; i<parsed?.features_list?.length; i++) {
     let f = parsed.features_list[i];
-    if (f.links.output_link_0?.to.startsWith(".->on_"))
-      {
-        parsed.features[ "connect_params_to_events" ] = true;
-        break;
-      };
+    for (let k of Object.values( f.links ))
+    if (k.to.startsWith(".->on_"))
+    {
+      parsed.features[ "connect_params_to_events" ] = true;
+      break;
+    };
+    
   }
   
-  //parsed.features[ "connect_params_to_events" ] = true;
+  parsed.features[ "connect_params_to_events" ] = true;
   /////////////////
   
 
@@ -2251,13 +2253,21 @@ export function one_of( env, options )
 
   var pending_perform;
   let created_num;
-  function perform( num ) {
-     
-     for (let old_env of created_envs) {
+  var current_promise;
+
+  function cleanup() {
+    for (let old_env of created_envs) {
        env.emit("destroy_obj", old_env, created_num )
        old_env.remove();
      }
      created_envs=[];
+     // где-то в процессе создания идет
+     if (current_promise) current_promise.need_cancel=true;
+  }
+  env.on("remove",cleanup);
+
+  function perform( num ) {
+     cleanup();     
 
      let list = env.params.list || Object.values( children );
 
@@ -2296,13 +2306,22 @@ export function one_of( env, options )
      $scopeFor.$lexicalParentScope = env.$scopes.top();
 
      var p = env.vz.createSyncFromDump( edump,null,env.ns.parent,null,null,$scopeFor );
+     current_promise = p;
 
      p.then( (child_env) => {
+          if (p == current_promise)
+              current_promise = null;
+
+          if (p.need_cancel) {
+            child_env.remove();
+            return;
+          }
 
           created_envs.push( child_env );
           env.emit("create_obj", child_env, num )
           created_num = num;
           env.setParam("output",child_env); // выдадим наружу созданное
+          //console.log('ONEOF: created ',num,child_env)
       });
    };
 
@@ -2957,6 +2976,12 @@ export function insert_children( env )
           edump.keepExistingChildren = true; // но это надо и вложенным дитям бы сказать..
           var p = env.vz.createSyncFromDump( edump,null,tenv, edump.$name, env.params.manual, $scopeFor );
           p.then( (child_env) => {
+
+             if (env.removed) { // возможно insert-children уже удален
+               child_env.remove();
+               return;
+             }
+
              created_envs.push( child_env );
 
              if (env.params.manual) child_env.manuallyInserted = true;
@@ -3447,7 +3472,7 @@ export function computing_env(env){
     for (let i=0; i<attrs.length;i++)
     {
         let argname = attrs[i];
-        console.log('fill_scope_with_args: argname=',argname,'i=',i)
+        //console.log('fill_scope_with_args: argname=',argname,'i=',i)
         let cell;
         if (has_input)
         {
@@ -3615,10 +3640,13 @@ export function connect_params_to_events(env) {
     if (bound_vars[n]) bound_vars[n]();
 
     let event_name = n.substring(3);
+
+    //console.log("connect_params_to_events: connecting to event",event_name,env.getPath())
+
     bound_vars[n] = env.on(event_name,(...args) => {
       let code = env.params[n];
       if (code.bind) {
-          code.apply( env, ...args );
+          code.apply( env, args );
       } 
     });
   }

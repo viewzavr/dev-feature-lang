@@ -647,10 +647,12 @@ register_feature name="switch_selector" {
 register_feature name="switch_selector_row" {
 	root55: row index=0 gap="0.2em" generated_items=@rep->output 
 	{
-		rep: repeater input=@root55->items {
-			 button text=@.->input
+		rep: repeater input=@root55->items { |input index|
+			 button text=@input
+			 on_click=(m_lambda "(obj) => { 
+			 	obj.emit('user_change',scope.index); }" @root55)
 			 {
-			 	 setter target="@root55->index" value=@..->input_index manual=true;
+			 	 setter target="@root55->index" value=@index manual=true;
 			 };
 		};
 	}; // column
