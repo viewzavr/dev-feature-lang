@@ -262,6 +262,14 @@ feature "joinlines" code=`
 feature "let" code=`
 // NHACK - на первом проходе в register_feature для js скоп еще не создан
 let $scopeFor = env.$scopes [env.$scopes.length-1]; 
+
+
+function forget_param (name,value) {
+    if ($scopeFor[ name ]) 
+     if ($scopeFor[ name ].created_by_data_env === env)
+       $scopeFor.$forget( name );
+}
+
 function process_param (name,value) {
 
     if (Number.isInteger(parseFloat(name)) || name == "args_count")
@@ -302,6 +310,13 @@ function process_param (name,value) {
   for (let k of env.getParamsNames()) {
     process_param( k, env.getParam(k));
   };
+
+  env.on("remove",() => {
+    for (let k of env.getParamsNames()) {
+      forget_param( k );
+    };
+  });
+
 `
 {
   data: output=@data->0?;

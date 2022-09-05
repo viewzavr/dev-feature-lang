@@ -196,7 +196,7 @@ feature "area_container_one_switch" {
    show_gui={
      ssr: switch_selector_row 
              index=@it.selected
-             items=(@it.subitems | map_geta "title")
+             items=(@it.subitems | map_geta "title" default=".")
              on_user_change=(m_lambda "(value) => { scope.it.setParam('selected',value); }")
              {{ hilite_selected }}
              ;
