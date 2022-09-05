@@ -604,7 +604,7 @@ feature "show_area_empty" {
 
 feature "show_visual_tab_recursive" {
    svr: dom_group
-      screenshot_dom = @rrviews_group->dom
+      //screenshot_dom = @rrviews_group->dom
    {
 
     containers_params: column; 
@@ -625,19 +625,11 @@ feature "show_visual_tab_recursive" {
 
     show_sources_params input=(@svr->input | geta "sources");
 
-    rrviews_group: 
-      row style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2;"
-                 class="view56_visual_tab"
-        {
-
+/*
     main_render_area: show_3d_scene_main subrenderers=(find-objects-bf "subrenderer" root=@rrviews)
-      style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2"
-      {{ 
-        // хитро. надо прописать renderer всем вьюшкам 3д, чтобы они могли это передавать в визуальные процессы..
-        find-objects-bf "show_3d_scene_r" root=@rrviews 
-        | x-modify { x-set-params renderer = @main_render_area->renderer };
-      }};
-
+      style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2";
+*/
+      
     rrviews: 
       row style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-1;
         justify-content: center;"
@@ -647,9 +639,8 @@ feature "show_visual_tab_recursive" {
 
     }; // global row rrviews
 
-    }; // rrviews_group
+    //}; // rrviews_group
 
    }; // domgroup
 
 }; // show vis tab
-

@@ -315,6 +315,24 @@ feature "render_project" {
         {
         }; // column справа
 
+       // теперь надо рендерер. как выяснилось он таки один должен быть даже на все экраны, иначе падает браузер 
+
+
+      // это сделано родителем one-of чтобы можно было делать скриншоты
+      rrviews_group: 
+        column style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2;"
+                 class="view56_visual_tab"
+        {
+
+        main_render_area: show_3d_scene_main subrenderers=(find-objects-bf "subrenderer" root=@rend)
+            style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2";
+
+        // хитро. надо прописать renderer всем вьюшкам 3д, чтобы они могли это передавать в визуальные процессы..
+        find-objects-bf "show_3d_scene_r" root=@rend 
+        | x-modify { x-set-params renderer = @main_render_area->renderer };
+      ;
+      };
+
        of: one_of 
               index=@ssr->index
               list={ 
@@ -331,6 +349,8 @@ feature "render_project" {
               }
               {{ one-of-keep-state; one_of_all_dump; }}
               ;
+
+      //}; // group
 
 
    };
