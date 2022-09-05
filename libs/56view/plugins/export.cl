@@ -9,6 +9,7 @@ insert_children { manage_export; };
 feature "manage_export" {
 	vp: project=@..->project
       active_view_tab=@..->active_view_tab
+      render_project=@..->render_project
     	collapsible "Экспорт" {
         column plashka {
           button "Картинка" cmd=@ee->image;
@@ -19,7 +20,7 @@ feature "manage_export" {
           };
         };
 
-        ee: image-exporter input=(@vp->active_view_tab | geta "screenshot_dom" default=null);
+        ee: image-exporter input=(@vp->render_project | geta "screenshot_dom" default=null);
         hr: make-hi-res enabled=@cb->value;
       };  
 

@@ -244,11 +244,11 @@ i-call-js
 // имеет записи gui, scene2d, scene3d
 
 feature "show_visual_tab" {
-  sv: dom_group 
-        screenshot_dom=(@ic->output | pause_input | geta 0 | geta "screenshot_dom") 
+  sv: dom_group  
+        //screenshot_dom=(@ic->output | pause_input | geta 0 | geta "screenshot_dom") 
   {
-    ic: insert_children input=@sv list=(@sv->input | geta "show_view")
-    ;
+    ic: insert_children input=@sv list=(@sv->input | geta "show_view");
+    ic2: insert_children input=@sv.rend list=(@sv->input | geta "show_view_gui");
   };
 };
 
@@ -270,6 +270,7 @@ feature "render_project" {
             class='vz-mouse-transparent-layout'
             active_view_index=0 
             active_view=(@rend->project|geta "views"|geta @ssr->index default=null) 
+            screenshot_dom=@rrviews_group.dom
 
             {{ x-add-cmd name="goto_next_view" code=(i-call-js ssr=@ssr code=`(val) => {
               let ssr = env.params.ssr;
@@ -331,26 +332,25 @@ feature "render_project" {
         find-objects-bf "show_3d_scene_r" root=@rend 
         | x-modify { x-set-params renderer = @main_render_area->renderer };
       ;
-      };
-
+      
        of: one_of 
               index=@ssr->index
               list={ 
-                show_visual_tab input=(@rend->project | geta "views" | geta 0 default=null); // так то.. так то.. показывай просто текущий, согласно project[index].. но параметры сохраняй...
-                show_visual_tab input=(@rend->project | geta "views" | geta 1 default=null);
-                show_visual_tab input=(@rend->project | geta "views" | geta 2 default=null);
-                show_visual_tab input=(@rend->project | geta "views" | geta 3 default=null);
-                show_visual_tab input=(@rend->project | geta "views" | geta 4 default=null);
-                show_visual_tab input=(@rend->project | geta "views" | geta 5 default=null); // так то.. так то.. показывай просто текущий, согласно project[index].. но параметры сохраняй...
-                show_visual_tab input=(@rend->project | geta "views" | geta 6 default=null);
-                show_visual_tab input=(@rend->project | geta "views" | geta 7 default=null);
-                show_visual_tab input=(@rend->project | geta "views" | geta 8 default=null);
-                show_visual_tab input=(@rend->project | geta "views" | geta 9 default=null);
+                show_visual_tab rend=@rend input=(@rend->project | geta "views" | geta 0 default=null); // так то.. так то.. показывай просто текущий, согласно project[index].. но параметры сохраняй...
+                show_visual_tab rend=@rend input=(@rend->project | geta "views" | geta 1 default=null);
+                show_visual_tab rend=@rend input=(@rend->project | geta "views" | geta 2 default=null);
+                show_visual_tab rend=@rend input=(@rend->project | geta "views" | geta 3 default=null);
+                show_visual_tab rend=@rend input=(@rend->project | geta "views" | geta 4 default=null);
+                show_visual_tab rend=@rend input=(@rend->project | geta "views" | geta 5 default=null); // так то.. так то.. показывай просто текущий, согласно project[index].. но параметры сохраняй...
+                show_visual_tab rend=@rend input=(@rend->project | geta "views" | geta 6 default=null);
+                show_visual_tab rend=@rend input=(@rend->project | geta "views" | geta 7 default=null);
+                show_visual_tab rend=@rend input=(@rend->project | geta "views" | geta 8 default=null);
+                show_visual_tab rend=@rend sinput=(@rend->project | geta "views" | geta 9 default=null);
               }
               {{ one-of-keep-state; one_of_all_dump; }}
               ;
 
-      //}; // group
+      }; // group
 
 
    };

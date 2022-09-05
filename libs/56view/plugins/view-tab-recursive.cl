@@ -41,11 +41,14 @@ feature "walk_objects" {
 feature "the_view_recursive"
 {
   tv: the-view 
-    show_view={
+    show_view={ // это экран
       show_visual_tab_recursive input=@tv;
     }
+    show_view_gui={ // это контролы слева
+      show_visual_tab_recursive_gui input=@tv;
+    }
     active_area = null
-    gui={ 
+    gui={ // это контролы для диалога
       render-params @tv;
 
       cb: combobox values=(@tv->list_of_areas | map_geta "id") 
@@ -604,10 +607,22 @@ feature "show_area_empty" {
 
 feature "show_visual_tab_recursive" {
    svr: dom_group
+   {
+    rrviews: 
+    row style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-1;
+        justify-content: center;"
+    {
+      show_areas input=(list (@svr->input | geta "primary_container")) target=@rrviews;
+    }; // global row rrviews
+   }; // domgroup
+}; // show vis tab
+
+feature "show_visual_tab_recursive_gui" {
+   svr: dom_group
       //screenshot_dom = @rrviews_group->dom
    {
-
     containers_params: column; 
+
     insert-children input=@containers_params list=@svr.input.primary_container.show_gui?;
          //list=(find-objects-bf features="area_container" root=@svr->input | map_geta "show_gui");
     /*
@@ -624,23 +639,6 @@ feature "show_visual_tab_recursive" {
     insert_children input=@actions_co list=(@svr->input | geta "actions" default=null);
 
     show_sources_params input=(@svr->input | geta "sources");
-
-/*
-    main_render_area: show_3d_scene_main subrenderers=(find-objects-bf "subrenderer" root=@rrviews)
-      style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-2";
-*/
-      
-    rrviews: 
-      row style="position: absolute; top: 0; left: 0; width:100%; height: 100%; z-index:-1;
-        justify-content: center;"
-    {
-
-      show_areas input=(list (@svr->input | geta "primary_container")) target=@rrviews;
-
-    }; // global row rrviews
-
-    //}; // rrviews_group
-
    }; // domgroup
 
 }; // show vis tab
