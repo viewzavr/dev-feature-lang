@@ -18,22 +18,23 @@ feature "walk_objects" {
 // возвращает массив записей о найденных детях
 feature "walk_objects" {
    k: 
-     output=(concat @my_result->output @my_items_result->output)
+     output=(concat @my_result @my_items_result)
      depth=0
      {
-      my_result: m_eval 
+      let my_result = (m_eval 
          "(obj,title,depth) => 
          { return {id:obj.$vz_unique_id,
                    title:'-'.repeat(depth)+title,
                    obj: obj} }" 
-         @k->0 (@k->0 | geta "title") @k->depth;
-      my_items: data (@k->0 | geta @k->1 default=[]);
+         @k->0 (@k->0 | geta "title") @k->depth);
+      let my_items = (data (@k->0 | geta @k->1 default=[]));
+      // console-log "k=" @k.getPath "k.0=" @k.0?.getPath? "found items=" @my_items;
       
-      my_items_result:
-        @my_items->output | repeater {
+      let my_items_result=(
+        @my_items | repeater {
           w: walk_objects @w->input @k->1 depth=(@k->depth + 1);
         } 
-        | map_geta "output" default=null | geta "flat" | arr_compact;
+        | map_geta "output" default=null | geta "flat" | arr_compact);
      }
 };
 
@@ -134,9 +135,11 @@ feature "area_container" {
   it: recursive_area
        sibling_types=["area_container_horiz","area_container_vert","area_container_opacity_switch"] 
        sibling_titles=["Горизонтальный","Вертикальный","Выбор прозрачности"]
-       subitems=(@it | get_children_arr | arr_filter_by_features features="recursive_area")
-
+       subitems=(@it | get_children_arr 
+                     // | restart_input ( @it | get_children_arr | get-cell "feature-applied-recursive-area" | get-cell-value)
+                     | arr_filter_by_features features="recursive_area")
         {{
+           // console-log "me=" @it.getPath "subitems=" @it.subitems "charr=" (@it | get_children_arr);
            //x-param-slider name="ratio";
         }}
         gui={
@@ -525,7 +528,7 @@ feature "show_area_3d" {
           | repeater target_parent=@area_rect {
           k: if (m_eval "(item) => { return item?.env_args ? true : false }" @k->input)
               then={
-                computing_env input=@k->input @process_rect @area_rect.input.opacity_3d;
+                computing_env code=@k->input @process_rect @area_rect.input.opacity_3d;
               }
               else={
                 data @k->input;

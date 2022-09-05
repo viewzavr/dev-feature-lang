@@ -5,13 +5,52 @@
 // вход - input - массив объектов
 //      - features - строка список фич (сейчас одна)
 // выход - output - список объектов у которых эти фича есть
-register_feature name="arr_filter_by_features"
+
+feature "normalize-feature-name" {
+  computing_env
+  { |name|
+    m_eval "(name) => name.replaceAll('_','-')" @name;
+  };
+};
+
+feature "arr_filter_by_features"
+{
+  p: 
+  pipe
+  {
+    restart_input (@p->input 
+      | get-cell (normalize-feature-name (+ "feature-applied-" @p.features)) 
+      | get-cell-value 
+      )
+    ;
+    arr_filter code=(m_lambda "(f,val,index) => {
+       return val.is_feature_applied( f );
+    }" @p->features);
+  };
+};
+
+register_feature name="arr_filter_by_features_opt"
+{
+  k: arr_filter code="(val,index) => {
+       let f = env.params.features;
+       if (!f) return false;
+       f = f.replaceAll('_','-');
+       let r = val.is_feature_applied( f );
+       if (r)
+           return r;
+       let unsub = val.on('feature-applied-'+f, () => env.force_restart() );
+       env.unsub_arr.push( unsub );
+    }" 
+    on_restart=(m_lambda "(env) => { if (env.unsub_arr) env.unsub_arr.forEach( c => c() ); env.unsub_arr=[]; }" @k)
+    on_remove=(m_lambda "(env) => { if (env.unsub_arr) env.unsub_arr.forEach( c => c() ); env.unsub_arr=[]; }" @k)
+};
+
+register_feature name="arr_filter_by_features_orig"
 {
   arr_filter code="(val,index) => {
-     //let features = env.params.features.split(' ');
-     
-     return val.is_feature_applied( env.params.features );
-  }";
+       let f = env.params.features;
+       return val.is_feature_applied( f );
+    }";
 };
 
 feature "arr_compact" {
@@ -45,6 +84,8 @@ register_feature name="arr_filter"
 
   env.feature('delayed');
   let pd = env.delayed( callprocess );
+  env.force_restart = pd;
+
   env.on("param_changed", () => {
      //console.log("qq arrfilter param-changed", env.getPath())
      pd();
@@ -59,7 +100,10 @@ register_feature name="arr_filter"
     //var f = new Function( "line", code );
     //var res = dfjs.create_from_df_filter( df, f );
     
-    var f = eval( code );
+    var f;
+    if (code.bind) f = code; else f = eval( code );
+
+    env.emit('restart');
 
     let res = [];
     arr.forEach( (v,index) => {

@@ -3364,7 +3364,7 @@ export function attach_scope(env) {
 // идея - пробовать работать с children ...
 
 // замысел этой штуки - разворачивать процессы описанные в { |a b c| ... }-параметрах с аргументами
-export function computing_env(env){
+export function computing_env_orig(env){
 
   // соединяет позиционные аргументы computing_env с ||-аргументами scope
   function fill_scope_with_args(newscope,attrs) {
@@ -3436,6 +3436,111 @@ export function computing_env(env){
   });
 };
 
+////////////// дубликат computing env работающий с чилдренами
+export function computing_env(env){
+
+  // соединяет позиционные аргументы computing_env с ||-аргументами scope
+  function fill_scope_with_args(newscope,attrs) {
+
+    let has_input = (env.hasParam("input") || env.hasLinksToParam("input"));
+
+    for (let i=0; i<attrs.length;i++)
+    {
+        let argname = attrs[i];
+        console.log('fill_scope_with_args: argname=',argname,'i=',i)
+        let cell;
+        if (has_input)
+        {
+          if (i == 0)
+            cell = env.get_cell("input");
+          else
+            cell = env.get_cell(i-1);
+        }
+        else
+        {
+          cell = env.get_cell(i);
+        }
+        let locali = i;
+        /*
+        cell.on('assigned',(q) => {
+          console.log('computing env see agr cell change',locali, attrs[locali],q)
+        });
+        */
+        newscope.$add( argname, cell );
+    };
+  };
+
+  let cleanup = () => {};
+  env.on("remove",() => cleanup());
+
+  ///// учимся реагировать на чилдренов
+  // хотя подход странный - перешибает input..
+  let children_env_list;
+
+  env.restoreChildrenFromDump = (dump, ismanual, $scopeFor) => {
+    children_env_list = Object.values( dump.children );
+    if (children_env_list.length == 0)
+    {
+      children_env_list = null;
+      env.onvalue("code",fn ); // когда появится code или если есть сейчас - действуем
+    }
+    else {
+      children_env_list.env_args = dump.children_env_args;
+      //if (env.hasParam("input") || env.hasLinksToParam("input"))
+      fn(); // поехали с орехами..
+    }
+        
+    return Promise.resolve("success");
+  };
+  /////  
+  
+
+  function fn () {
+    cleanup();
+
+    let env_list = children_env_list || env.params.code;
+
+    //if (!env_list?.env_args)
+    if (!(Array.isArray(env_list) && env_list.length > 0 && env_list[0].features))
+    {
+      // console.log("wrong argument to computing_env", env_list, env.getPath(), env)
+      return;
+    }
+
+    let newscope = env.$scopes.createAbandonedScope("computing_env");
+    newscope.$lexicalParentScope = env_list[0].$scopeFor;
+    if (env_list.env_args)
+      fill_scope_with_args( newscope, env_list.env_args.attrs );
+
+    // прошить им всем доступ в эту скопу.. странно все это, 
+    // ибо зачем тогда scope-аргумент в createObjectsList .. но ладно.. взято из callEnvFunction
+
+    newscope.skip_dump_scopes = true;
+    /*
+    if (env_list[0].$scopeFor)
+      for (let e of env_list)
+          e.$scopeFor = newscope;
+    */
+
+    let spawn_obj = env.vz.createObj( { parent: env, name: "spawn" });
+    cleanup = () => { spawn_obj.remove(); cleanup = () => {}; }
+
+    let p = env.vz.createObjectsList( env_list, spawn_obj, false, newscope );
+
+    p.then( () => {
+      if (spawn_obj.removed) {
+        //objects.forEach( obj => obj.remove() )
+        return;
+      }
+
+      spawn_obj.ns.getChildren()[0].onvalue("output",finish);
+      function finish( res ) {
+        env.setParam("output",res);
+      }
+    });    
+  };
+};
+
 // временная вариация на тему
 // вход: input - описание
 //       позиционные аргументы - пойдут на вход scope согласно описанию
@@ -3454,8 +3559,6 @@ export function create_objects(env){
 
   let cleanup = () => {};
   env.on("remove",() => cleanup());
-
-
 
   env.onvalue("input",(env_list) => {
     cleanup();
@@ -3500,6 +3603,7 @@ export function create_objects(env){
 };
 
 // F_PARAM_EVENTS
+// прицепляет параметры on_ как обработчики событий
 // idea - только зарегистрированные параметры, а остальным отлуп
 export function connect_params_to_events(env) {
   env.on("param_changed",f);

@@ -219,6 +219,21 @@ feature "pause_input" code=`
   env.onvalue("input",pass);
 `;
 
+feature "restart_input" code=`
+  //env.bind_cells( "input","output" );
+  env.onvalue("input",(v) => {
+    env.setParam("output",v);
+  });
+
+  env.onvalue(0,(tick) => {
+    let v = env.params.input;
+    if (Array.isArray(v)) v = [...v];
+    env.setParam("output",v);
+  });
+
+  env.setParam("output", env.params.input )
+`;
+
 feature "joinlines" code=`
   env.on("param_changed",(name) => {
     if (name == "output") return;

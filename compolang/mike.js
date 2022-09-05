@@ -191,8 +191,12 @@ function js_access_compalang_scope( env ) {
       let item = env.$scopes[0][prop];
       if (!item) return false;
 
-      if (item.setParam) return item.params[0];
-      return item.get();
+      if (item.setParam && item.is_feature_applied('is_positional_env')) // там сидит позиционное
+          return item.params[0];
+      if (item.is_cell)  
+          return item.get();
+
+      return item;  
       //return Reflect.get(...arguments);
     } 
     })

@@ -357,6 +357,8 @@ export function get_cell( target, name, ismanual ) {
        }
     })
 
+    // казалось бы где отписка? но этот мониторинг создается разово для каждого имени
+    // и ячейка раздается всем желающим. итого у нас тут нет роста подписок более чем 1 раз.
     target.trackParam( name, (v) => {
        if (setting) return;
        setting = true;
@@ -590,3 +592,68 @@ export function c_on( env ) {
   env.on("remove", call_unsub)
 };
 */
+
+/////////////////// операции над ячейками - экспериментально
+
+// Мишин мэпинг из набора ячеек в новую ячейку значение которой - набор значений
+
+// по списку ячеек создает новую ячейку, которая содержит в себе массив значений
+// input - массив ячеек
+// если входная это ячейка а не массив то выдавать 1 значение а не массив значений
+// но это спорно
+export function join_cells( env ) {
+  let result = create_cell();
+  env.setParam( "output", result );
+
+  let unsub = [];
+  function call_unsub() { unsub.map( f => f() ); unsub=[]; }
+
+  env.feature("delayed");
+
+  env.onvalues( ["input"], (arr) => {
+    let single_mode=false;
+    if (!Array.isArray(arr)) {
+        arr=[arr];
+        single_mode=true;
+    }   
+
+    let fnd = env.delayed( fn ); // не факт кстати что это надо будет - мб надо сразу для скорости
+
+    function fn() {
+      call_unsub();
+      let has_assigned_values = false;
+      let res = arr.map( (cell) => {
+        if (!cell) return;
+        let u = cell.monitor(fnd); 
+        unsub.push( u );
+        has_assigned_values ||= cell.is_value_assigned();
+        return cell.get();
+      })
+
+      result.set( single_mode ? res[0] : res )
+    };
+
+    fn();
+
+  });
+
+  env.on("remove", call_unsub)
+};
+
+// Мишин мэпинг из ячейки в набор ячеек
+// делает ячейку запись в которую пишет во все указанные в input ячейки
+export function create_writing_cell( env ) {
+  let result = create_cell();
+  env.setParam( "output", result );
+
+  result.on('assigned',fn);
+
+  function fn(v) {
+    let arr = env.params.input;
+    if (!arr) return;
+    if (!Array.isArray(arr)) arr=[arr];
+    arr.forEach( (cell) => {
+      cell.set( v );
+    });
+  }
+};
