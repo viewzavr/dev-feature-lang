@@ -662,7 +662,7 @@ feature "show_visual_tab_recursive_gui" {
     ;
     insert_children input=@actions_co list=(@svr->input | geta "actions" default=null);
 
-    show_sources_params input=(@svr->input | geta "sources");
+    show_sources_params input=(@svr->input | geta "sources") auto_expand_first=false;
    }; // domgroup
 
 }; // show vis tab

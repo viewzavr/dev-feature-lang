@@ -153,7 +153,9 @@ register_feature name="render-one-param" {
       // x: func cmd="@dm->apply";
 
       // ну хорошо, а зачем? вроде типы у нас не шибко меняются..
-      // @dg->obj | get-cell (join "gui-changed-" @dg->name) | c-on @x->apply;
+      // выяснилось что слайдер читает gui-структуру.. и сообразно не перестраивается.
+      // конечно если это бы все хранилось в отдельной vz-объектоной структуре то было бы лучше
+      @dg->obj | get-cell (join "gui-changed-" @dg->name) | c-on @x->apply;
 
       // старое
       //@dg->obj | get-cell (join "gui-changed-" @dg->name) | c-on "(pname, x) => x ? x() : null" @x->apply;
