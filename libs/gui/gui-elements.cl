@@ -76,7 +76,8 @@ register_feature name="checkbox" {
 				var v = env.params.object.dom.checked;
 				//console.log('cb setting value to',v)
 				env.params.object.ns.parent.setParam("value",v);
-				env.params.object.ns.parent.emit("user-changed",v);
+				env.params.object.ns.parent.emit("user-changed",v); // todo вычистить
+				env.params.object.ns.parent.emit("user_change",v);
 			`;
 		};
 		text text=@..->text?;

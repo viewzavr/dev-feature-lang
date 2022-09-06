@@ -49,6 +49,7 @@ feature "insert_default_children" code=`
 
 // это вычисление поля active для обычного insert_children
 // также надо для целевого контейнера ставить force_dump=true
+// todo - в случае если это программно управляется вещь, то у нее is-default срабатывает..
 feature "is_default" code=`
   env.setParam("output",false); // стопорнем для начала
   env.feature( "param_alias");

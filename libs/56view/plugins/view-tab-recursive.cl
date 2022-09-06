@@ -82,13 +82,13 @@ feature "the_view_recursive"
     // верхний контейнер
     primary_container=(@tv | get_children_arr | arr_filter_by_features features="recursive_area" | geta 0 default=null)
     list_of_areas=(walk_objects @tv->primary_container "subitems")
-    /* уберем - давайте ка руками это вставлять все..
+    /* уберем - давайте ка руками это вставлять все..  */
     {{ insert_children input=@tv manual=true active=(is_default @tv) 
       list={
          area_3d;
       };
     }}
-    */
+    
     {{ x-param-option name="append_process" option="visible" value=false }}
     {{ x-add-cmd name="append_process" code=(m_lambda `(active_area,first_cont_area,proc) => {
         if (active_area && active_area.append_process)
