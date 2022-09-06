@@ -2888,6 +2888,10 @@ export function insert_features( env )
 // вход: input,0 - массив объектов для модификации
 //       list,children - массив описаний объектов, которые следует прицепить
 // output: массив созданных объектов
+
+// единственное но - эту вещь сложно оптимизировать, тут 2д матрица потому что.
+// может ее лучше реализовать как repeater { |obj| @list | repeater { |f| create-object f parent=@obj } }
+// ну единственное будет дороговато.. но попробовать можно, да.
 export function insert_children( env )
 {
   var children = {};

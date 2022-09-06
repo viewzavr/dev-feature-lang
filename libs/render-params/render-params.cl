@@ -131,11 +131,9 @@ register_feature name="render-params" {
     insert_children @extra_filters list=@rp->filters?;
 
     @rp->object? | get-params-names | extra_filters: pipe
-    | repeater {
+    | repeater { |name|
       column {
-        //text text=@..->modelData;
-        render-one-param obj=@rp->object name=@..->modelData;
-
+        render-one-param obj=@rp->object name=@name;
       };
     };
 
@@ -152,19 +150,13 @@ register_feature name="render-one-param" {
       x-on "param_obj_changed"  cmd="@x->apply";
       x-on "param_name_changed" cmd="@x->apply";
       x: func {{ delay_execution }} cmd="@dm->apply";
+      // x: func cmd="@dm->apply";
 
-      /*
-      mmm: modify input=@dg->obj {
-        on (join "gui-changed-" @dg->name) cmd="@x->apply" // cmd="@dm->apply"
-        {{
-           on "connected" cmd="@x->apply"; //cmd="@dm->apply"
-        }};
-      }
-      что-то это перестало работать.. перепишем на ячейках
-      */
+      // ну хорошо, а зачем? вроде типы у нас не шибко меняются..
+      // @dg->obj | get-cell (join "gui-changed-" @dg->name) | c-on @x->apply;
 
+      // старое
       //@dg->obj | get-cell (join "gui-changed-" @dg->name) | c-on "(pname, x) => x ? x() : null" @x->apply;
-      @dg->obj | get-cell (join "gui-changed-" @dg->name) | c-on @x->apply;
       
 
     }}
