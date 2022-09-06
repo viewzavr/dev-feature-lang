@@ -2951,20 +2951,20 @@ export function insert_children( env )
      let parr = []
 
      let ii=0;
-     for (let tenv of to_deploy_to) {
 
+     function create_scope_for_item(tenv) {
       let $scopeFor = tenv.$scopes.createAbandonedScope("created by insert_children "+env.$vz_unique_id);
+       if (using_children)
+           $scopeFor.$lexicalParentScope = env.$scopes.top();
+       if (env.$use_scope_for_created_things)
+           $scopeFor.$lexicalParentScope = env.$use_scope_for_created_things;
 
-      
+       return $scopeFor;  
+     };
 
-      // рассказ про окружение insert-чилдрена ток если работа с детьми идет..
-      // ну и еще если там лист как параметр прописан но это разрулит lexicalParent..
-      if (using_children)
-          $scopeFor.$lexicalParentScope = env.$scopes.top();
-      ///else  
-      if (env.$use_scope_for_created_things)  
-          $scopeFor.$lexicalParentScope = env.$use_scope_for_created_things;
-      //else 
+     for (let tenv of to_deploy_to) {
+      let $scopeFor = create_scope_for_item(tenv);
+      let prev_dump_personal_scope;
 
       // todo чистить надо или само?
 
@@ -2976,9 +2976,21 @@ export function insert_children( env )
 
           // важная добавка - некоторые дампы содержат свой scope взятый у родителя
           // а создаваемое таки должно жить в своем scope а не в родительском но помнить о нем
-          if (edump.$scopeFor) { 
+
+          // дополнительно, в insert-childen list идет двух видов - как значение аттрибута { ... }
+          // и тогда там у всех должен быть один общий скоп
+          // или как синтезированный массив, и тогда у каждой должен быть индивидуальный скоп..
+
+          if (edump.$scopeFor) {
+             if (prev_dump_personal_scope && prev_dump_personal_scope!== edump.$scopeFor)
+             {
+                // признак того что этот дамп синтезированный, и сообразно надо ему индивидуальный scope иметь
+                $scopeFor = create_scope_for_item(tenv); 
+             }
+
              $scopeFor.$lexicalParentScope = edump.$scopeFor;  
              $scopeFor.skip_dump_scopes = true; // это апи createSyncFromDump..
+             prev_dump_personal_scope = edump.$scopeFor;
           };
 
           if (env.params.manual) {
@@ -3547,13 +3559,15 @@ export function computing_env(env){
 
     let newscope = env.$scopes.createAbandonedScope("computing_env");
     newscope.$lexicalParentScope = env_list[0].$scopeFor;
+    newscope.skip_dump_scopes = true;
+
     if (env_list.env_args)
       fill_scope_with_args( newscope, env_list.env_args.attrs );
 
     // прошить им всем доступ в эту скопу.. странно все это, 
     // ибо зачем тогда scope-аргумент в createObjectsList .. но ладно.. взято из callEnvFunction
 
-    newscope.skip_dump_scopes = true;
+    
     /*
     if (env_list[0].$scopeFor)
       for (let e of env_list)

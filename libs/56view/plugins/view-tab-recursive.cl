@@ -197,7 +197,7 @@ feature "area_container_one_switch" {
      ssr: switch_selector_row 
              index=@it.selected
              items=(@it.subitems | map_geta "title" default=".")
-             on_user_change=(m_lambda "(value) => { scope.it.setParam('selected',value); }")
+             on_user_change=(m_lambda "(it,value) => { it.setParam('selected',value); }" @it)
              {{ hilite_selected }}
              ;
      // варианты красоты:        
