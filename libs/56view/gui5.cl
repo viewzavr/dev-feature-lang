@@ -175,23 +175,35 @@ feature "object_change_type"
 
                 let origparent = obj.ns.parent;
                 let pos = origparent.ns.getChildren().indexOf( obj );
-                obj.remove();
+                
 
                 //console.log("dump is",dump)
 
                 let newobj = obj.vz.createObj();
                 origparent.ns.appendChild( newobj,'item',true,pos );
+                
+                let arr = obj.ns.getChildren().slice(0);
+                for (let c of arr)
+                  newobj.ns.appendChild( c, c.ns.name,true );
+
+                obj.remove();
+                
+
                 Promise.allSettled( newobj.manual_feature( v ) ).then( () => {
                   newobj.manuallyInserted=true;
 
                   console.log("setted manual feature",v);
 
                   if (dump) {
-                    if (dump.params)
+                    if (dump.params) {
                         delete dump.params['manual_features'];
-                    dump.manual = true;
+                        newobj.vz.restoreParams( dump, newobj, true );
+                    }
+                    
                     //console.log("restoring dump",dump);
-                    newobj.restoreFromDump( dump, true );
+                    //dump.manual = true;
+                    //newobj.restoreFromDump( dump, true );
+
                     console.log("created obj", newobj)
                   }
 

@@ -139,8 +139,8 @@ feature "recursive_area"
 
 feature "area_container" {
   it: recursive_area
-       sibling_types=["area_container_horiz","area_container_vert","area_container_one_switch", "area_container_opacity_switch"] 
-       sibling_titles=["Горизонтальный","Вертикальный","Выбор одного", "Выбор по прозрачности"]
+       sibling_types=["area_container_horiz","area_container_vert","area_container_one_switch", "area_container_join", "area_container_opacity_switch"] 
+       sibling_titles=["Горизонтальный","Вертикальный","Выбор одного", "Совместный", "Выбор по прозрачности"]
        subitems=(@it | get_children_arr 
                      // | restart_input ( @it | get_children_arr | get-cell "feature-applied-recursive-area" | get-cell-value)
                      | arr_filter_by_features features="recursive_area")
@@ -177,6 +177,13 @@ feature "area_container_vert" {
    it: area_container title="Вертикальный"
    show={
       show_area_container_vert input=@it;
+   }
+};
+
+feature "area_container_join" {
+   it: area_container title="Совместный"
+   show={
+      show_area_container_join input=@it;
    }
 };
 
@@ -463,12 +470,29 @@ feature "show_area_container_vert" {
   };
 };
 
+feature "show_area_container_join" {
+  area_rect: dom {{ show_area_base input=@area_rect->input }}
+  {
+     ars: show_areas target=@area_rect input=(@area_rect->input | get_children_arr);
+     @ars->output | x-modify { x-set-params style_w="width:100%; height:100%; position: absolute !important; top: 0px; left: 0px;"; };
+     // перетащим 2д в первую область..
+     @ars->output | m_eval "(arr) => {
+        for (let i=1; i<arr.length; i++) {
+            arr[i].setParam('scene2d_tgt', arr[0].params.scene2d_tgt );
+        }
+     }";
+     
+     //insert_children input=@area_rect list=(@area_rect->input | get_children_arr | map_geta "show")
+  };
+};
+
 feature "show_area_container_one_switch" {
   area_rect: column {{ show_area_base input=@area_rect->input }}
   {
      //render-params-list object=@area_rect.input list=["selected"];
      // показываем всех. будем им visible менять.
-     show_areas target=@area_rect input=(@area_rect->input | get_children_arr);
+      show_areas target=@area_rect input=(@area_rect->input | get_children_arr);
+     
      //show_areas target=@area_rect input=(list (@area_rect.input.subitems | geta @area_rect.input.selected));
   };
 };
@@ -479,8 +503,13 @@ feature "show_area_container_opacity_switch" {
   {
      ars: show_areas target=@area_rect input=(@area_rect->input | get_children_arr);
 
-     @ars->output | x-modify { x-set-params style_w="width:100%; height:100%"; };
-     //@ars->output | console-log-input "IIIIIIIIIIIIIIIIIIII";
+     @ars->output | x-modify { x-set-params style_w="width:100%; height:100%; position: absolute !important; top: 0px; left: 0px;"; };
+     // перетащим 2д в первую область..
+     @ars->output | m_eval "(arr) => {
+        for (let i=1; i<arr.length; i++) {
+            arr[i].setParam('scene2d_tgt', arr[0].params.scene2d_tgt );
+        }
+     }";
 
      m_eval "(opcoef, opcells) => {
        //debugger;
@@ -573,11 +602,13 @@ feature "show_3d_scene_r" {
 
 feature "show_area_3d" {
   area_rect: dom style_k="border: 1px solid grey;" 
+     scene2d_tgt=@dg
              {{ show_area_base input=@area_rect->input }}
   {
     process_rect: show_3d_scene_r
         //camera_control={ map-control }
         // renderer - установим снаружи..
+
         scene3d=(@area_rect->input | geta "visible_sources" | map_geta "scene3d" default=[] 
           | repeater target_parent=@area_rect {
           k: if (m_eval "(item) => { return item?.env_args ? true : false }" @k->input)
@@ -605,7 +636,7 @@ feature "show_area_3d" {
              //dg: dom_group input=(@area_rect->input | geta "visible_sources" | map_geta "scene2d" default=[])
              dg: dom_group
              {
-               @dg | insert_children list=(@area_rect->input | geta "visible_sources" | map_geta "scene2d" default=[] | arr_flat);
+               @area_rect->scene2d_tgt | insert_children list=(@area_rect->input | geta "visible_sources" | map_geta "scene2d" default=[] | arr_flat);
 
                if (@area_rect->input | geta "show_fps" default=false) then={
                  show_render_fps renderer=@process_rect->renderer;

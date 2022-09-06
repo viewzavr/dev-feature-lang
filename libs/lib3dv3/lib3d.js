@@ -67,6 +67,7 @@ export function render3d( env ) {
 
       // надо для renderstats с учетом subrenderers
       env.renderer.info.autoReset = false;
+      env.renderer.autoClear = false;
 
       //env.renderer.$vz_renderer_id = vz_renderers_counter++;
 
@@ -148,6 +149,7 @@ export function render3d( env ) {
     // мы перешли на ручной учет статистики, https://threejs.org/docs/#api/en/renderers/WebGLRenderer.info
     // сейчас она общая для всех окошек стала
     env.renderer.info.reset();
+    env.renderer.clear(); // вручную чистим - чтобы subrender-еры не чистили
 
     env.renderer.render( env.scene, cam );
 
@@ -367,14 +369,12 @@ export function subrenderer( env,opts )
           
           external_renderer.render( env.scene, cam );
 
-
           external_renderer.setViewport( orig_vp );
           external_renderer.setScissorTest( orig_sc_b );
           external_renderer.setScissor( orig_sc );
   }
+
   let orig_vp = new THREE.Vector4(), orig_sc = new THREE.Vector4();
-
-
 
   /////////////////////////////////////// кандидат на вылет
 
