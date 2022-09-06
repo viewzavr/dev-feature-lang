@@ -293,27 +293,41 @@ feature "render_project" {
             }}
 
             sorted_views=(@rend->project | geta "views" | sort_by_priority)
+
             {
 
-       ssr: switch_selector_row 
-               index=@rend->active_view_index
-               items=(@rend->sorted_views | map_geta "title")
-               style_qq="margin-bottom:15px;" {{ hilite_selected }}
-                ;
+               row  style_qq="margin-bottom:15px;" {
+                 top_row: row {
+                  @top_row | insert_children list=@rend.top_row_items?;
+                 }; 
 
-       right_col: 
-       
-       column render_project_right_col 
-         style="padding-left:2em; min-width: 80px; position:absolute; right: 1em; top: 1em; gap: 0.2em;"
-         style_fit_h="max-height: 80vh; overflow-y: auto" 
+               ssr: switch_selector_row 
+                 index=@rend->active_view_index
+                 items=(@rend->sorted_views | map_geta "title")
+                 {{ hilite_selected }}
+                  ;
+               };
+
+/*
+       xtra_items: render_project_right_col 
          project=@rend->project
-         //render_project=@rend
+         active_view=@rend->active_view
+         active_view_tab=@of->output
+         render_project=@rend;
+         */
+
+       right_col: column // {{ set_dom_children list=(@xtra_items | get_children_arr | sort_by_priority) }}
+         style="padding-left:2em; min-width: 80px; position:absolute; right: 1em; top: 1em; gap: 0.2em;"
+         style_fit_h="max-height: 80vh; overflow-y: auto"
+         //{{ sort_dom_children }}
+
+         render_project_right_col 
+         project=@rend->project
          active_view=@rend->active_view
          active_view_tab=@of->output
          render_project=@rend
-         //{{ x-modify list=@render_project_right_col_modifier }}
-        {
-        }; // column справа
+         ;
+
 
        // теперь надо рендерер. как выяснилось он таки один должен быть даже на все экраны, иначе падает браузер 
 

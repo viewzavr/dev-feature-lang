@@ -2954,12 +2954,18 @@ export function insert_children( env )
      for (let tenv of to_deploy_to) {
 
       let $scopeFor = tenv.$scopes.createAbandonedScope("created by insert_children "+env.$vz_unique_id);
+
+      
+
       // рассказ про окружение insert-чилдрена ток если работа с детьми идет..
       // ну и еще если там лист как параметр прописан но это разрулит lexicalParent..
       if (using_children)
           $scopeFor.$lexicalParentScope = env.$scopes.top();
+      ///else  
       if (env.$use_scope_for_created_things)  
           $scopeFor.$lexicalParentScope = env.$use_scope_for_created_things;
+      //else 
+
       // todo чистить надо или само?
 
       for (let edump of features_list) {
@@ -2967,6 +2973,13 @@ export function insert_children( env )
             console.warn("insert_children: empty feature in list",features_list, env.getPath())
             continue; // бывает пустое присылают..
           }
+
+          // важная добавка - некоторые дампы содержат свой scope взятый у родителя
+          // а создаваемое таки должно жить в своем scope а не в родительском но помнить о нем
+          if (edump.$scopeFor) { 
+             $scopeFor.$lexicalParentScope = edump.$scopeFor;  
+             $scopeFor.skip_dump_scopes = true; // это апи createSyncFromDump..
+          };
 
           if (env.params.manual) {
             edump.manual = true;

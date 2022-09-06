@@ -649,8 +649,7 @@ register_feature name="switch_selector_row" {
 	{
 		rep: repeater input=@root55->items { |input index|
 			 button text=@input
-			 on_click=(m_lambda "(obj) => { 
-			 	obj.emit('user_change',scope.index); }" @root55)
+			 on_click=(m_lambda "(obj) => obj.emit('user_change',scope.index);" @root55)
 			 {
 			 	 setter target="@root55->index" value=@index manual=true;
 			 };

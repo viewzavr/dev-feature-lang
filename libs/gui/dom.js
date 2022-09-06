@@ -585,6 +585,7 @@ export function dom_group( env ) {
 // в качестве дом-детей детей указанного узла. все.
 // пример: use_dom_children from=@some-other-env;
 // todo - если введем ->children то можно будет как-то с этим работать тоже.
+// todo - можно селектор вставить. типа slot-name.
 export function use_dom_children( env ) {
 
   env.onvalue("from",(from) => {
@@ -598,11 +599,51 @@ export function use_dom_children( env ) {
 
     env.host.callCmd("rescan_children");
 
+    if (from.rescan_children)
     from.rescan_children = function() {
       env.host.rescan_children();
     };
+    else
+    from.addCmd("rescan_children",function() {
+      env.host.rescan_children();
+    });
 
-  })
+  });
+  
+}
+
+// веселое же
+export function set_dom_children( env ) {
+
+  env.onvalue("list",(list) => {
+
+    env.host.inputObjectsList = () => {
+      //return from.inputObjectsList();
+      return list;
+      // если мы используем from.inputObjectsList(); то он уже может быть заменен 
+      // на что-то левое. нам именно детей подавай.
+    };
+
+    env.host.callCmd("rescan_children");
+  });
+  
+}
+
+
+export function sort_dom_children( env ) {
+   
+   env.host.inputObjectsList = () => {
+     let fieldname = env.params.field || "block_priority";
+     //return from.inputObjectsList();
+     let k = env.host.ns.children; // но вообще это несоединяемое получается.. с другими..
+     debugger;
+     k = k.sort( (a,b) => {
+         return (a.params[fieldname] || 100) - (b.params[fieldname] || 100);
+     });
+     return k;
+     // если мы используем from.inputObjectsList(); то он уже может быть заменен 
+     // на что-то левое. нам именно детей подавай.
+   };
   
 }
 
