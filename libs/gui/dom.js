@@ -38,6 +38,8 @@ export function dom( obj, options={} )
   obj.dom_generator=true;
   let rescan_counter=0;
 
+  let oldt,oldcounter=0;
+
   /////// собственный html-код
   //obj.setParamOption("output","internal",true);
   
@@ -258,8 +260,20 @@ export function dom( obj, options={} )
 
   //obj.rescan_children = rescan_children;
   
-  
   function rescan_children2(reason) {
+    /* некая попытка понять как часто ресканы происходят.. ну нечасто - главная проблема тормозов
+       гуи это медленно нарождающиеся рендереры контролов.. recreator-ы там всякие медленно чудят мб..
+    let pt = performance.now();
+    if (oldt) {
+      let delta = pt - oldt;
+      if (delta < 10) {
+        console.log("dom: rescanning after ",delta,"ms",rescan_counter++,reason);
+        console.log(obj.getPath());
+      }
+    }
+    oldt=pt;
+    */
+
     //console.log("rescan_children2 called", obj.getPath(), "["+reason+"]")
     //console.log("rescan",rescan_counter++)
     clear_viewzavr_dom_children();
@@ -271,14 +285,6 @@ export function dom( obj, options={} )
     // вещь - побороться за правильный порядок. а то они вставляются каждый когда захотят
     // прочем не помогает порядок сохранять..
     const frag = document.createDocumentFragment();
-
-    // почистим ко - боремся за порядок
-    /* так мы уже почистили так-то...
-    while (target.firstChild) {
-      //target.firstChild.remove()
-      target.removeChild( target.firstChild );
-    }
-    */
 
     for (let c of inputs) {
       if (c.protected) continue;
@@ -330,26 +336,6 @@ export function dom( obj, options={} )
     //console.log("v triggered",obj.dump(),obj)
   });
 
-/*
-  // feature: передать слот
-  if (opts?.params?.slot) {
-    //obj.dom.slot = opts.params.slot;
-    obj.dom.setAttribute("slot",opts.params.slot);
-  }
-*/  
-  // это надо для слотов
-/*
-  if (options?.params?.name)
-    obj.dom.setAttribute("name",opts.params.name);
-
-  if (options?.params?.class)
-    obj.dom.setAttribute("class",opts.params.class);
-
-  // тыркнем родителя
-  if (obj.ns.parent?.rescan_children) obj.ns.parent.rescan_children();
-  // @todo переделать на нормальную ТПУ
-*/  
-
   function create_this_dom() {
     var t = obj.params.tag || "div";
     if (obj?.dom?.$cl_tag_name == t) return;
@@ -368,13 +354,13 @@ export function dom( obj, options={} )
     //trigger_all_params();
     //if (obj.ns.parent?.rescan_children) obj.ns.parent.rescan_children();
     if (obj.ns.parent) {
-        obj.ns.parent.callCmd("rescan_children");
+        obj.ns.parent.callCmd("rescan_children","request by child's create_this_dom");
     }
   }
 
   obj.on("remove",() => {
     if (obj.ns.parent) {
-        obj.ns.parent.callCmd("rescan_children");
+        obj.ns.parent.callCmd("rescan_children","request by child's remove");
     }
   });
   
@@ -468,9 +454,9 @@ export function shadow_dom( obj, options )
   
   // 3. будут вызывать rescan_children и еще события слать
   // если к нам пришла необходимость чего-то сканировать - мы попросим парента (зачем?)
-  obj.rescan_children = function() {
+  obj.rescan_children = function(reason) {
     console.log("shadow_dom 3: rescan called", obj.getPath())
-    shadow_parent.rescan_children();
+    shadow_parent.rescan_children( 'shadow_dom request'+reason);
   }
   //obj.on("appendChild",obj.rescan_children);
   //obj.on("forgetChild",obj.rescan_children);
@@ -564,7 +550,7 @@ export function dom_group( env ) {
     // наш output изменился - надо тыркнуть родителя
     // это есть точка засады. потому что если dom-группа используется по ссылке, то и приехали.
     if (env.ns.parent) 
-        env.ns.parent.callCmd("rescan_children");
+        env.ns.parent.callCmd("rescan_children","child dom_group's rescan");
   }
 
   // предоставляем апи для нашего дом - это нас дети так тыркать будут

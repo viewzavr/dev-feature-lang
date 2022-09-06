@@ -82,10 +82,13 @@ feature "the_view_recursive"
     // верхний контейнер
     primary_container=(@tv | get_children_arr | arr_filter_by_features features="recursive_area" | geta 0 default=null)
     list_of_areas=(walk_objects @tv->primary_container "subitems")
-    {{ insert_children input=@tv manual=true active=(is_default @tv) list={
+    /* уберем - давайте ка руками это вставлять все..
+    {{ insert_children input=@tv manual=true active=(is_default @tv) 
+      list={
          area_3d;
       };
     }}
+    */
     {{ x-param-option name="append_process" option="visible" value=false }}
     {{ x-add-cmd name="append_process" code=(m_lambda `(active_area,first_cont_area,proc) => {
         if (active_area && active_area.append_process)
@@ -463,7 +466,7 @@ feature "show_area_container_vert" {
 feature "show_area_container_one_switch" {
   area_rect: column {{ show_area_base input=@area_rect->input }}
   {
-     //render-params-list object=@area_rect.input list=["selected"]; //qqq
+     //render-params-list object=@area_rect.input list=["selected"];
      // показываем всех. будем им visible менять.
      show_areas target=@area_rect input=(@area_rect->input | get_children_arr);
      //show_areas target=@area_rect input=(list (@area_rect.input.subitems | geta @area_rect.input.selected));
