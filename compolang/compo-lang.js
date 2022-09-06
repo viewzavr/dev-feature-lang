@@ -2893,6 +2893,10 @@ export function insert_children( env )
   var children = {};
   var created_envs = [];
 
+  env.feature("delayed");
+  let dodeploy_d = env.delayed(dodeploy,4); // опытным путем перебираем, 2 вроде норм.. можно 4 или 5 еще
+  //let dodeploy_d = dodeploy;
+
   env.setParam("use_children",true);
   env.setParam("active",true);
 
@@ -2911,6 +2915,8 @@ export function insert_children( env )
   // а и опять же надо дать шанс active пересчитаться если он формула
   env.monitor_values(["input","list","active"],perform);
 
+  
+
   function perform() {
     //console.log("inserT_children: perform called", env.params, env.getPath())
     let input = env.params.input || [];
@@ -2925,7 +2931,7 @@ export function insert_children( env )
 
     if (features && !Array.isArray(features)) features = [features];
 
-    dodeploy( input, features, using_children );
+    dodeploy_d( input, features, using_children );
   }
 
   function dodeploy( objects_arr, features_list, using_children ) {
@@ -2959,7 +2965,7 @@ export function insert_children( env )
        if (env.$use_scope_for_created_things)
            $scopeFor.$lexicalParentScope = env.$use_scope_for_created_things;
 
-       return $scopeFor;  
+       return $scopeFor;
      };
 
      for (let tenv of to_deploy_to) {
