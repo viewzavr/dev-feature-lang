@@ -609,7 +609,7 @@ feature "show_area_3d" {
         //camera_control={ map-control }
         // renderer - установим снаружи..
 
-        scene3d=(@area_rect->input | geta "visible_sources" | map_geta "scene3d" default=[] 
+        scene3d=(@area_rect.input.sources | map_geta "scene3d" default=[] 
           | repeater target_parent=@area_rect {
           k: if (m_eval "(item) => { return item?.env_args ? true : false }" @k->input)
               then={
@@ -633,17 +633,16 @@ feature "show_area_3d" {
         column style="padding-left:0em; position:absolute; bottom: 1em; left: 1em;" 
         class='vz-mouse-transparent-layout extra-screen-thing'
         {
-             //dg: dom_group input=(@area_rect->input | geta "visible_sources" | map_geta "scene2d" default=[])
              dg: dom_group
              {
-               @area_rect->scene2d_tgt | insert_children list=(@area_rect->input | geta "visible_sources" | map_geta "scene2d" default=[] | arr_flat);
+               @area_rect->scene2d_tgt | insert_children list=(@area_rect.input.sources | map_geta "scene2d" default=[] | arr_flat);
 
                if (@area_rect->input | geta "show_fps" default=false) then={
                  show_render_fps renderer=@process_rect->renderer;
                };               
                if (@area_rect->input | geta "show_stats" default=false) then={
                  show_render_stats renderer=@process_rect->renderer;
-               }; 
+               };
              }
         };
 

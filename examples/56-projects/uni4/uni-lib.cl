@@ -59,7 +59,12 @@ feature "addvis" {
       };
     }
     {{
-       let artefacts0 =(concat @empty_artefact (find-objects-bf features="data-artefact" root=@x->project));
+       let artefacts0 =(concat @empty_artefact 
+                         (find-objects-bf features="data-artefact" root=@x->project)
+                         (find-objects-bf features="data-artefact" root=@x->viewer) 
+                         );
+       // console-log "VIEW ARTEFACTS" (find-objects-bf features="data-artefact" root=@x->viewer) @x->viewer;
+       // там артефакты рендеринга.. но кстати временные..
 
        //let artefacts=@artefacts0;
 

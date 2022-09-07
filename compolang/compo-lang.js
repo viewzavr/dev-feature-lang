@@ -3351,8 +3351,14 @@ export function get_children_arr(env) {
   env.on("remove",() => unsub());
 }
 
+// для совместимости по именам
+export function is_feature_applied(env)
+{
+  env.feature("has_feature");
+}
 
 // проверяет есть ли фича у input
+// input, name
 export function has_feature(env) {
   let unsub=()=>{};
 

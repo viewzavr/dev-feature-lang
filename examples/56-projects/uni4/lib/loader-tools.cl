@@ -8,7 +8,7 @@ feature "data-artefact" {
 // поэтому полезно их просто один раз создать для каждого артефакта всей пачкой да ивсе.
 
 feature "dataset" {
-  x: visual_process title="Набор данных"
+  x: visual_process title="Входные данные"
     gui={
       column plashka {
         
