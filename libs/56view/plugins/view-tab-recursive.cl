@@ -247,19 +247,14 @@ feature "area_content" {
 
        subitems=[]
        sources_str=""
+       
        sources=(find-objects-by-pathes input=@it->sources_str root=@it->project)
-
-       // это нам надо чтобы - посылать визпроцессам сигналы какие вьюшки их смотрят
-       // а это надо чтобы те могли камеру получить
-       {{ @it->sources | get-cell "view-attached" | set-cell-value @it }}
-       // но в целом это устаревшее
-
        visible_sources = (@it->sources | filter_geta "visible")
+
        show={
           show_area_empty input=@it;
        }
        gui={
-           //text 333;
         
            object_change_type text="Укажите тип:"
               input=@it
@@ -274,8 +269,6 @@ feature "area_content" {
        }
 
        {{ x-param-option name="sources_str" option="manual" value=true }}
-
-
        {{ x-param-option name="append_process" option="visible" value=false }}
        {{ x-add-cmd name="append_process" code=(m_lambda `(view,val) => {
             view.params.sources ||= [];
