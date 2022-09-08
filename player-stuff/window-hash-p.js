@@ -62,7 +62,7 @@ player.saveToHash = function( obj ) {
   var q = read_from_hash();
   q[ name ] = obj.dump();
   write_to_hash( q );
-  console.log("saved to hash",q);
+  //console.log("saved to hash",q);
 }
 
 function findRoot( obj ) {
