@@ -182,12 +182,12 @@ feature "show_sources_params"
 
 // подфункция реакции на чекбокс view_settings_dialog
 // идея вынести это в метод вьюшки. типа вкл-выкл процесс.
+// ВАЖНО: все пути здесь считаются относительно проекта
 feature "toggle_visprocess_view_assoc2" {
 i-call-js 
   code="(cobj,val) => { // cobj объект чекбокса, val значение
     let view = env.params.view; // вид the_view
-    //let view = cobj.params.view;
-    // console.log({view,cobj,val});
+
     view.params.sources ||= [];
     view.params.sources_str ||= '';
     if (val) { // надо включить

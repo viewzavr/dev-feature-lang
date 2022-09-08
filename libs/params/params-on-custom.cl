@@ -112,7 +112,8 @@ feature "x-param-df" {
 // рабочий вариант
 // x-param-objref-3 name=.... values=.... где values это набор объектов
 feature "x-param-objref-3" {
-  r: x-patch-r @r->name @r->editor @r->values // {{ l: console-log-life; debug_input input=@l }}
+  r: x-patch-r title_field="title_path"
+    @r->name @r->editor @r->values // {{ l: console-log-life; debug_input input=@l }}
     code=`(name,editor_code, values, obj) => {
       if (name) {
       	//console.log("objref-3 init: name=",name,"cur val=",obj.params[name],"obj=",obj.getPath(),obj.dump())
@@ -134,10 +135,10 @@ feature "x-param-objref-3" {
     `
      editor={
   	 edt: param_field {
-	  	      combobox
+	  	      combobox style="width: 160px;"
 		        	value=(@edt->object | geta @edt->name default=null | geta "getPath" default=null) // считается что там объект сидит благодаря
 		        	values=(@r->values | map_geta (m_apply "(obj) => obj.getPath()"))
-		        	titles=(@r->values | map_geta "title")
+		        	titles=(@r->values | map_geta @r->title_field)
 		        	{{ x-on "user_changed_value" 
 	                  code=(m_apply "(area,param_var, b,c,val) => {
 	                  	console.log('>>>>>>>>>>>>>>>>',param_var,val)

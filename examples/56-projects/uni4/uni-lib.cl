@@ -103,7 +103,9 @@ feature "x-art-ref" {
     x-param-objref-3 name=@k->name values=
     (concat @empty_artefact (find-objects-by-crit @k->crit))
     // root=@x->project
-    // (find-objects-by-crit @k->crit);
+    // (find-objects-by-crit @k->crit)
+    title_field="title_path"
+    ;
     x-param-option name=@k->name option="always_manual" value=true;
   };
 };
