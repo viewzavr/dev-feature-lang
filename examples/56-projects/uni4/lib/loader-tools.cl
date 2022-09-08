@@ -24,45 +24,11 @@ feature "dataset" {
 
 feature "artmaker";
 
-artmaker
-  code={ |data|
-    m: list_file=(m_eval "(url) => {
-      
-      if (!url?.find) return null;
-      let k = url.find( elem => elem?.name=='list.txt' );
-      return k;
-      }" @data)
-    possible=@m->list_file?
-    make={ art-load-list-txt file=@m->list_file };
-  };
+////////////////////////////// рост артефактов
 
-feature "art-load-list-txt" {
-  x: data-artefact 
-    title="Каталог файлов"
-    output=@result
-   {
-    let listing_file_url=@x->file;
-    let listing = (load-file file=@listing_file_url 
-                   | m_eval "(txt) => txt && txt.length > 0 ? txt.split('\\n') : []" @.->input);
-    let listing_file_dir = (m_eval "(str) => str?.url ? str.url.split('/').slice(0,-1).join('/') : ''" @listing_file_url);
-    let listing_resolved = (@listing | map_geta (m_apply "(dir,item) => dir+'/'+item" @listing_file_dir));
-    let result = (m_eval "(arr1,arr2) => {
-                  if (arr1.length != arr2.length) return;
-                  let res = arr1.map( (elem,index) => {
-                    return {name: elem, url: arr2[index]};
-                  });
-                  res.art_file_list = true;
-                  return res;
-                }
-                " @listing @listing_resolved);
-  };
-};
-
-  
-
-// запись art type= title= crit= это о возможности применения очередного генератора артефактов
 let art_makers_list=(find-objects-bf features="artmaker");
 let art_makers_codes=(@art_makers_list | map_geta "code");
+
 //@art_makers_codes | console-log "MAKER CODES";
 
 // назначение - по входному артефакту выявить нарожать артефактов, которые могут парсить этот
@@ -72,14 +38,15 @@ let art_makers_codes=(@art_makers_list | map_geta "code");
 
 // output - список созданных артефактов. не знаю может его деревом лучше показать..
 // кстати где-то у меня уже был обход дерева.. walk_objects
+
 feature "grow-artefacts" {
   x: level=0 
      {
         let making_artefacts = (
               @art_makers_codes
-              |
+              | // создаем новые artmaker-ы
               repeater target_parent=@x {
-                create_objects (@x->input | geta "output" default=null) @x->input
+                create_objects @x.input @x.input.output?
               }
               |
               map_geta "output" default=null // возьмем выходы create-objects-ов
@@ -91,17 +58,12 @@ feature "grow-artefacts" {
               map_geta "make"
               );
 
-        //@making_artefacts | console-log "making_artefacts";
-
-        let new_arts = (@making_artefacts | repeater target_parent=@x {
+        let new_arts = (@making_artefacts | repeater target_parent=@x { // создаем новые артефакты
           //create_objects;
-          k: output=(insert_children input=@x->input list=@k->input)
+          k: output=(insert_children input=@x->input list=@k->input) 
         } | map_geta "output" default=null | map_geta 0 default=null);
 
-        //new_arts: insert_children list=@making_artefacts input=@x;
-        //@new_arts->output | console-log "created new arts";
-        //console-log "created new arts" @new_arts->output "from" @new_arts->list;
-
+        // если мы ушли недалеко - подключаем автогенерацию новым артефактам..
         if (@x->level < 3) then={
           @new_arts | repeater {
             grow-artefacts level=(@x->level + 1); 
@@ -111,8 +73,8 @@ feature "grow-artefacts" {
   }; // x
 };
 
-// это наша стартовая сущность
-// а artefact это уже взгляд на нее.
+// это наша стартовая сущность которую пользователь добавляет в проект
+// а data-artefact это уже взгляд на нее. (ну как бы..)
 feature "data-entity" {
   qqe: visual_process
     editable-addons
@@ -287,3 +249,41 @@ feature "sort_files" {
       }" @r->input @r->0;
   };
 };
+
+
+////////////////////////////// загружалка каталога
+
+artmaker
+  code={ |art data|
+    m: list_file=(m_eval "(url) => {
+      if (!url?.find) return null;
+      let k = url.find( elem => elem?.name=='list.txt' );
+      return k;
+      }" @data)
+    possible=@m->list_file?
+    make={ art-load-list-txt file=@m->list_file };
+  };
+
+feature "art-load-list-txt" {
+  x: data-artefact 
+    title="Каталог файлов"
+    output=@result
+   {
+    let listing_file_url=@x->file;
+    let listing = (load-file file=@listing_file_url 
+                   | m_eval "(txt) => txt && txt.length > 0 ? txt.split('\\n') : []" @.->input);
+    let listing_file_dir = (m_eval "(str) => str?.url ? str.url.split('/').slice(0,-1).join('/') : ''" @listing_file_url);
+    let listing_resolved = (@listing | map_geta (m_apply "(dir,item) => dir+'/'+item" @listing_file_dir));
+    let result = (m_eval "(arr1,arr2) => {
+                  if (arr1.length != arr2.length) return;
+                  let res = arr1.map( (elem,index) => {
+                    return {name: elem, url: arr2[index]};
+                  });
+                  res.art_file_list = true;
+                  return res;
+                }
+                " @listing @listing_resolved);
+  };
+};
+
+//////////////////////////////

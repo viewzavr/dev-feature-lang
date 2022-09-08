@@ -6,7 +6,7 @@ feature "compatible_visual_processes_for" {
     @vis_makers_codes
     |
     repeater {
-      create_objects (@k->curart | geta "output" default=null) @k->curart
+      create_objects @k.curart @k.curart.output?
     }
 //    | console_log_input "QQQ"
     |
