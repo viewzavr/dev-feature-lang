@@ -1,3 +1,5 @@
+// todo переименовать этот файл и файл с vismakers
+
 feature "data-artefact" {
   x:
     title_path=(join (@x | get_parent | geta "title_path" default="") @x->title with=' / ')
@@ -46,7 +48,7 @@ feature "grow-artefacts" {
               @art_makers_codes
               | // создаем новые artmaker-ы
               repeater target_parent=@x {
-                create_objects @x.input @x.input.output?
+                create_objects @x.input
               }
               |
               map_geta "output" default=null // возьмем выходы create-objects-ов
@@ -254,12 +256,12 @@ feature "sort_files" {
 ////////////////////////////// загружалка каталога
 
 artmaker
-  code={ |art data|
+  code={ |art|
     m: list_file=(m_eval "(url) => {
       if (!url?.find) return null;
       let k = url.find( elem => elem?.name=='list.txt' );
       return k;
-      }" @data)
+      }" @art.output?)
     possible=@m->list_file?
     make={ art-load-list-txt file=@m->list_file };
   };
