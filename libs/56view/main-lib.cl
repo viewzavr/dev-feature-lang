@@ -116,7 +116,8 @@ feature "show_3d_scene" {
 // input - список процессов
 feature "show_sources_params"
 {
-  sv: row auto_expand_first=true style='pointer-events: none !important;' {
+  sv: row auto_expand_first=true show_visible_cb=true 
+    style='pointer-events: none !important;' {
     svlist: column style='align-items: flex-start; pointer-events: none !important;' {
       repeater input=@sv->input {
         mm: 
@@ -132,7 +133,7 @@ feature "show_sources_params"
              // вот мы вставили гуи
           };
 
-          cbv: checkbox value=(@mm->input | geta "visible") visible=@sv->show_visible_cb?;
+          cbv: checkbox value=(@mm->input | geta "visible") visible=@sv->show_visible_cb;
 
           x-modify input=@mm->input {
             x-set-params visible=@cbv->value? __manual=true;

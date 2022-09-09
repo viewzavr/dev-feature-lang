@@ -188,7 +188,10 @@ register_feature name="or" {
 
 // todo тут надо проверять все аргументы согласно args_count а не только 2
 register_feature name="and" {
-  eval code="(a,b) => a && b" allow_undefined=true;
+  eval code="(a,b) => a && b ? b : false" allow_undefined=true;
+  // решил попробовать выдавать второй элемент как результат - это может позволить делать вещи типа
+  // cond && (generator ....)
+  //eval code="(a,b) => a && b" allow_undefined=true;
 };
 
 register_feature name="not" {

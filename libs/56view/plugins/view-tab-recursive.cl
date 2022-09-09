@@ -587,7 +587,13 @@ feature "show_3d_scene_r" {
           //camera3d pos=[-400,350,350] center=[0,0,0];
 
           //orbit_control;
-          @r1 | insert-children list=@scene_3d_view->camera_control;
+          let camera_control = (@r1 | insert-children list=@scene_3d_view->camera_control | geta 0);
+          
+          /* да это красиво. но оно трясется -- изза обратной связи с объектом камеры похоже.
+             и плюс изза одновременной работы нескольких update. тут надо крепко поработать пока не приоритено.
+          @r1 | get-cell "frame" | c-on "(eventargs,threejs_control) => { 
+          if(threejs_control?.update) threejs_control.update(); }" @camera_control.threejs_control;
+          */
       };
    };
    

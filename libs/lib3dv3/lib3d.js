@@ -274,6 +274,9 @@ export function subrenderer( env,opts )
   var default_camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 10000000 );
   var private_camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 10000000 );
   env.setParam('private_camera',private_camera);
+  // в threejs камера завязана на размеры экраны (внезапно)
+  // отсюда следует что если мы хотим одну камеру на несколько окон то надо ввести иерархию
+  // наверху эта одна камера, а внизу субкамеры которые следуют за той и учитывают размеры окна
 
   ////////////////////////////////////// тема камеры
   env.onvalue('camera',(cam) => {
@@ -372,6 +375,9 @@ export function subrenderer( env,opts )
           external_renderer.setViewport( orig_vp );
           external_renderer.setScissorTest( orig_sc_b );
           external_renderer.setScissor( orig_sc );
+
+          env.emit("frame"); // ТПУ
+          //console.log(55)
   }
 
   let orig_vp = new THREE.Vector4(), orig_sc = new THREE.Vector4();
@@ -639,6 +645,10 @@ import {OrbitControls,MapControls} from "./three.js/examples/jsm/controls/OrbitC
 export function map_control( env ) {
   env.setParam('type','map');
   env.feature('orbit_control');
+
+  env.onvalue("threejs_control",(cc) => {
+    // cc.enableDamping = true;
+  });
 }
 
 export function orbit_control( env ) {
@@ -679,6 +689,8 @@ export function orbit_control( env ) {
       cc = new MapControls( c, dom );
     else
       cc = new OrbitControls( c, dom );
+
+    env.setParam("threejs_control",cc);
 
     //console.log("made",cc)
 
