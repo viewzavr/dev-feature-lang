@@ -418,14 +418,21 @@ export function load(env,opts)
      if (!file) return;
      //console.log("compalang loadfile",file)
 
+     if (loaded_things[ file ]) {
+        //console.log("returning existing promis for file",file)
+        return loaded_things[ file ];
+     };
+
      if (file.endsWith( ".js")) {
        var file2 = env.compute_path( file );
        //console.log('env base path',env.$base_url)
        //console.log("loading package",file,"=>",file2);
-       return vzPlayer.loadPackage( file2 )
+       loaded_things[ file ] = vzPlayer.loadPackage( file2 )
+       return loaded_things[ file ];
      }
      if (vzPlayer.getPackageByCode(file)) {
-       return vzPlayer.loadPackage( file )
+       loaded_things[ file ] = vzPlayer.loadPackage( file )
+       return loaded_things[ file ];
      }     
 
      if (compolang_modules[file])
@@ -433,18 +440,31 @@ export function load(env,opts)
      else
       file = env.compute_path( file );
 
+     // надо второй раз проверить... там выше про модули больше проверка получается была..
      if (loaded_things[ file ]) {
         //console.log("returning existing promis for file",file)
         return loaded_things[ file ];
-     };    
+     };
+   
 
      let new_base_url = env.vz.getDir( file );
-     //console.log("load: loading",file, "while env path is",env.$base_url);
 
      // будем возвращать промису когда там все загрузится
      let prom = new Promise( (resolve,reject) => {
       
        fetch( file ).then( (res) => res.text() ).then( (txt) => {
+         
+         // так оказывается что параллельно и тут другие такие же загрузчики
+         if (loaded_things[file] !== prom) {
+           
+           loaded_things[file].then( (sibling_result) => {
+              resolve();
+              // тут наверное какой-то результат, но посмотрим..
+              //env.setParam("output",sibling_result);
+              return;
+           });
+         };
+
          // нужна sub-env для отслеживания base-url
          var subenv = env.create_obj( {} );
          subenv.feature("simple-lang");
@@ -453,28 +473,29 @@ export function load(env,opts)
 
          //console.log("interpreting file", file )
          let dp1 = subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url, diag_file: file } );
+         let load_env_scope = env.$scopes.top();
+         
          let $scopeFor = env.$scopes.createScope("load"); // F-SCOPE
+
+         // это есть ужасный хак, когда модули из одного load будут видеть родительский scope
+         // по идее тут надо остановиться..
+         $scopeFor.$lexicalParentScope = load_env_scope;
+
          let p1 = subenv.restoreFromDump( dp1,false,$scopeFor )
 
          // было
          //subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url} );
 
          Promise.resolve(p1).then( () => {
-           resolve(); // загрузили, пропарсили все там
-           env.setParam("output",p1)
+           resolve(p1); // загрузили, пропарсили все там
+           env.setParam("output",p1);
          });
        });
 
      });
 
-/*
-     if (loaded_things[ file ]) {
-       debugger;
-     }
-*/     
-
-     //console.log("returning new promis for file",file)
      loaded_things[ file ] = prom;
+
      return prom;
   }
 }
@@ -926,9 +947,11 @@ export function register_feature( env, envopts ) {
 
     if (!registered) {
       registered = true;
-      env.vz.register_feature( env.params.name, (e,...args) => {
+      let feature_f = (e,...args) => {
         return apply_feature(e,...args)
-      } );
+      };
+      feature_f.$locinfo = env.$locinfo;
+      env.vz.register_feature( env.params.name,feature_f );
     };
 
     env.setParam('output',apply_feature);

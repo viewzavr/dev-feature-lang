@@ -704,6 +704,7 @@ export function m_auto_detach_algo( env,attach_func )
 // отлов событий
 // on-модификатор в стиле m-лямбды
 // m_on "event-name" "code" arg1 arg2;
+// и поскольку он модификтор то применим внутри x-modify.. для многих объектов..
 export function m_on( env  )
 {
   //env.lambda_start_arg = 1;
@@ -727,7 +728,7 @@ export function m_on( env  )
       name ||= name0;
 
       u1();
-      console.log("m-on: subscribing to event" , name, "of obj",obj.getPath() )
+      // console.log("m-on: subscribing to event" , name, "of obj",obj.getPath() )
       u1 = obj.on( name ,(...args) => {
         console.log("m-on: passing event" , name, "of obj",obj.getPath() )
 

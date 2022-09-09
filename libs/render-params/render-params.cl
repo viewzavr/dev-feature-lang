@@ -248,6 +248,7 @@ feature name="render-param-vector" {
    };         
 };
 
+/*
 feature name="render-param-string" {
   cos: column {
     text text=@..->name;
@@ -262,6 +263,7 @@ feature name="render-param-string" {
     };
   };
 };
+*/
 
 register_feature name="render-param-array" {
   pf: param_field {
