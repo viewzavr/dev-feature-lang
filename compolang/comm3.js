@@ -113,6 +113,31 @@ export function create_cell() {
   return cell;
 };
 
+// канал с буфером. 
+export function create_buffer_cell( limit=100 ) {
+
+  let cell = { is_cell: true, buffer: [] };
+
+  cell.set = (value) => {
+    if (cell.buffer.length < limit)
+        cell.buffer.push( value );
+    cell.emit('assigned',value ); // это делает ячейку - каналом. тупо пишем и можем узнавать об этом.
+  };
+  cell.get = () => { return cell.buffer[0] };
+  /*
+  cell.consume = () => { return cell.buffer.shift() }
+  cell.items_in_buffer = () => cell.buffer.length;
+  */
+  cell.consume = () => { if (cell.buffer.length > 0) return [cell.buffer.shift()]; return null; }
+
+  cell.push = cell.set; // ну теперь совсем события получились. push/monitor. ну и "канал" заодно.
+
+  E.addEventsTo( cell );
+  add_onvalue_etc( cell );
+
+  return cell;
+};
+
 // штука со словарем. всегда мечтал
 // т.е. cell.set(value,name) и затем cell.get возвращает разные value назначенные разным именам...
 // не знаю зачем но мине нравится
@@ -184,6 +209,7 @@ export function create_table_cell() {
 
   return cell;
 };
+
 
 /////////////////////////////////// привязка ячеек к объектам
 
@@ -342,35 +368,44 @@ export function get_event_cell( target, name ) {
   return c;
 };
 
-// мб надо создать отдельный вид ячейки.. но пока вроде и такой прокатит
+// выяснено что нам надо хранить буфер чего нам напихали, пока целевой объект
+// не обзаведется командой.
 export function get_cmd_cell( target, name ) {
   
-  let c = get_or_create_cell( target, name );
+  //let c = get_or_create_cell( target, name );
+  let c = create_buffer_cell( 100 );
+  c.reply_channel = create_cell();
 
-  if (!c.attached_to_compalang) {
-    c.attached_to_compalang = [target,name];
-
-    let setting;
-
-    c.on("assigned",(v) => {
-       if (setting) return;
-       try {
-         setting = true;
-         
-         let result = target.callCmd( name, v );
-         // надо очередь навести.. и надо результаты отдавать...
-         /*
-         let gui = target.getGui( name );
-          if (gui?.type === "cmd" && target[name]) {
-            return target[name].apply( target, args );
-          }
-         */ 
-       } finally { 
-         setting = false;
-       };
-    });
-
+  function consume_all() {
+     let k = c.consume();
+     while (k) {
+       let args = k[0];
+       let res = target.callCmd( name, args );
+       c.reply_channel.set( res );
+       k = c.consume();
+     };
   };
+
+/*
+  function consume_all() {
+     while (c.items_in_buffer() > 0) {
+        let args = c.consume();
+        let res = target.callCmd( name, v );
+        c.reply_channel.set( res );
+     };
+  };
+*/  
+
+  // это вызов
+  c.on("assigned",(v) => {
+      if (target.hasCmd( name ))
+          consume_all();
+  });      
+
+  target.onvalue( name,() => {
+    if (target.hasCmd( name ))
+      consume_all();
+  } );
 
   return c;
 };
@@ -436,7 +471,8 @@ export function get_cell( target, name, ismanual ) {
 // input - массив целевой, 0 - значение
 export function set_cell_value( env ) {
   env.onvalues( ["input",0], (arr, val) => {
-    if (!Array.isArray(arr)) arr=[arr];
+    let single_elem_mode = false;
+    if (!Array.isArray(arr)) { arr=[arr]; single_elem_mode = true };
     let responding_channels = [];
 
     arr.forEach( (cell) => {
@@ -444,10 +480,11 @@ export function set_cell_value( env ) {
       //console.log("set cell value",cell,val)
       if (val == 55) debugger;
       cell.set( val );
-      responding_channels.push( cell.reply_cell )
+      responding_channels.push( cell.reply_channel )
     })
 
-    env.setParam("output",responding_channels ); // todo optimize че их каждый раз пересчитывать то
+    env.setParam("output",single_elem_mode ? responding_channels[0] : responding_channels ); 
+    // todo optimize че их каждый раз пересчитывать то - собрать один раз и се..
     //env.setParam("output",arr); // чтобы можно было цепочки строить | 
     //env.setParam("output",val); // чтобы можно было цепочки строить | 
     // чухня все это. надо ответные каналы давать.

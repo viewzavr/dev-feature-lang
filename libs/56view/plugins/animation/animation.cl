@@ -67,11 +67,11 @@ feature "animations_panel" {
        @mv | get-cell "cmd:open-window" | set-cell-value;
        */
 
-       //@mv | get-cmd-cell "open-window" | set-cell-value 1;
+       @mv | get-cmd-cell "open-window" | set-cell-value 1 | get-cell-value | console-log "reply is";
 
        // call target=@mv name="open-window" auto_apply delay_execution timeout=10;
-       call_cmd target=@mv name="open-window" auto_apply;
        // call target=@mv name="open-window" auto_apply;
+       // call_cmd target=@mv name="open-window" auto_apply;
      };
    };
 };
@@ -86,7 +86,7 @@ feature "movie_recorder"
   q:
   {{
   x-add-cmd name="open-window" code=(m-js q=@q `() => {
-    console.log('open window called');
+    //console.log('open window called');
     let q = env.params.q;
     let erecorderWindow = q.getParam("wnd");
     if (erecorderWindow) {
@@ -136,6 +136,8 @@ feature "movie_recorder"
         if (event.source === recorderWindow && event.data.cmd == "append") //  && ack == ackSent
           q.setParam("waiting",false);
     }
+
+    return "window is opened";
   }` @q);
 
   x-add-cmd name="make-screen-shot" code=(i-call-js @q @q->input code=`(env, dom_input) => {

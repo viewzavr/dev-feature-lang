@@ -48,6 +48,7 @@ export function animation_player( obj, opts )
   let itsme_c = false;
   obj.trackParam("progress",(v) => {
      if (itsme_c) return;
+     if (!obj.params.parameter) return;
 
      // todo идея сделать просто min max параметра значение
     let nv = obj.params.min + (obj.params.max - obj.params.min) * v / 100.0;
