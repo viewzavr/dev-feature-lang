@@ -21,6 +21,10 @@ export function mesh_material_common ( env ) {
     //material.needsUpdate = true;
     // короче вот этот needsUpdate это правильно, но - без него идет полезный глюк для отображения Дубинса с чередующимися нормалями
   });
+
+  env.onvalues(["single_sided","output"],(v,material) => {
+    material.side = v ? THREE.FrontSide : THREE.DoubleSide;
+  });
 }
 
 export function mesh_basic_material ( env ) {

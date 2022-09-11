@@ -17,6 +17,11 @@
 feature "camera-fly-vp" {
 	avp: visual_process
 	title="Полет камеры"
+	/*
+	scene3d={
+		linestrips input=@te->output color=[0,1,0];
+	}
+	*/
 	scene3d={ node3d output=@scene->output }
 	project=@..
 	//trajectory=""
@@ -26,6 +31,7 @@ feature "camera-fly-vp" {
 		render-params @te plashka; // редактор траекторий
 		render-params @cc plashka; // вычислитель положения
 		render-params @liness plashka; // рисователь линии
+		// render-params @sp plashka; // рисователь линии
 		// avp filters={ params-hide list="title"; params-priority list="add-current";}
 	}
 	gui3={
@@ -36,6 +42,12 @@ feature "camera-fly-vp" {
 	{
 		scene: node3d {
 			liness: linestrips input=@te->output color=[0,1,0] visible=false;
+			sp: spheres positions=@cc->output_position radius=50 color=[1,1,1] visible=@liness->visible;
+			lines radius=20 positions=(concat @cc->output_position @cc->output_look_at) visible=@liness->visible;
+			sp_nodes: spheres input=@te->output radius=30 color=[1,0,0] visible=@liness->visible;
+
+			// todo (list @sp.mesh.material @sp_nodes.mesh.material) | x-modify { x-set-params single_sided=true };
+
 			//get_param_option @liness/lines-env
 
 			/*

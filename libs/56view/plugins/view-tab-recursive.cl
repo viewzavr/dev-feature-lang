@@ -609,17 +609,11 @@ feature "show_area_3d" {
         //camera_control={ map-control }
         // renderer - установим снаружи..
 
-        scene3d=(@area_rect.input.sources | map_geta "scene3d" default=[] 
-          | repeater target_parent=@area_rect {
-          k: if (m_eval "(item) => { return item?.env_args ? true : false }" @k->input)
-              then={
-                computing_env code=@k->input @process_rect @area_rect.input.opacity_3d;
-              }
-              else={
-                data @k->input;
-              };
-          } | map_geta "output" default=null 
-            | map_geta 0 default=null 
+        scene3d=(@area_rect.input.sources 
+            | map_geta "scene3d" default=[] 
+            | repeater target_parent=@area_rect { |code|
+                computing_env code=@code @process_rect @area_rect.input.opacity_3d;
+            }
             | map_geta "output" default=null 
               // уберем содержимое сцены если область экрана отключена
             | pass_input_if (@area_rect->input | geta "visible") default=null

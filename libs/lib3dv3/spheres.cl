@@ -1,7 +1,7 @@
 feature "spheres" {
 	s: node3d 
     points_df_input 
-	  {{ x-param-slider name="radius" min=0.0 max=10 step=0.1 }}
+	  {{ x-param-slider name="radius" min=0.0 max=100 step=0.1 }}
 	  nx=16 ny=24 positions=[] radiuses=[] colors=[] radius=1
 	  color=[1,1,1]
 	  mesh=@m

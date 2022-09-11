@@ -508,7 +508,7 @@ export function node3d( env, opts={} ) {
   rescan();
 
   //env.object3d = object3d;
-  if (!env.params.output)
+  if (!env.paramAssigned("output"))
      env.setParam( "output", object3d );
 
   env.addCheckbox("visible",true);

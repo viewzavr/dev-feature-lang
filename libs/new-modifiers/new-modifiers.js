@@ -86,6 +86,7 @@ export function x_modify( env )
     if (!Array.isArray(i)) i = [i];
 
     for (let obj of i) {
+      if (!obj) continue;
       let id = getobjid( obj );
 
       if (modified_objs[id]) {
