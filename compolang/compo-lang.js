@@ -1236,11 +1236,19 @@ export function delay_execution( env ) {
   function setup() {
     if (!orig_apply) orig_apply = env.host.apply;
 
-    env.host.apply = env.delayed( orig_apply, env.params.timeout || 0 );
+    let f = () => {
+       // console.log("hehe");
+       return orig_apply();
+    };
+
+    env.host.apply = env.delayed( f, env.params.timeout || 0 );
   }
   if (env.host.apply)
       setup();
-  env.host.on("gui-changed-apply",setup );
+  env.host.on("gui-changed-apply",() => {
+    //orig_apply = undefined;
+    setup();
+  } );
 
   env.onvalue("timeout",setup);
   //console.log("delay_execution: hooked into ",env.host.getPath())
@@ -1365,6 +1373,7 @@ export function emit_event( env )
 // автоматический вызов команды apply при изменении любых параметров
 export function auto_apply( obj ) {
   function evl() {
+    // console.log('auto_apply is calling apply on obj');
     obj.callCmd("apply");
   }
   obj.feature("delayed");

@@ -148,6 +148,7 @@ export function render3d( env ) {
 
     // мы перешли на ручной учет статистики, https://threejs.org/docs/#api/en/renderers/WebGLRenderer.info
     // сейчас она общая для всех окошек стала
+    // а без этого reset она будет для последнего отрендеренного окошка
     env.renderer.info.reset();
     env.renderer.clear(); // вручную чистим - чтобы subrender-еры не чистили
 

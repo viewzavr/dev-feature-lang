@@ -67,9 +67,11 @@ feature "animations_panel" {
        @mv | get-cell "cmd:open-window" | set-cell-value;
        */
 
-       @mv | get-cmd-cell "open-window" | set-cell-value 1;
+       //@mv | get-cmd-cell "open-window" | set-cell-value 1;
 
-       // call target=@mv name="open-window" auto_apply delay_execution;
+       // call target=@mv name="open-window" auto_apply delay_execution timeout=10;
+       call_cmd target=@mv name="open-window" auto_apply;
+       // call target=@mv name="open-window" auto_apply;
      };
    };
 };
