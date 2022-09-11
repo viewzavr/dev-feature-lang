@@ -59,7 +59,7 @@ feature "sort_by_priority"
 feature "created_mark_manual" {
   onevent name="created" 
      code=`
-         args[0].manuallyInserted=true;  
+         args[0].manuallyInserted=true;
      `;
   ;    
 };
@@ -119,12 +119,13 @@ feature "button_add_object_t" {
         
         link from="@bt_root->add_to" to="@cre->target" soft_mode=true;
 
-        cre: creator input=@bt_root->add_template
+        cre: creator input=(@bt_root->add_template | dump_to_manual)
           {{ onevent 
              name="created" 
              //newf=@bt_root->add_type
              btroot=@bt_root
              code=`
+             /*
                  arg1.manuallyInserted=true;
 
                  // сейчас мы через фичи инициализируем новые объекты через manual_features
@@ -138,8 +139,9 @@ feature "button_add_object_t" {
                  
                  let k = env.params.btroot.params.add_template;
                  let s = Object.keys( k[0].features ).filter( f => f != "base_url_tracing");
-                 arg1.setParam("manual_features",s,true)
+                 arg1.setParam("manual_features",s,true);
                  //console.log("created",arg1)
+             */    
 
                  env.params.btroot.emit("created", arg1 );
              `

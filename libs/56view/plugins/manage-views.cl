@@ -33,7 +33,8 @@ feature "manage_views" {
                 insert_siblings list=(@co->input | get_param name="gui");
               };
 
-              button_add_object "Добавить новый экран" add_to=@mv->project add_type="the_view_recursive";  
+              //button_add_object "Добавить новый экран" add_to=@mv->project add_type="the_view_recursive";  
+              button_add_object_t "Добавить новый экран" add_to=@mv->project add_template={ the_view_recursive { area_3d } };
 
               button "Удалить экран" 
                 //dom_disabled=true
