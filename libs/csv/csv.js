@@ -14,7 +14,8 @@ export default function parse_csv(data,separator) { // data is text blob
     return df.create();
 
   var lines = data.split("\n"); 
-  //console.log("lines=",lines.length)
+  // console.log("lines=",lines.length)
+
 /* ну вот что она делает.. ну парсит таблицу.. выдает массивчег.. из массивчегов.. ну хоть так для начала
    а дальше.. а дальше нам надо создать из этой штуки поле..
 */

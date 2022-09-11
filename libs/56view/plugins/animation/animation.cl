@@ -13,16 +13,20 @@ insert_children { manage_animation; };
 feature "manage_animation" {
 	vp: project=@..->project
       active_view_tab=@..->active_view_tab
+      render_project=@..->render_project
     	collapsible "Анимация" {
         animations_panel objects=(@vp->project | geta "processes") 
                          active_view_tab=@vp->active_view_tab
-                         project=@vp->project;
+                         project=@vp->project
+                         render_project=@vp->render_project
+                         ;
      	};
 };
 
 load "./animation-player.js";
 feature "animations_panel" {
    apan: column plashka 
+         
    {{ x-param-checkbox name="record" }}
    {
      render-params @ap;
@@ -40,21 +44,32 @@ feature "animations_panel" {
      if (@cb->value) then={
        // вроде как не надо? но очищать как очередь..
        // render-params @mv;
+       // console-log "expanded";
 
-       mv: movie_recorder input=(@apan->active_view_tab | geta "screenshot_dom");
+       mv: movie_recorder input=@apan.render_project.screenshot_dom;
 
        @ap | x-modify { 
          x-on "tick" {
            if (@ap->cycle == 0) then={
               call target=@mv name="make-screen-shot";
-           }; 
+              //@mv | get-cmd-cell "open-window" | set-cell-value 1;
+           };
          };
          x-on "first-cycle-finish" {
            call target=@mv name="generate-video-file";
          };
        };
 
-       call target=@mv name="open-window" auto_apply delay_execution;
+       /*
+       @mv | get-cell "open-window" | pause_input | invoke 1 2 3;
+       @mv | get-cell "invoke" | emit "open-window";
+       @mv | get-cell "open-window" | set-cell-value;
+       @mv | get-cell "cmd:open-window" | set-cell-value;
+       */
+
+       @mv | get-cmd-cell "open-window" | set-cell-value 1;
+
+       // call target=@mv name="open-window" auto_apply delay_execution;
      };
    };
 };
@@ -68,7 +83,8 @@ feature "movie_recorder"
 {
   q:
   {{
-  x-add-cmd "open-window" (m-js q=@q `() => {
+  x-add-cmd name="open-window" code=(m-js q=@q `() => {
+    console.log('open window called');
     let q = env.params.q;
     let erecorderWindow = q.getParam("wnd");
     if (erecorderWindow) {
@@ -85,6 +101,10 @@ feature "movie_recorder"
     }
 
     let recorderWindow = window.open( "about:blank","_blank", "width=1200, height=700" );
+    if (!recorderWindow) {
+      console.error("Не смогла открыть окно записи мультика, браузер не дает")
+      return;
+    }
     recorderWindow.opener = null;
     recorderWindow.document.location = "https://pavelvasev.github.io/simple_movie_maker/";
 

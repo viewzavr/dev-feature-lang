@@ -89,7 +89,7 @@ rl_root: collapsible text=@.->title
                         //let newobj = obj.vz.createObjByType({type: v, parent: obj.ns.parent});
 
                         if (dump) {
-                          if (dump.params)
+                          if (dump.params) // делаем так чтобы старые фичи не играли роли
                               delete dump.params['manual_features'];
                           dump.manual = true;
                           //console.log("restoring dump",dump);

@@ -100,7 +100,9 @@ feature "button_add_object" {
                  //let s = "linestr";
 
                  let s = env.params.newf;
-                 arg1.setParam("manual_features",s,true)
+                 arg1.manual_feature( s );
+                 //arg1.setParam("manual_features",s,true)
+                 //arg1.apply_manual_features();
                  
                  console.log("created",arg1)
 

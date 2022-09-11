@@ -474,7 +474,7 @@ export function load(env,opts)
          //console.log("interpreting file", file )
          let dp1 = subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url, diag_file: file } );
          let load_env_scope = env.$scopes.top();
-         
+
          let $scopeFor = env.$scopes.createScope("load"); // F-SCOPE
 
          // это есть ужасный хак, когда модули из одного load будут видеть родительский scope
@@ -1278,8 +1278,10 @@ export function call( env )
 {
   env.addObjectRef("target");
 
-  env.createLinkTo( {param:"target",from:"~->0",soft:true });
-  env.createLinkTo( {param:"name",from:"~->1",soft:true });
+  if (!env.paramAssigned("target"))
+    env.createLinkTo( {param:"target",from:"~->0",soft:true });
+  if (!env.paramAssigned("name"))
+    env.createLinkTo( {param:"name",from:"~->1",soft:true });
 
    env.addCmd( "apply",(...extra_args) => {
 
@@ -1303,7 +1305,7 @@ export function call( env )
       for (let i=0; i<extra_args.length;i++) 
         args.push( extra_args[i] );
 
-      console.log("calling ",to,nam,"args",args)
+      //console.log("calling ",to,nam,"args",args);
 
       if (to.hasCmd( nam )) // идея предусмотреть вариант когда объект это не
         to.callCmd( nam, ...args );
@@ -1374,6 +1376,8 @@ export function auto_apply( obj ) {
 
     eval_delayed();
   });
+  // но и по старту тоже надо
+  eval_delayed();
 }
 
 

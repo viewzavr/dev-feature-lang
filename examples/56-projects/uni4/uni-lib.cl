@@ -100,8 +100,7 @@ empty_artefact:
 
 feature "x-art-ref" {
   k: x-modify crit="data-artefact" {
-    x-param-objref-3 name=@k->name values=
-    (concat @empty_artefact (find-objects-by-crit @k->crit))
+    x-param-objref-3 name=@k->name values=(concat @empty_artefact (find-objects-by-crit @k->crit))
     // root=@x->project
     // (find-objects-by-crit @k->crit)
     title_field="title_path"

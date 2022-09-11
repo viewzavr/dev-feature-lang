@@ -17,7 +17,7 @@
 feature "camera-fly-vp" {
 	avp: visual_process
 	title="Полет камеры"
-	scene3d=@scene->output
+	scene3d={ node3d output=@scene->output }
 	project=@..
 	//trajectory=""
 	
@@ -46,26 +46,27 @@ feature "camera-fly-vp" {
 
 		te: trajectory_editor 
 		      {{ x-set-params 
-		      	    input_position=(@avp->camera | geta "pos")
-		            input_look_at=(@avp->camera | geta "center")
+		      	    input_position=@avp.camera.pos
+		            input_look_at=@avp.camera.center
 		      }}
 		      trajectory=@avp->trajectory?
 		      ;
 		cc: camera_computer_splines input=@te->output 
 		      {{ x-set-params time=@te->recommended_time?; }}; // обновляем положение когда аппендят новую точку к траектории
 
-		    if (@avp->visible) then={
+    let traj_not_empty=((@te.output? | geta "length" default=0) > 0);
+    //console-log "@traj_not_empty=" @traj_not_empty "oo=" @te.output?;
+
+		    if (@avp->visible and @traj_not_empty) then={
 			   	 x-modify input=@avp->camera {
 			   	 	 x-set-params pos=@cc->output_position center=@cc->output_look_at;
 			   	 };
 			  };
 
-    
 	}
   ;
 	
 };
-
 
 // редактор текста а на выходе dataframe
 // в тексте должны быть и колонки
@@ -80,7 +81,7 @@ feature "df_editor" {
 //  output = df с траекторией
 feature "trajectory_editor" {
   
-	avpc: df56 // хохо
+	avpc: df56
 	{{
 
 	  //x-param-option name="add-current" option="priority" value=10;
@@ -120,7 +121,7 @@ feature "trajectory_editor" {
     x-param-option name="start_new" option="priority"	value=10; // подальше убрать ее
 
     x-param-text name="trajectory";
-    x-param-option name="trajectory" option="hint" value="Колонки: TIME_DELTA,X,Y,Z,LOOKAT_X,LOOKAT_Y,LOOKAT_Z";
+    x-param-option name="trajectory" option="hint" value="Введите матрицу траектории движения камеры. Каждая строка это числа TIME_DELTA,X,Y,Z,LOOKAT_X,LOOKAT_Y,LOOKAT_Z";
     
     x-param-vector name="input_position";
     x-param-vector name="input_look_at";
@@ -132,7 +133,7 @@ feature "trajectory_editor" {
 	
 	trajectory_time_len=(m_eval (max_time) @avpc->output)
 	output=(
-		     ("TIME_DELTA,X,Y,Z,LOOKAT_X,LOOKAT_Y,LOOKAT_Z\n" + @avpc->trajectory)
+		     ("TIME_DELTA,X,Y,Z,LOOKAT_X,LOOKAT_Y,LOOKAT_Z\n" + @avpc->trajectory?)
 		     | parse_csv)
 	;
 };

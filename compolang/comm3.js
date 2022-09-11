@@ -6,6 +6,7 @@ export function setup(vz, m) {
      get_cell_value: get_cell_value,
      get_param_cell: feature_get_param_cell,
      get_event_cell: feature_get_event_cell,
+     get_cmd_cell: feature_get_cmd_cell,
      get_cell: feature_get_cell,
      create_cell: feature_create_cell,
      c_on : c_on
@@ -13,6 +14,7 @@ export function setup(vz, m) {
 
 
   vz.chain( "create_obj", function (obj,options) {
+      obj.get_cmd_cell = (name) => get_cmd_cell( obj, name );
       obj.get_event_cell = (name) => get_event_cell( obj, name );
       obj.get_param_cell = (name) => get_param_cell( obj, name );
       obj.get_cell = (name,ismanual) => get_cell( obj, name,ismanual );
@@ -209,7 +211,10 @@ export function bind_comm( target, name, cell )
   let ct = get_comm_table( target );
   ct.add( name, cell );
 
-  Object.defineProperty( target, name, { set: cell.set, get: cell.get } );
+  // так, это оказалось вредно -- в момент когда мы в ячейках пытаемся выразить команды..
+  // да и вообще странно... не здесь это вроде как решать... выглядит как робкая попытка
+  // ввести тему obj.param= ...
+  // Object.defineProperty( target, name, { set: cell.set, get: cell.get } );
 
   return cell;
 };
@@ -337,6 +342,39 @@ export function get_event_cell( target, name ) {
   return c;
 };
 
+// мб надо создать отдельный вид ячейки.. но пока вроде и такой прокатит
+export function get_cmd_cell( target, name ) {
+  
+  let c = get_or_create_cell( target, name );
+
+  if (!c.attached_to_compalang) {
+    c.attached_to_compalang = [target,name];
+
+    let setting;
+
+    c.on("assigned",(v) => {
+       if (setting) return;
+       try {
+         setting = true;
+         
+         let result = target.callCmd( name, v );
+         // надо очередь навести.. и надо результаты отдавать...
+         /*
+         let gui = target.getGui( name );
+          if (gui?.type === "cmd" && target[name]) {
+            return target[name].apply( target, args );
+          }
+         */ 
+       } finally { 
+         setting = false;
+       };
+    });
+
+  };
+
+  return c;
+};
+
 // универсальное - и для событий и для параметров
 export function get_cell( target, name, ismanual ) {
   let c = get_or_create_cell( target, name, target.getParam(name) );
@@ -399,13 +437,20 @@ export function get_cell( target, name, ismanual ) {
 export function set_cell_value( env ) {
   env.onvalues( ["input",0], (arr, val) => {
     if (!Array.isArray(arr)) arr=[arr];
+    let responding_channels = [];
+
     arr.forEach( (cell) => {
       if (!cell) return;
       //console.log("set cell value",cell,val)
+      if (val == 55) debugger;
       cell.set( val );
+      responding_channels.push( cell.reply_cell )
     })
+
+    env.setParam("output",responding_channels ); // todo optimize че их каждый раз пересчитывать то
     //env.setParam("output",arr); // чтобы можно было цепочки строить | 
-    env.setParam("output",val); // чтобы можно было цепочки строить | 
+    //env.setParam("output",val); // чтобы можно было цепочки строить | 
+    // чухня все это. надо ответные каналы давать.
   });
 };
 
@@ -484,6 +529,26 @@ export function feature_get_event_cell( env ) {
         res.push( null);
       else
         res.push( obj.get_event_cell( param_name ) );
+    });
+    
+    env.setParam( "output", single_elem_mode ? res[0] : res );
+    // single_elem_mode - это плохо или это норм? так-то сигнатура выхода меняется...
+  }); 
+}
+
+// получить ячейки "команд"
+// input - массив объектов
+// 0 - имя параметра
+export function feature_get_cmd_cell( env ) {
+  env.onvalues( ["input",0], (arr, param_name) => {
+    let single_elem_mode = !Array.isArray(arr);
+    if (single_elem_mode) arr=[arr];
+    let res = [];
+    arr.forEach( (obj) => {
+      if (!obj)
+        res.push( null);
+      else
+        res.push( obj.get_cmd_cell( param_name ) );
     });
     
     env.setParam( "output", single_elem_mode ? res[0] : res );

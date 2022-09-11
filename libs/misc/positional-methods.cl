@@ -87,6 +87,7 @@ register_feature name="+" code=`
 
     for (let i=1; i<count; i++) {
       // if (env.params[i] == null) return; // ждем..
+      if (env.params[i] == null) continue; // это не складываем...
       acc = acc + env.params[ i ];
     }
 

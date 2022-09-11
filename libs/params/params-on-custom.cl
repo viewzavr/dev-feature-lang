@@ -112,7 +112,7 @@ feature "x-param-df" {
 // рабочий вариант
 // x-param-objref-3 name=.... values=.... где values это набор объектов
 feature "x-param-objref-3" {
-  r: x-patch-r title_field="title_path"
+  r: x-patch-r title_field="title"
     @r->name @r->editor @r->values // {{ l: console-log-life; debug_input input=@l }}
     code=`(name,editor_code, values, obj) => {
       if (name) {

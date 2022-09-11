@@ -175,9 +175,10 @@ export function animation_player( obj, opts )
       return;
     }
 
-
     counter++;
     if (obj.params.delay > 0 && counter % obj.params.delay !== 0) return;
+
+    if (!obj.params.parameter) return;
 
     var [tobj,tparam] = obj.params.parameter.split("->");
     tobj = root.findByPath( tobj );
