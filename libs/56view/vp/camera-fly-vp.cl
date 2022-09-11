@@ -46,7 +46,10 @@ feature "camera-fly-vp" {
 			lines radius=20 positions=(concat @cc->output_position @cc->output_look_at) visible=@liness->visible;
 			sp_nodes: spheres input=@te->output radius=30 color=[1,0,0] visible=@liness->visible;
 
-			// todo (list @sp.mesh.material @sp_nodes.mesh.material) | x-modify { x-set-params single_sided=true };
+			// (list @sp.mesh.material @sp_nodes.mesh.material) | x-modify { x-set-params single_sided=true };
+			// (list @sp.mesh @sp_nodes.mesh) | x-modify { x-set-params material=(mesh_phong_material single_sided=true)};
+			// чтобы сфера не перекрывала видимость когда она видна
+			(list @sp.mesh.material @sp_nodes.mesh.material) | arr_map code="(item) => item.side = 0;";
 
 			//get_param_option @liness/lines-env
 
