@@ -2496,7 +2496,7 @@ export function creator( env )
         //edump.manual = env.params.manual;
         //посчитал неправильным здесь это обрабатывать
 
-        var p = env.vz.createSyncFromDump( edump,null,target );
+        var p = env.vz.createSyncFromDump( edump,null,target ); // ,null ,false, edump.$scopeFor );
 
         p.then( (obj) => env.emit("created",obj) );
      }
