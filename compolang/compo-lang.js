@@ -1505,13 +1505,11 @@ export function repeater( env, fopts, envopts ) {
   var pending_perform;
   env.onvalue("model",recreate );
   env.onvalue("input",recreate );
-  env.onvalue("target_parent",recreate );
+  env.onvalue("target_parent",() => recreate(true) );
 
   env.addCmd("refresh",() => recreate());
 
-
-
-  function recreate() {
+  function recreate( force=false ) {
 
      //console.log("repeater recreate", env.getPath() )
      if (env.removed)
@@ -1560,11 +1558,10 @@ export function repeater( env, fopts, envopts ) {
      if (env.params.target_parent) 
         target_parent = env.params.target_parent;
 
-
      //////////// вот здесь момент создания.
      // и вопрос - надо добавить или убавить. именно на этот вопрос надо отвечать.
 
-     if (env.params.always_recreate)
+     if (env.params.always_recreate || force)
         decrease_state_to( 0 );
     
      // у нас есть уже состояние - что то создано, на что то поданы заявки
@@ -3260,7 +3257,7 @@ export function get_parent( env )
     let v = input ? input.ns.parent : undefined;
     env.setParam("output",v );
     param_tracking();
-    param_tracking = input.on("parent_change",source_param_changed );
+    param_tracking = input.on("parent_change",() => source_param_changed(input) );
     // todo тут надо delayed на случай если там много детей будут пачками добавляться
     // и еще надо ренейм у детей ловить, name_changed
   }
@@ -3797,3 +3794,13 @@ export function connect_params_to_events(env) {
   // очищать вроде не надо - объект же на свои параметры зацеплен
 
 }
+
+export function set_parent( env ) {
+  env.onvalues([0,"input"],(parent,input) => {
+    for (let i=0; i<input.length; i++) {
+      let c = input[i];
+      parent.ns.appendChild( c,"sp",true );
+    };
+    env.setParam("output",input );
+  });
+};
