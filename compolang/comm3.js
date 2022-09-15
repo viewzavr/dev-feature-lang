@@ -341,7 +341,7 @@ export function get_event_cell( target, name ) {
 
     let setting;
 
-    c.on("assigned",(v) => {
+    c.on("assigned",(...v) => {
        if (setting) return;
        try {
          setting = true;
@@ -400,7 +400,7 @@ export function get_cmd_cell( target, name ) {
   c.on("assigned",(v) => {
       if (target.hasCmd( name ))
           consume_all();
-  });      
+  });
 
   target.onvalue( name,() => {
     if (target.hasCmd( name ))

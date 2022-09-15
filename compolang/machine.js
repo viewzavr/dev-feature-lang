@@ -35,8 +35,8 @@ export function compolang_machine(obj) {
     let $scopeFor = obj.$scopes.createScope("parseSimpleLang"); // F-SCOPE
     let res = obj.restoreFromDump( dump,false,$scopeFor );
 
-    Promise.resolve(res).then( (res) => {
-      obj.emit("machine_done",res);
+    Promise.resolve(res).then( (result) => {
+      obj.emit("machine_done",result);
     });
   }
   // вот вопрос. если мы устанавливаем эти вещи, как нам узнать, что это выполнено?

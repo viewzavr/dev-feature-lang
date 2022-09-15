@@ -24,14 +24,16 @@ export function init() {
     var htmldir = vz.getDir(import.meta.url)  
     register_packages( htmldir );
 
-  vzPlayer.start_v1 = (file) => {
+  vzPlayer.start_v1 = (file,perform_restore=true) => {
     //var filedir = Vrungel.add_dir_if( vz.getDir( file ), htmldir );
     var filedir = vz.getDir( file );
+    
+    let obj = vz.createObj();
 
     fetch( file ).then( (res) => res.text() ).then( (txt) => {
         //console.log(txt)
-        let obj = vz.createObj();
-        window.vzRoot = obj; // ну это нам для консоли
+        
+        window.vzRoot = obj; // ну это нам для консоли.. хак конечно..
         obj.feature("compolang_machine");
         obj.setParam("base_url",filedir);
         obj.setParam("diag_file", file );
@@ -43,27 +45,30 @@ export function init() {
         // но вообще надо нормальный метод с промисом. 
         // потому что нам и отработать надо 1 раз всего..
 
+        if (perform_restore)
         obj.on("machine_done",(res) => {
           //console.log("done catched",res)
 
-          obj.delayed( () => {
-            //console.log("global: issuing load from hash");
-            vzPlayer.loadFromHash("vrungel",obj).then( () => {
-              // console.log("restored. emitting global dump-loaded");
-              // vzPlayer.getRoot().emit("dump-loaded");
-              //vzPlayer.getRoot().setParam("dump_loaded",true);
-              vzPlayer.setParam( "dump_loaded",true );
-              vzPlayer.startSavingToHash("vrungel",obj);
-            })
-          },2)(); // все ссылки отработают (им нужен 1 такт)
+          obj.delayed( vzPlayer.resotre_state,2 )(); 
+          // все ссылки отработают (им нужен 1 такт)
           // но хотя и это спорно
-          
         });
-
     });
+    
+    return obj;
 
   }; //vzPlayer.start
- 
+  
+  // obj это ну машина компаланга, сиречь корневой объект
+  vzPlayer.restore_state = (obj) => {
+    return vzPlayer.loadFromHash("vrungel",obj).then( () => {
+        // console.log("restored. emitting global dump-loaded");
+        // vzPlayer.getRoot().emit("dump-loaded");
+        //vzPlayer.getRoot().setParam("dump_loaded",true);
+        vzPlayer.setParam( "dump_loaded",true );
+        vzPlayer.startSavingToHash("vrungel",obj);
+    });
+  };
 
   return { vz, vzPlayer };
 }
