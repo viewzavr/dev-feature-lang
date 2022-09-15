@@ -24,6 +24,7 @@ export function init() {
     var htmldir = vz.getDir(import.meta.url)  
     register_packages( htmldir );
 
+  // странно что он возвращает объект "машины". мог бы и промису возвращать..
   vzPlayer.start_v1 = (file,perform_restore=true) => {
     //var filedir = Vrungel.add_dir_if( vz.getDir( file ), htmldir );
     var filedir = vz.getDir( file );
