@@ -59,6 +59,7 @@ feature "timeout_insert_siblings" code=`
 };
 */
 
+// а еще есть pause_input
 feature "timeout" code=`
   env.onvalue( 0, (tm) => {
     env.feature("delayed");
@@ -79,7 +80,7 @@ register_feature name="get_query_param" code=`
     env.onvalue("name",(name) => {
       var v = getParameterByName(name);
       env.setParam("output",v);
-    })  
+    });
 `;
 
 register_feature name="fill_parent" {
@@ -170,7 +171,7 @@ register_feature name="monitor_params" {
         unsub_arr.push( cunsub );
       };
       sig_d();
-    })
+    });
 
     env.on("remove",unsub_func);
 
