@@ -11,6 +11,8 @@ export function setup( vz, m ) {
 }
 
 // берет ячейку у массива объектов
+// todo мб не только объекты сделать, а еще и dom.. но тогда тут отписываться придется
+// хотя это возможно я думаю.
 export function feature_dom_event_cell( env ) {
   env.onvalues( ["input",0], (arr, param_name) => {
     let single_elem_mode = !Array.isArray(arr);
@@ -18,7 +20,7 @@ export function feature_dom_event_cell( env ) {
     let res = [];
     arr.forEach( (obj) => {
       if (!obj)
-        res.push( null);
+        res.push( null );
       else
         res.push( obj.get_dom_event_cell( param_name ) );
     });

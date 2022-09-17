@@ -215,7 +215,7 @@ feature "pause_input" code=`
   env.feature("delayed");
   let pass = env.delayed( () => {
     env.setParam("output", env.params.input);
-  },1000/30);
+  },1000/30); // мобуть задержка на пару тактов.. или секунд?
 
   env.onvalue("input",pass);
 `;
