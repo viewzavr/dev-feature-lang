@@ -47,13 +47,13 @@ feature "grow-artefacts" {
         let making_artefacts = (
               @art_makers_codes
               | // создаем новые artmaker-ы
-              repeater target_parent=@x {
-                create_objects @x.input
+              repeater target_parent=@x { |code|
+                create_objects input=@code @x.input
               }
               |
               map_geta "output" default=null // возьмем выходы create-objects-ов
               | 
-              map_geta 0 // там ж массив.. хотя это как бы намек что мы мейкеров можем вообще создавать пачкой сразу
+              map_geta 0 default=null // там ж массив.. хотя это как бы намек что мы мейкеров можем вообще создавать пачкой сразу
               | 
               filter_geta "possible"
               |
@@ -63,12 +63,12 @@ feature "grow-artefacts" {
         let new_arts = (@making_artefacts | repeater target_parent=@x { // создаем новые артефакты
           //create_objects;
           k: output=(insert_children input=@x->input list=@k->input) 
-        } | map_geta "output" default=null | map_geta 0 default=null);
+        } | map_geta "output" default=null | map_geta 0 default=null | arr_compact);
 
         // если мы ушли недалеко - подключаем автогенерацию новым артефактам..
         if (@x->level < 3) then={
-          @new_arts | repeater {
-            grow-artefacts level=(@x->level + 1); 
+          @new_arts | repeater { |new_art|
+            grow-artefacts level=(@x->level + 1) input=@new_art;  
           };
         };
 

@@ -5,14 +5,14 @@ feature "compatible_visual_processes_for" {
   k: curart=@.->0 output=(
     @vis_makers_codes
     |
-    repeater {
-      create_objects @k.curart
+    repeater { | codes |
+      create_objects input=@codes @k.curart
     }
 //    | console_log_input "QQQ"
     |
     map_geta "output" default=null // возьмем выходы create-objects-ов
     | 
-    map_geta 0 // там ж массив.. хотя это как бы намек что мы мейкеров можем вообще создавать пачкой сразу
+    map_geta 0 default=null // там ж массив.. хотя это как бы намек что мы мейкеров можем вообще создавать пачкой сразу
     | 
     filter_geta "possible"
    );
@@ -80,9 +80,12 @@ feature "addvis" {
                                @artefacts0 @all_art_compatible_visual_processes);
        */
        let all_art_compatible_visual_processes = (@artefacts0 | map_geta "vis_makers" default=null);
+       let artefacts = @artefacts0;
 
+/*
        let artefacts = (m_eval "(arts,procs_arr) => arts.filter( (x,index) => procs_arr[index]?.length > 0)" 
                                @artefacts0 @all_art_compatible_visual_processes);
+*/       
     }};
 };
 
@@ -94,7 +97,8 @@ empty_artefact:
       title="Не выбран"
       output=null
       an-empty-artefact
-      data-artefact;
+      data-artefact
+      ;
 
 //compatible_visual_processes_for @empty_artefact | console-log-input "TEST1";
 
