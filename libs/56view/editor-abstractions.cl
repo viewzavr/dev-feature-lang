@@ -145,7 +145,7 @@ feature "manage-content2" {
     }; // main col
 };
 
-// показывает список объектов
+// показывает список объектов кнопками collapsible с содержимым из поля gui
 feature "show-inner-objects" {
 
      mc: column root=@mc->0 vp=@mc->root

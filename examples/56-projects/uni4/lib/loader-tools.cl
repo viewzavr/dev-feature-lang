@@ -20,6 +20,10 @@ feature "dataset" {
               ;
 
         show-inner-objects @x find="data-artefact";
+        
+        //show_sources_params input=(find-objects-bf "data-artefact" root=@x recursive=false) show_visible_cb=false;
+        //render_layers_inner title="Артефакты" root=@x 
+        //     items=[ {"title":"Объекты данных", "find":"data-entity","add":"data-entity","add_to":"@x"} ];
       };
     };
 };
