@@ -145,10 +145,13 @@ feature "manage-content2" {
     }; // main col
 };
 
+// показывает список объектов
 feature "show-inner-objects" {
 
      mc: column root=@mc->0 vp=@mc->root
      {{
+
+     @objects_list.output | get-event-cell "remove" | get-cell-value | m_eval "(evt,vp) => vp.emit('hide-settings')" @mc->vp;
 
      objects_list:
      find-objects-bf features=@mc->find
@@ -187,6 +190,8 @@ feature "show-inner-objects" {
                         obj.setParam('visible', val, true);
                       }" @rep->input;
                   } }};
+
+               
           };
      };
      

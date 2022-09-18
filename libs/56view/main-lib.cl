@@ -67,8 +67,13 @@ feature "show_3d_scene" {
 // input - список процессов
 feature "show_sources_params"
 {
-  sv: row auto_expand_first=true show_visible_cb=true 
-    style='pointer-events: none !important;' {
+  sv: row 
+    auto_expand_first=true 
+    show_visible_cb=true 
+    style='pointer-events: none !important;' 
+    show_settings_gui={ |code| show_settings_panel list=@code }
+    settings_gui=[]
+    {
     svlist: column style='align-items: flex-start; pointer-events: none !important;' {
       repeater input=@sv->input {
         mm: 
@@ -86,51 +91,103 @@ feature "show_sources_params"
 
           cbv: checkbox value=(@mm->input | geta "visible") visible=@sv->show_visible_cb;
 
+          //@sv->input | get-event-cell "remove" | m_eval "(evt,ch) => console.log(333); " (@sv | get-cell "settings_gui" );
+
           x-modify input=@mm->input {
             x-set-params visible=@cbv->value? __manual=true;
+            x-on "hide-settings" {
+              lambda (@sv | get-cell "settings_gui" ) code="(gui_channel,obj,settings) => {
+                //if (gui_channel.get() == settings)
+                   gui_channel.set([]);
+                };
+              ";
+            };
             x-on "show-settings" {
-              lambda @extra_settings_panel code="(panel,obj,settings) => {
+              lambda (@sv | get-cell "settings_gui" ) code="(gui_channel,obj,settings) => {
                  //console.log('got x-on show-settings',obj,settings)
                  // todo это поведение панели уже..
                  // да и вообще надо замаршрузизировать да и все будет.. в панель прям
                  // а там типа событие или тоже команда
-                 if (panel.params.list == settings)
-                   panel.setParam('list',[]);
+                 if (gui_channel.get() == settings)
+                   gui_channel.set([]);
                  else  
-                   panel.setParam('list',settings);
-                 
+                   gui_channel.set(settings);
               };
               ";
             };
+            /*
+            x-on "remove" {
+              lambda (@sv | get-cell "settings_gui") code="(gui_channel,obj,settings) => {
+                console.log(`rrrr`);
+                if (gui_channel.get() == settings)
+                   gui_channel.set([]);
+                };
+              ";   
+            };
+            */
           };
         }; // fieldset
       }; // repeater
 
-      //@repa->output | render-guis;
-      //render-params @rrviews;
-
     }; // svlist  
 
+    // show_settings_panel list=@sv.settings_gui;
 
-    extra_settings_panel_outer: row gap="2px" style='pointer-events: all !important;' 
-        visible=(m_eval "(list) => {
-            return list && list.length>0 ? true: false;}" 
-            @extra_settings_panel->list? allow_undefined=true) 
+    if (@sv.settings_gui.length? > 0) then={
+      let g = (create-objects input=@sv.show_settings_gui @sv.settings_gui | set-parent @sv);
+      @g | get-event-cell "close" | get-cell-value | m_eval "(evt,c) => { console.log(333,evt); c.set([]); } " (@sv | get-cell "settings_gui" );
+
+      // console-log "panel opened" @sv.show_settings_gui @sv.settings_gui;
+
+      // insert_children input=@sv list=@sv.show_settings_gui @sv.settings_gui;
+
+      // create-objects input=@sv.show_settings_gui @sv.settings_gui;
+      // computing-env code=@sv.show_settings_gui @sv.settings_gui dom_generator=true;
+      // repeater input=(list @sv.settings_gui) list=@sv.show_settings_gui
+    };
+
+    }; // row
+};
+
+feature "show_settings_panel" {
+   extra_settings_panel: 
+        row gap="2px" style='pointer-events: all !important;'
+        list=@.->0
     {
-      extra_settings_panel: 
       column // style="position:absolute; top: 1em; right: 1em;" 
       {
          insert_children input=@.. list=@extra_settings_panel->list?;
       };
+
+      // ну типа соединили каналы.. это примерно как написать row close=@bt->click; хм...
+      @extra_settings_panel | get-event-cell "close" | set-cell-value (@bt | get-event-cell "click" | get-cell-value);
+
       bt: button "&lt;" style_h="height:1.5em;" 
       {
-         setter target="@extra_settings_panel->list" value=[];
+         //extra_settings_panel | get-event-cell "close" | set-cell-value
+
+         // setter target="@extra_settings_panel->list" value=[];
          //m_lambda "() => console.log('clocled');"
       };
     }; // extra_settings_panel_outer
-
-    }; // row    
 };
+
+feature "show_settings_dialog" {
+   extra_settings_panel: 
+        dialog 
+        gap="2px" style='pointer-events: all !important;padding: 0px;border: 0px; background: transparent;'
+        list=@.->0
+    {
+      @extra_settings_panel | get-cmd-cell "apply" | set-cell-value 1;
+
+      column
+      {
+         insert_children input=@.. list=@extra_settings_panel->list?;
+      };
+      
+    }; // extra_settings_panel_outer
+};
+
 
 // подфункция реакции на чекбокс view_settings_dialog
 // идея вынести это в метод вьюшки. типа вкл-выкл процесс.

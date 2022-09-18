@@ -3706,7 +3706,7 @@ export function computing_env(env){
 // вход: input - описание
 //       позиционные аргументы - пойдут на вход scope согласно описанию
 // выход: output - список созданных объектов
-export function create_objects(env){
+export function create_objects(env) {
 
   // соединяет позиционные аргументы computing_env с ||-аргументами scope
   function fill_scope_with_args(newscope,attrs) {
@@ -3719,7 +3719,7 @@ export function create_objects(env){
   };
 
   let cleanup = () => {};
-  env.on("remove",() => cleanup());
+  env.on("remove",() => { cleanup(); });
 
   env.onvalue("input",(env_list) => {
     cleanup();
@@ -3755,11 +3755,20 @@ export function create_objects(env){
       if (spawn_obj.removed) {
         return;
       }
-      
 
-      env.setParam("output",spawn_obj.ns.getChildren());
+      let created_items = spawn_obj.ns.getChildren().slice(0);
+      env.setParam("output",created_items);
+
+      // если объекты украдут к другому родителю их надо все-равно чистить, такова логика закладывается
+      let orig_cleanup = cleanup;
+      cleanup = () => {
+         orig_cleanup();
+         for (let k of created_items)
+           if (!k.removed)
+             k.remove();
+      }
       
-    });    
+    });
   });
 };
 

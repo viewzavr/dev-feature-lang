@@ -248,7 +248,9 @@ feature "area_content" {
 
        subitems=[]
        sources_str=""
+       //sources_str_2="" // используется для автогенерации
        
+       //sources=(find-objects-by-pathes input=(+ @it->sources_str @it->sources_str2) root=@it->project)
        sources=(find-objects-by-pathes input=@it->sources_str root=@it->project)
        visible_sources = (@it->sources | filter_geta "visible")
 

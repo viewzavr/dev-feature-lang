@@ -49,11 +49,12 @@ export function dialog( obj, opts )
   obj.open = obj.show;
   obj.openModal = obj.showModal;
 
-  obj.close = (ret) => { obj.dom.close(ret); obj.emit("close"); }
+  obj.close = (ret) => { console.log('dlg close invoked');
+    obj.dom.close(ret); obj.emit("close"); }
 
   //obj.addCmd( "show", () => obj.show() );
   obj.addCmd( "show_modal", () => obj.showModal() );
-  //obj.addCmd( "close", () => obj.close() );
+  // obj.addCmd( "close", () => obj.close() );
   // вот почему у меня тут разные наименования? не знаю..
 
   // апплий было showModal но пока сделал show

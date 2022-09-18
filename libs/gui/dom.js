@@ -288,7 +288,7 @@ export function dom( obj, options={} )
 
     for (let c of inputs) {
       if (c.protected) continue;
-      if (!c.dom_generator) continue;
+      if (!(c.dom_generator || c.params.dom_generator)) continue;
 
       var od = c.params.output;
       if (typeof(od) === "function") od = od();
@@ -363,7 +363,11 @@ export function dom( obj, options={} )
         obj.ns.parent.callCmd("rescan_children","request by child's remove");
     }
   });
-  
+
+  obj.on("parent_change",(cobj,newparent,oldparent) => {
+    if (oldparent) oldparent.callCmd("rescan_children","request by child's parent_change");
+    if (newparent) newparent.callCmd("rescan_children","request by child's parent_change");
+  });
 
   return obj;
 }
