@@ -409,7 +409,7 @@ esync1: feature {
 		x-param-label name="synced_param_value";
 		x-param-label name="processes-found";
 	}}
-	processes-found=(@synced_processes | geta "length");
+	processes-found=(@synced_processes | geta "length")
 	{
 	  synced_processes: (find-objects-bf features="visual-process" root=@es1->project recursive=false);
 	    

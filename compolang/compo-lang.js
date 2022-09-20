@@ -757,6 +757,11 @@ export function register_feature( env, envopts ) {
   //let orig_rs = restoreChildrenFromDump;  
   env.restoreChildrenFromDump = (dump, ismanual, $scopeFor) => {
     children = dump.children;
+    if (Object.values(children).length > 1) {
+      console.error("compolang feature: > 1 children");
+      console.log( children )
+      console.log( env.$locinfo );
+    }
     compile();
     
     //env.monitor_values(["code",0],compile );
