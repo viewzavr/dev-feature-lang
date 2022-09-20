@@ -18,6 +18,10 @@ export function setup(vz, m) {
   add_compalang_to_vz(vz);
 }
 
+// просто объект, чтобы пустые окружения создавать..
+export function feature_obj( env ) {
+};
+
 import * as P from "./lang-parser.js";
 
 // создает функцию которая по строчке компаланг-кода генерирует компаланг-процессы

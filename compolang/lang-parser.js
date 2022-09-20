@@ -354,6 +354,9 @@ function peg$parse(input, options) {
   var peg$f8 = function(envid, env_modifiers, child_envs) {
       var env = new_env( envid );
 
+      // этим мы застолбили что фича первая всегда идет и точка.
+      //env.features[ first_feature_name ] = {};
+
       env.locinfo = getlocinfo();
 
       // F-ENV-ARGS
@@ -362,6 +365,27 @@ function peg$parse(input, options) {
         //env.child_env_args = child_envs[0].env_args;
       //}
       
+      if (env_modifiers.length > 0 && !env_modifiers[0].feature) {
+         if (env_modifiers.length == 1 && env_modifiers[0].positional_param)
+         {
+            // разрешаем позиционные вещи без фичи.. типа if (@some.thing?)
+         }
+         else
+         {
+           // Бог с ним пусть можно пустые окружения
+           let ff = env_modifiers.find( e => e.feature);
+           if (ff) {
+             // ну и еще эти
+             let allow_infix = { "/":true, "*":true, "and":true, "+":true,"-":true,"or":true, 
+                                 "==": true, "<":true, ">":true};
+             if (!allow_infix[ff.name]) {
+               console.error("first record is not feature!");
+               console.log( env.locinfo );
+             }
+           }
+           
+         }       
+      };
 
       var linkcounter = 0;
       for (let m of env_modifiers) {

@@ -20,9 +20,10 @@ insert_children { manage_visual_processes; };
 
 // вход - project - визпроект
 feature "manage_visual_processes" {
-	vp: project=@..->project
+	vp: collapsible "Визуальные процессы"
+      project=@..->project
       active_view = @..->active_view
-    	collapsible "Визуальные процессы" {
+    	{
         render_process_hierarchy objects=(@vp->project | geta "processes")
            active_view=@vp->active_view
         ;

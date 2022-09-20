@@ -5,11 +5,11 @@ insert_children { manage_cameras; };
 feature "manage_cameras" {
 
   mv: 
+      collapsible "Камеры" 
+
       render_project=@..->render_project
       project=@..->project
       active_view=@..->active_view
-
-      collapsible "Камеры" 
       {
 
            co: column ~plashka 

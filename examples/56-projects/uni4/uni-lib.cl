@@ -94,10 +94,10 @@ feature "addvis" {
 feature "an-empty-artefact";
 
 empty_artefact:
+      data-artefact 
       title="Не выбран"
       output=null
       ~an-empty-artefact
-      ~data-artefact
       ;
 
 //compatible_visual_processes_for @empty_artefact | console-log-input "TEST1";

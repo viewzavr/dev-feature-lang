@@ -65,6 +65,8 @@ feature "hi-res-style" {
 /*
 feature "make-hi-res" {
  k: 
+   dom_group
+
    {{ x-param-checkbox name="enabled" }}
    {{ x-param-float name="width" }}
    {{ x-param-float name="height" }}
@@ -72,7 +74,7 @@ feature "make-hi-res" {
    width=4192
    height=4192
 
-   dom_group {
+   {
     if (@k->enabled) then={
       css-style "body { overflow: auto; }
         .view56_visual_tab {
@@ -87,13 +89,16 @@ feature "make-hi-res" {
 
 feature "make-hi-res" {
  k: 
+   dom_group
+
    enabled=true
    {{ x-param-string name="width" }}
    {{ x-param-string name="height" }}
    {{ x-param-option name="rescan_children" option="visible" value=false }}
    width=4096
    height=''
-   dom_group {
+   
+   {
     if (@k->enabled) then={
        css-style (m_eval "(w,h) => {
          w = parseFloat(w);

@@ -26,8 +26,7 @@ feature "spheres" {
 // входные параметры
 // nx ny positions radiuses colors radius
 feature "spheres_compute" {
-  s: nx=6 ny=5 positions=[] radiuses=[] colors=[] radius=1
-   m_eval 
+  s: m_eval nx=6 ny=5 positions=[] radiuses=[] colors=[] radius=1
 		`(latitudeBands,longitudeBands,spheres_positions,spheres_radiuses,spheres_colors, rr) => {
 
 			return make();

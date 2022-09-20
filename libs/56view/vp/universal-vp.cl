@@ -16,11 +16,10 @@ feature "compute_title" {
 feature "manage_universal_vp_co" {}; // тпу
 
 feature "manage_universal_vp" {
-  ma: 
+  ma:  collapsible "Универсальное"
       project=@..->project
       curview=@..->active_view
-
-  collapsible "Универсальное" {
+   {
     column ~plashka ~manage_universal_vp_co 
        curview=@ma->curview project=@ma->project
     {
@@ -258,8 +257,9 @@ feature "etext" {
 
 edatavis: feature {
   rt: 
-    input=@data56->output
     visual_process
+    input=@data56->output 
+    
     gui={
       render-params @fileparams;
       render-params @rt;
@@ -325,8 +325,8 @@ efile: feature {
 };
 
 ecompute: feature {
+  visual_process
 	title="Вычисление"
-	visual_process
 	sibling_types=["ecompute1"] 
     sibling_titles=["Смешать построчно"];
 };

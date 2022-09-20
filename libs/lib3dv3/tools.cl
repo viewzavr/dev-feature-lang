@@ -69,12 +69,13 @@ register_feature name="compute_data_radius" code=`
 */
 
 register_feature name="compute_auto_scale" {
-  size=100 
   compute_output
+  size=100
   data_radius=(compute_data_radius input=@.->input) 
   code=`
     return env.params.size / env.params.data_radius;
-  `;
+  `
+  ;
 };
 
 register_feature name="auto_scale" {

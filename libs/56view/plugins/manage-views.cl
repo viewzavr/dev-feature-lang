@@ -4,12 +4,10 @@ insert_children { manage_views; };
 
 feature "manage_views" {
 
-  mv: 
+  mv: collapsible "Настройка экрана" 
       render_project=@..->render_project
       project=@..->project
       active_view=@..->active_view
-
-      collapsible "Настройка экрана" 
       style="min-width: 256px"
       {
 

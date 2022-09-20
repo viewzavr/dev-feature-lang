@@ -155,8 +155,8 @@ feature "x-param-objref-2" {
   	x-param-custom
   	 name=@xi->name
      editor={
-  	 edt: variable_name=(+ @edt->name "_path")
-  	      combobox
+  	 edt: combobox 
+  	        variable_name=(+ @edt->name "_path")
 	        	value=(@edt->object | geta @edt->variable_name)
 	        	values=(@xi->values | map_geta (m_apply "(cam) => cam.getPath()"))
 	        	titles=(@xi->values | map_geta "title")
