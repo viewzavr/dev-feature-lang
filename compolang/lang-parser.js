@@ -381,6 +381,10 @@ function peg$parse(input, options) {
              if (!allow_infix[ff.name]) {
                console.error("first record is not feature!");
                console.log( env.locinfo );
+
+               // на самом деле если окружение первое в списке то тоже не обязательно так то.
+               // т.е. { some=5; some=10 }
+               // а кстати вот мы видим если ; таки стоит - то тоже не обязательно..
              }
            }
            
@@ -641,6 +645,10 @@ function peg$parse(input, options) {
     };
   var peg$f19 = function(env_list) {
       // attr expression
+      if (env_list.length > 1) {
+         console.error("compolang: more than 1 record in ()")
+         console.log( getlocinfo() );
+      }
       return { env_expression: env_list, locinfo: getlocinfo() }
     };
   var peg$f20 = function(env_list) {

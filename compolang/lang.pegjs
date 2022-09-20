@@ -537,6 +537,10 @@ positional_value
   }
   / "(" ws env_list:env_list ws ")" {
     // attr expression
+    if (env_list.length > 1) {
+       console.error("compolang: more than 1 record in ()")
+       console.log( getlocinfo() );
+    }
     return { env_expression: env_list, locinfo: getlocinfo() }
   }
 
@@ -554,6 +558,10 @@ value
   }
   / "(" ws env_list:env_list ws ")" {
     // attr expression
+    if (env_list.length > 1) {
+       console.error("compolang: more than 1 record in ()")
+       console.log( getlocinfo() );
+    }
     return { env_expression: env_list, locinfo: getlocinfo() }
   }
   
