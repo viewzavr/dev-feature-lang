@@ -26,11 +26,12 @@ export function simple_lang(env)
 {
   env.parseSimpleLang = function( code, opts={} ) {
     try {
+      var gsource = {lines: code.split('\n'), file: opts.diag_file, toString: () => opts.diag_file };
       var parsed = P.parse( code, 
                             { vz: env.vz, 
                               parent: (opts.parent || env), 
                               base_url: opts.base_url,
-                              grammarSource: {lines: code.split('\n'), file: opts.diag_file }
+                              grammarSource: gsource
                             }
                             );
       
@@ -49,10 +50,12 @@ export function simple_lang(env)
 
       console.error(e);
       
+      // печатает хорошо благодаря toString внедренному в gsource
       if (typeof e.format === "function")
-          console.log( e.format( [{text:code}] ));
+          console.log( e.format( [{source: gsource, text:code}] ));
+          //console.log( e.format( [{text:code}] ));
 
-      if (opts.diag_file) console.log("parse error in file ",opts.diag_file)  
+      //if (opts.diag_file) console.log("parse error in file ",opts.diag_file)  
 
     }
   }
