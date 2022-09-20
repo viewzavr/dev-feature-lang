@@ -7,11 +7,12 @@ insert_children { manage_export; };
 
 // вход - project - визпроект
 feature "manage_export" {
-	vp: project=@..->project
+	vp: collapsible "Экспорт"
+      project=@..->project
       active_view_tab=@..->active_view_tab
       render_project=@..->render_project
-    	collapsible "Экспорт" {
-        column plashka {
+    	{
+        column ~plashka {
           button "Картинка" cmd=@ee->image;
 
           cb: checkbox value=false text="Высокое разрешение";

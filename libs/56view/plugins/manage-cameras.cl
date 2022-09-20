@@ -12,7 +12,7 @@ feature "manage_cameras" {
       collapsible "Камеры" 
       {
 
-           co: column plashka 
+           co: column ~plashka 
                 style_r="position:relative;" 
                 input=@mv->active_view 
             {

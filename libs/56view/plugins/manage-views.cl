@@ -13,7 +13,7 @@ feature "manage_views" {
       style="min-width: 256px"
       {
 
-           co: column plashka 
+           co: column ~plashka 
                 style_r="position:relative;" 
                 input=@mv->active_view 
             {

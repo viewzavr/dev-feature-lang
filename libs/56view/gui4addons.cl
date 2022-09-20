@@ -7,7 +7,7 @@ feature "show_addons"
   svlist: repeater {
         amm: column style='border:1px solid #050505; border-radius:5px;
              position: relative' // relative чтобы внутри X позиционировать через absolute
-           plashka
+           ~plashka
            expanded=(@amm->input | geta "tab_expanded" default=false)
         {
 
@@ -90,7 +90,7 @@ feature "manage_addons" {
 };
 
 feature "addons_area" {
-  aa: column plashka {
+  aa: column ~plashka {
 
     column {
       //show_addons input=(@aa->input? | geta "addons_container" | get_children_arr | sort_by_priority);

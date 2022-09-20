@@ -1,6 +1,6 @@
 feature "spheres" {
 	s: node3d 
-    points_df_input 
+    ~points_df_input 
 	  {{ x-param-slider name="radius" min=0.0 max=100 step=0.1 }}
 	  nx=16 ny=24 positions=[] radiuses=[] colors=[] radius=1
 	  color=[1,1,1]
@@ -12,7 +12,7 @@ feature "spheres" {
 		         indices=(@mdata->output | geta 3)
 		         colors=(@mdata->output | geta 4)
 		         color=@s->color
-		         editable-addons // временно
+		         ~editable-addons // временно
 		         ;
 
 		// result: [ positions, normals, uvs, indices, colors ]

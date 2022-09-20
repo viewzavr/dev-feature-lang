@@ -71,7 +71,7 @@ feature "effect3d_additive"
 {
   ea: geffect3d 
     gui={render-params @ea; }
-  x-patch-r THREE=(import_js (resolve_url "../../../libs/lib3dv3/three.js/build/three.module.js"))
+  ~x-patch-r THREE=(import_js (resolve_url "../../../libs/lib3dv3/three.js/build/three.module.js"))
     code=`(tenv) => {
       //console.log("additive, tenv",tenv,env)
       let THREE=env.params.THREE;
@@ -102,7 +102,7 @@ feature "effect3d_opacity" {
     alfa_test=0.5
     opacity=1.0
     gui={render-params @eo; }
-    x-patch-r code=`(tenv) => {
+    ~x-patch-r code=`(tenv) => {
           tenv.onvalue('material',(m)=> {
               m.transparent = true;
               m.opacity = env.params.opacity;
@@ -132,7 +132,7 @@ feature "effect3d_zbuffer" {
     depth_write=true
     size_attenuation=true
     gui={render-params @eo; }
-    x-patch-r code=`(tenv) => {
+    ~x-patch-r code=`(tenv) => {
           tenv.onvalue('material',(m)=> {
               m.depthTest = env.params.depth_test;
               m.depthWrite = env.params.depth_write;
@@ -159,7 +159,7 @@ feature "effect3d_pos" {
     {{ x-param-float name="y"; }}
     {{ x-param-float name="z"; }}
     gui={render-params @eo; }
-    x-patch-r code=`(tenv) => {
+    ~x-patch-r code=`(tenv) => {
       //console.log("patching",tenv.getPath(),env.params.x,env.params.y,env.params.z);
           tenv.onvalue('output',(threejsobj)=> {
               let x = env.params.x;
@@ -193,7 +193,7 @@ feature "effect3d_scale" {
     {{ x-param-float name="y"; }}
     {{ x-param-float name="z"; }}
     gui={render-params @eo; }
-    x-js `(tenv) => {
+    ~x-js `(tenv) => {
           tenv.onvalue('output',(threejsobj)=> {
               let x = env.params.x;
               let y = env.params.y;
@@ -219,7 +219,7 @@ feature "effect3d_sprite" {
     {{ x-param-combo name="sprite" values=["","spark1.png","ball.png","circle.png","disc.png","particle.png","particleA.png","snowflake1.png","snowflake3.png"]; }}
     sprite="ball.png"
     gui={render-params @eoa; }
-    x-modify {
+    ~x-modify {
       //x-set-params texture_url=(if (@eoa->sprite != "") then={resolve_url (+ "sprites/" @eoa->sprite)});
       // этот if ненадежная схема - сначала успевает отработать resolve-url а потом уже if его грохает, но сигнал уже послан..
       // спокойная функц схема отрабатывает тут лучше.. забавно..
@@ -239,7 +239,7 @@ feature "effect3d_script" {
       text "Введите код скрипта и при желании доп. входные параметры.";
       render-params @script; 
     }
-    x-patch-r @script->input1 @script->input2
+    ~x-patch-r @script->input1 @script->input2
     code=
 `(n,coef,tenv) => {
   if (n != null && coef != null)
@@ -319,7 +319,7 @@ feature "effect3d_colorize" {
   show_input=true
   output_column_name=@d->output_column_name
 
-  x-modify {
+  ~x-modify {
     x-set-params colors=@arrtocols->output ;
     /*
     if (@eff->color_mix_mode) then={

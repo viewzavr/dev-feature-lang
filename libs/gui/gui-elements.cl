@@ -4,7 +4,7 @@ feature "css-style" {
 
 register_feature name="button" {
 	tb: dom tag="button" innerHTML=@.->text text=@.->0?
-	func 
+	~func 
 	{{
 		dom_event name="click" cmd="@tb->apply";
 		on_dom_event @tb "click" (m_lambda "(obj) => { obj.emit('click'); }" @tb);
@@ -199,10 +199,10 @@ register_feature name="slider" {
 		 link from="..->step"  to="..->dom_step";
 		 link from="..->value" to="..->dom_value";
 		*/ 
-		 setter value=@..->min target="..->dom_min" auto_apply;
-		 setter value=@..->max target="..->dom_max" auto_apply;
-		 setter value=@..->step target="..->dom_step" auto_apply;
-		 r: setter value=@..->value target="..->dom_obj_value" auto_apply;
+		 setter value=@..->min target="..->dom_min" ~auto_apply;
+		 setter value=@..->max target="..->dom_max" ~auto_apply;
+		 setter value=@..->step target="..->dom_step" ~auto_apply;
+		 r: setter value=@..->value target="..->dom_obj_value" ~auto_apply;
 
 		 if (@the_slider->sliding) then={
 			 @the_slider | dom_event_cell "input" | c_on `(event_data,valcell) => {
@@ -248,7 +248,7 @@ register_feature name="select_color" {
   dom tag="input" dom_type="color" {
 
     // value передаем в dom
-    setter target="..->dom_value" value=@val2dom->output auto_apply;
+    setter target="..->dom_value" value=@val2dom->output ~auto_apply;
     //link from="@val2dom->output" to="..->dom_value";
     val2dom: compute inp=@..->value code=`
       /// работа с цветом    

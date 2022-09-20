@@ -28,9 +28,9 @@ feature "camera-fly-vp" {
 	
 	gui={
 		render-params @avp;
-		render-params @te plashka; // редактор траекторий
-		render-params @cc plashka; // вычислитель положения
-		render-params @liness plashka; // рисователь линии
+		render-params @te ~plashka; // редактор траекторий
+		render-params @cc ~plashka; // вычислитель положения
+		render-params @liness ~plashka; // рисователь линии
 		// render-params @sp plashka; // рисователь линии
 		// avp filters={ params-hide list="title"; params-priority list="add-current";}
 	}

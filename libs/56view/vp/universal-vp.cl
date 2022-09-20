@@ -21,7 +21,7 @@ feature "manage_universal_vp" {
       curview=@..->active_view
 
   collapsible "Универсальное" {
-    column plashka manage_universal_vp_co 
+    column ~plashka ~manage_universal_vp_co 
        curview=@ma->curview project=@ma->project
     {
       text "Добавить:";
@@ -92,16 +92,16 @@ feature "manage_universal_vp" {
 feature "df56";
 
 feature "linesetc-file" {
-  view: visual_process df56
+  view: visual_process ~df56
     title="Файл" 
     visible=true 
     output=@loaded_data->output
-    efile
+    ~efile
 
     // todo это не df 56 в будущем
 
   gui={
-    column plashka {
+    column ~plashka {
         text "Укажите текстовый файл с данными";
         render-params  input=@fileparams;
     };
@@ -217,25 +217,25 @@ feature "universal_vp"
 /////////////////////////// наполнение
 
 elinestr: feature {
-  main: linestrips edatavis
+  main: linestrips ~edatavis
      _gui={ 
        render-params input=@main;
       };
 };
 
 eptstr: feature {
-  main: points edatavis _gui={ render-params input=@main };
+  main: points ~edatavis _gui={ render-params input=@main };
 };
     
 // вход input это dataframe
 emodels: feature {
-    root: render_models edatavis _gui={ render-params input=@root }
+    root: render_models ~edatavis _gui={ render-params input=@root }
         {
         };
 };
 
 feature "emesh" {
-        main: mesh edatavis _gui={ render-params input=@main; }
+        main: mesh ~edatavis _gui={ render-params input=@main; }
        ;
 };
 
@@ -245,12 +245,12 @@ feature "emesh" {
 
 // параметр: time
 feature "eh2" {
-  sv: escreenvis dom tag="h2" style="color: white; margin: 0;"
+  sv: escreenvis ~dom tag="h2" style="color: white; margin: 0;"
      {{ x-param-string "innerText" }};
 };
 
 feature "etext" {
-  sv: escreenvis dom style="color: white; margin: 0;"
+  sv: escreenvis ~dom style="color: white; margin: 0;"
      {{ x-param-string "innerHTML" }};
 };
 
@@ -332,7 +332,7 @@ ecompute: feature {
 };
 
 ecompute1: feature {
-	ec1: ecompute df56
+	ec1: ecompute ~df56
 
 	gui={
 		text "Массив 1";
@@ -400,7 +400,7 @@ esync1: feature {
 	esync project=@..
 
 	gui={
-		column plashka {
+		column ~plashka {
 		  render-params @es1;
 	  };
 	}

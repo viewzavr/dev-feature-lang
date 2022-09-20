@@ -255,7 +255,7 @@ feature "x-param-options" {
   code="(name,obj,ee) => {
     //let name = env.params[0];
     for (let k of env.getParamsNames())
-      if (k != 0 && k != 'code' && k != 'output' && k != 'apply' && k != "args_count")
+      if (k != 0 && k != 'code' && k != 'output' && k != 'apply' && k != 'args_count')
          obj.setParamOption( name, k, env.params[k] );
   }";
 };

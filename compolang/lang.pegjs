@@ -119,7 +119,6 @@ env_modifier
   / link_assignment
   / positional_attr
   / feature_addition
-  
  
 // ----- A2. attr_assignment
 attr_assignment
@@ -152,6 +151,7 @@ link_assignment
   
 feature_addition
   = name:feature_name {
+    // if (name == "args_count") console.log(getlocinfo());
     return { feature: true, name: name, params: {} }
     //current_env.features[name] = true;
   }
@@ -159,6 +159,18 @@ feature_addition
     // F-FEAT-PARAMS
     return { feature_list: env_list }
   }
+  / "~" name:feature_name {
+    // специальный вариант чтобы отсечь доп-фичи в объектах
+    // синтаксис: ~name
+    return { feature: true, name: name, params: {}, extra_feature: true }
+  }
+
+/*
+extra_feature_addition
+  = "~" name:feature_name {
+    return { feature: true, name: name, params: {}, extra_feature: true }
+  }
+*/  
   
 // ------ A3. attr_name
 Word
@@ -247,8 +259,16 @@ one_env
          env.named_params_count++;  
       }
 
-      if (m.feature)                                  // фича
+      if (m.feature) {                                  // фича
+        // задача - поругаться
+        if (!m.extra_feature && Object.keys(env.features).length > 0) 
+        {
+          console.warn( "compolang: more than 1 feature in env! existing:",
+              Object.keys(env.features),"name=",[m.name]);
+          console.log( env.locinfo )
+        }
         env.features[ m.name ] = m.params;
+      }  
       if (m.feature_list) { // F-FEAT-PARAMS
         env.features_list = (env.features_list || []).concat( m.feature_list );
       }

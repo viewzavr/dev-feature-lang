@@ -4,7 +4,7 @@ register_feature name="material_generator_gui" {
       link to=".->output_material" from=@matptr->output;
     }}
     {
-        dom tag="h3" innerText=@dg->text hhh;
+        dom tag="h3" innerText=@dg->text;
 
         mattabs: tabview index=4 { 
           tab text="Basic" { render-params object=@m1;}; 

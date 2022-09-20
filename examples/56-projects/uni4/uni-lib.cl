@@ -31,7 +31,7 @@ feature "addvis" {
   x: visual_process title="Добавить визуализацию"
 
     gui={
-      column plashka gap="0.4em" {
+      column ~plashka gap="0.4em" {
         text "Артефакт данных";
         cb: combobox style="max-width:230px"
               titles=(@artefacts | map_geta "title_path" default='?') 
@@ -96,8 +96,8 @@ feature "an-empty-artefact";
 empty_artefact:
       title="Не выбран"
       output=null
-      an-empty-artefact
-      data-artefact
+      ~an-empty-artefact
+      ~data-artefact
       ;
 
 //compatible_visual_processes_for @empty_artefact | console-log-input "TEST1";

@@ -1,7 +1,7 @@
 feature "axes-view" {
 	aaview: visual_process title="Оси координат"
 	gui={
-		column plashka {
+		column ~plashka {
 			insert_children input=@.. list=@ab->gui;
 		};
 	}	
@@ -14,63 +14,63 @@ feature "axes-view" {
 };
 
 feature "text3d_vp" {
-	vp: visual-process editable-addons title="Текст"
+	vp: visual-process ~editable-addons title="Текст"
 	  gui={ render-params @vp
 	  	       filters={ params-hide list="title"; }; 
 	    manage-addons @vp; }
-	  text3d_one
+	  ~text3d_one
 	  ;
 };
 
 feature "text3d_lines_vp" {
-	vp: visual-process editable-addons title="Текст"
+	vp: visual-process ~editable-addons title="Текст"
 	  gui={ render-params @vp
 	  	       filters={ params-hide list="title"; }; 
 	    manage-addons @vp; }
-	  text3d
+	  ~text3d
 	  ;
 };
 
 feature "points_vp" {
-	vp: visual-process editable-addons title="Точки"
+	vp: visual-process ~editable-addons title="Точки"
 	  gui={
 	  	render-params @vp
 	  	       filters={ params-hide list="title"; }; 
 	    manage-addons @vp; 
 	  }
-	  points;
+	  ~points;
 };
 
 feature "lines_vp" {
-	vp: visual-process editable-addons title="Отрезки"
+	vp: visual-process ~editable-addons title="Отрезки"
 	  gui={ render-params @vp
 	  	       filters={ params-hide list="title"; }; 
 	    manage-addons @vp; }
-	  lines;
+	  ~lines;
 };
 
 feature "linestrips_vp" {
-	vp: visual-process editable-addons title="Отрезки"
+	vp: visual-process ~editable-addons title="Отрезки"
 	  gui={ render-params @vp
 	  	       filters={ params-hide list="title"; }; 
 	    manage-addons @vp; }
-	  linestrips;
+	  ~linestrips;
 };
 
 // вопрос как передать addons в меш..
 feature "spheres_vp" {
-	vp: visual-process editable-addons title="Сферы"
+	vp: visual-process ~editable-addons title="Сферы"
 	  gui={
 	  	render-params @vp
 	  	       filters={ params-hide list="title"; };
 	  	 render-params @vp->mesh
 	  	       filters={ params-hide list="visible"; };
 	    manage-addons @vp->mesh; }
-	  spheres;
+	  ~spheres;
 };
 
 feature "mesh_vp" {
-	vp: visual-process editable-addons title="Меш"
+	vp: visual-process ~editable-addons title="Меш"
 	  scene3d=@vp->output
 	  gui={ render-params @vp
 	  	       filters={ params-hide list="title"; }; 
@@ -78,5 +78,5 @@ feature "mesh_vp" {
 	  }
 	  {{ x-param-label-small name="positions_count"}}
 	  positions_count=(@vp->positions | geta "length")
-	  mesh;
+	  ~mesh;
 };

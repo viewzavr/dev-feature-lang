@@ -41,8 +41,8 @@ feature "vis-group"
 	generated_processes=(find-objects-bf root=@vp features="visual-process" include_root=false recursive=false)
     scene2d=(@vp->generated_processes | map_geta "scene2d" default=null)
     scene3d=@vp->output
-    node3d 
-    editable-addons
+    ~node3d 
+    ~editable-addons
     // авось прокатит
     {
     };

@@ -12,7 +12,7 @@ feature "data-artefact" {
 feature "dataset" {
   x: visual_process title="Входные данные"
     gui={
-      column plashka {
+      column ~plashka {
         
         ba: button_add_object
               add_to=@x
@@ -83,7 +83,7 @@ feature "grow-artefacts" {
 // а data-artefact это уже взгляд на нее. (ну как бы..)
 feature "data-entity" {
   qqe: visual_process
-    editable-addons
+    ~editable-addons
     title="Артефакт данных"
     project=@..
     initial_mode=1
@@ -104,10 +104,10 @@ feature "data-entity" {
       }
       return b;
       }" @qqe->url? @qqe->files? @qqe->src allow_undefined=true)
-    data-artefact
+    ~data-artefact
 
     gui={
-      column plashka {
+      column ~plashka {
 
         render-params-list object=@qqe list=["title"];
 

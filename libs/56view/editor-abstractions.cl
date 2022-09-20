@@ -21,9 +21,8 @@
 
 feature "manage-content" {
 
- 	mc: column root=@mc->0 
-
-     plashka {
+ 	mc: column root=@mc->0  ~plashka
+     {
 
      dom tag="h3" style="margin:0px; color: white; " innerText=@mc->title;
 
@@ -41,7 +40,7 @@ feature "manage-content" {
    		rep: row 
 
    		   item_gui = {
-   		   	 column plashka {
+   		   	 column ~plashka {
                     dom tag="h3" innerText=(@rep->input | geta "title")
                       style="margin:0px; color: white;";
  				insert_children input=@.. list=(@rep->input | geta "gui")
@@ -85,9 +84,9 @@ feature "manage-content" {
 
 feature "manage-content2" {
 
-     mc: column root=@mc->0 vp=@mc->root
+     mc: column root=@mc->0 vp=@mc->root ~plashka
 
-     plashka {
+     {
 
      dom tag="h3" style="margin:0px; color: white; " innerText=@mc->title;
 
@@ -105,7 +104,7 @@ feature "manage-content2" {
           rep: row 
 
              item_gui = {
-                column plashka {
+                column ~plashka {
                     dom tag="h3" innerText=(@rep->input | geta "title")
                       style="margin:0px; color: white;";
                     insert_children input=@.. list=(@rep->input | geta "gui")
@@ -165,7 +164,7 @@ feature "show-inner-objects" {
           rep: row 
 
              item_gui = {
-                column plashka {
+                column ~plashka {
                     dom tag="h3" innerText=(@rep->input | geta "title")
                       style="margin:0px; color: white;";
                     insert_children input=@.. list=(@rep->input | geta "gui")

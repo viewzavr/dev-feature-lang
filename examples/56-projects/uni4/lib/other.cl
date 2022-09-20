@@ -1,7 +1,7 @@
 feature "auto_gui" {
   vp:
   gui={
-    render-params plashka @vp filters={ params-hide list="title"; };
+    render-params ~plashka @vp filters={ params-hide list="title"; };
 
     manage-content @vp
        root=@vp
@@ -15,7 +15,7 @@ feature "auto_gui" {
 feature "auto_gui2" {
   vp:
   gui={
-    render-params plashka @vp filters={ params-hide list="title"; };
+    render-params ~plashka @vp filters={ params-hide list="title"; };
 
     column style="" {
       show_sources_params input=@vp->subprocesses;
@@ -32,7 +32,7 @@ feature "auto_gui3" {
   vp:
   gui={}
   gui2={
-    render-params plashka @vp filters={ params-hide list="title"; };
+    render-params ~plashka @vp filters={ params-hide list="title"; };
 
     column style="" {
       show_sources_params input=@vp->ag_subprocesses;

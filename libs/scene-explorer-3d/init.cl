@@ -56,7 +56,7 @@ register_feature name="install_explorer_feature" {
 /////////////////////////////
 
 register_feature name="debugger_screen_r" {
-  scene-explorer-screen hotkey='s' dbg_skip {{
+  scene-explorer-screen hotkey='s' ~dbg_skip {{
     apply_by_hotkey hotkey=@.->hotkey {
       rotate_screens;
     };
@@ -118,8 +118,8 @@ scr: screen {
     //scene_explorer_graph | explr: scene_explorer_3d target=@d1;
     sgraph: scene_explorer_graph
                //add_all_params
-               add_all_features
-               add_all_param_refs
+               ~add_all_features
+               ~add_all_param_refs
                active=@scr->visible
                //sibling_connection
                //children_node=true
@@ -130,13 +130,13 @@ scr: screen {
               target=@graph_dom 
               input=@sgraph->output?
               /////////struc_z_golova_naverhu
-              curvature1
+              ~curvature1
               //objects_big
-              features_big
+              ~features_big
               //update_every_beat=@ueb->value
-              obj_titles
-              node_click_zoom
-              params_preview_values
+              ~obj_titles
+              ~node_click_zoom
+              ~params_preview_values
               active=@scr->visible
               ;
 

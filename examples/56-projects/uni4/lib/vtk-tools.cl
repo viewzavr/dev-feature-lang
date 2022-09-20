@@ -28,7 +28,7 @@ register_feature name="compute_magnitude_col" code=`
 feature "vtk-vis-file" {
     vis: vis-group 
         title="Колонки данных VTK" 
-        auto_gui3
+        ~auto_gui3
         //gui={}
         find="vtk-vis-1" 
         //add="vtk-vis-connected-l"
@@ -44,7 +44,7 @@ feature "vtk-vis-file" {
         {{ x-param-label-small name="points_loaded" }}
         {{ x-param-label-small name="file_name" }}
         file_name=(@vis->file | geta "name")
-        gui0={ render-params plashka @vis filters={ params-hide list=["title","visible"]; }; }
+        gui0={ render-params ~plashka @vis filters={ params-hide list=["title","visible"]; }; }
         addons={effect3d-delta dz=5}
         {{ x-param-color "color" }}
         color=[1,0,0]
@@ -68,11 +68,11 @@ feature "vtk-vis-file" {
 // input - путь к файлу или объект файла
 // output - df-ка с данными
 feature "load-vtk-file" {
-  loader: df56 visual-process 
+  loader: df56 ~visual-process 
         title="Загрузчик файла VTK"
         //title=(+ "Загрузчик файла VTK " (@loader->input | geta "name"))
         gui={
-          column plashka {
+          column ~plashka {
             render-params @loader filters={ params-hide list="title"; };
           };
         }
@@ -107,7 +107,7 @@ feature "vtk-vis-1-orig" {
 
   gui={
     
-    ko: column plashka {
+    ko: column ~plashka {
 
       // render-params-list object=@avp list=["visible"];
       //checkbox "visible" value=@avp->visible

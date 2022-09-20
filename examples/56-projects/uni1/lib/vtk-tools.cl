@@ -68,11 +68,11 @@ feature "vtk-vis-file" {
 // input - путь к файлу или объект файла
 // output - df-ка с данными
 feature "load-vtk-file" {
-  loader: df56 visual-process 
+  loader: df56 ~visual-process 
         title="Загрузчик файла VTK"
         //title=(+ "Загрузчик файла VTK " (@loader->input | geta "name"))
         gui={
-          column plashka {
+          column ~plashka {
             render-params @loader filters={ params-hide list="title"; };
           };
         }
@@ -107,7 +107,7 @@ feature "vtk-vis-1-orig" {
 
   gui={
     
-    ko: column plashka {
+    ko: column ~plashka {
 
       // render-params-list object=@avp list=["visible"];
       //checkbox "visible" value=@avp->visible

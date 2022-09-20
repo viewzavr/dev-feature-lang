@@ -251,7 +251,7 @@ rl_root:
     {
      s: switch_selector_row {{ hilite_selected }} 
          items=(@rl_root->items | arr_map code="(v) => v.title")
-         plashka style_qq="margin-bottom:0px !important;"
+         ~plashka style_qq="margin-bottom:0px !important;"
          ;
 
      link to="@ba->add_to" from=(@rl_root->items | geta @s->index | geta "add_to")
@@ -279,7 +279,7 @@ rl_root:
 
     /// параметры объекта   
 
-     co: column plashka style_r="position:relative; overflow: auto;"  
+     co: column ~plashka style_r="position:relative; overflow: auto;"  
             input=(@objects_list->output | geta @cbsel->index? default=null)
             visible=(@co->input?)
       {

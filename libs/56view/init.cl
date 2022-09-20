@@ -24,7 +24,7 @@ feature "the_project" {
 //////////////////////////// 
 feature "camera" {
   ccc: camera3d title="Камера" sibling_titles=["Камера"] sibling_types=["camera"]
-    editable-addons 
+    ~editable-addons 
     {{ x-param-string name="title"}}
     gui={ render-params @ccc; }
   ;

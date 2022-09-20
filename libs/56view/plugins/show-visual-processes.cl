@@ -33,10 +33,10 @@ feature "manage_visual_processes" {
 
 feature "render_process_hierarchy"
 {
-    rh: objects=[] // список объектов верхних процессов
-    column //text=@.->title?
-    style="min-width:250px;" 
-    plashka
+    rh: column ~plashka
+    objects=[] // список объектов верхних процессов
+     //text=@.->title?
+    style="min-width:250px;"     
     style_h = "max-height:80vh;"
     
     {
@@ -67,7 +67,7 @@ feature "render_process_hierarchy"
 
      selected_object: (@objects_list | geta @cbsel->index? default=null | geta "obj");
 
-     co: column plashka style_r="position:relative; overflow: auto;"  
+     co: column ~plashka style_r="position:relative; overflow: auto;"  
             input=@selected_object?
       {
         column {

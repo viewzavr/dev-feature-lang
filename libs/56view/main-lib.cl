@@ -331,7 +331,7 @@ feature "render_project" {
          style_fit_h="max-height: 80vh; overflow-y: auto"
          //{{ sort_dom_children }}
 
-         render_project_right_col 
+         ~render_project_right_col 
          project=@rend->project
          active_view=@rend->active_view
          active_view_tab=@of->output

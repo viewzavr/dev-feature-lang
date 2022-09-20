@@ -11,10 +11,11 @@ insert_children { manage_animation; };
 
 // вход - project - визпроект
 feature "manage_animation" {
-	vp: project=@..->project
+	vp: collapsible "Анимация"
+      project=@..->project
       active_view_tab=@..->active_view_tab
       render_project=@..->render_project
-    	collapsible "Анимация" {
+    	{
         animations_panel objects=(@vp->project | geta "processes") 
                          active_view_tab=@vp->active_view_tab
                          project=@vp->project
@@ -25,7 +26,7 @@ feature "manage_animation" {
 
 load "./animation-player.js";
 feature "animations_panel" {
-   apan: column plashka 
+   apan: column ~plashka 
          
    {{ x-param-checkbox name="record" }}
    {

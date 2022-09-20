@@ -74,7 +74,7 @@ feature "arr_to_colors" {
     param_checkbox name="auto_calculate" value=true;
 
     if (@root->auto_calculate) then={
-       setter target="@root->minmax" value=@mm->output auto_apply;
+       setter target="@root->minmax" value=@mm->output ~auto_apply;
     };
     
     //param_label name="help" value="Выбор мин и макс<br/>значения для раскраски";

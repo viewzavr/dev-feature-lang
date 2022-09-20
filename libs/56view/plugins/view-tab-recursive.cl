@@ -62,7 +62,7 @@ feature "the_view_recursive"
 
       //render-params @curobj;
 
-     co: column plashka style_r="position:relative; overflow: auto;"  
+     co: column ~plashka style_r="position:relative; overflow: auto;"  
       {
         column {
           //text "Параметры";

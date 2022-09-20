@@ -15,7 +15,7 @@ feature "group-vp" {
   scene3d=(@gvp->subprocesses | map_geta "scene3d" | arr_compact)  
   scene2d=(@gvp->subprocesses | map_geta "scene2d" | arr_compact)
   gui={
-     column plashka {
+     column ~plashka {
 
       column {
         //@gvp->subprocesses | render-guis;
