@@ -1524,13 +1524,14 @@ export function repeater( env, fopts, envopts ) {
   var pending_perform;
   env.onvalue("model",recreate );
   env.onvalue("input",recreate );
-  env.onvalue("target_parent",() => recreate(true) );
+  env.onvalue("target_parent",() => recreate(null, true) );
 
   env.addCmd("refresh",() => recreate());
 
-  function recreate( force=false ) {
+  function recreate( probable_list, force=false ) {
 
-     //console.log("repeater recreate", env.getPath() )
+     // console.log("repeater recreate", env.getPath(), env )
+
      if (env.removed)
         debugger;
      model = env.params.model || env.params.input;

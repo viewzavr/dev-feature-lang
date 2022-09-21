@@ -14,6 +14,7 @@ feature "find-one-object" {
 feature "find-one-object" code=`
   env.feature("delayed");
   let refind = { stop: ()=>{} };
+  let unmonitor_object = () => {};
 
   env.onvalues_any(["input","root"],(i,r) => {
      stop_process();
@@ -28,6 +29,7 @@ feature "find-one-object" code=`
   		return;
   	}
   	refind.stop();
+  	unmonitor_object(); 
   	if (!path) {
   		env.setParam("output",null);
   		return;
@@ -37,6 +39,16 @@ feature "find-one-object" code=`
     var target_obj  = env.vz.find_by_path( root,path ); 
     if (target_obj) {
     	env.setParam("output",target_obj);
+
+    	// йесли ево удалят то
+    	let u1 = target_obj.on("remove",() => {
+    		start_process( path, root );
+    	})
+    	// йесли он переедет то
+    	let u2 = target_obj.on("parent_change",() => {
+    		start_process( path, root );
+    	})
+    	unmonitor_object = () => { u1(); u2(); unmonitor_object = () => {}; };
     }
     else {
     	// ну надо поиски начинать
@@ -48,6 +60,11 @@ feature "find-one-object" code=`
   function stop_process() {
   	refind.stop();
   }
+
+  env.on("remove",() => {
+  	refind.stop();
+  	unmonitor_object();
+  })
 `;
 
 // поиск массива объектов по путям
@@ -63,8 +80,8 @@ feature "find-objects-by-pathes" {
 			  return p.split(',').map(s => s.trim())
 		}"
 		|
-		r: repeater {
-			find-one-object root=@ee->root;
+		r: repeater { |path|
+			find-one-object root=@ee->root input=@path;
 		}
 		//| pause_input // криминальчик
 		|
