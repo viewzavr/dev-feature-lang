@@ -15,7 +15,7 @@ register_feature name="pointermove" {
 //
 register_feature name="hitmove" {
 
-   st: {
+   st: obj {
 
    dom_event name="pointerdown" {
       func st=@st code=`

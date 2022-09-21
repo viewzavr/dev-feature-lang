@@ -35,7 +35,8 @@ export function simple_lang(env)
                             { vz: env.vz, 
                               parent: (opts.parent || env), 
                               base_url: opts.base_url,
-                              grammarSource: gsource
+                              grammarSource: gsource,
+                              tracer: (a,b,c) => console.log("tracer",a,b,c)
                             }
                             );
       

@@ -28,7 +28,6 @@ register_feature name="rotate_screens" {
     `;
 };
 
-
     /*
     { 
 	  find_screens:  find-objects pattern="** screen";

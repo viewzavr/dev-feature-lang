@@ -47,7 +47,7 @@ register_feature name="get_param" code=`
 */
 
 register_feature name="install_explorer_feature" {
-  rt: {
+  rt: obj {
     insert_features input=@explr  list=(@rt->dat | get_param name="explorer-features");
     insert_features input=@sgraph list=(@rt->dat | get_param name="generator-features");
     };
