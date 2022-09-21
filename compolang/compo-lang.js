@@ -19,7 +19,13 @@ export function setup(vz, m) {
 }
 
 // просто объект, чтобы пустые окружения создавать..
-export function feature_obj( env ) {
+// она называется object а не obj потому что obj я часто использую как аргумент и чтобы имена не путать
+export function feature_object( env ) {};
+// это нам нужно для новых пайпов
+export function feature_read( env ) {
+  env.trackParam(0,(v) => {
+    env.setParam("output",v);
+  });
 };
 
 import * as P from "./lang-parser.js";

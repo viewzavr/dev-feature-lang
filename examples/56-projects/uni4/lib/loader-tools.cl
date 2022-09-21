@@ -81,6 +81,9 @@ feature "grow-artefacts" {
 
 // это наша стартовая сущность которую пользователь добавляет в проект
 // а data-artefact это уже взгляд на нее. (ну как бы..)
+
+// включевое поле output это массив вида [ {name,url}, {name,url}, fileobject, ... ]
+
 feature "data-entity" {
   qqe: visual_process
     ~editable-addons
@@ -99,7 +102,7 @@ feature "data-entity" {
            let sp = a.split('/');
            if (sp.at(-1) == '') sp.pop();
            return [{name:sp.at(-1),url:a}];
-        }   
+        }
         return [];
       }
       return b;

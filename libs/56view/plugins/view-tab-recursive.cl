@@ -120,7 +120,7 @@ feature "the_view_recursive"
 // по сути то экран..
 feature "recursive_area" 
 {
-  it:  obj
+  it:  object
        title="Область"
        project=@..->project
        view=@..
