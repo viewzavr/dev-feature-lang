@@ -38,7 +38,7 @@ feature "sort_by_priority"
        return env.params.input.sort( (a,b) => {
         function getpri(q) { 
             if (!q.params.block_priority)
-               q.setParam( 'block_priority', q.$vz_unique_id,true )
+               q.setParam( 'block_priority', q.$vz_unique_id,false )
             return q.params.block_priority;   
           }
         return getpri(a) - getpri(b); 

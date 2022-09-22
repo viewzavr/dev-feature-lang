@@ -329,7 +329,7 @@ feature "render_project" {
        right_col: column // {{ set_dom_children list=(@xtra_items | get_children_arr | sort_by_priority) }}
          style="padding-left:2em; min-width: 80px; position:absolute; right: 1em; top: 1em; gap: 0.2em;"
          style_fit_h="max-height: 80vh; overflow-y: auto"
-         //{{ sort_dom_children }}
+         {{ sort_dom_children }}
 
          ~render_project_right_col 
          project=@rend->project

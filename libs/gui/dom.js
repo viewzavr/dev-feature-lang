@@ -626,9 +626,15 @@ export function sort_dom_children( env ) {
      let fieldname = env.params.field || "block_priority";
      //return from.inputObjectsList();
      let k = env.host.ns.children; // но вообще это несоединяемое получается.. с другими..
-     debugger;
+     
      k = k.sort( (a,b) => {
-         return (a.params[fieldname] || 100) - (b.params[fieldname] || 100);
+         function getpri(q) { 
+            if (!q.hasParam(fieldname))
+               q.setParam( fieldname, 50 );
+            return q.params[fieldname];
+         }
+         return getpri(a) - getpri(b);
+         //return (a.params[fieldname] || 100) - (b.params[fieldname] || 100);
      });
      return k;
      // если мы используем from.inputObjectsList(); то он уже может быть заменен 

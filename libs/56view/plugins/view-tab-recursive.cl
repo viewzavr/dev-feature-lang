@@ -621,7 +621,7 @@ feature "show_area_3d" {
             | pass_input_if (@area_rect->input | geta "visible") default=null
             )
         camera=(@area_rect->input | geta "camera")
-        style="width:100%; height:99%;"
+        style="width:100%; height:100%;"
         // {{ @area_rect->input | geta "sources" | get-cell "show-view-attached" | set-cell-value @process_rect }}
     ;
 
