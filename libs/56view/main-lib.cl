@@ -104,7 +104,7 @@ feature "show_sources_params"
             };
             x-on "show-settings" {
               lambda (@sv | get-cell "settings_gui" ) code="(gui_channel,obj,settings) => {
-                 //console.log('got x-on show-settings',obj,settings)
+                 // console.log('got x-on show-settings',obj,settings)
                  // todo это поведение панели уже..
                  // да и вообще надо замаршрузизировать да и все будет.. в панель прям
                  // а там типа событие или тоже команда

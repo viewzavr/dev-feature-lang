@@ -21,7 +21,7 @@ project: the_project active_view_index=1 default_animation_parameter="project/lv
 
     v0: the-view-uni title="Данные" {
        area sources_str="@lf";
-    };        
+    };
 
     v1: the-view-uni title="Общий вид" {
         area sources_str="@lv1,@lv_t_cur" camera=@c1;

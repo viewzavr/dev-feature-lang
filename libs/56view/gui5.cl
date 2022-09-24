@@ -259,7 +259,7 @@ rl_root:
            ;
           
      ba: button_add_object 
-                       add_type=(@rl_root->items | geta @s->index | geta "add");
+              add_type=(@rl_root->items | geta @s->index | geta "add");
 
      objects_list:
      find-objects-bf (@rl_root->items | geta @s->index | geta "find") 
