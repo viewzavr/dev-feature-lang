@@ -695,12 +695,8 @@ export function computer(env)
     }) );
     //if (c.hasParam(output_name)) // этот иф дает такое поведение что если результата вычисления нет то его и у выражения нет
 
-    if (c.params[output_name]) // получается undefined-значения мы тут не радаем
+    if (c.hasParam(output_name))
         env.setParam("output", c.params[output_name] );
-    // но вообще странно... по идее если там есть undefined результат ну и выдайте его..  
-    // ладно это на туду оставим
-
-    //console.log("used ",c)
     
     /*
     c.on("feature-applied-link",() => {
