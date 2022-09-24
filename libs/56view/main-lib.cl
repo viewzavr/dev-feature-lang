@@ -7,7 +7,7 @@ feature "is_default" code=`
   env.addParamAlias( "input", 0 );
   env.onvalues(["input"],(input) => {
      vzPlayer.onvalue("dump_loaded",(dl) => {
-        //console.log("is_default: see input and list, and dump-loaded is true. manual_restore_performed=",input.params.manual_restore_performed)
+        // console.log("is_default: see input and list, and dump-loaded is true. manual_restore_performed=",input.params.manual_restore_performed)
         if (input.params.manual_restore_performed) {
            //console.log("is_default: not doing job - there is data from dump")
         }
