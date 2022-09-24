@@ -306,7 +306,11 @@ one_env
         // причем нам надо работать уметь и с массивом (если там формула)
         /* не прокатит работать только с 1 окружением т.к. там может быть if который жаждет порождать под-окружения, которые уже будут следующими и должны учитываться в computer-логике
 
-        
+        попробуем обойти if.. вручную.. хотя это конечно оптимизация.. todo чет сходу не пошло
+        */
+
+        // !m.value.env_expression[0].features["if"]
+        /*
         if (m.value.env_expression.length == 1) {
           let expr_env = m.value.env_expression[0];
           // todo needLexicalParent ????????????
@@ -330,7 +334,7 @@ one_env
 
           env.features_list ||= [];
           env.features_list.push( comp_env );
-        //}
+        // }
       }
       else
       if (m.param && m.value?.param_value_env_list) { // выражение вида a={b}
