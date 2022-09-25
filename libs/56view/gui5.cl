@@ -173,7 +173,7 @@ feature "object_change_type"
               lambda @cot->input? @cot code=`(obj,cot, v) => {
                 // вот мы спотыкаемся - что это, начальное значение или управление пользователем
 
-                //console.log("existing obj",obj,"creating new obj type",v);
+                console.log("existing obj",obj,"creating new obj type",v);
 
                 let dump = obj.dump();
 
@@ -314,7 +314,6 @@ rl_root:
 };
 
 
-
 // добавляет запись в таблицу типов
 // todo сделать проще, просто @some->items | geta "push" {record};
 feature "add_sib_item" code=`
@@ -351,6 +350,87 @@ detect_type: feature {
   }";
 
 };
+
+/*
+ вход:
+    items - описание слоев где каждая запись
+      title="Основное" 
+      objects=(find-objects-bf "datavis" root=@v)
+      add="linestr" 
+      add_to=@v;
+*/      
+
+feature "render_layers_inner_3" {
+
+rl_root: 
+    column text=@.->title
+    style="min-width:250px" 
+    style_h = "max-height:80vh;"
+    {
+      let items=(create-objects input=@rl_root->items);
+
+     s: switch_selector_row {{ hilite_selected }}
+         items=(@items | map_geta "title")
+         ~plashka style_qq="margin-bottom:0px !important;"
+         ;
+
+     let current_category=(@items | geta @s->index);
+          
+     ba: button_add_object 
+              add_type=(list @current_category.add @current_category.label?)
+              add_to=@current_category.add_to
+              ;
+
+     let objects_list = @current_category.objects;
+
+     /// выбор объекта
+
+     cbsel: combobox style="margin: 5px;" dom_size=5 
+       values=(@objects_list | arr_map code="(elem) => elem.$vz_unique_id")
+       titles=(@objects_list | map_param "title")
+       visible=( (@cbsel->values |geta "length") > 0)
+       ;
+
+    let current_object=(@objects_list | geta @cbsel->index? default=null);
+
+    /// параметры объекта
+
+     co: column ~plashka style_r="position:relative; overflow: auto;"  
+           visible=@current_object?
+      {
+        row visible=((@current_category.siblings? | geta "length" default=0) > 1) 
+        {
+          let types1=(@current_category.siblings? | map_geta "type");
+          let types2=(@types1 | repeater { |t|
+              output=(list @t @current_category.label?)
+          } | map_geta "output" default=null);
+
+          object_change_type input=@current_object?
+            types=@types2
+            titles=(@current_category.siblings? | map_geta "title")
+            ;
+        };
+
+        column {
+          insert_children input=@.. list=(@current_object? | geta "gui" default=[]);
+        };
+
+        if (has_feature input=@current_object? name="editable-addons") then={
+          manage_addons input=@current_object?;
+        };
+
+        button "x" style="position:absolute; top:0px; right:0px;" 
+        {
+          lambda @current_object? code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
+        };
+
+     };
+
+
+  };   
+
+};
+
 
 /*
 detect_type_l: feature {
@@ -535,5 +615,3 @@ feature "one_of_all_dump" {
      };
   };
 };
-
-

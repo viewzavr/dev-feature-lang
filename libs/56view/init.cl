@@ -133,9 +133,9 @@ feature "the_view"
 };
 
 feature "visual_process" {
-    title="Визуальный процесс"
+    vp: title="Визуальный процесс"
     visible=true
-    scene3d=@~->output?
+    scene3d={ object output=@vp->output?; }
     //output=@~->scene3d?
     //project=""
 

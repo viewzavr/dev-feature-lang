@@ -1,11 +1,14 @@
 feature "axes-view" {
-	aaview: visual_process title="Оси координат"
+	aaview: 
+	visual_process title="Оси координат"
 	gui={
 		column ~plashka {
 			insert_children input=@.. list=@ab->gui;
 		};
 	}	
-	scene3d=@ab->output
+	scene3d={ |view opacity|
+	  object output=@ab->output;
+	}
 	visible=true
 	size=20
 	{

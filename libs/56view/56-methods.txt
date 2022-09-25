@@ -1,0 +1,53 @@
+editor-abstractions.cl
+	show-inner-objects
+		// показывает список объектов кнопками collapsible с содержимым из поля gui
+	manage-content
+	manage-content2 - какое-то отличие
+		// гуи по управлению содержимым объекта
+		// показывает перечень объектов кнопочками, по нажатию на кнопочку панель с gui объекта
+		// 0 - объект
+		// find - строчка по которой искать управляемые объекты
+		// add - шаблон нового объекта
+
+gui4addons
+	manage-addons - визуальное управление добавками (фичьями). покажет
+		collapsible-кнопку и в ней список аддонов и возможность новых.
+	show_addons - покажет список аддонов в форме кнопочек
+
+addons2/addons.cl
+	editable-addons - фича для объектов у которых управляемые аддоны	
+	
+gui5
+    collapsible
+    plashka
+    sort_by_priority
+    button_add_object		
+    button_add_object_t
+    object_change_type
+    render_layers_inner
+    add_sib_item
+    detect_type
+    render_interface
+    one_of_keep_state
+    one_of_all_dump
+
+main-lib
+	is_default
+	show_3d_scene
+	show_sources_params
+	show_settings_panel
+	show_settings_dialog
+	toggle_visprocess_view_assoc2
+	show_visual_tab
+	render_project
+	auto_activate_view
+	add-to-current-view
+	find-data-source
+	select-source-column
+	find-data-source-column
+
+init
+  visual_process
+  camera
+  the-project
+  the-view

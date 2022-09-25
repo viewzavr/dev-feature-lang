@@ -1,3 +1,5 @@
+// todo
+
 import * as THREE from './three.js/build/three.module.js';
 import * as utils from "./utils.js";
 
@@ -495,8 +497,16 @@ export function node3d( env, opts={} ) {
       tracked.push( c.trackParam("output",rescan) ); // следим за изменениями
       var o = c.params.output;
       // todo func?
-      if (!o?.isObject3D) continue;
-      object3d.add( o );
+
+      function add(item) {
+        if (Array.isArray(item)) {
+          item.forEach( add );
+        }
+        if (!o?.isObject3D) return;
+        object3d.add( item );
+      }
+      
+      add( o );
     }
 
     env.setParam("object3d_count",object3d.children.length);
