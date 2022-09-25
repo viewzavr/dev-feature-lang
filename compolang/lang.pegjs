@@ -209,6 +209,7 @@ one_env
     env.locinfo = getlocinfo();
 
     // F-ENV-ARGS
+    // if (envid == "ai22") debugger;
     
 //    if (child_envs && child_envs[0] && child_envs[0].env_args) {
       //env.child_env_args = child_envs[0].env_args;
@@ -222,7 +223,8 @@ one_env
        else
        {
          // Бог с ним пусть можно пустые окружения
-         let ff = env_modifiers.find( e => e.feature);
+         // но что это значит? просто перечни параметров? а как мы их будем тогда разделять?
+         let ff = env_modifiers.find( e => e.feature );
          if (ff) {
            // ну и еще эти
            let allow_infix = { "/":true, "*":true, "and":true, "+":true,"-":true,"or":true, 
@@ -235,6 +237,13 @@ one_env
              // т.е. { some=5; some=10 }
              // а кстати вот мы видим если ; таки стоит - то тоже не обязательно..
            }
+         }
+         else
+         {
+             // случай когда никакой фичи нет .
+             // console.error("feature is not specified!");
+             // console.log( env.locinfo );
+             // ладно Бог и с этим пока
          }
          
        }       

@@ -1,4 +1,4 @@
-// input,0 - путь к параметру вида name->param
+// input,0 - путь к параметру вида objnamepath->param
 feature "read-param" {
   q: input=@.->0
     splitted = (m_eval "(str) => str.split('->')" @q->input)
@@ -59,6 +59,7 @@ feature "timeout_insert_siblings" code=`
 };
 */
 
+// по прошествии таймаута, указанного в аргументе, выставляет true в output
 // а еще есть pause_input
 feature "timeout" code=`
   env.onvalue( 0, (tm) => {
@@ -264,7 +265,6 @@ feature "let" code=`
 // NHACK - на первом проходе в register_feature для js скоп еще не создан
 let $scopeFor = env.$scopes [env.$scopes.length-1]; 
 
-
 function forget_param (name,value) {
     if ($scopeFor[ name ]) 
      if ($scopeFor[ name ].created_by_data_env === env)
@@ -272,7 +272,6 @@ function forget_param (name,value) {
 }
 
 function process_param (name,value) {
-
     if (Number.isInteger(parseFloat(name)) || name == "args_count")
       return;
 
@@ -326,4 +325,15 @@ function process_param (name,value) {
 feature "data"
 {
   data: output=@data->0;
+};
+
+// по массиву описания цвета [1,1,1] и прозрачности выдает запись rgb для css
+feature "css-color" {
+  computing_env { |color opacity|
+      + "rgb(" 
+         (@color | arr_map code="e => (e*255).toString()" | arr_join with=" ")
+         " / "
+         (@opacity * 100)
+         "%)"
+  };
 };

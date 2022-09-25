@@ -626,7 +626,7 @@ feature "show_area_3d" {
     ;
 
     extra_screen_things: 
-        column style="padding-left:0em; position:absolute; bottom: 1em; left: 1em;" 
+        column style="padding-left:0em; position:absolute; bottom: 1em; left: 1em;" //  width: 100%;
         class='vz-mouse-transparent-layout extra-screen-thing'
         {
              dg: dom_group

@@ -4,8 +4,7 @@ feature "editable-addons" {
    eathing: 
    addons_list=(@addons_p | get_children_arr) // интерфейс с gui4addons.cl
    addons_container=@addons_p
-   // addons_tab_expanded=true // времянка
-   addons=[]
+   addons=[] // возможность задать аддоны через апи
    {{
      // активация аддонов из addons_p области
      x-modify-list input=@eathing list=(@addons_p | get_children_arr | filter_geta "visible");
@@ -19,8 +18,8 @@ feature "editable-addons" {
 };
 
 feature "addon" {
-  ai: type=@.->0
-      title=( @ai->1? or @ai->type )
+  ai22: type=@.->0
+      title=( @ai22->1? or @ai22->type )
       crit=(m_lambda "() => true");
 };
 
