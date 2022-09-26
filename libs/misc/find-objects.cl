@@ -109,6 +109,8 @@ feature "find-objects-by-crit" {
 	ee: input=@.->0 
 	    output=@m->output
 	    root=@/ //{{ console_log_params "crit objs"}}
+	    recursive=true
+	    include_root=true
 	{
 		eval @ee->input code="(p) => p.split(',').map(s => s.trim())"
 		//| console_log_input "UU: after eval"
@@ -130,6 +132,7 @@ feature "find-objects-by-crit" {
 							  //console_log "path and features found!";
 							  bf: find-objects-bf root=@rt->output 
 							         features=(@splitted->output | geta "slice" 1)
+							         include_root=@ee->include_root recursive=@ee->recursive
 							         ;
 							  link to="@q->output" from="@bf->output" soft_mode=true;
 						}
@@ -140,7 +143,7 @@ feature "find-objects-by-crit" {
 				  else={
 				  	//console_log "else --";
 	  				// else тупо фичи
-						bf: find-objects-bf root=@ee->root features=@q->input;
+						bf: find-objects-bf root=@ee->root features=@q->input include_root=@ee->include_root recursive=@ee->recursive;
 						link to="@q->output" from="@bf->output" soft_mode=true;
 						// soft_mode=true тут стоит чтобы undefined значения не пропихивать
 				  };
