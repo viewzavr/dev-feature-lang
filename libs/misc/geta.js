@@ -117,6 +117,12 @@ export function map_geta( env )
       console.warn("geta: params count is not 1", env.getPath(), env);
     }
 
+    // случай когда параметр-селектор get-ы еще не вычислен
+    if (!env.hasParam(0)) {
+      env.setParam( "output",env.single_geta_mode ? null : [] );
+      return; 
+    }
+
     output=[];
     output.length = input_arr.length;
 

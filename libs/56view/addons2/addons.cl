@@ -79,13 +79,14 @@ feature "effect3d_additive"
       let THREE=env.params.THREE;
       if (!THREE) return;
     
-    tenv.onvalue('material',(m)=> {
+    let u1 = tenv.onvalue('material',(m)=> {
       //console.log("additive, tenv mat",tenv,m)
       //m.blending = additive ? env.THREE.AdditiveBlending : THREE.NormalBlending;
       m.blending = THREE.AdditiveBlending;
       //m.blending = THREE.MultiplyBlending;
     });
     return () => {
+        u1();
         //let THREE=env.params.THREE;
         //if (!THREE) return;      
         if (tenv.params.material)
@@ -105,6 +106,7 @@ feature "effect3d_opacity" {
     opacity=1.0
     gui={render-params @eo; }
     ~x-patch-r code=`(tenv) => {
+          let u1 = 
           tenv.onvalue('material',(m)=> {
               m.transparent = true;
               m.opacity = env.params.opacity;
@@ -113,6 +115,7 @@ feature "effect3d_opacity" {
               m.needsUpdate = true;
             });
             return () => {
+                u1();
                 if (tenv.params.material) {
                   tenv.params.material.transparent = false;
                   tenv.params.material.opacity = 1.0;
@@ -135,6 +138,7 @@ feature "effect3d_zbuffer" {
     size_attenuation=true
     gui={render-params @eo; }
     ~x-patch-r code=`(tenv) => {
+      let u1 = 
           tenv.onvalue('material',(m)=> {
               m.depthTest = env.params.depth_test;
               m.depthWrite = env.params.depth_write;
@@ -142,6 +146,7 @@ feature "effect3d_zbuffer" {
               m.needsUpdate=true;
             });
             return () => {
+                u1();
                 if (tenv.params.material) {
                   tenv.params.material.depthTest = true;
                   tenv.params.material.depthWrite = true;
@@ -166,8 +171,9 @@ feature "effect3d_pos" {
     ~x-patch-r code=`(tenv) => {
       //console.log("patching",tenv.getPath(),env.params.x,env.params.y,env.params.z);
         if (!tenv) debugger;
+        let u1 = () => {};
         if (tenv)
-          tenv.onvalue('output',(threejsobj)=> {
+            u1 = tenv.onvalue('output',(threejsobj)=> {
               let x = env.params.x;
               let y = env.params.y;
               let z = env.params.z;
@@ -179,6 +185,8 @@ feature "effect3d_pos" {
             });
 
             return () => {
+                u1();
+                
                 if (tenv.params.output) {
                   let threejsobj = tenv.params.output;
                   //console.log('unpatching',tenv.getPath())
@@ -201,7 +209,7 @@ feature "effect3d_scale" {
     x=1 y=1 z=1
     gui={render-params @eo; }
     ~x-js `(tenv) => {
-          tenv.onvalue('output',(threejsobj)=> {
+          let u1 = tenv.onvalue('output',(threejsobj)=> {
               let x = env.params.x;
               let y = env.params.y;
               let z = env.params.z;
@@ -210,6 +218,7 @@ feature "effect3d_scale" {
               if (isFinite(z)) threejsobj.scale.z=z;
             });
             return () => {
+                u1();
                 if (tenv.params.output) {
                   let threejsobj = tenv.params.output;
                   threejsobj.scale.set(1,1,1);
@@ -276,14 +285,16 @@ feature "effect3d_delta" {
   {
   //find-objects-bf root=@eff->element features="node3d" recursive=false include_root=false
   find-objects-by-crit "node3d, lib3d_visual" root=@eff->element recursive=false include_root=false
+    | pass_input_if @eff->visible default=[]
     | filter_geta "visible"
-    | console_log_input 'delta items'
-    | repeater {
-        rep: x-modify {
+    | repeater { |child_obj input_index|
+        @child_obj | x-modify {
           effect3d-pos 
-            x=(@rep->input_index * @eff->dx)
-            y=(@rep->input_index * @eff->dy)
-            z=(@rep->input_index * @eff->dz);
+            x=(@input_index * @eff->dx)
+            y=(@input_index * @eff->dy)
+            z=(@input_index * @eff->dz)
+            element=@child_obj
+            ;
         };
       };
   };

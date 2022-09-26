@@ -3478,6 +3478,7 @@ export function pass_input(env){
 
 // эдакий иф для пайпа.. но вообще найти бы общее между этим всем..
 // ну и он значения передает, не окружения...
+// read @val | pass-input-if (cond..) default=@other-val;
 export function pass_input_if(env){
   env.onvalues_any(["input",0],(i,cond) => {
     if (cond)

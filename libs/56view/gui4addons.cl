@@ -19,8 +19,8 @@ feature "show_addons"
                
                {
                    object_change_type text="" input=@amm->input
-                      types=(@amm->input  | geta  "sibling_types" )            
-                      titles=(@amm->input | geta "sibling_titles")
+                      types=(@amm->input  | geta  "sibling_types" default=[] )
+                      titles=(@amm->input | geta "sibling_titles" default=[] )
                       {{ x-on "type-changed" { m_lambda "(e) => { e.setParam('expanded',true); }" @amm }; }};
                }
                 
@@ -66,7 +66,7 @@ feature "show_addons"
 // 0, input - объект
 
 feature "manage_addons" {
-  ma: dom_group input=@.->0? title="Спецфункции"
+  ma: dom_group input=@.->0? title="Модификаторы"
   {
    /*
    button "Добавки" //cmd="@addons_dialog->show"

@@ -3,7 +3,9 @@ feature "axes-view" {
 	visual_process title="Оси координат"
 	gui={
 		column ~plashka {
-			insert_children input=@.. list=@ab->gui;
+			column {
+			  insert_children input=@.. list=@ab->gui;
+		    };
 			manage-addons @ab;
 		};
 	}	

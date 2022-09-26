@@ -4,12 +4,12 @@ insert_children { manage_universal_vp; };
 
 feature "compute_title" {
   r: output=@q->output {
-    q: eval @r->key @r->types @r->titles code="(t,a,b) =>
+    q: m-eval "(t,a,b) =>
        {
           
           let ind = a.indexOf(t); 
           return b[ind];
-       }";
+       }" @r->key @r->types @r->titles;
   };
 };
 

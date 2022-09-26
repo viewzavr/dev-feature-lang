@@ -75,10 +75,10 @@ feature "find-objects-by-pathes" {
 	ee: input=@.->0
 	    output=@m->output
 	{
-		eval @ee->input code="(p) => {
+		m-eval "(p) => {
 			  if (p === '') return [];
 			  return p.split(',').map(s => s.trim())
-		}"
+		}" @ee->input
 		|
 		r: repeater { |path|
 			find-one-object root=@ee->root input=@path;
@@ -112,18 +112,18 @@ feature "find-objects-by-crit" {
 	    recursive=true
 	    include_root=true
 	{
-		eval @ee->input code="(p) => p.split(',').map(s => s.trim())"
+		m_eval "(p) => p.split(',').map(s => s.trim())" @ee->input
 		//| console_log_input "UU: after eval"
 		|
 		r: repeater always_recreate=true {
 			q: output=[] {
-				splitted: eval @q->input code="(str) => str.split(/\s+/)";
-				//console_log "splitted test" @splitted->output (@splitted->output | geta 0);
-				i: if ( (@splitted->output | geta 0 | geta 0) == "@") then={
+				splitted: m-eval "(str) => str.split(/\s+/)" @q->input;
+				//console_log "splitted test" @splitted->output @splitted.output.0;
+				i: if ( @splitted.output.0.0 == "@") then={
 					  //console_log "then inside --";
 					  // then первый аргумент путь
 						// вариант @путь-до-корня фича1 фича 2
-						rt: find-one-object root=@ee->root input=(@splitted->output | geta 0);
+						rt: find-one-object root=@ee->root input=@splitted.output.0;
 						//bf: find-objects-bf root=@rt->output features=(@splitted->output | geta (i-call-js code="env.params.input.slice(1)"))
 						//bf: find-objects-bf root=@rt->output features=(@splitted->output | geta (i-call "slice" 1))
 
