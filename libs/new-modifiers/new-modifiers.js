@@ -409,6 +409,7 @@ export function x_active( env ) {
 export function x_patch_r( env  )
 {
   env.feature("lambda");
+  env.setParamOption("apply","visible",false);
 
   // env.addCheckbox("active",true);
   // env.feature("m-apply");
@@ -510,9 +511,11 @@ export function x_js( env ) {
 // reactive - перевызывает код при изменении аргументов
 // x-patch-r2 "(env,arg1,arg2) => что хотим делаем с env" arg1 arg2;
 // warning сейчас наоборот идет и это неправильно
+// todo свести это с x_patch_r воедино. чем они отличаются вообще?
 export function x_patch_r2( env  )
 {
   env.feature("m_lambda");
+  env.setParamOption("apply","visible",false);
 
   // env.addCheckbox("active",true);
   // env.feature("m-apply");

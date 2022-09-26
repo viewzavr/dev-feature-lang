@@ -4,6 +4,7 @@ feature "axes-view" {
 	gui={
 		column ~plashka {
 			insert_children input=@.. list=@ab->gui;
+			manage-addons @ab;
 		};
 	}	
 	scene3d={ |view opacity|
@@ -12,7 +13,9 @@ feature "axes-view" {
 	visible=true
 	size=20
 	{
-	  ab: axes-box size=@aaview->size visible=@aaview->visible;
+	  ab: axes-box ~editable-addons
+	        size=@aaview->size 
+	        visible=@aaview->visible;
     };
 };
 

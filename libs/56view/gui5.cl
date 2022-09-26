@@ -160,7 +160,15 @@ feature "button_add_object_t" {
 // titles - список названий
 feature "object_change_type"
 {
-   cot: dom_group text="Образ: " {
+   cot: object 
+      input=null types=[] titles=[]
+      text="Образ: "
+      dom_generator=true
+      {{ m_eval "() => {
+          scope.cot.ns.parent.callCmd('rescan_children')
+        }" @cot->output
+      }}
+      output=(dom_group {
 
    text @cot->text;
 
@@ -219,7 +227,7 @@ feature "object_change_type"
 
            }
            }}; // on user changed
-   }; // dom group           
+   }); // dom group           
 
 };
 
@@ -334,18 +342,19 @@ feature "add_sib_item" code=`
 detect_type: feature {
   eval code="(obj,types) => {
     //console.log('detect_type:',obj,types)
-    if (obj && types) {
+    if (!(obj && types)) return null;
+    if (types.length == 0) return null; // но это и не ошибка
 
-      if (types.length == 0) return null; // но это и не ошибка
-
-      for (let f of types)
+      for (let f of types) {
         //if (obj.$features_applied[f]) 
-        if (obj.is_feature_applied(f)) 
+        let fcheck = Array.isArray(f) ? f[0] : f; // хак, для отработки типов вида [type,label]
+        if (obj.is_feature_applied(fcheck))
         { 
           //console.log('detect-type',f,obj);
           return f;
         };
-    };
+      };
+
     console.log('detect-type failed',obj,types);
   }";
 

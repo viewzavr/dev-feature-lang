@@ -183,7 +183,7 @@ feature "show-inner-objects" {
                  m_lambda "(obj,g2) => { obj.emit('show-settings',g2) }" 
                    @mc->vp @rep->item_gui;
                };
-               k: checkbox-c value=(@rep->input | geta "visible")
+               k: checkbox-c value=(@rep->input | geta "visible" default=true)
                   {{ x-on 'user-changed' {
                       m_lambda "(obj,obj2,val) => {
                         //console.log('setting visible to obj',obj,val );

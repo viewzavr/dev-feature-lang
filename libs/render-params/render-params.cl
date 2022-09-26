@@ -22,17 +22,17 @@ register_feature name="render_gui_title" code=`
 
 
 register_feature name="render-guis" {
-  rep: repeater opened=true {
+  rep: repeater opened=true { |obj|
     das1: column {
-            btn: button text=@btntitle->output cmd=@pcol->trigger_visible
-             {{ insert_features input=@btn list=@rep->button_features? }};
+            btn: button 
+              text=(@obj | m_eval "(obj) => obj.params.gui_title || obj.ns.name")
+              cmd=@pcol->trigger_visible
+              {{ insert_features input=@btn list=@rep->button_features? }};
 
-          pcol: column visible=false { /* @../../..->opened */
-            render-params object=@das1->modelData;
-            btntitle: compute_output object=@../..->modelData code=`
-              return env.params.object?.params.gui_title || env.params.object?.ns.name;
-            `;
-          }
+            pcol: column visible=false {
+              render-params object=@obj;
+              // insert_children input=@.. list=@rep.each_gui? @obj;
+            };
           
         };
     };

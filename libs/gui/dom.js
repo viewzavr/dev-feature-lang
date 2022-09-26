@@ -527,7 +527,7 @@ export function dom_group( env ) {
             {
               acc.push( c ); // разрешим подавать массив просто дом объектов
               continue;
-            }            
+            }
 
             let od = c?.params ? c.params.output : c;
 
@@ -553,7 +553,7 @@ export function dom_group( env ) {
 
     // наш output изменился - надо тыркнуть родителя
     // это есть точка засады. потому что если dom-группа используется по ссылке, то и приехали.
-    if (env.ns.parent) 
+    if (env.ns.parent)
         env.ns.parent.callCmd("rescan_children","child dom_group's rescan");
   }
 

@@ -53,7 +53,10 @@ addon_base: feature
 };
 
 feature "addon3d" {
-  addon crit=(m_lambda "(obj) => obj.is_feature_applied &&  obj.is_feature_applied('lib3d_visual')");
+  addon crit=(m_lambda "(obj) => obj.is_feature_applied && (obj.is_feature_applied('lib3d_visual'))");
+};
+feature "addon3d_node3d" {
+  addon crit=(m_lambda "(obj) => obj.is_feature_applied && (obj.is_feature_applied('lib3d_visual') || obj.is_feature_applied('node3d'))");
 };
 
 addon "effect3d_blank" "-";
@@ -151,15 +154,19 @@ feature "effect3d_zbuffer" {
   ;
 };
 
-addon3d "effect3d-pos" "Положение";
+addon3d_node3d "effect3d-pos" "Положение";
 feature "effect3d_pos" {
   eo: geffect3d
     {{ x-param-float name="x"; }}
     {{ x-param-float name="y"; }}
     {{ x-param-float name="z"; }}
+    x=0 y=0 z=0
+
     gui={render-params @eo; }
     ~x-patch-r code=`(tenv) => {
       //console.log("patching",tenv.getPath(),env.params.x,env.params.y,env.params.z);
+        if (!tenv) debugger;
+        if (tenv)
           tenv.onvalue('output',(threejsobj)=> {
               let x = env.params.x;
               let y = env.params.y;
@@ -185,12 +192,13 @@ feature "effect3d_pos" {
   ;
 };
 
-addon3d "effect3d-scale" "Масштаб";
+addon3d_node3d "effect3d-scale" "Масштаб";
 feature "effect3d_scale" {
   eo: geffect3d
     {{ x-param-float name="x"; }}
     {{ x-param-float name="y"; }}
     {{ x-param-float name="z"; }}
+    x=1 y=1 z=1
     gui={render-params @eo; }
     ~x-js `(tenv) => {
           tenv.onvalue('output',(threejsobj)=> {
@@ -252,7 +260,7 @@ feature "effect3d_script" {
 //////////////
 
 /// ну тут вопрос что входы хотелось бы из других объектов..
-addon "effect3d-delta" "Размещение детей (delta)";
+addon "effect3d-delta" "Разместить детей (delta)";
 feature "effect3d_delta" {
   eff: geffect3d
   {{ x-param-slider name="dx" min=-10.0 max=10 step=0.1 }}
@@ -269,6 +277,7 @@ feature "effect3d_delta" {
   //find-objects-bf root=@eff->element features="node3d" recursive=false include_root=false
   find-objects-by-crit "node3d, lib3d_visual" root=@eff->element recursive=false include_root=false
     | filter_geta "visible"
+    | console_log_input 'delta items'
     | repeater {
         rep: x-modify {
           effect3d-pos 

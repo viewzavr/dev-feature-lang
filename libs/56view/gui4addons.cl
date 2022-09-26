@@ -27,21 +27,21 @@ feature "show_addons"
             }
             else={
 
-           row gap="2px" {
-             	acbv: checkbox value=(@amm->input | geta "visible");
-              button (@amm->input | geta "title")
-              {
-                m_apply "(env) => env.setParam('expanded', !env.params.expanded, true)" @amm;
-              };
-                
-              x-modify input=@amm->input {
-                x-set-params visible=@acbv->value __manual=true
-                ;
-              };
+               row gap="2px" {
+                 	acbv: checkbox value=(@amm->input | geta "visible");
+                  button (@amm->input | geta "title")
+                  {
+                    m_apply "(env) => env.setParam('expanded', !env.params.expanded, true)" @amm;
+                  };
+                    
+                  x-modify input=@amm->input {
+                    x-set-params visible=@acbv->value __manual=true
+                    ;
+                  };
 
-              dom style='width: 22px;';
+                  dom style='width: 22px;';
 
-           }; // row
+               }; // row
 
            }; // else
 

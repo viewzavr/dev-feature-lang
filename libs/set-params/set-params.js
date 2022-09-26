@@ -39,15 +39,18 @@ export function x_set_params( env )
       let channel = obj.create_subchannel();
 
       env.on('param_changed',(name,value) => { // todo optimize
-         if (name !== "__manual") {
+         if (name !== "__manual" && name !== "__debug") {
             //console.log('passing ',name,value,channel)
+            if (env.params.__debug)
+                debugger;
             channel.setParam( name, value, env.params.__manual ); 
-         };   
+         };
       });
+      
       
       for (let c of env.getParamsNames()) {
          //console.log("setting param ",c)
-         if (c !== "__manual")
+         if (c !== "__manual" && c !== "__debug")
             channel.setParam( c, env.getParam(c), env.params.__manual );
       }
 
