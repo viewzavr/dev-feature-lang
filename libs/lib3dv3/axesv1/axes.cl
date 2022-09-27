@@ -17,17 +17,19 @@ register_feature name="axes_box" {
       render-params input=@root;
       find-objects pattern_root=@root pattern="** include_gui" 
       |
-      render-guis;
+      render-guis extra={ |obj| manage-addons @obj; };
     }
   
   {
 
   	size: param_slider min=0 max=100 step=1;
 
-    axes_lines color=@root->color? size=@root->size ~include_gui;
+    axes_lines title="Вектора"
+      color=@root->color? size=@root->size ~include_gui ~editable-addons;
 
     //text3d_one color=[ 0.2, 0.2, 0.2 ] text=@ds->output;
-    axes_titles color=@root->color? s=@root->size size=(@root->size / 10) ~include_gui;
+    axes_titles title="Подписи"
+      color=@root->color? s=@root->size size=(@root->size / 10) ~include_gui ~editable-addons;
 
     // хорошее место чтобы воткнуть модификатор аргумент, todo
     // в т.ч. названия осей (через модификатор!)

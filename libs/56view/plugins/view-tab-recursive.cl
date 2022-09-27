@@ -678,7 +678,7 @@ feature "show_visual_tab_recursive_gui" {
     /*
     insert-children input=@containers_params 
          list=(find-objects-bf features="area_container" root=@svr->input | map_geta "show_gui");
-         */
+    */
     // подумать быть может отдать им в управление и пусть там сами ходят по своим visible-subitems...
     // и вовсе быть может отдать им также в управленрие show-sources-params
     // ну т.е. сейчас мы как бы вытащили оное все.. а теперь хотим взад..

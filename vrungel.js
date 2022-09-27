@@ -50,7 +50,7 @@ export function init() {
         obj.on("machine_done",(res) => {
           //console.log("done catched",res)
 
-          obj.delayed( vzPlayer.resotre_state,2 )(); 
+          obj.delayed( vzPlayer.restore_state,2 )(); 
           // все ссылки отработают (им нужен 1 такт)
           // но хотя и это спорно
         });

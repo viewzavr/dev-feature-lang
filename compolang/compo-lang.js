@@ -2983,9 +2983,11 @@ export function insert_children( env )
   env.setParam("use_children",true);
   env.setParam("active",true);
 
-  env.feature( "param_alias");
-  env.addParamAlias( "input", 0 );
-  //env.createLinkTo( {param:"input",from:"~->0",soft:true });
+  // env.feature( "param_alias");
+  // env.addParamAlias( "input", 0 );
+  // решил юзать позиционные аргументы как аргументы для scope создаваемых окружений
+
+  // env.createLinkTo( {param:"input",from:"~->0",soft:true });
 
   env.restoreChildrenFromDump = (dump, ismanual) => {
     children = dump.children;
@@ -3075,12 +3077,24 @@ export function insert_children( env )
              {
                 // признак того что этот дамп синтезированный, и сообразно надо ему индивидуальный scope иметь
                 $scopeFor = create_scope_for_item(tenv); 
+                // хочу узнать что есть синтезированный массив..
+                // с персональными скопами у записей..
+                debugger;
              }
 
              $scopeFor.$lexicalParentScope = edump.$scopeFor;  
              $scopeFor.skip_dump_scopes = true; // это апи createSyncFromDump..
              prev_dump_personal_scope = edump.$scopeFor;
+
+             // передача позиционных аргументов
+             //if (edump.env_args)
+             //    fill_scope_with_args( env, $scopeFor, edump.env_args.attrs );
+             //if (features_list.env_args)
+             //  fill_scope_with_args( env, $scopeFor, features_list.env_args.attrs );
           };
+          // это для случая когда list есть запись вида { |name| .... }
+          if (features_list.env_args)
+             fill_scope_with_args( env, $scopeFor, features_list.env_args.attrs );
 
           if (env.params.manual) {
             edump.manual = true;
@@ -3723,21 +3737,21 @@ export function computing_env(env){
   };
 };
 
-// временная вариация на тему
-// вход: input - описание
-//       позиционные аргументы - пойдут на вход scope согласно описанию
-// выход: output - список созданных объектов
-export function create_objects(env) {
-
-  // соединяет позиционные аргументы computing_env с ||-аргументами scope
-  function fill_scope_with_args(newscope,attrs) {
+// соединяет позиционные аргументы env с ||-аргументами scope
+function fill_scope_with_args(env,newscope,attrs) {
     for (let i=0; i<attrs.length;i++)
     {
         let argname = attrs[i];
         let cell = env.get_cell(i);
         newscope.$add( argname, cell );
     };
-  };
+};
+
+// временная вариация на тему
+// вход: input - описание
+//       позиционные аргументы - пойдут на вход scope согласно описанию
+// выход: output - список созданных объектов
+export function create_objects(env) {
 
   let cleanup = () => {};
   env.on("remove",() => { cleanup(); });
@@ -3755,7 +3769,7 @@ export function create_objects(env) {
     let newscope = env.$scopes.createAbandonedScope("computing_env");
     newscope.$lexicalParentScope = env_list[0].$scopeFor;
     if (env_list.env_args)
-      fill_scope_with_args( newscope, env_list.env_args.attrs );
+      fill_scope_with_args( env, newscope, env_list.env_args.attrs ); // qqq
 
     // прошить им всем доступ в эту скопу.. странно все это, 
     // ибо зачем тогда scope-аргумент в createObjectsList .. но ладно.. взято из callEnvFunction

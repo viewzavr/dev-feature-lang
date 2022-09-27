@@ -25,13 +25,15 @@ register_feature name="render-guis" {
   rep: repeater opened=true { |obj|
     das1: column {
             btn: button 
-              text=(@obj | m_eval "(obj) => obj.params.gui_title || obj.ns.name")
+              text=(@obj | m_eval "(obj) => obj.params.gui_title || obj.params.title || obj.ns.name")
               cmd=@pcol->trigger_visible
               {{ insert_features input=@btn list=@rep->button_features? }};
 
-            pcol: column visible=false {
+            pcol: column visible=false 
+            style="padding-left:10px; margin-bottom: 5px; border: 1px solid grey; border-top: 0px !important;"
+            {
               render-params object=@obj;
-              // insert_children input=@.. list=@rep.each_gui? @obj;
+              insert_children input=@pcol list=@rep.extra? @obj;
             };
           
         };

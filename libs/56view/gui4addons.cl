@@ -77,7 +77,7 @@ feature "manage_addons" {
    };
    */
 
-   co: collapsible (join @ma->title " (" @co->addons_count ")")
+   co: collapsible (join @ma->title (if (@co->addons_count > 0) then={ join " (" @co->addons_count ")" }))
    addons_count=(@ma->input? | geta "addons_container" | get_children_arr | geta "length" default=0)
    //expanded=false
    //expanded=(@co->addons_count > 0)
