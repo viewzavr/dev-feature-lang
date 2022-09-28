@@ -58,6 +58,9 @@ feature "the_view_recursive"
 
       let selected_object = (@tv->list_of_areas | geta @cb->index default=null | geta "obj");
 
+      // console_log "selected_object = " @selected_object;
+      // @selected_object | m_eval "(obj) => console.log( 'sel obj get path',obj.getPath() );";
+
       @tv | get-cell "active_area" | set-cell-value @selected_object;
 
       //render-params @curobj;
