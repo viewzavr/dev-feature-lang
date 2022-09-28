@@ -1,4 +1,5 @@
 load files=`
+ cells.cl
  misc.cl
  misc.js
  arr-to-colors.cl

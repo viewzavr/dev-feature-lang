@@ -1,3 +1,5 @@
+
+
 // input,0 - путь к параметру вида objnamepath->param
 feature "read-param" {
   q: input=@.->0

@@ -410,8 +410,8 @@ register_feature name="render-param-label" {
   str: param_field {
     //text text=@..->name;
     //text text="=";
-    link from=@str->param_path to="@tx->text" tied_to_parent=true;
-    tx: text style="max-width:220px";
+    // link from=@str->param_path to="@tx->text" tied_to_parent=true;
+    tx: text style="max-width:220px" text=(read-param @str->param_path);
   };
 };
 
@@ -419,13 +419,11 @@ register_feature name="render-param-slider" {
   rps: column {
     text text=@..->name;
     row {
-      slider manual=false 
+      (list (get-cell-by-path @rps.param_path manual=true) (get-cell input=@sl "value") (get-cell input=@if2 "value"))
+        | bind-cells;
+
+      sl: slider manual=false 
       {
-        link from=@../../..->param_path to=".->value" tied_to_parent=true;
-        link to=@../../..->param_path from=".->value" tied_to_parent=true 
-          soft_mode=true manual_mode=true;
-          
-        //link from=@..->param_path->min to="..->min";
         compute obj=@rps->obj name=@rps->name gui=@rps->gui code=`
           var sl = env.ns.parent;
           if (env.params.gui) {
@@ -447,17 +445,7 @@ register_feature name="render-param-slider" {
           }
         `;
       };
-      if2: input_float style="width:30px;" {
-        link from=@../../..->param_path to=".->value" tied_to_parent=true soft_mode=true;
-        link to=  @../../..->param_path from=".->value" tied_to_parent=true soft_mode=true;
-      };
-      // console_log text="IF2 value=" input=@if2->value;
-
-      /*
-      dom tag="input" style="width:30px;" {
-        link from=@../../..->param_path to=".->dom_value" tied_to_parent=true;
-      }
-      */
+      if2: input_float style="width:30px;";
     };
   };
 };

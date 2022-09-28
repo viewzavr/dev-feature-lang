@@ -63,7 +63,7 @@ export function render3d( env ) {
       env.renderer = new THREE.WebGLRenderer( 
         {canvas: dom, 
          preserveDrawingBuffer : true // надо для скриншотов
-         ,logarithmicDepthBuffer: true  // без этого наши точки глючат..
+         ,logarithmicDepthBuffer: true  // без этого наши точки глючат.. да и поверхности глючат..
          // Early Fragment Test
         }); // alpha: true
 

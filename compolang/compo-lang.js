@@ -21,6 +21,7 @@ export function setup(vz, m) {
 // просто объект, чтобы пустые окружения создавать..
 // она называется object а не obj потому что obj я часто использую как аргумент и чтобы имена не путать
 export function feature_object( env ) {};
+
 // это нам нужно для новых пайпов
 export function feature_read( env ) {
   env.trackParam(0,(v) => {
@@ -691,6 +692,8 @@ export function computer(env)
     //let output_name = "output";
 
     set_unsub( c.trackParam(output_name,(v) => {
+      if (!env.hasLinksFromParam("output"))
+         console.warn("computer env has no links from it's output",env)
       env.setParam("output",v);
     }) );
     //if (c.hasParam(output_name)) // этот иф дает такое поведение что если результата вычисления нет то его и у выражения нет
@@ -3071,15 +3074,15 @@ export function insert_children( env )
           // дополнительно, в insert-childen list идет двух видов - как значение аттрибута { ... }
           // и тогда там у всех должен быть один общий скоп
           // или как синтезированный массив, и тогда у каждой должен быть индивидуальный скоп..
+          // пример синтезированного массива:
+          // ic: insert_children input=@q->target list=(@q->input | map_geta "show" default=null | arr_flat | arr_compact) 
+          // получается. мы берем {}-окружения, соединяем их содержимое. (при этом теряем возможные позиционные параметры..)
 
           if (edump.$scopeFor) {
              if (prev_dump_personal_scope && prev_dump_personal_scope!== edump.$scopeFor)
              {
                 // признак того что этот дамп синтезированный, и сообразно надо ему индивидуальный scope иметь
                 $scopeFor = create_scope_for_item(tenv); 
-                // хочу узнать что есть синтезированный массив..
-                // с персональными скопами у записей..
-                debugger;
              }
 
              $scopeFor.$lexicalParentScope = edump.$scopeFor;  

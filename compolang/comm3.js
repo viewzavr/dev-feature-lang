@@ -4,6 +4,7 @@ export function setup(vz, m) {
   vz.register_feature_set(
     {set_cell_value: set_cell_value,
      get_cell_value: get_cell_value,
+     get_cell_value_latest: get_cell_value_latest,
      get_param_cell: feature_get_param_cell,
      get_event_cell: feature_get_event_cell,
      get_cmd_cell: feature_get_cmd_cell,
@@ -424,6 +425,7 @@ export function get_cell( target, name, ismanual ) {
        if (setting) return;
        try {
          setting = true;
+         //console.log("cell of",target.getPath(),"param '",name,"' setting value",v,"with manual flag", c.ismanual)
          target.setParam( name, v, c.ismanual );
        } finally {
          setting = false;
@@ -471,17 +473,24 @@ export function get_cell( target, name, ismanual ) {
 // input - массив целевой, 0 - значение
 export function set_cell_value( env ) {
   env.onvalues( ["input",0], (arr, val) => {
+    if (env.params.disabled) return;
+
     let single_elem_mode = false;
     if (!Array.isArray(arr)) { arr=[arr]; single_elem_mode = true };
     let responding_channels = [];
 
+    env.setParam("working",true);
+    try {
     arr.forEach( (cell) => {
       if (!cell) return;
-      //console.log("set cell value",cell,val)
-      if (val == 55) debugger;
+      // console.log("set cell value",cell,val)
+      //if (val == 55) debugger;
       cell.set( val );
       responding_channels.push( cell.reply_channel )
     })
+    } finally {
+      env.setParam("working",false);
+    }
 
     env.setParam("output",single_elem_mode ? responding_channels[0] : responding_channels ); 
     // todo optimize че их каждый раз пересчитывать то - собрать один раз и се..
@@ -505,7 +514,7 @@ export function get_cell_value( env ) {
     if (!Array.isArray(arr)) {
         arr=[arr];
         single_mode=true;
-    }   
+    }
 
     let fnd = env.delayed( fn ); // не факт кстати что это надо будет - мб надо сразу для скорости
 
@@ -522,6 +531,44 @@ export function get_cell_value( env ) {
 
       if (has_assigned_values) // будем так
           env.setParam( "output", single_mode ? res[0] : res );
+    };
+
+    fn();
+
+  });
+
+  env.on("remove", call_unsub)
+};
+
+// выдает 1 значение из массива ячеек - по очередности кто последний
+// input - массив ячеек
+export function get_cell_value_latest( env ) {
+  let unsub = [];
+  function call_unsub() { unsub.map( f => f() ); unsub=[]; }
+
+  env.feature("delayed");
+
+  env.onvalues( ["input"], (arr) => {
+    let single_mode=false;
+    if (!Array.isArray(arr)) {
+        arr=[arr];
+        single_mode=true;
+    }
+
+    let fnd = env.delayed( fn ); // не факт кстати что это надо будет - мб надо сразу для скорости
+
+    function fn() {
+      call_unsub();
+      
+      arr.forEach( (cell) => {
+        if (!cell) return;
+
+        let u = cell.monitor((value) => {
+          env.setParam( "output", value )
+        });
+
+        unsub.push( u );
+      })
     };
 
     fn();
@@ -594,6 +641,7 @@ export function feature_get_cmd_cell( env ) {
 }
 
 // берет ячейку у массива объектов
+// если флаг manual то будет брать такую ячейку запись в которую будет выставлять manual-флаг
 export function feature_get_cell( env ) {
   if (!env.hasParam("manual"))
        env.setParam("manual",false);
@@ -703,6 +751,7 @@ export function c_on( env ) {
 // input - массив ячеек
 // если входная это ячейка а не массив то выдавать 1 значение а не массив значений
 // но это спорно
+// let arrcell = (list @c1 @c2 @c3 | join_cells)
 export function join_cells( env ) {
   let result = create_cell();
   env.setParam( "output", result );
@@ -744,6 +793,7 @@ export function join_cells( env ) {
 
 // Мишин мэпинг из ячейки в набор ячеек
 // делает ячейку запись в которую пишет во все указанные в input ячейки
+// let k = (list @c1 @c2 @c3 | create-writing-cell)
 export function create_writing_cell( env ) {
   let result = create_cell();
   env.setParam( "output", result );
