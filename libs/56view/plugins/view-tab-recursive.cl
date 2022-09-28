@@ -406,8 +406,11 @@ feature "area_3d" {
 
               @it->project | geta "processes" | repeater //target_parent=@qoco 
               {
-                 i: checkbox text=(@i->input | geta "title") 
+                 i: checkbox 
+                       text=@i.input.title
                        value=(@it | geta "sources" | arr_contains @i->input)
+                       style="max-width: 200px;"
+                       dom_style_whiteSpace="normal"
                     {{ x-on "user-changed" {
                         toggle_visprocess_view_assoc2 process=@i->input view=@it;
                     } }};
@@ -578,7 +581,7 @@ feature "show_3d_scene_r" {
     dom style="width:100%; height:100%;" tag="div"
     // renderer=@r1 // тпУ
     private_camera=@r1->private_camera // это на выход
-    camera_control={ orbit-control }
+    camera_control={ |renderer camera dom| orbit-control }
     { // max-height: 100vh;
       // max-height 100vh багфиксит грида
     
@@ -593,13 +596,17 @@ feature "show_3d_scene_r" {
           //camera3d pos=[-400,350,350] center=[0,0,0];
 
           //orbit_control;
-          let camera_control = (@r1 | insert-children list=@scene_3d_view->camera_control | geta 0);
+          let camera_control = (@r1 | insert-children list=@scene_3d_view->camera_control @r1 @r1.camera @scene_3d_view.dom | geta 0);
           
           /* да это красиво. но оно трясется -- изза обратной связи с объектом камеры похоже.
              и плюс изза одновременной работы нескольких update. тут надо крепко поработать пока не приоритено.
+             */
+
+/*
           @r1 | get-cell "frame" | c-on "(eventargs,threejs_control) => { 
           if(threejs_control?.update) threejs_control.update(); }" @camera_control.threejs_control;
-          */
+*/          
+          
       };
    };
    

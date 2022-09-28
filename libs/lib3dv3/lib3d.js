@@ -657,24 +657,36 @@ export function map_control( env ) {
   env.setParam('type','map');
   env.feature('orbit_control');
 
-  env.onvalue("threejs_control",(cc) => {
-    // cc.enableDamping = true;
+  let damping_unsub = () => {};
+  env.onvalues(["threejs_control","damping","renderer"],(cc,damping,renderer) => {
+    // F-CAMERA-DAMPING
+    
+    cc.enableDamping = damping;
+    damping_unsub();
+    if (damping) {
+      damping_unsub = renderer.on("frame", cc.update );
+    }
+     else damping_unsub = () => {};
   });
+  env.on("remove",() => damping_unsub() )
 }
 
+// параметры: camera, target_dom
 export function orbit_control( env ) {
-  // смотрим на камеру верхнего окружения
-  env.linkParam("camera","..->camera");
-  env.onvalue("camera",update);
-  //env.ns.parent.onvalue("target_dom",update); // чо за криминал
-  env.addComboValue("type","orbit",["orbit","map"])
-  env.onvalues(["type","camera"],update);
-  // напрашивается: onvalue где первый аргумент массив или 1 строка
-  // и далее - опция - надо ли вызывать первый раз и в каком режиме
-  env.linkParam("target_dom","..->target_dom"); // т.е. там рендерер подразумевается или кто..
-
   var cc;
   let unsub = () => {};
+
+  // смотрим на камеру верхнего окружения
+  if (!env.paramAssigned("camera"))
+       env.linkParam("camera","..->camera");
+  if (!env.paramAssigned("target_dom"))
+     env.linkParam("target_dom","..->target_dom"); // т.е. там рендерер подразумевается или кто..     
+
+  env.addComboValue("type","orbit",["orbit","map"])
+
+  env.onvalues(["type","camera","target_dom"],update);
+
+  
   function update() {
     unsub(); unsub = () => {};
 
@@ -687,7 +699,7 @@ export function orbit_control( env ) {
     //if (typeof(dom) == "function") dom = dom(); // фишка такая
     // т.е. родителем должен быть некто
     if (!dom) {
-      console.log("lib3d:orbit-control: parent.target_dom is blank!")
+      //console.log("lib3d:orbit-control: parent.target_dom is blank!")
       return;
     };
     if (!c || !c.isCamera) return;
@@ -708,26 +720,39 @@ export function orbit_control( env ) {
     // криво косо но пока так
 
     let skip_camera_update=false;
+    let skip_camera_reaction=false;
 
     if (c.vrungel_camera_env) {
       // короче оказалось что там свое некое тета возникает в этот момент
       // и нам его надо закопировать в камеру
-      c.vrungel_camera_env.setParam( "theta", 360 * cc.getAzimuthalAngle() / (2*Math.PI) );
+      // c.vrungel_camera_env.setParam( "theta", 360 * cc.getAzimuthalAngle() / (2*Math.PI) );
+      // короче оказалось что это мешает переключаться между экранами
 
-      let u1 = c.vrungel_camera_env.onvalues(["pos","center"],(p,c) => {
+      let u1 = c.vrungel_camera_env.trackParam("center",update_control_target)
+      let u2 = c.vrungel_camera_env.trackParam("theta",update_control_theta );
+
+      unsub = () => { u1(); u2(); };
+      update_control_target( c.vrungel_camera_env.params.center );
+      update_control_theta( c.vrungel_camera_env.params.theta );
+
+      function update_control_target (c) {
+        if (skip_camera_reaction) return;
         skip_camera_update=true;
         // защита от зацикливания
-        let eps = 0.0001;
+        //let eps = 0.0001;
+        let eps = 0;
         if (Math.abs( c[0] - cc.target.x) > eps || Math.abs( c[1] - cc.target.y ) > eps || Math.abs( c[2] - cc.target.z ) > eps )
         { 
-          //console.log('orbitcontrols',env.$vz_unique_id,"target of camera changed, updating me",c)
+          // console.log('orbitcontrols',env.$vz_unique_id,"target of camera changed, updating me",c)
           cc.target.set( c[0], c[1], c[2] );
           cc.update();
         }
+        skip_camera_update=false;
         // вроде как pos ставить не надо т.к. оно и так из камеры его берет
-      })
+      };
 
-      let u2 = c.vrungel_camera_env.onvalue("theta",(t) => {
+      function update_control_theta(t) {
+         if (skip_camera_reaction) return;
          skip_camera_update=true;
          //cc.spherical.theta = 2*Math.PI / 360;
          ///debugger;
@@ -740,31 +765,41 @@ export function orbit_control( env ) {
             cc.manualTheta = nv;
             cc.update();
          }
-         
-      });
+         skip_camera_update=false;        
+      }
 
-      unsub = () => { u1(); u2(); };
+      
 
     }
 
     let flag=false;
-    cc.addEventListener( 'change', function() {
+    cc.addEventListener( 'change',update_from_control );
+
+    let ounsub = unsub;
+    unsub = () => {
+      ounsub(); cc.removeEventListener( 'change', update_from_control );
+    }
+
+    function update_from_control() {
         if (skip_camera_update)
         {
-          skip_camera_update = false;
+          //skip_camera_update = false;
           return;
         }
 
         if (c.vrungel_camera_env) {
+          skip_camera_reaction = true;
           //console.log('orbitcontrols',env.$vz_unique_id,': i send new pos and center to camera ',c.position, cc.target)
           c.vrungel_camera_env.external_set( c.position, cc.target, ( cc.getAzimuthalAngle() * 360 / (2*Math.PI)) );
           //console.log('orbitcontrols',env.$vz_unique_id,': i send new theta to camera ',cc.getAzimuthalAngle())
           c.vrungel_camera_env.setParam("theta", ( cc.getAzimuthalAngle() * 360 / (2*Math.PI)), false);
+          skip_camera_reaction = false;
         }
           // так-то можно и аргумент - камеру )))
         //console.log( "oc changbed",c);
         //c.setParam
-    });
+
+    }
 
   }
 
