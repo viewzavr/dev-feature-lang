@@ -411,7 +411,7 @@ register_feature name="render-param-label" {
     //text text=@..->name;
     //text text="=";
     // link from=@str->param_path to="@tx->text" tied_to_parent=true;
-    tx: text style="max-width:220px" text=(read-param @str->param_path);
+    tx: text style="max-width:220px" text=(read-param @str->param_path default="-");
   };
 };
 

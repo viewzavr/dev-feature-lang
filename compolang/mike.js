@@ -6,7 +6,7 @@ export function setup(vz, m) {
 // m-eval 'name-or-code-or-func' arg1 arg2 name1=v1 name2=v2;
 
 export function m_eval( env ) {
-  env.setParam("output",undefined);
+  // env.setParam("output",undefined);
   env.setParamOption("output","internal",true);
 
   //console.error("compolang eval init",env.getPath())

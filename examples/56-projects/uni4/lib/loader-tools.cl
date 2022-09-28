@@ -189,7 +189,6 @@ feature "find-file" {
 feature "find-files" {
   r: output=@mm->output {
   mm: m_eval "(arr,crit) => {
-    
         if (!arr) return [];
         if (!Array.isArray(arr)) arr=[arr];
         let regexp = new RegExp( crit,'i' );

@@ -294,7 +294,23 @@ export function map_geta( env )
         // поменяется параметр - рестартуем хвост
         let u = input.trackParam( name, () => { get_one( input, params, current_arg_pos, cb, unsub_struc)} );
         // едем дальше
-        return go_next_level( input.getParam(name), params, current_arg_pos,cb,unsub_struc, u );      
+        // а дальше - стало быть отменяем свое значение.
+        if (env.single_geta_mode)
+        {
+          if (env.hasParam("default"))
+          {
+             env.setParam("output", env.params.default );
+          }
+          else
+          {
+             env.removeParam("output");
+             env.signalParam("output"); 
+          }   
+          return;
+        }
+        else  
+          return go_next_level( input.getParam(name), params, current_arg_pos,cb,unsub_struc, u );      
+        // раньше было так для всех.. посмотрим..
     }
 
     go_next_level( input[ name ], params, current_arg_pos,cb,unsub_struc, () => {} );
