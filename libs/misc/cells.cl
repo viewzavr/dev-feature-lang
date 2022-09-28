@@ -11,6 +11,7 @@ feature "get-cell-by-path" {
   ;
 };
 
+/*
 // 0 одна ячейка
 // 1 вторая ячейка
 // идея так-то можно было бы в массиве указать несколько...
@@ -21,8 +22,10 @@ feature "bind-two-cells" {
   } 
 };
 // на будущее идейа: set-cell-value input=@q.positional_args (get-cell-value-latest @q.positional_args)
+*/
 
 // связывает все ячейки по значениям. те. если в одной меняется то раздается на все.
+// идея на будущее - раздавать только если изменилось. хотя.. по идее это так сейчас и есть за счет ссылки с ().
 feature "bind-cells" {
   q: object {
     s1: set-cell-value input=@q->input (get-cell-value-latest input=@q->input);
