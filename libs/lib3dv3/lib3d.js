@@ -341,7 +341,6 @@ export function subrenderer( env,opts )
 
     // хак временных (хыхы)
     update_scene();
-
   
     ///////////////////////// установка окна    
 
@@ -447,9 +446,11 @@ export function subrenderer( env,opts )
     // это то что рендерера просят нарисовать, вложив в нево объекты
     env.scene.add( nested_items );
     // это то что рендерера попросили нарисовать явно
-    if (env.params.input?.isObject3D)
-        env.scene.add( env.params.input );
+    //if (env.params.input?.isObject3D)
+    //    env.scene.add( env.params.input );
     // и еще списком - но может это стоит в node3d отдать..
+    // ну да, в каком-то смысле input это и является сценой.
+    add( env.params.input );
 
     function add( item ) {
       if (!item) return;
@@ -464,8 +465,11 @@ export function subrenderer( env,opts )
         if (w_counter++ < 100)
             console.error("render3d: wrong input item", env.getPath(), "item=",item)  
       }
+
+      if (item.is_node3d)
+        item.rescan_children_for_3d(); // там тож пусть порядок наведут
     }
-    add( env.params.input );
+    
 
     /*
     if (Array.isArray(env.params.input)) {
@@ -479,9 +483,19 @@ export function subrenderer( env,opts )
   update_scene();
 }
 
+/*
+function scan_scene_items( root_item ) {
+}
+*/
+
 // сиречь узел. занимается тем что собирает вложенные окружения.
 export function node3d( env, opts={} ) {
   var object3d = opts.object3d || new THREE.Object3D();
+
+  // такой вот трюк.. мы сохраняем ссылку на функцию обновления compolang node3d - в threejs объекте. потому что потом только к нему и есть доступ у рендерера
+  // но в целом это тупняк. рендерер должен рисовать не своих детей а сцену.
+  object3d.is_node3d = true;
+  object3d.rescan_children_for_3d = rescan; 
 
   env.on("childrenChanged", rescan );
 
@@ -496,17 +510,18 @@ export function node3d( env, opts={} ) {
       
       tracked.push( c.trackParam("output",rescan) ); // следим за изменениями
       var o = c.params.output;
-      // todo func?
+      add( o ); // добавляем результат от этого дитя
 
       function add(item) {
         if (Array.isArray(item)) {
           item.forEach( add );
         }
-        if (!o?.isObject3D) return;
+        if (!item?.isObject3D) return;
+        if (item.is_node3d)
+          item.rescan_children_for_3d(); // там тож пусть порядок наведут      
         object3d.add( item );
       }
       
-      add( o );
     }
 
     env.setParam("object3d_count",object3d.children.length);
