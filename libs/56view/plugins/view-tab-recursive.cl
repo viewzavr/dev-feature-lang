@@ -245,8 +245,8 @@ feature "area_empty" {
 feature "area_content" {
   it:  recursive_area 
        title="Пустой"
-       sibling_types=["area_empty","area_3d","area_3d_list"] 
-       sibling_titles=["Пустой","3d","3d list"]
+       sibling_types=["area_empty","area_3d","area_2d_list"] 
+       sibling_titles=["Пустой","3d","2d list"]
        effective_visible=(and @it.visible (@it.visible_sources?.length? > 0))
 
        subitems=[]
@@ -322,25 +322,18 @@ feature "split-screen" {
     }" @k->0 @k->1);
 };
 
-// вид области которая формирует список областей из своих источников
-feature "area_3d_list" {
+// вид области которая показывает плоские процессы (2d)
+feature "area_2d_list" {
   it: area_content
-  title="3d list"
+  title="2d list"
   subitems=@r->output
   show={
     //show_areas target=@area_rect input=(@area_rect->input | get_children_arr);
-    dom_group { // наличие тут domgroup обеспечивает что области рисуются в прав порядке по сравнению с соседними
-      @r->output | repeater { |a|
-        show_area_3d input=@a;
-      }
+    dg: dom_group { // наличие тут domgroup обеспечивает что области рисуются в прав порядке по сравнению с соседними
+      insert_children input=@.. list=(@it.sources | map_geta "scene_dom" default=[] | arr_flat);
     };
   }
   gui={
-           object_change_type text="тип:"
-              input=@it
-              types=@it->sibling_types
-              titles=@it->sibling_titles;
-
             param_field name="Разделить" {
               button "Горизонтально" cmd=@it->split-horiz;
               button "Вертикально" cmd=@it->split-vert;
@@ -352,6 +345,7 @@ feature "area_3d_list" {
 
             column {
 
+              // todo выбрать ту процессы с которые дают 2д экран
               @it->project | geta "processes" | repeater //target_parent=@qoco 
               {
                  i: checkbox text=(@i->input | geta "title") 
@@ -366,10 +360,6 @@ feature "area_3d_list" {
             render-params-list object=@it list=["title","weight"];
   }   // gui
   {
-    @it->sources |
-    r: repeater { |s|
-      area_3d sources=(list @s)
-    };
   };
 };
 
