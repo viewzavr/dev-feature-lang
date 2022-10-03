@@ -1,3 +1,6 @@
+// Описание языка программирования Compalang:
+// https://github.com/viewzavr/vrungel/tree/main/develop/compolang
+
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d new-modifiers imperative";
 load "56view";
 //load "lib/init.cl";

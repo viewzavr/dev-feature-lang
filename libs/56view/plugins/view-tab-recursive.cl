@@ -326,7 +326,6 @@ feature "split-screen" {
 feature "area_2d_list" {
   it: area_content
   title="2d list"
-  subitems=@r->output
   show={
     //show_areas target=@area_rect input=(@area_rect->input | get_children_arr);
     dg: dom_group { // наличие тут domgroup обеспечивает что области рисуются в прав порядке по сравнению с соседними
