@@ -654,6 +654,7 @@ export function get_dom_size( env ) {
   });
 
   function cb(entries){
+    //entries.forEach( r => console.log )
     let res = entries.map( r => r.contentRect );
 
     if (Array.isArray(env.params[0]))

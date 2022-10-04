@@ -363,7 +363,7 @@ export function import_js(env) {
     import(path).then( res => {
       env.setParam("output",res);
     })
-  });
+  }); 
 };
 
 export function is_positional_env( env ) {};
@@ -1549,6 +1549,12 @@ export function repeater( env, fopts, envopts ) {
        // children чето не приехали.. странно все это..
        console.error("repeater: children is blank during model change...");
        return;
+     }
+
+     if (Object.keys( children ).length > 1)
+     {
+       console.warn("compolang: repeater: more than 1 obj in record will not be generated.");
+       env.vz.console_log_diag( env );
      }
 
      if (typeof model == 'number') { // число
@@ -3772,7 +3778,7 @@ export function create_objects(env) {
     let newscope = env.$scopes.createAbandonedScope("computing_env");
     newscope.$lexicalParentScope = env_list[0].$scopeFor;
     if (env_list.env_args)
-      fill_scope_with_args( env, newscope, env_list.env_args.attrs ); // qqq
+      fill_scope_with_args( env, newscope, env_list.env_args.attrs );
 
     // прошить им всем доступ в эту скопу.. странно все это, 
     // ибо зачем тогда scope-аргумент в createObjectsList .. но ладно.. взято из callEnvFunction

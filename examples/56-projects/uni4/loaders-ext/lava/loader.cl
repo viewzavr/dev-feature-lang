@@ -40,9 +40,9 @@ v:
 
 cam1: camera title="Камера лавы" pos=[-10,45,80] center=[-7,30,0];
 
-s1: the-view-uni title="Вид на лаву" auto-activate-view
-{
-    area sources_str="@v" camera=@cam1;
-};
+  s1: the-view-uni title="Вид на лаву" auto-activate-view
+  {
+      area sources_str="@v" camera=@cam1;
+  };
 
 };
