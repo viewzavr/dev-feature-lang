@@ -4,7 +4,7 @@
 // выход
 // output - массив из 3 чисел
 feature "compute_curve" {
-	cc:
+	cc: object
 	output=(
 		m_eval "(THREE, arr, t) => {
 			//console.log('computacurva',t)

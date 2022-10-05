@@ -4,7 +4,7 @@ load "main-lib.cl plugins.cl gui5.cl gui4addons.cl editor-abstractions.cl";
 ///////////////////////////////////////////// проект
 
 feature "the_project" {
-  project:
+  project: object
   //views=(get-children-arr input=@project | pause_input | arr_filter_by_features features="the-view")
   views=(find-objects-bf features="the-view" root=@project | sort_by_priority)
   //active_view=(@project->views | geta @ssr->index)
@@ -39,13 +39,13 @@ the_view_types_inst: the_view_types;
 // project ему выставляется
 feature "the_view" 
 {
-  tv: 
+  tv:  object
   title="Новый экран"
   gui={ 
     render-params @tv; 
     //console_log "tv is " @tv "view procs are" (@tv | geta "sources" | map_geta "getPath");
 
-    qq: tv=@tv; // без этого внутри ссылка на @tv уже не робит..
+    qq: object tv=@tv; // без этого внутри ссылка на @tv уже не робит..
     text "Включить:";
 
     @tv->project | geta "processes" | repeater //target_parent=@qoco 
@@ -133,7 +133,8 @@ feature "the_view"
 };
 
 feature "visual_process" {
-    vp: title="Визуальный процесс"
+    vp: object
+    title="Визуальный процесс"
     visible=true
     scene3d={ object output=@vp->output?; } // типа это мостик
     //output=@~->scene3d?

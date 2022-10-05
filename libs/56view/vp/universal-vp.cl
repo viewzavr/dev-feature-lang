@@ -3,7 +3,7 @@ find-objects-bf features="render_project_right_col" recursive=false
 insert_children { manage_universal_vp; };
 
 feature "compute_title" {
-  r: output=@q->output {
+  r: object output=@q->output {
     q: m-eval "(t,a,b) =>
        {
           
@@ -109,7 +109,7 @@ feature "linesetc-file" {
     render-params @view;
   }
   {
-    fileparams: 
+    fileparams: object 
       separator=","
       {{ x-param-string name="separator"}}
     {
@@ -189,7 +189,7 @@ feature "universal_vp"
   
   {
 
-    ecomputescene: force_dump=true project=@view->project;
+    ecomputescene: object force_dump=true project=@view->project;
 
     scene: node3d visible=@view->visible force_dump=true
     {
@@ -279,7 +279,7 @@ edatavis: feature {
 
 
   {
-    fileparams: data_length=(@data56->output | geta "length")
+    fileparams: object data_length=(@data56->output | geta "length")
        {{
           datafiles: find-objects-bf features="df56" | arr_map code="(v) => v.getPath()+'->output'";
 
@@ -300,7 +300,7 @@ edatavis: feature {
           x-param-label name="data_length";
       }}
     {
-      data56: foo=1;
+      data56: object foo=1;
       link from=@fileparams->input_link to="@data56->output";
     };    
 
@@ -309,7 +309,7 @@ edatavis: feature {
 };
 
 escreenvis: feature {
-  rt: sibling_types=["eh2","etext"] 
+  rt: object sibling_types=["eh2","etext"] 
       sibling_titles=["Заголовок","Текст"]
       gui={render-params @rt}
       title=(compute_title key=(detect_type @rt @rt->sibling_types) 
@@ -318,7 +318,7 @@ escreenvis: feature {
 };
 
 efile: feature {
-  rt: sibling_types=["linesetc-file"] 
+  rt: object sibling_types=["linesetc-file"] 
       sibling_titles=["Файл CSV"]
 
       ;
@@ -359,7 +359,7 @@ ecompute1: feature {
 
 
 ecompute_param: feature {
-	ep: 
+	ep:  object
        data_length=(@ep->output | geta "length")
        {{
           datafiles: find-objects-bf features="df56" | arr_map code="(v) => v.getPath()+'->output'";

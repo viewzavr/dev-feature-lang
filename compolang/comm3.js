@@ -683,7 +683,7 @@ export function c_on( env ) {
   env.feature("simple_lang");
   
   con_dump ||= env.compalang( `
-  output=@ee->output {
+  object output=@ee->output {
     get-cell-value input=@q->input | ee: m_eval @q->0 @q->1? @q->2? @q->3? @q->4? allow_undefined=true allow_undefined_input=false react_only_on_input=true;
   };
   `, {parent: env.ns.parent,base_url:"?"});

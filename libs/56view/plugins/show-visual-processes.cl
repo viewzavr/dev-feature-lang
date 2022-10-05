@@ -45,14 +45,15 @@ feature "render_process_hierarchy"
      /// верхний и след уровни...
 
      let objects_list=(@rh->objects | pause_input | repeater target_parent=@~ { 
-     	 q: repeater_output=(concat @l1 @l2?) {
-     		  l1: id=(@q->input | geta "$vz_unique_id")
+     	 q: object repeater_output=(concat @l1 @l2?) {
+     		  l1: object
+              id=(@q->input | geta "$vz_unique_id")
      	        title=(@q->input | geta "title")
      	        obj=@q->input
      	         ;
 
      	    l2: (@q->input | geta "subprocesses" default=[] | repeater target_parent=@~ {
-       	          qq: id=(@qq->input | geta "$vz_unique_id")
+       	          qq: object id=(@qq->input | geta "$vz_unique_id")
      	                title=(join "  - " (@qq->input | geta "title"))
      	                obj=@qq->input
      	                ;

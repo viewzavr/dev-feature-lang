@@ -244,6 +244,10 @@ one_env
              // console.error("feature is not specified!");
              // console.log( env.locinfo );
              // ладно Бог и с этим пока
+             // ну вот пришло время что изза этого вижу ошибки. надо ругаться!
+             // F-WARN-A5
+             console.error("compalang: feature is not specified!");
+             console.log( env.locinfo );
          }
          
        }       

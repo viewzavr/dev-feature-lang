@@ -84,7 +84,7 @@ load "./html2canvas.js";
 // тут подойдет идея на тему произвольных параметров..
 feature "movie_recorder"
 {
-  q:
+  q: object
   {{
   x-add-cmd name="open-window" code=(m-js q=@q `() => {
     //console.log('open window called');

@@ -401,7 +401,7 @@ feature "add-to-current-view" code=`
 // а в output выдает найденный dataframe отмеченный меткой df56
 // todo предикат ф-ю
 feature "find-data-source" {
-   findsource: 
+   findsource: object
       //data_length=(@findsource->output | geta "length")
       input_link=(@datafiles_vals->output | geta 0)
       features="df56"
@@ -440,7 +440,7 @@ feature "find-data-source" {
 // input - dfка
 // output - колонка (т.е. массив данных)
 feature "select-source-column" {
-  s: 
+  s: object
   {{ x-param-combo name="selected_column" values=@s->columns }}
   columns=(@s->input | geta "colnames")
   selected_column=""
@@ -452,7 +452,7 @@ feature "select-source-column" {
 // выход:
 // output - выбранная колонка (т.е. массив)
 feature "find-data-source-column" {
-  it:
+  it: object 
   gui={
     render-params @s1 visible=@it->show_input;
     render-params @s2;

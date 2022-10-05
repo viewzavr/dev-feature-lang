@@ -72,7 +72,7 @@ feature "find-one-object" code=`
 //      - root - от какого объекта отсчитываются пути
 // выход - output - массив найденных объектов. там где не найдено там null.
 feature "find-objects-by-pathes" {
-	ee: input=@.->0
+	ee: object input=@.->0
 	    output=@m->output
 	{
 		m-eval "(p) => {
@@ -106,7 +106,7 @@ feature "find-objects-by-pathes" {
 */
 
 feature "find-objects-by-crit" {
-	ee: input=@.->0 
+	ee: object input=@.->0 
 	    output=@m->output
 	    root=@/ //{{ console_log_params "crit objs"}}
 	    recursive=true
@@ -116,7 +116,7 @@ feature "find-objects-by-crit" {
 		//| console_log_input "UU: after eval"
 		|
 		r: repeater always_recreate=true {
-			q: output=[] {
+			q: object output=[] {
 				splitted: m-eval "(str) => str.split(/\s+/)" @q->input;
 				//console_log "splitted test" @splitted->output @splitted.output.0;
 				i: if ( @splitted.output.0.0 == "@") then={
@@ -131,7 +131,7 @@ feature "find-objects-by-crit" {
 						then={ // есть фичи
 							  //console_log "path and features found!";
 							  bf: find-objects-bf root=@rt->output 
-							         features=(@splitted->output | geta "slice" 1 eval=true)
+							         features=(@splitted->output | m_eval "v => v.slice(1)")
 							         include_root=@ee->include_root recursive=@ee->recursive
 							         ;
 							  link to="@q->output" from="@bf->output" soft_mode=true;

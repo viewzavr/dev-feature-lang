@@ -20,6 +20,7 @@ register_feature name="collapsible" {
 };
 
 register_feature name="plashka" {
+  object
   style_p="background: rgba(99, 116, 137, 0.86); padding: 5px;"
   style_b="border-left: 8px solid #00000042;
                       border-bottom: 1px solid #00000042;
@@ -411,7 +412,7 @@ rl_root:
         {
           let types1=(@current_category.siblings? | map_geta "type");
           let types2=(@types1 | repeater { |t|
-              output=(list @t @current_category.label?)
+              object output=(list @t @current_category.label?)
           } | map_geta "output" default=null);
 
           object_change_type input=@current_object?

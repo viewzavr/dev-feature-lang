@@ -31,7 +31,7 @@ load "./animation/html2canvas.js";
 
 // input - дом элемент с картинкою
 feature "image-exporter" {
-  q: 
+  q:  object
 
   {{
 /*

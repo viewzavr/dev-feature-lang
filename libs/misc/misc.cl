@@ -2,11 +2,13 @@
 
 // input,0 - путь к параметру вида objnamepath->param
 feature "read-param" {
-  q: input=@.->0
+  q: object
+    input=@.->0
     splitted = (m_eval "(str) => str.split('->')" @q->input)
     objpath=(@q->splitted | geta 0)
     paramname=(@q->splitted | geta 1)
     output=(find-one-object input=@q->objpath | geta @q->paramname default=@q->default?)
+
   ;
 };
 
@@ -29,8 +31,7 @@ code="
   });
 "
 {
-  i: 
-    output=@t->output {
+  i: object output=@t->output {
       //insert input=@i->..
       t: insert_siblings_to_parent
        list=(eval @i @i->0? @i->then? @i->else? @i allow_undefined=true
@@ -87,11 +88,11 @@ register_feature name="get_query_param" code=`
 `;
 
 register_feature name="fill_parent" {
-  style="position: absolute; width:100%; height: 100%; left: 0px; top: 0px;";
+  object style="position: absolute; width:100%; height: 100%; left: 0px; top: 0px;";
 };
 
 register_feature name="below_others" {
-  dom_style_zIndex=-1;
+  object dom_style_zIndex=-1;
 };
 
 
@@ -321,12 +322,12 @@ function process_param (name,value) {
 
 `
 {
-  data: output=@data->0?;
+  data: object output=@data->0?;
 };
 
 feature "data"
 {
-  data: output=@data->0;
+  data: object output=@data->0;
 };
 
 // по массиву описания цвета [1,1,1] и прозрачности выдает запись rgb для css

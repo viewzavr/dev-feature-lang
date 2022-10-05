@@ -112,13 +112,13 @@ register_feature name="compute_bbox" code=`
 
 let utils =(import_js (resolve_url "utils.js"));
 feature "tri2hex" {
-  k: output=@mmm->output input=@.->0 {
+  k: object output=@mmm->output input=@.->0 {
     mmm: m_eval "(c,utils) => utils.tri2hex(c)" @k->input @utils;
   };
 };
 
 feature "arr_combine" {
-  k: output=( m_eval @utils.combine @k->input)
+  k: object output=( m_eval @utils.combine @k->input)
 };
 
 /*

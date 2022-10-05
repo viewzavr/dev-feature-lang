@@ -229,6 +229,7 @@ export function map_geta( env )
       //////////////////// метода? (как то бы события еще сюды зацепить.. мб команду emit? ))))
       // но была мысль как-то совместить cmd и emit-ы
       // у метода д.быть приоритет N1 т.к. он еще cmd и на hasParam откликается
+      /* убираем - пусть ветка функции с этим разбирается... нечо..
       if (input.hasCmd( name )) {
         console.warn("geta: call to cmd");
         env.vz.console_log_diag( env );
@@ -241,6 +242,7 @@ export function map_geta( env )
         cb( res );
         return;
       };
+      */
 
       ////////////////// пораметр?
       if (input.hasParam(name)) {

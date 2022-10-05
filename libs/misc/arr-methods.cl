@@ -342,7 +342,7 @@ feature "arr_flat" {
 // input массив, первый аргумент - коэффичиент прореживания
 // пример: @arr | arr-skip 2; - взять каждый 2й элемент
 feature "arr_skip" {
-  k: output=@r->output {
+  k: object output=@r->output {
     r: m_eval "(arr,i) => arr.filter( (elem,index) => index%i == 0 )" @k->input @k->0;
   };
 };

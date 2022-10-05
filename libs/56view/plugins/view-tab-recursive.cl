@@ -3,7 +3,7 @@
 find-objects-bf features="the_view_types" recursive=false 
 |
 insert_children {
-  value="the_view_recursive" title="Общий экран (рекурсивный)"; 
+  object value="the_view_recursive" title="Общий экран (рекурсивный)"; 
 };
 
 /*
@@ -17,7 +17,7 @@ feature "walk_objects" {
 // 0 корневой объект 1 имя параметра с "детьми" depth глубина
 // возвращает массив записей о найденных детях
 feature "walk_objects" {
-   k: 
+   k:  object
      output=(concat @my_result @my_items_result)
      depth=0
      {
@@ -296,7 +296,7 @@ feature "area_content" {
 };
 
 feature "split-screen" {
-  k: output=(m_lambda "(obj,newtype) => {
+  k: object output=(m_lambda "(obj,newtype) => {
        //let v='area_container_horiz';
        let v=newtype;
        let origparent = obj.ns.parent;
@@ -422,7 +422,7 @@ feature "area_3d" {
 ///////////////////////// 
 
 feature "show_areas" {
-  q: output=@ic->output {
+  q: object output=@ic->output {
     ic: insert_children input=@q->target list=(@q->input | map_geta "show" default=null | arr_flat | arr_compact) 
   };
 };

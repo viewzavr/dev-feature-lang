@@ -334,7 +334,7 @@ register_feature name="add_struc_z_all_0" {
 // то есть вот это у нас - объект управления + пакет добавок (добавляется внешне!)
 // и плюс допом вверху будет гуи-запись. тройное...
 register_feature name="feat_struc_z_all_0" {
-  explorer-features={ struc_z_all_0 ; }
+  object explorer-features={ struc_z_all_0 ; }
   ;
 };
 
@@ -370,14 +370,14 @@ register_feature name="add_struc_golova_naverhu" {
      title="3d mode, root top" 
      explorer-features={ struc_z_golova_naverhu step=100; }
      state={
-       st: step=20  
+       st: object step=20  
          explorer-features={ struc_z_golova_naverhu step=@st->step; }
      }
   ;
 };
 
 register_feature name="feat_struc_golova_naverhu" {
-  st:
+  st: object
     {{
       z-factor: param_slider min=0 max=500 step=10 value=50;
     }}
@@ -419,7 +419,7 @@ register_feature name="struc_z_golova_naverhu" code=`
 //////////////////// добавка про фильтрацию по имени
 
 register_feature name="feat_filter" {
-  st: criteria-string="screen22"
+  st: object criteria-string="screen22"
     {{
       x-param-string name="criteria-string";
     }}
@@ -449,40 +449,40 @@ register_feature name="graph_filter" {
 //////////////////// скрыть отладчик
 
 register_feature name="feat_hide_dbg" {
-  generator-features={ hide_debugger; };
+  object generator-features={ hide_debugger; };
 };
 
 //////////////////// скрыть load узлы
 
 register_feature name="feat_hide_load" {
-  generator-features={ hide_loaders; };
+  object generator-features={ hide_loaders; };
 };
 
 
 //////////////////// показать все параметры
 
 register_feature name="feat_show_all_params" {
-  generator-features={ add_all_params; };
+  object generator-features={ add_all_params; };
 };
 
 
 //////////////////// показать отладчик
 
 register_feature name="feat_show_dbg" {
-  generator-features={ show_debugger; };
+  object generator-features={ show_debugger; };
 };
 
 //////////////////// показать load узлы
 
 register_feature name="feat_show_load" {
-  generator-features={ show_loaders; };
+  object generator-features={ show_loaders; };
 };
 
 
 //////////////////// цвет фона
 
 register_feature name="feat_bgcolor" {
-  st:
+  st: object
     {{
       color: param_color value=[1,1,1];
     }}
@@ -530,7 +530,8 @@ register_feature name="gr_bg_color" code=`
 //////////////////// показ ссылок
 
 register_feature name="feat_link_particle" {
-  st:
+
+  st: object
     {{
       color: param_color value=[1,1,1];
     }}
@@ -605,7 +606,7 @@ register_feature name="link_particle" code=`
 //////////////////// показ изменившихся узлов (в основном параметров)
 
 register_feature name="feat_nodechange_hilite" {
-  st:
+  st: object
     {{
       color: param_color value=[1,1,1];
     }}

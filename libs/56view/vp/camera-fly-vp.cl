@@ -86,7 +86,8 @@ feature "camera-fly-vp" {
 // редактор текста а на выходе dataframe
 // в тексте должны быть и колонки
 feature "df_editor" {
-	dfe: {{ x-param-text name="input" }}
+	dfe: object 
+	  {{ x-param-text name="input" }}
 	  output=(@dfe->input | parse_csv);
 };
 
@@ -159,7 +160,7 @@ feature "trajectory_editor" {
 //  time - время
 //  output_position, output_look_at - выходное
 feature "camera_computer" {
-	avpco: 
+	avpco: object
 	{{ 
     x-param-slider name="time" max=@avpco->trajectory_time_len;
     x-param-vector name="output_position";
@@ -232,7 +233,7 @@ feature "max_time" {
 //  time - время
 //  output_position, output_look_at - выходное
 feature "camera_computer_splines" {
-	avpco: 
+	avpco: object
 	{{ 
     x-param-slider name="time" max=@avpco->trajectory_time_len;
     x-param-vector name="output_position";

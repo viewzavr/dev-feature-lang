@@ -4,7 +4,7 @@
 // color_func - функция раскрашивания
 // base_color - базовый цвет для смешивания с функцией раскрашивания linear
 feature "arr_to_colors" {
-  root: 
+  root: object
      output=@color_arr->output 
 
     {{ x-param-option name="help" option="priority" value=0 }}
@@ -51,7 +51,7 @@ feature "arr_to_colors" {
     //color_func_f2=(coloring_func_tabl palette_table=(@palettes | geta @root->colorfunc default=@palettes->white))
 
 
-    color_func_f = ( 
+    color_func_f = ( object
                   linear=(color_func_base_color @root->base_color) 
                   one=(coloring_func_tabl palette_table=@palettes->one)
                   bgr=(coloring_func_tabl palette_table=@palettes->bgr)
@@ -203,7 +203,7 @@ register_feature name="color_func_tabl" code=`
 `;
 
 
-palettes: 
+palettes: object
 one=[
   [ 0.00000000, 0.00000000, 0.50000000],
   [ 0.00000000, 0.00000000, 0.51782531],

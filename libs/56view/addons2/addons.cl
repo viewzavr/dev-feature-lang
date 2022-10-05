@@ -1,7 +1,7 @@
 // метка для объектов для которых добавить визуальное управление добавками
 
 feature "editable-addons" {
-   eathing: 
+   eathing: object
    addons_list=(@addons_p | get_children_arr) // интерфейс с gui4addons.cl
    addons_container=@addons_p
    addons=[] // возможность задать аддоны через апи
@@ -18,7 +18,7 @@ feature "editable-addons" {
 };
 
 feature "addon" {
-  ai22: type=@.->0
+  ai22: object type=@.->0
       title=( @ai22->1? or @ai22->type )
       crit=(m_lambda "() => true");
 };
@@ -26,7 +26,7 @@ feature "addon" {
 addons_list: find-objects-bf features="addon";
 
 geffect3d: feature {
-  ef: appropritate_addons = (m_eval "(list,elem) => {
+  ef: object appropritate_addons = (m_eval "(list,elem) => {
         return list.filter( it => it.params.crit( elem ) )
       }" @addons_list->output @ef->element)
       sibling_titles=(@ef->appropritate_addons | map_geta "title")
@@ -150,6 +150,28 @@ feature "effect3d_zbuffer" {
                 if (tenv.params.material) {
                   tenv.params.material.depthTest = true;
                   tenv.params.material.depthWrite = true;
+                  tenv.params.material.sizeAttenuation=true;
+                  tenv.params.material.needsUpdate=true;
+                }
+            };
+          }
+    `;
+  ;
+};
+
+addon3d "effect3d-fixed-pt-size" "Неизменный размер точек";
+feature "effect3d-fixed-pt-size" {
+  eo: geffect3d
+    gui={render-params @eo; }
+    ~x-patch-r code=`(tenv) => {
+      let u1 = 
+          tenv.onvalue('material',(m)=> {
+              m.sizeAttenuation=false;
+              m.needsUpdate=true;
+            });
+            return () => {
+                u1();
+                if (tenv.params.material) {
                   tenv.params.material.sizeAttenuation=true;
                   tenv.params.material.needsUpdate=true;
                 }
@@ -378,7 +400,7 @@ feature "effect3d_colorize" {
 
 // текущее
 feature "generate_arr_from_minmax" {
-  root: output=@la->output {
+  root: object output=@la->output {
   la: m_eval "(mm)=> {
                 let res = [];
                 if (! (Array.isArray(mm) && mm.length >= 2) ) return res;

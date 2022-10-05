@@ -205,7 +205,7 @@ feature "x-param-objref-2" {
 // выход: output - массив путей файлов из файла листинга
 // где каждая запись это {name:имя,url:полный-путь}
 feature "select-files-inet" {
-		idata: 
+		idata:    object
 						  //listing_file="http://127.0.0.1:8080/public_local/data2/data.csv"
 						  listing_file=""
 
@@ -244,7 +244,7 @@ feature "select-files-inet" {
 // наверное это и не встройка адаптера а изменение таки протокола.. параметр добавили и поведение измениили
 feature "select-files-dir" {
 
-	ll: regtest = '.'
+	ll: object regtest = '.'
 	  {{
 		x-add-cmd name="Выбрать папку" code=(
 			m_apply `(tenv,regtest) => {
@@ -289,7 +289,7 @@ feature "select-files-dir" {
 // выход: gui - редактор, output - выбранный список
 feature "select-files" 
 {
-	xedt: 
+	xedt: object
 	  index=1
 	  output=( (list @l1 @l2) | geta @xedt->index | geta "output" default=[])
 	  url=""

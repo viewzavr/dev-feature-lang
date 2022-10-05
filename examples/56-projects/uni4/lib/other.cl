@@ -1,5 +1,5 @@
 feature "auto_gui" {
-  vp:
+  vp: object
   gui={
     render-params ~plashka @vp filters={ params-hide list="title"; };
 
@@ -13,7 +13,7 @@ feature "auto_gui" {
 };
 
 feature "auto_gui2" {
-  vp:
+  vp: object
   gui={
     render-params ~plashka @vp filters={ params-hide list="title"; };
 
@@ -28,8 +28,9 @@ feature "auto_gui2" {
   ;
 };
 
+
 feature "auto_gui3" {
-  vp:
+  vp: object
   gui={}
   gui2={
     render-params ~plashka @vp filters={ params-hide list="title"; };

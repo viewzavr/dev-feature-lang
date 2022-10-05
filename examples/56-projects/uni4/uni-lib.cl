@@ -2,20 +2,22 @@ load "lib3dv3 csv params io gui render-params df scene-explorer-3d new-modifiers
 load "56view";
 
 feature "compatible_visual_processes_for" {
-  k: curart=@.->0 output=(
-    @vis_makers_codes
-    |
-    repeater { | codes |
-      create_objects input=@codes @k.curart
-    }
-//    | console_log_input "QQQ"
-    |
-    map_geta "output" default=null // возьмем выходы create-objects-ов
-    | 
-    map_geta 0 default=null // там ж массив.. хотя это как бы намек что мы мейкеров можем вообще создавать пачкой сразу
-    | 
-    filter_geta "possible"
-   );
+  k: object 
+    curart=@.->0 
+    output=(
+      @vis_makers_codes
+      |
+      repeater { | codes |
+        create_objects input=@codes @k.curart
+      }
+  //    | console_log_input "QQQ"
+      |
+      map_geta "output" default=null // возьмем выходы create-objects-ов
+      | 
+      map_geta 0 default=null // там ж массив.. хотя это как бы намек что мы мейкеров можем вообще создавать пачкой сразу
+      | 
+      filter_geta "possible"
+     );
 };
 
 load "lib/init.cl";

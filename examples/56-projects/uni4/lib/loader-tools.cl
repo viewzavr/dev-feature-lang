@@ -1,7 +1,7 @@
 // todo переименовать этот файл и файл с vismakers
 
 feature "data-artefact" {
-  x:
+  x: object
     title_path=(join (@x | get_parent | geta "title_path" default="") @x->title with=' / ')
     vis_makers=(compatible_visual_processes_for @x)
 };
@@ -46,7 +46,7 @@ let art_makers_codes=(@art_makers_list | map_geta "code");
 // кстати где-то у меня уже был обход дерева.. walk_objects
 
 feature "grow-artefacts" {
-  x: level=0 
+  x: object level=0 
      {
         let making_artefacts = (
               @art_makers_codes
@@ -66,7 +66,7 @@ feature "grow-artefacts" {
 
         let new_arts = (@making_artefacts | repeater target_parent=@x { // создаем новые артефакты
           //create_objects;
-          k: output=(insert_children input=@x->input list=@k->input) 
+          k: object output=(insert_children input=@x->input list=@k->input) 
         } | map_geta "output" default=null | map_geta 0 default=null | arr_compact);
 
         // если мы ушли недалеко - подключаем автогенерацию новым артефактам..
@@ -169,7 +169,7 @@ feature "data-entity" {
 /////////////////////////////////////////
 
 feature "find-file" {
-  r: output=@mm->output {
+  r: object output=@mm->output {
 
   mm: m_eval "(arr,crit,obj) => {
         if (!arr) return null;
@@ -187,7 +187,7 @@ feature "find-file" {
 };
 
 feature "find-files" {
-  r: output=@mm->output {
+  r: object output=@mm->output {
   mm: m_eval "(arr,crit) => {
         if (!arr) return [];
         if (!Array.isArray(arr)) arr=[arr];
@@ -205,7 +205,7 @@ feature "find-files" {
 
 // update - слишком хитрая штука, с встроенной сортировкой
 feature "detect_blocks" {
-  r: output=@mm->output {
+  r: object output=@mm->output {
   mm: m_eval "(arr,crit) => {
         let regexp = new RegExp( crit,'i' );
         let blocks = {};
@@ -239,7 +239,7 @@ feature "detect_blocks" {
 // вход input массив файлов, arg0 = маска с регулярным выражением где 1-я скобочка дает число
 // выход output
 feature "sort_files" {
-  r: output=@mm->output {
+  r: object output=@mm->output {
   mm: m_eval "(arr,crit) => {
         let regexp = new RegExp( crit,'i' );
         let blocks = {};
@@ -263,7 +263,8 @@ feature "sort_files" {
 
 artmaker
   code={ |art|
-    m: list_file=(m_eval "(url) => {
+    m: object 
+    list_file=(m_eval "(url) => {
       if (!url?.find) return null;
       let k = url.find( elem => elem?.name=='list.txt' );
       return k;
