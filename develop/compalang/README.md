@@ -22,7 +22,11 @@
 
 Пример:
 ```
-  pts: points positions=[0,0,0, 1,2,2, 5,5,2 ]
+  scene3d {
+  	pts: points positions=[0,0,0, 1,2,2, 5,5,2 ]
+  	lines positions=@pts.positions radius=4
+  	console-log "цвет точек по умолчанию есть " @pts.color
+  }
 ```
 
 ## Дополнительная форма для операций
