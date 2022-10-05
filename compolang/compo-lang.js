@@ -23,7 +23,7 @@ export function setup(vz, m) {
 // можно еще env назвать.. что бы это ни значило... но кстати env тоже так себе... там же scope еще и тоже оно как окружение..
 // еще можно entity.. даже e ))) или rec ... объект плохо что оно отсылка к ооп а у нас тут попытка сделать не только ооп
 // ну да, это не обжект. частенько это ~фича, или просто запись данных. а что тогда?
-// entity, record, item, thing, env, var, point, rec 
+// entity, record, item, thing, env, var, point, rec, comp, c?
 export function feature_object( env ) {};
 
 import * as P from "./lang-parser.js";

@@ -264,7 +264,7 @@ feature "joinlines" code=`
 // решил назвать var. еще было вариант cell но там сложно - get-cell-value, alfa->cell и это cell они ж все разные
 // посему пока var
 // но вместе с var сложно такое мыслить: var a = import_js(...); лучше уж let a = ...;
-feature "let" code=`
+feature "let" `
 // NHACK - на первом проходе в register_feature для js скоп еще не создан
 let $scopeFor = env.$scopes [env.$scopes.length-1]; 
 
@@ -309,9 +309,15 @@ function process_param (name,value) {
 
   // будем реагировать на будущие изменения
   env.on('param_changed',process_param );
+
   // и на то что есть сейчас
   for (let k of env.getParamsNames()) {
     process_param( k, env.getParam(k));
+  };
+  let linked_params = env.linksToObjectParamsNames();
+  for (let k of linked_params) {
+    if (!env.hasParam( k )) // потому что уже обработали..
+       process_param( k, env.getParam(k));
   };
 
   env.on("remove",() => {
