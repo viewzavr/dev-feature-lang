@@ -26,6 +26,9 @@
   	pts: points positions=[0,0,0, 1,2,2, 5,5,2 ]
   	lines positions=@pts.positions radius=4
   	console-log "цвет точек по умолчанию есть " @pts.color
+  	node3d {
+  		spheres positions=(@pts.positions | arr_slice 0 12)
+  	}
   }
 ```
 
