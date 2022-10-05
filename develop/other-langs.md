@@ -30,6 +30,9 @@ alice (https://www.ps.uni-saarland.de/alice/manual/tour.html)
 также мы в курсе про kotlin (compose!), qml (кстати кто его автор то???)
 и ужасы в духе react, или самоката svetle.
 
+# TODO
+https://en.wikipedia.org/wiki/Curl_(programming_language)
+
 # посмотреть еще
 hybrid programming language => 
 * https://dl.acm.org/doi/10.1002/spe.4380210603
@@ -40,3 +43,8 @@ hybrid programming language =>
 
 https://www.info.ucl.ac.be/~pvr/paradigmsDIAGRAMeng108.pdf
 - список парадигмов программирования (20 штук)
+
+https://en.wikipedia.org/wiki/Unicon_(programming_language)
+
+https://dmkpress.com/files/PDF/978-5-93700-140-5.pdf?utm_source=LeadHit&utm_medium=email&utm_campaign=MR051022&lh_message_id=633d314773efc33c30ae0bbc&lead_id=62346bf473efc37042052c9f
+Клинтон Л. Джеффери Создайте свой собственный язык программирования
