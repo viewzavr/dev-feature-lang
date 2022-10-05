@@ -125,7 +125,7 @@ my-rectangle a=5 color='blue'
 Дополнительно тип можно инициализировать яваскрипт-кодом, указанным во втором параметре:
 ```
 feature "compute" "
-  env.onvalues( [0,1], (a,b) => a+b )
+  env.onvalues( [0,1], (a,b) => env.setParam('output', a+b) )
 "
 console-log (compute 2 2); // напечатает 4
 ```
