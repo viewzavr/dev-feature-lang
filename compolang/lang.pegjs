@@ -48,7 +48,7 @@
     //let loc = `file: ${file}\nline: ${s1.start.line}\n...\n${lines.join('\n')}\n...`;
     let loc = `file: ${file}\n...\n${lines.join('\n')}\n...`;
 
-    return loc;  
+    return loc;
   }
 
   function is_env_real( e ) {
@@ -406,7 +406,9 @@ env_pipe
    // случай вида @objid | a | b | c тогда @objid идет на вход пайпе
    // и заодно случай вида @objid->paramname | a | b | c
    
-   //console.log("found env pipe with input link:",input_link,tail)
+   //console.warn("compalang: env pipe with input link:",input_link,tail)
+   //console.log( getlocinfo() )
+
    var pipe = new_env( (pipeid || [])[0] );
    pipe.features["pipe"] = true;
 
@@ -461,7 +463,13 @@ env_list "environment list"
     
     let res = [head];
     for (let it of tail) {
-      if (is_env_real(it)) res.push( it );
+      if (is_env_real(it)) res.push( it ); else continue;
+
+      if (it.links["pipe_input_link"])
+        {
+          console.warn("compolang: pipe with @var in not 1st place of env list");
+          console.log( it.links["pipe_input_link"].locinfo );
+        }
     }
 
     // F-ENV-ARGS

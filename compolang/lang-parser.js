@@ -396,6 +396,7 @@ function peg$parse(input, options) {
                // console.log( env.locinfo );
                // ладно Бог и с этим пока
                // ну вот пришло время что изза этого вижу ошибки. надо ругаться!
+               // F-WARN-A5
                console.error("compalang: feature is not specified!");
                console.log( env.locinfo );
            }
@@ -547,7 +548,9 @@ function peg$parse(input, options) {
      // случай вида @objid | a | b | c тогда @objid идет на вход пайпе
      // и заодно случай вида @objid->paramname | a | b | c
      
-     //console.log("found env pipe with input link:",input_link,tail)
+     //console.warn("compalang: env pipe with input link:",input_link,tail)
+     //console.log( getlocinfo() )
+
      var pipe = new_env( (pipeid || [])[0] );
      pipe.features["pipe"] = true;
 
@@ -594,7 +597,13 @@ function peg$parse(input, options) {
       
       let res = [head];
       for (let it of tail) {
-        if (is_env_real(it)) res.push( it );
+        if (is_env_real(it)) res.push( it ); else continue;
+
+        if (it.links["pipe_input_link"])
+          {
+            console.warn("compolang: pipe with @var in not 1st place of env list");
+            console.log( it.links["pipe_input_link"].locinfo );
+          }
       }
 
       // F-ENV-ARGS
@@ -4001,7 +4010,7 @@ function peg$parse(input, options) {
       //let loc = `file: ${file}\nline: ${s1.start.line}\n...\n${lines.join('\n')}\n...`;
       let loc = `file: ${file}\n...\n${lines.join('\n')}\n...`;
 
-      return loc;  
+      return loc;
     }
 
     function is_env_real( e ) {

@@ -49,7 +49,7 @@ feature "animations_panel" {
 
        mv: movie_recorder input=@apan.render_project.screenshot_dom;
 
-       @ap | x-modify { 
+       read @ap | x-modify { 
          x-on "tick" {
            if (@ap->cycle == 0) then={
               call target=@mv name="make-screen-shot";
@@ -68,7 +68,7 @@ feature "animations_panel" {
        @mv | get-cell "cmd:open-window" | set-cell-value;
        */
 
-       @mv | get-cmd-cell "open-window" | set-cell-value 1 | get-cell-value | console-log "reply is";
+       read @mv | get-cmd-cell "open-window" | set-cell-value 1 | get-cell-value | console-log "reply is";
 
        // call target=@mv name="open-window" auto_apply delay_execution timeout=10;
        // call target=@mv name="open-window" auto_apply;

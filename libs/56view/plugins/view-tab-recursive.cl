@@ -61,7 +61,7 @@ feature "the_view_recursive"
       // console_log "selected_object = " @selected_object;
       // @selected_object | m_eval "(obj) => console.log( 'sel obj get path',obj.getPath() );";
 
-      @tv | get-cell "active_area" | set-cell-value @selected_object;
+      read @tv | get-cell "active_area" | set-cell-value @selected_object;
 
       //render-params @curobj;
 
@@ -465,9 +465,9 @@ feature "show_area_container_join" {
   area_rect: dom {{ show_area_base input=@area_rect->input }}
   {
      ars: show_areas target=@area_rect input=(@area_rect->input | get_children_arr);
-     @ars->output | x-modify { x-set-params style_w="width:100%; height:100%; position: absolute !important; top: 0px; left: 0px;"; };
+     read @ars->output | x-modify { x-set-params style_w="width:100%; height:100%; position: absolute !important; top: 0px; left: 0px;"; };
      // перетащим 2д в первую область..
-     @ars->output | m_eval "(arr) => {
+     read @ars->output | m_eval "(arr) => {
         for (let i=1; i<arr.length; i++) {
             arr[i].setParam('scene2d_tgt', arr[0].params.scene2d_tgt );
         }
@@ -494,9 +494,9 @@ feature "show_area_container_opacity_switch" {
   {
      ars: show_areas target=@area_rect input=(@area_rect->input | get_children_arr);
 
-     @ars->output | x-modify { x-set-params style_w="width:100%; height:100%; position: absolute !important; top: 0px; left: 0px;"; };
+     read @ars->output | x-modify { x-set-params style_w="width:100%; height:100%; position: absolute !important; top: 0px; left: 0px;"; };
      // перетащим 2д в первую область..
-     @ars->output | m_eval "(arr) => {
+     read @ars->output | m_eval "(arr) => {
         for (let i=1; i<arr.length; i++) {
             arr[i].setParam('scene2d_tgt', arr[0].params.scene2d_tgt );
         }

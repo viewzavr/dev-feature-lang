@@ -413,7 +413,7 @@ esync1: feature {
 	{
 	  synced_processes: (find-objects-bf features="visual-process" root=@es1->project recursive=false);
 	    
-	    @synced_processes | x-modify {
+	    read @synced_processes | x-modify {
 	      x-set-param name=@es1->synced_param_name value=@es1->synced_param_value;
         m-on (+ "param_" @es1->synced_param_name "_changed") "(es1,obj,param_value) =>
          {

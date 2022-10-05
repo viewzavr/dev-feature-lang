@@ -48,7 +48,7 @@ feature "the_view"
     qq: object tv=@tv; // без этого внутри ссылка на @tv уже не робит..
     text "Включить:";
 
-    @tv->project | geta "processes" | repeater //target_parent=@qoco 
+    read @tv->project | geta "processes" | repeater //target_parent=@qoco 
     {
        i: checkbox text=(@i->input | geta "title") 
              value=(@qq->tv | geta "sources" | arr_contains @i->input)

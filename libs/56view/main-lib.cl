@@ -135,7 +135,7 @@ feature "show_sources_params"
 
     if (@sv.settings_gui.length? > 0) then={
       let g = (create-objects input=@sv.show_settings_gui @sv.settings_gui | set-parent @sv);
-      @g | get-event-cell "close" | get-cell-value | m_eval "(evt,c) => { console.log(333,evt); c.set([]); } " (@sv | get-cell "settings_gui" );
+      read @g | get-event-cell "close" | get-cell-value | m_eval "(evt,c) => { console.log(333,evt); c.set([]); } " (@sv | get-cell "settings_gui" );
 
       // console-log "panel opened" @sv.show_settings_gui @sv.settings_gui;
 
@@ -160,7 +160,7 @@ feature "show_settings_panel" {
       };
 
       // ну типа соединили каналы.. это примерно как написать row close=@bt->click; хм...
-      @extra_settings_panel | get-event-cell "close" | set-cell-value (@bt | get-event-cell "click" | get-cell-value);
+      read @extra_settings_panel | get-event-cell "close" | set-cell-value (@bt | get-event-cell "click" | get-cell-value);
 
       bt: button "&lt;" style_h="height:1.5em;" 
       {
@@ -403,15 +403,15 @@ feature "add-to-current-view" code=`
 feature "find-data-source" {
    findsource: object
       //data_length=(@findsource->output | geta "length")
-      input_link=(@datafiles_vals->output | geta 0)
+      input_link=@datafiles_vals.output.0
       features="df56"
       {{
           datafiles: find-objects-bf features=@findsource->features;
                         //| arr_map code="(v) => [ v.getPath()+'->output', v.params.title || v.getPath() ]";
                         
-          datafiles_vals: @datafiles->output 
+          datafiles_vals: read @datafiles->output 
                       | arr_map code="(v) => v.getPath()+'->output'";
-          datafiles_titles: @datafiles->output 
+          datafiles_titles: read @datafiles->output 
                       | map_geta "title" default=null;
 
           x-param-combo

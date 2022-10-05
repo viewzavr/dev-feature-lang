@@ -7,8 +7,8 @@ feature 'show_render_fps'
   {{
     @d->renderer? | get-cell "frame" | c-on "(evtargs,s) => s ? s.update() : null" @stats;
     let stats=(m_eval "(Stats) => Stats.default()" @d->Stats);
-    @stats | m_eval "(s,dom) => dom.appendChild(s.dom)" @d->dom;
-    @stats | m_eval "(s) =>  s.dom.style.position='' ";
+    read @stats | m_eval "(s,dom) => dom.appendChild(s.dom)" @d->dom;
+    read @stats | m_eval "(s) =>  s.dom.style.position='' ";
   }}
 };
 
@@ -22,7 +22,7 @@ feature 'show_render_stats'
       return s ? s.update( renderer ) : null
     }" @stats;
     let stats=(m_eval "(Stats) => Stats.default()" @d->Stats);
-    @stats | m_eval "(s,dom) => dom.appendChild(s.domElement)" @d->dom;
+    read @stats | m_eval "(s,dom) => dom.appendChild(s.domElement)" @d->dom;
     //@stats | m_eval "(s) =>  s.domElement.style.position='' ";
   }}
 };

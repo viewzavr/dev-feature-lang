@@ -211,7 +211,7 @@ register_feature name="slider" {
 			 }` (@the_slider | get_cell "value" manual=@the_slider->manual);
 		 };
 
-		 @the_slider | dom_event_cell "change" | c_on `(event_data,valcell) => {
+		 read @the_slider | dom_event_cell "change" | c_on `(event_data,valcell) => {
 		 		let k = event_data;
 
 		 		valcell.set( parseFloat( k.target.value ) )
@@ -416,7 +416,7 @@ register_feature name="combobox" {
 
     ///////////////////////////////////////////////
     // мостик из dom в cl
-    @cbroot | dom_event_cell "change" | c_on `(event_data,object) => {
+    read @cbroot | dom_event_cell "change" | c_on `(event_data,object) => {
       //console.log("dom onchange",object.dom.selectedIndex )
       object.setParam("index",object.dom.selectedIndex);
 

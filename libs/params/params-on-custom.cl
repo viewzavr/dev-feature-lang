@@ -223,7 +223,7 @@ feature "select-files-inet" {
 						{
 							listing: load-file file=@idata->listing_file 
 							  | m_eval "(txt) => txt && txt.length > 0 ? txt.split('\\n') : []" @.->input;
-							listing_resolved: @listing->output | map_geta (m_apply "(dir,item) => dir+'/'+item" @idata->listing_file_dir);
+							listing_resolved: read @listing->output | map_geta (m_apply "(dir,item) => dir+'/'+item" @idata->listing_file_dir);
 							result: m_eval "(arr1,arr2) => {
 								  
 								  if (arr1.length != arr2.length) return;
