@@ -112,20 +112,24 @@ pipe {
 Пример:
 ```
 feature "my-rectangle" {
-  rectangle color='red' width=30 height=10 { 
+  root: rectangle color='red' width=(@root.a * 2) height=10 { 
   	circle 5 5 5 circle 10 5 5 
   }
 }
 ```
 и далее тип `my-rectangle` становится доступным в программе.
+```
+my-rectangle a=5 color='blue'
+```
 
 Дополнительно тип можно инициализировать яваскрипт-кодом, указанным во втором параметре:
 ```
 feature "compute" "
   env.onvalues( [0,1], (a,b) => a+b )
 "
+console-log (compute 2 2); // напечатает 4
 ```
-здесь env, onvalues и другие вещи - это апи viewzavr. В будущем, быть может, также можно будет указывать классы js в качестве типов Компаланга.
+здесь env, onvalues и другие вещи - это API Viewzavr. В будущем, быть может, также можно будет указывать классы js в качестве типов Компаланга.
 
 ## Вызов вычислений javascript
 Введен тип `m-eval` и `m-lambda`. Первый вычисляет и записывает результат в output, а второй - записывает в output функцию вычисления.
