@@ -10,7 +10,7 @@ export function setup(vz, m) {
 */
 }
 
-/* df_create_from_arrays columns=["X,Y,Z,TEXT"];
+/* df_create_from_arrays columns=["X,Y,Z,TEXT"] input=(list @arr1 @arr2);
 */
 export function df_create_from_arrays(env) {
   env.onvalues(["input","columns"],(value,columns) => {

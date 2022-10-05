@@ -124,8 +124,9 @@ register_feature name="arr_filter"
 
 // пример: @arrsource | arr_map code="(val,index) => val*2" | console_log
 
-register_feature name="arr_map"
-  code=`
+feature "arr_map"
+  `
+  env.onvalue(0,(v) => env.setParam('code',v));
   env.onvalues(["input","code"],process);
 
   function process(arr,code) {
@@ -136,7 +137,7 @@ register_feature name="arr_map"
     //var f = new Function( "line", code );
     //var res = dfjs.create_from_df_filter( df, f );
     
-    var f = eval( code );
+    var f = eval( code ); // todo optimize
 
     let res = [];
     arr.forEach( (v,index) => {
@@ -146,6 +147,13 @@ register_feature name="arr_map"
     env.setParam("output",res);
   }
 `;
+
+// arr_eval
+// пусть в массиве набор функций, вызывает каждую
+feature "arr_eval" {
+  arr_map "v => v()";
+  //arr_map "v => v ? v() : null";
+};
 
 //////// arr_reverse
 // вход:
@@ -283,7 +291,7 @@ register_feature name="arr_uniq" {
 */
 
 
-register_feature name="arr_uniq"
+feature "arr_uniq"
   code=`
 
   env.onvalues_any(["input",0],process);

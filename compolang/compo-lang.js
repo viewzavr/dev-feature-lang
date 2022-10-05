@@ -22,13 +22,6 @@ export function setup(vz, m) {
 // она называется object а не obj потому что obj я часто использую как аргумент и чтобы имена не путать
 export function feature_object( env ) {};
 
-// это нам нужно для новых пайпов
-export function feature_read( env ) {
-  env.trackParam(0,(v) => {
-    env.setParam("output",v);
-  });
-};
-
 import * as P from "./lang-parser.js";
 
 // создает функцию которая по строчке компаланг-кода генерирует компаланг-процессы
@@ -774,6 +767,7 @@ export function register_feature( env, envopts ) {
     // теперь разик скомпилировались - будем мониторить еще и code переназначения
     env.trackParam( "code", compile );
     env.trackParam( 0, compile );
+    env.trackParam( 1, compile );
 
     return Promise.resolve("success");
   };
@@ -3848,8 +3842,12 @@ export function connect_params_to_events(env) {
 
 }
 
+// меняет родителя элементу
+// кстати таки деталь - получается элемент навсегда уходит туда,
+// и уже его удаление от исходного парента не зависит..
 export function set_parent( env ) {
   env.onvalues([0,"input"],(parent,input) => {
+    if (input.getPath) input=[input];
     for (let i=0; i<input.length; i++) {
       let c = input[i];
       parent.ns.appendChild( c,"sp",true );
@@ -3857,3 +3855,19 @@ export function set_parent( env ) {
     env.setParam("output",input );
   });
 };
+
+// это нам нужно для новых пайпов
+export function feature_read( env ) {
+  env.trackParam(0,(v) => {
+    env.setParam("output",v);
+  });
+};
+
+// оказалось полезная вещь. на вход функция на выход результат. ну без параметров пока.
+export function m_eval_input( env )
+{
+  env.onvalue("input",v => {
+    let r = v();
+    env.setParam( "output",r );
+  })
+}

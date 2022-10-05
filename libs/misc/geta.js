@@ -230,6 +230,9 @@ export function map_geta( env )
       // но была мысль как-то совместить cmd и emit-ы
       // у метода д.быть приоритет N1 т.к. он еще cmd и на hasParam откликается
       if (input.hasCmd( name )) {
+        console.warn("geta: call to cmd");
+        env.vz.console_log_diag( env );
+
         let restargs = [];
         for (let i=current_arg_pos+1; i<params.args_count; i++)
           restargs.push( params[i] );
@@ -273,17 +276,33 @@ export function map_geta( env )
     // это у нас не объект вьюзара, обращаемся просто как к js структуре
     // так-то можно было бы универсальное событие track_change по имени и там неважно - параметр или что..
     let nv = input[ name ];
+
+    if (typeof(nv) === "function" && !(env.params.eval || env.params.fok))
+    {
+       //console.warn("geta: you got function, new beh",name,input,nv);
+       // env.vz.console_log_diag( env );
+    }
+
     
+    /* ну или да ну его лесом, вызов функций.. если надо будет сделать как бы триггеры, аля eval..
+       то может стоит прямо и говорить m-eval и там стандартный мехазим передачи аргументов.
+       а если вот надо будет как бы автоматику включать.. ну тут подумать надо..
+    */
+    // выяснилось что много где я это использую.. так что пусть пока с флагом побудет
     if (typeof(nv) === "function") // решил сделать вызов функций. те.. это уже не get у меня а send по сути то
     {
-       // передали в аргументе имя функции объекта? вызываем ее со всеми оставшимися аргументами
-       let restargs = [];
-       for (let i=current_arg_pos+1; i<params.args_count; i++)
-          restargs.push( params[i] );
-       // может стоит собрать аргумнеты в и-режиме т.е. вызывать и-функции 
-       let res = nv.apply( input, restargs );
-       cb( res );
-       return;
+       if (env.params.eval) {
+         // передали в аргументе имя функции объекта? вызываем ее со всеми оставшимися аргументами
+         let restargs = [];
+         for (let i=current_arg_pos+1; i<params.args_count; i++)
+            restargs.push( params[i] );
+         // может стоит собрать аргумнеты в и-режиме т.е. вызывать и-функции 
+         let res = nv.apply( input, restargs );
+         cb( res );
+         return;
+       };
+       nv = nv.bind( input ); // оказалось так надо делать чтобы всякие flat работали
+
     }
 
     // особый случай - запрашиваем параметр а его еще не прописали...
@@ -313,6 +332,6 @@ export function map_geta( env )
         // раньше было так для всех.. посмотрим..
     }
 
-    go_next_level( input[ name ], params, current_arg_pos,cb,unsub_struc, () => {} );
+    go_next_level( nv, params, current_arg_pos,cb,unsub_struc, () => {} );
   }
 }

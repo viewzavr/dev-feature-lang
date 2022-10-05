@@ -24,8 +24,9 @@ feature "manage_visual_processes" {
       project=@..->project
       active_view = @..->active_view
     	{
-        render_process_hierarchy objects=(@vp->project | geta "processes")
-           active_view=@vp->active_view
+        render_process_hierarchy 
+           objects=@vp.project.processes
+           active_view=@vp.active_view?
         ;
                   
         //render_process_hierarchy objects=(@vp->project | geta "top_processes");
@@ -43,7 +44,7 @@ feature "render_process_hierarchy"
     {
      /// верхний и след уровни...
 
-     objects_list: (@rh->objects | repeater target_parent=@~ { 
+     let objects_list=(@rh->objects | pause_input | repeater target_parent=@~ { 
      	 q: repeater_output=(concat @l1 @l2?) {
      		  l1: id=(@q->input | geta "$vz_unique_id")
      	        title=(@q->input | geta "title")
@@ -52,12 +53,12 @@ feature "render_process_hierarchy"
 
      	    l2: (@q->input | geta "subprocesses" default=[] | repeater target_parent=@~ {
        	          qq: id=(@qq->input | geta "$vz_unique_id")
-     	          title=(join "  - " (@qq->input | geta "title"))
-     	          obj=@qq->input
-     	          ;
+     	                title=(join "  - " (@qq->input | geta "title"))
+     	                obj=@qq->input
+     	                ;
      	        });
      	  };
-     } | pause_input | map_geta "repeater_output" | geta "flat" | arr_compact);
+     } | pause_input | map_geta "repeater_output" | geta "flat" fok=true | m_eval_input | arr_compact);
 
      cbsel: combobox style="margin: 5px;" dom_size=10
        values=(@objects_list | map_geta "id")
@@ -95,7 +96,7 @@ feature "render_process_hierarchy"
               console.log('cloned to',nobj);
               cbsel.setParam( 'index', cbsel.params.values.length-1 );
              })
-          }" @co->input? @rh->active_view @cbsel;
+          }" @co->input? @rh->active_view? @cbsel;
         };
 
         button "Удалить" //style="position:absolute; top:0px; right:0px;" 

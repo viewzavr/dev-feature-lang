@@ -35,7 +35,7 @@ feature "addvis" {
         text "Артефакт данных";
         cb: combobox style="max-width:230px"
               titles=(@artefacts | map_geta "title_path" default='?') 
-              values=(@artefacts | map_geta "getPath")
+              values=(@artefacts | map_geta "getPath" fok=true | arr_map code="v => v()" )
               index=0;
         text "Образ";
         ct: combobox 

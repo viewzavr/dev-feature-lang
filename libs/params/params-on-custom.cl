@@ -136,8 +136,8 @@ feature "x-param-objref-3" {
      editor={
   	 edt: param_field {
 	  	      combobox style="width: 160px;"
-		        	value=(@edt->object | geta @edt->name default=null | geta "getPath" default=null) // считается что там объект сидит благодаря
-		        	values=(@r->values | map_geta (m_apply "(obj) => obj.getPath()"))
+		        	value=(@edt->object | geta @edt->name default=null | geta "getPath" default=null fok=true | m_eval_input) // считается что там объект сидит благодаря
+		        	values=(@r->values | map_geta (m_lambda "(obj) => obj.getPath()"))
 		        	titles=(@r->values | map_geta @r->title_field)
 		        	{{ x-on "user_changed_value" 
 	                  code=(m_apply "(area,param_var, b,c,val) => {

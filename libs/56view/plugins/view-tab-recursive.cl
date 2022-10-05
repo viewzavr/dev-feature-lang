@@ -34,7 +34,7 @@ feature "walk_objects" {
         @my_items | repeater {
           w: walk_objects @w->input @k->1 depth=(@k->depth + 1);
         } 
-        | map_geta "output" default=null | geta "flat" | arr_compact);
+        | map_geta "output" default=null | geta "flat" eval=true | arr_compact);
      }
 };
 

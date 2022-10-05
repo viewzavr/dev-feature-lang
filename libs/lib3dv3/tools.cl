@@ -1,3 +1,5 @@
+load "misc";
+
 register_feature name="material_generator_gui" {
     dg: dom_group text="Material options"
     {{
@@ -108,11 +110,15 @@ register_feature name="compute_bbox" code=`
    }
 `;
 
-utils: import_js (resolve_url "utils.js");
+let utils =(import_js (resolve_url "utils.js"));
 feature "tri2hex" {
   k: output=@mmm->output input=@.->0 {
-    mmm: m_eval "(c,utils) => utils.tri2hex(c)" @k->input @utils->output;
+    mmm: m_eval "(c,utils) => utils.tri2hex(c)" @k->input @utils;
   };
+};
+
+feature "arr_combine" {
+  k: output=( m_eval @utils.combine @k->input)
 };
 
 /*

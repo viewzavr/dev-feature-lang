@@ -131,7 +131,7 @@ feature "find-objects-by-crit" {
 						then={ // есть фичи
 							  //console_log "path and features found!";
 							  bf: find-objects-bf root=@rt->output 
-							         features=(@splitted->output | geta "slice" 1)
+							         features=(@splitted->output | geta "slice" 1 eval=true)
 							         include_root=@ee->include_root recursive=@ee->recursive
 							         ;
 							  link to="@q->output" from="@bf->output" soft_mode=true;
@@ -155,7 +155,8 @@ feature "find-objects-by-crit" {
 		map_geta "output" // где их output это может быть объект или массив объектов или пустота
 		//| console_log_input "UU: after output fields join"
 		| // получили серию значений возможно некоторые из них массивы - схлопнем
-		geta "flat"
+		geta "flat" eval=true
+		// | m_eval "v => v()"
 		//| console_log_input "UU: after flat"
 		|
 		arr_uniq // выяснилось что там могут быть разные правила а дать одинаковых объектов а нам это не надо
