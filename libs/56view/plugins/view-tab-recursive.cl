@@ -108,7 +108,8 @@ feature "the_view_recursive"
       }` @tv->active_area (find-objects-bf features="area_content" root=@tv | geta 0 default=null));
     }}
     // перебьем стандартные sources от the-view на поиск сурсов от контентных областей
-    sources=(find-objects-bf features="area_content" root=@tv 
+    sources=(find-objects-bf features="area_content" root=@tv
+        | filter_geta "visible" 
         | map_geta "sources" default=[]
         | arr_flat
         | arr_uniq )
@@ -165,7 +166,8 @@ feature "area_container" {
            button "Вертикально" cmd=@it->split-vert;
           };
 
-          button_add_object "Добавить область" add_to=@it add_type="area_empty";  
+          button_add_object "Добавить область" add_to=@it add_type="area_3d";  
+          // F-AREA3D-UNIVERSAL
         }
         ;
 };
@@ -248,6 +250,7 @@ feature "area_content" {
        sibling_types=["area_empty","area_3d","area_2d_list"] 
        sibling_titles=["Пустой","3d","2d list"]
        effective_visible=(and @it.visible (@it.visible_sources?.length? > 0))
+       // F-EFFECTIVE-VISIBLE автоотключать ареа если в ней нет видимых процессов
 
        subitems=[]
        sources_str=""
@@ -314,7 +317,8 @@ feature "split-screen" {
            if (!obj.is_feature_applied('area_3d_list')) // кривокосо внедрились - не создавать подобласти если идет операция над списком
            {
              let newcontent = obj.vz.createObj({parent: newcontainer}); 
-             Promise.allSettled( newcontent.manual_feature( 'area_empty' ) ).then( () => {
+             // F-AREA3D-UNIVERSAL
+             Promise.allSettled( newcontent.manual_feature( 'area_3d' ) ).then( () => {
                 newcontent.manuallyInserted=true;    
              });
            }''
@@ -364,7 +368,7 @@ feature "area_2d_list" {
 
 feature "area_3d" {  
   it: area_content 
-      title="3d"
+      title="область"
       show_fps=false
       {{ x-param-checkbox name="show_fps" title="Показать FPS"}}
       show_stats=false
@@ -372,7 +376,28 @@ feature "area_3d" {
       {{ x-param-slider name="opacity_3d" min=0.0 max=1.0 step=0.01 }}
       opacity_3d=1.0
   show={
-      show_area_3d input=@it;
+      dom_group {
+        let has_3d_sources = (@it.sources | map_geta "scene3d" default=null | arr_compact) 
+        //console-log "@has_3d_sources=" @has_3d_sources
+        dom_group {
+            if (@has_3d_sources.length > 0) then={
+               show_area_3d input=@it
+            }
+        }
+
+        d2: dom_group
+
+        insert_children input=@d2 list=(@it.sources | map_geta "scenedom" default=[] | arr_flat)
+        | 
+        x-modify { // навешаем всем им вес наш
+            x-set-params style_flex=(m_eval "(r) => `flex: ${r} 1 0;`" @it.weight)
+        }
+        // position: relative;
+        // F-AREA3D-UNIVERSAL - а попробуем в ареа3д сразу все показывать.
+        // а то муть какая-то идти путем визпроцессов и там выбирать, кого где можно показывать.
+        // либо, как вариант - добавлять визпроцессы типа 2д как тип ареа. 
+        // так в паравью сделано например. ну посмотрим
+      }  
   }
   {{ x-param-objref-3 name="camera" values=(@it->project | geta "cameras"); }}
 
