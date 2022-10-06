@@ -378,16 +378,17 @@ feature "area_3d" {
   show={
       dom_group {
         let has_3d_sources = (@it.sources | map_geta "scene3d" default=null | arr_compact) 
+        // получается еще и дублирование с effective-visible эффектом.. ну ладно
         //console-log "@has_3d_sources=" @has_3d_sources
         dom_group {
             if (@has_3d_sources.length > 0) then={
-               show_area_3d input=@it
+               show_area_3d input=@it visible=((@it.sources | filter_geta "scene3d" | filter_geta "visible" | geta "length") > 0)
             }
         }
 
         d2: dom_group
 
-        insert_children input=@d2 list=(@it.sources | map_geta "scenedom" default=[] | arr_flat)
+        insert_children input=@d2 list=(@it.sources | filter_geta "visible" | map_geta "scenedom" default=[] | arr_flat)
         | 
         x-modify { // навешаем всем им вес наш
             x-set-params style_flex=(m_eval "(r) => `flex: ${r} 1 0;`" @it.weight)
