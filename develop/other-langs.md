@@ -28,7 +28,7 @@ oz (http://mozart2.org/)
 alice (https://www.ps.uni-saarland.de/alice/manual/tour.html)
 
 также мы в курсе про kotlin (compose!), qml (кстати кто его автор то???)
-и ужасы в духе react, или самоката svetle.
+и react, и svetle, и lit.dev.
 
 # TODO
 https://en.wikipedia.org/wiki/Curl_(programming_language)
@@ -48,3 +48,9 @@ https://en.wikipedia.org/wiki/Unicon_(programming_language)
 
 https://dmkpress.com/files/PDF/978-5-93700-140-5.pdf?utm_source=LeadHit&utm_medium=email&utm_campaign=MR051022&lh_message_id=633d314773efc33c30ae0bbc&lead_id=62346bf473efc37042052c9f
 Клинтон Л. Джеффери Создайте свой собственный язык программирования
+
+scala dotty
+
+в целом Михаил говорит что хороший тот язык на котором решаются реальные задачи. А не тот который что-то там теоретически хорош.
+
+https://lit.dev/docs/templates/directives/

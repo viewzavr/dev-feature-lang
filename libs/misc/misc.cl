@@ -346,3 +346,23 @@ feature "css-color" {
          "%)"
   };
 };
+
+// конвертирует параметры в js-объект
+// некорректно это называть json, но лучше имени не придумал..
+// по сути это params-to-js. еще можно обратную функцию будет сделать, js-to-params
+// которая целевым объектам выставляет параметры. ну или одному, а если надо больше
+// то уже пусть модификаторы раздают
+feature "json" "
+  env.on('param_changed',go );
+
+  function go() {
+    // и на то что есть сейчас
+    let res = {};
+    for (let k of env.getParamsNames()) {
+      res[ k ] = env.getParam( k );
+    };
+    env.setParam('output',res);
+  };
+
+  go();
+";
