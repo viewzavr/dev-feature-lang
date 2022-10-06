@@ -402,10 +402,12 @@ feature "area_3d" {
   {{ x-param-objref-3 name="camera" values=(@it->project | geta "cameras"); }}
 
        gui={
+        /*
            object_change_type text="Укажите тип:"
               input=@it
               types=@it->sibling_types
               titles=@it->sibling_titles;
+              */
 
             param_field name="Разделить" {
               button "Горизонтально" cmd=@it->split-horiz;
@@ -414,7 +416,7 @@ feature "area_3d" {
 
             render-params-list object=@it list=["visible","opacity_3d","camera"];
 
-            text "Включить процессы:";
+            text "Включить объекты:";
 
             column {
 

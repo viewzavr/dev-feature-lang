@@ -20,7 +20,7 @@ insert_children { manage_visual_processes; };
 
 // вход - project - визпроект
 feature "manage_visual_processes" {
-	vp: collapsible "Визуальные процессы"
+	vp: collapsible "Визуальные объекты"
       project=@..->project
       active_view = @..->active_view
     	{
