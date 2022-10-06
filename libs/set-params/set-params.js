@@ -38,7 +38,7 @@ export function x_set_params( env )
 
       let channel = obj.create_subchannel();
 
-      env.on('param_changed',(name,value) => { // todo optimize
+      let u1 = env.on('param_changed',(name,value) => { // todo optimize
          if (name !== "__manual" && name !== "__debug") {
             //console.log('passing ',name,value,channel)
             if (env.params.__debug)
@@ -54,7 +54,7 @@ export function x_set_params( env )
             channel.setParam( c, env.getParam(c), env.params.__manual );
       }
 
-      let unsub = () => { if (!channel.removed) channel.remove( ! env.params.__manual ); }
+      let unsub = () => { u1(); if (!channel.removed) channel.remove( ! env.params.__manual ); }
       env.on("remove", unsub ); // todo optimize
       detach[ obj.$vz_unique_id ] = unsub;
 
@@ -65,7 +65,7 @@ export function x_set_params( env )
     let f = detach[ obj.$vz_unique_id ];
     if (f) {
       f();
-      //delete detach[ obj.$vz_unique_id ];
+      delete detach[ obj.$vz_unique_id ];
     }
   });
 
@@ -103,7 +103,7 @@ export function x_set_param( env )
 export function param_subchannels(env) 
 {
   env.create_subchannel = () => {
-    let res = { params: {} };
+    let res = { params: {}, my_env: env };
     env.$subchannels ||= [];
     env.$subchannels.push( res );
 

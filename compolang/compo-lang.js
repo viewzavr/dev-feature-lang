@@ -1574,7 +1574,7 @@ export function repeater( env, fopts, envopts ) {
      {
         target_parent = target_parent.ns.parent;
         // но получается мы не сможем пайпу так генерить..
-        
+
         // если там ()-выражение, то в него нельзя добавлять.. ну по идее.. и посему будем добавлять в себя
         if (target_parent.is_feature_applied("computer"))
           target_parent=env;
@@ -2099,7 +2099,8 @@ export function console_log( env, options )
   }
 
   env.feature("delayed");
-  let printd = env.delayed(print);
+  //let printd = env.delayed(print);
+  let printd = print; // пусть сразу
   env.on("param_changed",printd);
 
   print();
@@ -2181,6 +2182,14 @@ export function feature_debug_input( env )
   env.addString("text");
 }
 
+// останавливается при изменении любых параметров
+export function feature_debug( env )
+{
+  env.on("param_changed",(name,value) => {
+    let params = env.params;
+    debugger;
+  })
+}
 
 export function feature_debugger( env )
 {

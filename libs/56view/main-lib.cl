@@ -89,12 +89,16 @@ feature "show_sources_params"
              // вот мы вставили гуи
           };
 
-          cbv: checkbox value=(@mm->input | geta "visible") visible=@sv->show_visible_cb;
+          cbv: checkbox value=(@mm->input | geta "visible" default=true) visible=@sv->show_visible_cb 
+            //{{ console-log-life }}
+
+          //console-log "i checkbox my input is " @mm->input "and value" @cbv->value
+          //debug @mm->input @cbv->value
 
           //@sv->input | get-event-cell "remove" | m_eval "(evt,ch) => console.log(333); " (@sv | get-cell "settings_gui" );
 
           x-modify input=@mm->input {
-            x-set-params visible=@cbv->value? __manual=true;
+            x-set-params visible=@cbv->value __manual=true;
             x-on "hide-settings" {
               lambda (@sv | get-cell "settings_gui" ) code="(gui_channel,obj,settings) => {
                 //if (gui_channel.get() == settings)

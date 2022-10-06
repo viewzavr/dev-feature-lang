@@ -74,7 +74,7 @@ feature "render_process_hierarchy"
             input=@selected_object?
       {
         column {
-          insert_children input=@.. list=(@co->input? | geta "gui3");
+          insert_children input=@.. list=(@co->input? | geta "gui3" default=[]);
         };
         button "Клонировать" 
         {
