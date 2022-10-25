@@ -21,7 +21,7 @@ function newfetch( file, opts )
        let r = {
          text: () => data
        }
-       console.log("loaded data",data);
+       // console.log("loaded data",data);
        resolve( r );
      });
 
