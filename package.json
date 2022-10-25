@@ -1,5 +1,6 @@
 {
   "name": "vrungel",
+  "type": "module",
   "version": "1.0.42",
   "description": "Visualizes scenes written in Compalang.",
   "main": "app.js",
@@ -14,7 +15,8 @@
   "scripts": {
     "start": "node ./server.mjs",
     "setup": "node ./local-data-server-setup/setup.mjs",
-    "setupoff": "node ./local-data-server-setup/setup.mjs off"
+    "setupoff": "node ./local-data-server-setup/setup.mjs off",
+    "node" : "node ./vrungel-node.js"
   },
   "repository": {
     "type": "git",
