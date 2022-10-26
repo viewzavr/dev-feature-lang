@@ -11,123 +11,126 @@ export function setup(vz, m) {
 export function save_state_to_window_hash( player ) {
   let vz = player.vz;
 
+  // nodejs
+  if (typeof(window) == "undefined") return;
+
 ////////////////////////////////////////// цепляемся в команды obj - будем от них плясать на тему сохранения в хеш
 
-function setup_obj(x) {
+  function setup_obj(x) {
 
-  var _setParam = x.setParamWithoutEvents;
-  var _getParam = x.getParam;
-  var _removeParam = x.removeParam;
+    var _setParam = x.setParamWithoutEvents;
+    var _getParam = x.getParam;
+    var _removeParam = x.removeParam;
 
-  x.setParamWithoutEvents = function(name,value,ismanual) {
-    //console.log("hasher see setParam call",name,value);
-    if (!x.getParamOption(name,"internal")) 
-      if (ismanual)
-          player.scheduleSaveToHash( x );
+    x.setParamWithoutEvents = function(name,value,ismanual) {
+      //console.log("hasher see setParam call",name,value);
+      if (!x.getParamOption(name,"internal")) 
+        if (ismanual)
+            player.scheduleSaveToHash( x );
 
-    return _setParam( name, value, ismanual );
-  }
+      return _setParam( name, value, ismanual );
+    }
 
-  x.removeParam = function(name) {
-    return _removeParam(name);
-  }
-  
-  //debugger;
-  var _appendChild = x.ns.appendChild;
-  x.ns.appendChild = function(obj,name)
-  {
-    if (obj.manuallyInserted) 
-        player.scheduleSaveToHash(x);
+    x.removeParam = function(name) {
+      return _removeParam(name);
+    }
     
-    _appendChild.apply(x.ns,arguments);
-  }
-  
-  var _removeChild = x.ns.forgetChild;
-  x.ns.forgetChild = function(obj)
-  {
-    if (obj.manuallyInserted)
-        player.scheduleSaveToHash(x);
-
-    _removeChild.apply(x.ns,arguments);
-  }
-
-}
-
-///////////////////////////////////////// дадим полезных методов
-
-player.saveToHash = function( obj ) {
-  var name = obj.saveTreeToHashName;
-  if (!name) return;
-  
-  var q = read_from_hash();
-  q[ name ] = obj.dump();
-  write_to_hash( q );
-  //console.log("saved to hash",q);
-}
-
-function findRoot( obj ) {
-  if (!obj.ns.parent) return obj;
-  return findRoot( obj.ns.parent );
-}
-
-var writeTimeoutId = null;
-var lastWriteTm = 0;
-player.scheduleSaveToHash = function( signalObj ) {
-//  console.log("scheduling save to hash");
-  /* оказывается если включить таймер анимации то эта штука не успевает сохранить.. */
-  /*
-    if (writeTimeoutId) {
-      clearTimeout(writeTimeoutId);
-      writeTimeoutId = null;
-    }
-  */
-  
-  //if (lastWriteTm + 5*1000 > performance.now()) return; // skip if already writted in last 5 seconds
-
-    if (!writeTimeoutId)
-      writeTimeoutId = setTimeout( function() {
-        player.saveToHash( findRoot( signalObj ) );
-        writeTimeoutId = null;
-        lastWriteTm = performance.now();
-      }, 2500 );
-}
-
-player.loadFromHash = function( aname, targetobj ) {
-    if (!targetobj) targetobj = player;
-
-    var q = read_from_hash();
-
-    var name = aname || targetobj.saveTreeToHashName || "mvis";
-    if (q && q[name]) {
-      if (!targetobj) {
-        targetobj = player.root;
-        console.error( "restoreFromHash: reading deprecated thing vz.root!" );
-      }
-      //console.log("restoring",JSON.stringify(q))
+    //debugger;
+    var _appendChild = x.ns.appendChild;
+    x.ns.appendChild = function(obj,name)
+    {
+      if (obj.manuallyInserted) 
+          player.scheduleSaveToHash(x);
       
-      return vz.createSyncFromDump( q[name], targetobj, undefined, undefined, true );
+      _appendChild.apply(x.ns,arguments);
     }
-    return new Promise( (resolv, reject) => {
-      resolv( targetobj );
-    });
-}
+    
+    var _removeChild = x.ns.forgetChild;
+    x.ns.forgetChild = function(obj)
+    {
+      if (obj.manuallyInserted)
+          player.scheduleSaveToHash(x);
 
-player.startSavingToHash = function( name="mvis",targetobj ) {
-  if (!targetobj) targetobj = player;
-  targetobj.saveTreeToHashName = name;
-};
+      _removeChild.apply(x.ns,arguments);
+    }
 
-player.stopSavingToHash = function( targetobj ) {
-  targetobj.saveTreeToHashName = undefined;
-};
+  }
 
-///////////////////////////// впишемся в создание объектов..
+  ///////////////////////////////////////// дадим полезных методов
 
-vz.chain("create_obj", function( obj, opts ) {
-  this.orig( obj,opts );
-  setup_obj( obj );
-  return obj;
-});
+  player.saveToHash = function( obj ) {
+    var name = obj.saveTreeToHashName;
+    if (!name) return;
+    
+    var q = read_from_hash();
+    q[ name ] = obj.dump();
+    write_to_hash( q );
+    //console.log("saved to hash",q);
+  }
+
+  function findRoot( obj ) {
+    if (!obj.ns.parent) return obj;
+    return findRoot( obj.ns.parent );
+  }
+
+  var writeTimeoutId = null;
+  var lastWriteTm = 0;
+  player.scheduleSaveToHash = function( signalObj ) {
+  //  console.log("scheduling save to hash");
+    /* оказывается если включить таймер анимации то эта штука не успевает сохранить.. */
+    /*
+      if (writeTimeoutId) {
+        clearTimeout(writeTimeoutId);
+        writeTimeoutId = null;
+      }
+    */
+    
+    //if (lastWriteTm + 5*1000 > performance.now()) return; // skip if already writted in last 5 seconds
+
+      if (!writeTimeoutId)
+        writeTimeoutId = setTimeout( function() {
+          player.saveToHash( findRoot( signalObj ) );
+          writeTimeoutId = null;
+          lastWriteTm = performance.now();
+        }, 2500 );
+  }
+
+  player.loadFromHash = function( aname, targetobj ) {
+      if (!targetobj) targetobj = player;
+
+      var q = read_from_hash();
+
+      var name = aname || targetobj.saveTreeToHashName || "mvis";
+      if (q && q[name]) {
+        if (!targetobj) {
+          targetobj = player.root;
+          console.error( "restoreFromHash: reading deprecated thing vz.root!" );
+        }
+        //console.log("restoring",JSON.stringify(q))
+        
+        return vz.createSyncFromDump( q[name], targetobj, undefined, undefined, true );
+      }
+      return new Promise( (resolv, reject) => {
+        resolv( targetobj );
+      });
+  }
+
+  player.startSavingToHash = function( name="mvis",targetobj ) {
+    if (!targetobj) targetobj = player;
+    targetobj.saveTreeToHashName = name;
+  };
+
+  player.stopSavingToHash = function( targetobj ) {
+    targetobj.saveTreeToHashName = undefined;
+  };
+
+  ///////////////////////////// впишемся в создание объектов..
+
+  vz.chain("create_obj", function( obj, opts ) {
+    this.orig( obj,opts );
+    setup_obj( obj );
+    return obj;
+  });
 
 }
 

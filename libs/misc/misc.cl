@@ -355,7 +355,9 @@ feature "css-color" {
 feature "json" "
   env.on('param_changed',go );
 
-  function go() {
+  function go(pname) {
+    if (pname == 'output') return;
+    
     // и на то что есть сейчас
     let res = {};
     for (let k of env.getParamsNames()) {

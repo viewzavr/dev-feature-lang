@@ -838,7 +838,7 @@ export function register_feature( env, envopts ) {
         }`;
         */
         try {
-          //console.log(code)
+          //console.log('compile feature', code)
           js_part = eval( code );
         } catch(err) {
           console.error("REGISTER-FEATURE: error while compiling js!",err,"\n********* code=",code);

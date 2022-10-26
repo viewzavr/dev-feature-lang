@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+Error.stackTraceLimit = 50;
+
 // import * as S from "./local-data-server/server-lib.mjs";
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';

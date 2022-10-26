@@ -1,5 +1,10 @@
 import * as E from "../viewzavr-core/nodesystem/events/init.js";
 
+/*
+  вопрос. а почему нельзя сделать read @obj | имя-метода @args ?
+  мб это удобно будет. и семантика понятна
+*/
+
 export function setup(vz, m) {
   vz.register_feature_set(
     {set_cell_value: set_cell_value,
@@ -8,6 +13,7 @@ export function setup(vz, m) {
      get_param_cell: feature_get_param_cell,
      get_event_cell: feature_get_event_cell,
      get_cmd_cell: feature_get_cmd_cell,
+     get_method_cell: feature_get_method_cell,
      get_cell: feature_get_cell,
      create_cell: feature_create_cell,
      c_on : c_on
@@ -18,6 +24,7 @@ export function setup(vz, m) {
       obj.get_cmd_cell = (name) => get_cmd_cell( obj, name );
       obj.get_event_cell = (name) => get_event_cell( obj, name );
       obj.get_param_cell = (name) => get_param_cell( obj, name );
+      obj.get_method_cell = (name) => get_method_cell( obj, name );
       obj.get_cell = (name,ismanual) => get_cell( obj, name,ismanual );
       //obj.get_or_create_new_cell
 
@@ -411,6 +418,43 @@ export function get_cmd_cell( target, name ) {
   return c;
 };
 
+// выяснено что нам надо хранить буфер чего нам напихали, пока целевой объект
+// не обзаведется командой.
+export function get_method_cell( target, name ) {
+  //console.log( "get_method_cell called",target.getPath(),name)
+  //let c = get_or_create_cell( target, name );
+  let c = create_buffer_cell( 100 );
+  c.reply_channel = create_cell();
+
+  function try_consume_all() {
+     let k = c.consume();
+     let fn = target.params[ name ];
+     if (typeof( fn ) !== 'function') return;
+     // console.log('method cell try_consume_all, fn=',fn,'name=',name)
+     while (k) {
+       let args = k[0];
+       // console.log('method cell try_consume_all, fn=',fn,'name=',name, 'apply args=',args)
+       // пока так
+       let res = fn.call( target, args );
+       c.reply_channel.set( res );
+       k = c.consume();
+     };
+  };
+
+  // это вызов - пишут в йачейку
+  c.on("assigned",(v) => {
+      try_consume_all();
+  });
+
+  // поменялся код метода
+  target.onvalue( name,() => {
+    try_consume_all();
+  } );
+
+
+  return c;
+};
+
 // универсальное - и для событий и для параметров
 export function get_cell( target, name, ismanual ) {
   let c = get_or_create_cell( target, name, target.getParam(name) );
@@ -485,6 +529,9 @@ export function set_cell_value( env ) {
       if (!cell) return;
       // console.log("set cell value",cell,val)
       //if (val == 55) debugger;
+      if (!cell.set) {
+        console.error("set_cell_value: cell.set is not defined",typeof(cell), env.getPath())
+      }
       cell.set( val );
       responding_channels.push( cell.reply_channel )
     })
@@ -639,6 +686,24 @@ export function feature_get_cmd_cell( env ) {
     // single_elem_mode - это плохо или это норм? так-то сигнатура выхода меняется...
   }); 
 }
+
+export function feature_get_method_cell( env ) {
+  env.onvalues( ["input",0], (arr, param_name) => {
+    let single_elem_mode = !Array.isArray(arr);
+    if (single_elem_mode) arr=[arr];
+    let res = [];
+    arr.forEach( (obj) => {
+      if (!obj)
+        res.push( null);
+      else
+        res.push( obj.get_method_cell( param_name ) );
+    });
+    
+    env.setParam( "output", single_elem_mode ? res[0] : res );
+    // single_elem_mode - это плохо или это норм? так-то сигнатура выхода меняется...
+  }); 
+}
+
 
 // берет ячейку у массива объектов
 // если флаг manual то будет брать такую ячейку запись в которую будет выставлять manual-флаг

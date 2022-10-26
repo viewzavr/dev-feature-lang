@@ -1,12 +1,14 @@
 load "misc"
 
-repeater input=10 { |i|
-  console-log "privet mir" @i
-}
-
 feature "world" {
-  w: object 
+  w: object
+    entities=[]
+    counter=0
     add=(m_lambda "(e) => {
+      console.log( 'add',e )
+      e.id = 'mem' + (scope.w.params.counter++);
+      scope.w.params.entities.push( e );
+      scope.w.signalTracked( 'entities' )
       scope.w.emit('added',e); // тпу
     }")
     remove=(m_lambda "(e) => {
@@ -18,8 +20,13 @@ feature "world" {
 
 }
 
-w: world;
-add: read @w | get-method-cell "add"
+w : world
+let add = (read @w | get-method-cell "add")
+
+console-log "entities are" @w.entities
+
+//console-log "w is" @w
+//console-log "add is" @add
 
 read @add | set-cell-value (json a=1 b=1 temp=1)
 read @add | set-cell-value (json a=1 b=2 temp=2)
