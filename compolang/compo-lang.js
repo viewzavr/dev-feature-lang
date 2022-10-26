@@ -2998,8 +2998,10 @@ export function insert_children( env )
   let dodeploy_d = env.delayed(dodeploy,4); // опытным путем перебираем, 2 вроде норм.. можно 4 или 5 еще
   //let dodeploy_d = dodeploy;
 
-  env.setParam("use_children",true);
-  env.setParam("active",true);
+  if (!env.paramAssigned('use_children'))
+    env.setParam("use_children",true);
+  if (!env.paramAssigned('active'))
+    env.setParam("active",true);
 
   // env.feature( "param_alias");
   // env.addParamAlias( "input", 0 );

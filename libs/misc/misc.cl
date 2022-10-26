@@ -72,7 +72,15 @@ feature "timeout" code=`
     }, tm );
   })`;
 
-register_feature name="get_query_param" code=`
+feature "timeout-ms" `
+  env.onvalue( 0, (tm) => {
+    env.feature("delayed");
+    env.timeout_ms( () => {
+      env.setParam("output",true);
+    }, tm );
+  })`;  
+
+feature "get_query_param" code=`
     function getParameterByName(name) {
       name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
       var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
@@ -357,7 +365,7 @@ feature "json" "
 
   function go(pname) {
     if (pname == 'output') return;
-    
+
     // и на то что есть сейчас
     let res = {};
     for (let k of env.getParamsNames()) {

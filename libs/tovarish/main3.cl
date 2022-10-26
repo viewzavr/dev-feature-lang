@@ -1,37 +1,30 @@
 load "misc new-modifiers set-params"
 
 feature "world" {
+  object {{ local-memory }}
+}
+
+feature "local-memory" {
   m: object
-    entities=(json)
+    entities=[]
     counter=0
     add=(m_lambda "(e) => {
-      e.id = 'mem_' + (scope.m.params.counter++);
-      scope.m.params.entities[ e.id] = e;
+      console.log( 'add',e )
+      console.log( env.getPath() )
+      e.id = 'mem' + (scope.m.counter++);
+      scope.m.entities.push( e );
       env.signalTracked( 'entities' )
-      scope.m.emit('added',e); // тпу
+      env.emit('added',e); // тпу
     }")
     remove=(m_lambda "(e) => {
-      delete scope.m.params.entities[ e.id ];
-      scope.m.emit('removed',e); // тпу
+      env.emit('removed',e); // тпу
     }")
     update=(m_lambda "(e) => {
-      let olde = scope.m.entities[ e.id ];
-      scope.m.params.entities[ e.id ] = e; // ну по идее оно уже и там
-      scope.m.emit('updated',e, olde); // тпу
+      env.emit('updated',e); // тпу
     }")
 }
 
-feature "w-log-events" {
-  x-modify {
-    x-on "added" {
-      m-lambda "(obj,e) => {
-        console.log('added ',e )
-      }"
-    }
-  }
-}
-
-w : world {{ w-log-events }}
+w : world
 let add = (read @w | get-method-cell "add")
 
 console-log "entities are" @w.entities
@@ -42,10 +35,6 @@ console-log "entities are" @w.entities
 read @add | set-cell-value (json a=1 b=1 temp=1)
 read @add | set-cell-value (json a=1 b=2 temp=2)
 read @add | set-cell-value (json a=1 b=3 temp=1.5)
-
-insert-children input=@.. active=(timeout_ms 1000) {
-  read @add | set-cell-value (json a=1 b=3 temp=2.5)
-}
 
 //перспектива.. хотя вроде это не надо, раз метод стал каналом..
 // разве что set-cell-value уже пора в send переименовать
