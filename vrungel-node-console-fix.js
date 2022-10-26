@@ -13,5 +13,5 @@ console.warn = function() {
 let orig_err = console.error;
 
 console.error = function() {
- return orig_err( chalk.bgRed( arguments[0] ), ...[...arguments].slice(1) )
+ return orig_err( chalk.bgRed.black( arguments[0] ), ...[...arguments].slice(1) )
 }
