@@ -10,7 +10,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url)) + "/";
 if (process.env.INIT_CWD)
     process.chdir( process.env.INIT_CWD );
 
-import './vrungel-node-fetch-polyfill.js';
+import './vrungel-node-fetch-fix.js';
+import './vrungel-node-console-fix.js';
 
 /*
 console.log({__dirname});

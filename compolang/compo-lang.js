@@ -415,7 +415,7 @@ export function load(env,opts)
       if (p && p.catch)
         p.catch( (err) => {
           console.warn("compolang load: error:",err.message);
-          env.vz.console_log_diag( env );    
+          env.vz.console_log_diag( env );
         })
       return p;
     } catch (err) {
