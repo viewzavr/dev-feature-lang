@@ -4,7 +4,7 @@ import * as packages_api from "./player-stuff/packages-api.js";
 import * as save_state_to_window_hash from "./player-stuff/window-hash-p.js";
 import * as timers from "./player-stuff/timers.js";
 
-var vzPlayer; // сделано для ноды
+//var vzPlayer; // сделано для ноды
 
 // коды инициализации Vrungel/Compalang
 export function init() {
@@ -18,9 +18,11 @@ export function init() {
     save_state_to_window_hash.setup( vz, save_state_to_window_hash );
     timers.setup( vz, timers );    
     
-    vzPlayer = vz.createObj();
+    let vzPlayer = vz.createObj();
     if (typeof(window) !== "undefined")
         window.vzPlayer = vzPlayer;
+    else
+        globalThis.vzPlayer = vzPlayer;
     
     vzPlayer.feature("packages_load packages_table save_state_to_window_hash");
 
