@@ -1,30 +1,6 @@
-load "misc new-modifiers set-params params"
+load "misc new-modifiers set-params"
 
-v: view world=@w
-      predicate=(m-lambda "(e) => e.temp>2")
-      on_added=(m-lambda "(e,w) => {
-        console.log('view new elem',e,'to world',w.getPath())
-        w.add( {a:0, b:0, alfa: 1 } )
-      }")
-
-view world=@w
-      predicate=(m-lambda "(e) => e.alfa")
-      on_added=(m-lambda "(e,w) => {
-        console.log('view new elem with alfa',e,'to world',w.getPath())
-        e = w.clone( e )
-        e.alfa = 2
-        w.update( e )
-      }")
-      on_removed=(m-lambda "(e,w) => {
-        console.log('view elem with alfa removed',e,'to world',w.getPath())
-      }")
-
-view world=@w
-      predicate=(m-lambda "(e) => e.alfa>1")
-      on_added=(m-lambda "(e,w) => {
-        console.log('view new elem with alfa>1',e,'to world',w.getPath())
-        w.remove( e )
-      }")
+v: view world=@w predicate=(m-lambda "(e) => e.temp>2") on_added=(m-lambda "(e) => console.log('view new elem',e)");
 
 // emit on_appear, on_disappear
 // emit added, removed
@@ -32,19 +8,10 @@ feature "view" {
   v: object
     world=null
     predicate=(m_lambda "() => false")
-    exec_for_each=(m_lambda "(w,code) => {
-      for (let e of Object.values(w.entities)) {
-        let res = predicate( e )
-        if (res)
-            code( e )
-      }
-    }" @v.world)
-    // get_and_lock - найти и захватить один элемент -> e
-    get_and_lock=(m_lambda "() => {
-      // но вообще это процесс по уму то.. длительный.. возможно...
-      // типа заявки такой.. т.е. мы заказываем и нам когда-то пришлют.. так это должно быть по идее..
-      // и плюс заказов одновременно несколько..
-      // ну стало быть аргументом должен быть канал, куда записать результат
+    exec_for_each=(m_lambda "(code) => {
+    }")
+    // lock - захватить один элемент -> e
+    lock=(m_lambda "() => {
     }")
     // unlock - вернуть лок элемента
     unlock=(m_lambda "() => {
@@ -57,14 +24,14 @@ feature "view" {
           let res = predicate( e )
 
           if (res)
-            view.emit( 'added', e,obj )
+            view.emit( 'added', e )
         }" @v @v.predicate
       }
       x-on "removed" {
         m-lambda "(view,predicate,obj,e) => {
           let res = predicate( e )
           if (res)
-            view.emit( 'removed', e,obj )
+            view.emit( 'removed', e )
         }" @v @v.predicate
       }
       x-on "updated" {
@@ -72,10 +39,10 @@ feature "view" {
           let res = predicate( e )
           let res_old = predicate( old_e )
           if (res && !res_old)
-            view.emit( 'added', e, obj )
+            view.emit( 'added', e )
           else
           if (!res && res_old)
-            view.emit( 'removed', e, obj )
+            view.emit( 'removed', e )
         }" @v @v.predicate
       }
     }
@@ -86,29 +53,21 @@ feature "world" {
   m: object
     entities=(json)
     counter=0
-    {{
-      x-add-cmd2 'add' (m_lambda "(e) => {
+    add=(m_lambda "(e) => {
       e.id = 'mem_' + (scope.m.params.counter++);
       scope.m.params.entities[ e.id] = e;
       env.signalTracked( 'entities' )
       scope.m.emit('added',e); // тпу
     }")
-      x-add-cmd2 'remove' (m_lambda "(e) => {
+    remove=(m_lambda "(e) => {
       delete scope.m.params.entities[ e.id ];
       scope.m.emit('removed',e); // тпу
     }")
-    
-      x-add-cmd2 'update' (m_lambda "(e) => {
-      let olde = scope.m.params.entities[ e.id ];
+    update=(m_lambda "(e) => {
+      let olde = scope.m.entities[ e.id ];
       scope.m.params.entities[ e.id ] = e; // ну по идее оно уже и там
       scope.m.emit('updated',e, olde); // тпу
     }")
-    
-      x-add-cmd2 'clone' (m_lambda "(e) => {
-        let c = JSON.parse( JSON.stringify( e ) )
-        return c
-    }")
-    }}
 }
 
 feature "w-log-events" {
