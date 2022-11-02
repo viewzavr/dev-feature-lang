@@ -3767,6 +3767,11 @@ function fill_scope_with_args(env,newscope,attrs) {
     };
 };
 
+// для одного тож пойдет
+export function create_object(env) {
+    env.feature( "create_objects" )
+}
+
 // временная вариация на тему
 // вход: input - описание
 //       позиционные аргументы - пойдут на вход scope согласно описанию
@@ -3778,6 +3783,12 @@ export function create_objects(env) {
 
   env.onvalue("input",(env_list) => {
     cleanup();
+    let single_mode = false;
+
+    if (!Array.isArray(env_list)) {
+      env_list = [env_list];
+      single_mode = true;
+    }
 
     //if (!env_list?.env_args)
     if (!(Array.isArray(env_list) && env_list[0].features))
@@ -3811,8 +3822,9 @@ export function create_objects(env) {
         return;
       }
 
-      let created_items = spawn_obj.ns.getChildren().slice(0);
-      env.setParam("output",created_items);
+      let created_items = spawn_obj.ns.getChildren().slice(0); // типа копия?.. копия массива да, копия содержимого нет
+
+      env.setParam("output",single_mode ? created_items[0] : created_items);
 
       // если объекты украдут к другому родителю их надо все-равно чистить, такова логика закладывается
       let orig_cleanup = cleanup;
