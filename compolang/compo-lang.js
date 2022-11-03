@@ -120,7 +120,7 @@ export function compalang(env)
 }
 
 // вход 0 - строка на компаланге.
-// непозиционные параметры - пойдут в scope
+// непозиционные параметры - будут добавлены в scope
 // ideas: мб еще input вернуть как вход
 export function compalang2(env) 
 {

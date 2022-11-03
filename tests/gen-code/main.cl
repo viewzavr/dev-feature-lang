@@ -1,4 +1,4 @@
-load files="misc gen.cl"
+load files="misc gen.cl new-modifiers set-params"
 
 let k = (gen-object "object" | add-params sigma=5 | add-child @k2 "q4" )
     let k2 = (gen-object "object" | add-params teta=11)
@@ -24,5 +24,13 @@ console-log "k3.children.sigma=" (read @ko3 | get_children_arr | map-geta "sigma
 
 //////////////////// сделаем что-то осмысленное
 let a = (gen-object "+")
-let aa = (create-object input=@a | x-modify { x-set-params 1 2 3 })
-console-log "aa.output= @aa.output
+let aa = (create-object input=@a | x-modify { x-set-params 1 2 3 4 5 })
+console-log "aa.output=" @aa.output
+
+/////////////////////// 
+feature "me" { |args|
+  create-object | x-modify { x-set-params 1 2 3 4 5 }
+}
+
+console-log "m+ =" (gen-object "+" | me | geta "output")
+console-log "m* =" (gen-object "*" | me | geta "output")
