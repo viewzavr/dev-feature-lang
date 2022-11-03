@@ -21,3 +21,8 @@ let k3 = (gen-object "object" | add-child (repeater input=10 { |cnt| gen-object 
 let ko3 = (create-object input=@k3)
 console-log "k3=" (read @ko3 | geta "dump" eval=true)
 console-log "k3.children.sigma=" (read @ko3 | get_children_arr | map-geta "sigma")
+
+//////////////////// сделаем что-то осмысленное
+let a = (gen-object "+")
+let aa = (create-object input=@a | x-modify { x-set-params 1 2 3 })
+console-log "aa.output= @aa.output
