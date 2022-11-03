@@ -716,7 +716,7 @@ export function m_on( env  )
   //env.vz.m_lambda( env, 1 ); это следующий этап
 
   m_auto_detach_algo( env,(obj) => {
-    //console.log("x-on: attach to obj",obj.getPath())
+    //console.log("m-on: attach to obj",obj.getPath())
 
     var u1 = () => {};
 
@@ -732,9 +732,9 @@ export function m_on( env  )
       name ||= name0;
 
       u1();
-      // console.log("m-on: subscribing to event" , name, "of obj",obj.getPath() )
+      //console.log("m-on: subscribing to event" , name, "of obj",obj.getPath() )
       u1 = obj.on( name ,(...args) => {
-        console.log("m-on: passing event" , name, "of obj",obj.getPath() )
+        // console.log("m-on: passing event" , name, "of obj",obj.getPath() )
 
         let fargs = [ obj ].concat( args );
         // получается мы вызываем m-lambda приписав к вызову.. справа..

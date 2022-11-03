@@ -13,7 +13,8 @@ export function m_eval( env ) {
 
     env.feature("delayed");
     let warn_code_not_found = env.delayed( () => {
-        console.warn("m_eval: code not specified",env.getPath(),env );
+        console.warn("m_eval: code not specified",env.getPath() );
+        env.vz.console_log_diag( env )
     },20);
 
   function evl() {

@@ -3857,9 +3857,11 @@ export function connect_params_to_events(env) {
 
     bound_vars[n] = env.on(event_name,(...args) => {
       let code = env.params[n];
-      if (code.bind) {
+      if (code && code.bind) {
           code.apply( env, args );
-      } 
+      }
+      else
+        console.error('compolang connect_params_to_events: param value is not function', n,code)
     });
   }
 

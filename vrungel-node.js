@@ -27,8 +27,8 @@ let { vz, vzPlayer } = Vrungel.init();
     //var htmldir = vz.getDir( import.meta.url )
     //var file = Vrungel.getParameterByName("src") || (vz.getDir( import.meta.url ) + "code.txt" );
 let file = process.argv[2] || "main.cl";
-// file = "file://" + Vrungel.add_dir_if( file, __dirname );
-///file = Vrungel.add_dir_if( file, __dirname );
-file = "file://" + file;
+// добавляя полный путь, мы обеспечиваем возможность внутрях вычислить текущий каталог из него и тогда хорошо отрабатывает загрузчики внутренние
+file = "file://" + Vrungel.add_dir_if( file, process.cwd() + "/" );
+// file = "file://" + file;
 
 vzPlayer.start_v1( file,false );

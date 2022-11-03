@@ -159,7 +159,7 @@ export function packages_load(p) {
 
     return new Promise( function( resolv, rej ) {
       var url2 = formatSrc( url ); // TODO this is hack based on viewlang function formatSrc
-      //console.log("import url2=",url2)
+      //console.log("import url2=",url,url2)
       import( url2 ).then( function(mod) {
         var setup = mod.setup || mod.default; // спорно, что юзаем default
         if (setup) {
