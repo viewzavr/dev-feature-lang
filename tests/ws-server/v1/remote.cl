@@ -7,8 +7,7 @@ feature "remote-object" {
 }
 
 feature "object-server" {
-  s: object server=@.->0 objects_list=[] 
-  {
+  s: object server=@.->0 objects_list=[] {
     @s.server | x-modify {
       x-on "message" (m-lambda "(ws,msg) => {
         if (msg.cmd == 'create-object')

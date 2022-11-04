@@ -1,10 +1,3 @@
-feature 'ws-logging' {
-  x-modify {
-    m-on 'message' (m-lambda "(obj,ws,msg) => console.log('incoming message',msg)")
-    m-on 'sending' (m-lambda "(obj,ws,msg) => console.log('outcoming message',msg)")
-  }
-}
-
 /*
   s: remote-session @remote {
      m-eval @s.send (json cmd="create-object" descr=@some-descr)
@@ -14,15 +7,11 @@ feature 'ws-logging' {
 feature "remote-session" {
   r: object remote=@.->0 {
     m_eval "(remote,remote_send,session_type) => {
-      if (scope.r.a_unsub) scope.r.a_unsub()
-
       let sid = Math.random() * 1000000;
       remote_send( { cmd: 'create-session', sid: sid, session_type: session_type } )
-      scope.r.a_unsub = remote.on('message',(ws,msg) => {
-        // console.log(1111,msg)
+      remote.on('message',(msg) => {
         if (msg.sid != sid) return;
         if (msg.cmd == 'created') {
-          //console.log(222)
           scope.r.setParam( 'send',(m) => {
             remote_send( {cmd: 'session-msg', sid: sid, message: m} )
           })
@@ -30,49 +19,31 @@ feature "remote-session" {
         else
         if (msg.cmd == 'finished') {
           scope.r.setParam( 'send', null )
-        }
+        })
         else
-        if (msg.cmd == 'message') {
-          //console.log('gggg message, sensing to self',env)
-          scope.r.emit( 'message', ws, msg.value )
-        }
+        if (msg.cmd == 'message')
+          env.emit( 'message', msg.message )
       })
-    }" @r.remote @r.remote.send
+    }" @r.remote @r.remote.send @r.session_type
   }
 }
 
 // серверная компонента
-feature "session-server" {
-  s: object server=@.->0 objects_list=[] {{
-    catch-children 'code'
-    read @s.server | x-modify {
-      m-on "message" (m-lambda "(obj,ws,msg) => {
-//        console.log('qqqqqqqq1',msg)
+feature "session-creator" {
+  s: object server=@.->0 objects_list=[] {
+    @s.server | x-modify {
+      x-on "message" (m-lambda "(ws,msg) => {
         if (msg.cmd == 'create-session') {
-//           console.log('qqqqqqqq')
-           let ns = env.vz.createObj({parent:env})
-           // ns.feature( msg.session_type || 'session' )
+           let ns = env.createObj({parent:env})
+           ns.feature( msg.session_type || 'session' )
            ns.setParam( 'sid', msg.sid );
-           ns.setParam( 'send', (data) => {
-             ws.send( {cmd: 'message', sid: msg.sid, value: data } )
-           })           
-
+           ws.send( {cmd: 'created', sid: msg.sid} )
+           
            let st = scope.s.params.session_table || {}
            st[ msg.sid ] = ns;
            scope.s.setParam('session_table',st)
-
-           // это мы создали покамест коммуникатор еще ток
-           // теперь надо создать собственно объект.
-           let cre = env.vz.createObj({parent:env})
-           cre.feature('create-objects')
-           cre.setParam( 0, ns )
-           cre.setParam( 'input', scope.s.params.code )
-           // все, пошло поехало - создали все по описанию и общаемся через коммуникатор
-           
-           env.feature('delayed')
-           env.timeout( () => ws.send( {cmd: 'created', sid: msg.sid} ), 50 ); // подождем и пошлем
         }
-        if (msg.cmd == 'session-msg') {
+        if (msg.cmd == 'session-cmd') {
         /*
           let found_c;
           // todo optimize
@@ -85,21 +56,18 @@ feature "session-server" {
           let found_session_obj = found_c;
           */
           let found_session_obj = scope.s.params.session_table[ msg.sid ]
-          if (found_session_obj) {
-            //console.log('emitting message to communicator',found_session_obj,msg.message)
+          if (found_session_obj)
             found_session_obj.emit('message',ws,msg.message )
-          }
           else
             console.warn('session-creator: session.sid not found',msg.sid);
         }
       }")
     }
-  }}
+  }
 }
 
 feature "session"
 
-/*
 feature "remote-object" {
   r: remote-session 
     descr=@.->1 
@@ -132,4 +100,3 @@ feature "remote-object-session" {
       }" @s.send
     }
 }
-*/

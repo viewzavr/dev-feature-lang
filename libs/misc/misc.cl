@@ -73,12 +73,43 @@ feature "timeout" code=`
   })`;
 
 feature "timeout-ms" `
-  env.onvalue( 0, (tm) => {
-    env.feature("delayed");
-    env.timeout_ms( () => {
+  env.feature("delayed");
+  env.onvalue( 0, run) 
+  env.on('restart',() => {
+   if (env.params[0])
+      run( env.params[0] )
+  })
+ 
+ let unsub = () => {}
+ function run(tm) {
+    unsub()
+    env.setParam('output',false)
+    unsub = env.timeout_ms( () => {
       env.setParam("output",true);
     }, tm );
-  })`;  
+ }
+`;
+
+// выдает чиселку в аутпут
+feature "timer-ms" `
+  env.setParam('output',0)
+  env.feature("delayed");
+  env.onvalue( 0, run )
+  env.on('restart',() => {
+   env.setParam('output',0)
+   if (env.params[0])
+      run( env.params[0] )
+  })
+ 
+ let unsub = () => {}
+ function run(tm) {
+    unsub()
+    unsub = env.timeout_ms( () => {
+      env.setParam("output", env.params.output + 1);
+      run( tm ) // todo repeat
+    }, tm );
+ }
+`;
 
 feature "get_query_param" code=`
     function getParameterByName(name) {

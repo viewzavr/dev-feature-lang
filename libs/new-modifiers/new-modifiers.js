@@ -84,6 +84,8 @@ export function x_modify( env )
     let orig_i = i;
 
     if (!Array.isArray(i)) i = [i];
+    
+    //console.log('append-child mod objs changed', i.length )
 
     for (let obj of i) {
       if (!obj) continue;
@@ -171,24 +173,25 @@ export function x_modify( env )
   ////////////////////// todo:
   // on appendChild, on forgetChild...
 
-  
-  
   env.on("appendChild",(c) => {
-    let iter_a = iter; 
+    let iter_a = iter;
+    //console.log( 'x-modify append-child',c);
     // надо задержку - там фича еще недоделанная может быть, а уже appendChild вызвали..
     env.timeout( () => {
       // и важно, если итерация сменилась - значит инпут сработал и нам уже реагировать не надо здесь
       // if (iter_a != iter) return;
+      //console.log( 'x-modify append-child inspecting modified objs',Object.keys( modified_objs ));
       for (let k of Object.keys( modified_objs )) {
         if (!modified_objs[k].modifications[ getobjid(c)]) {
-            modified_objs[k].modifications[ getobjid(c)] = true;  
+            //console.log( 'x-modify append-child emitting attach',c);
+            modified_objs[k].modifications[ getobjid(c)] = true;
             c.emit("attach",modified_objs[k].obj);
         }
       }
     },1 );
   });
-  
-  
+
+
   env.on("forgetChild",(c) => {
     for (let k of Object.keys( modified_objs )) 
       c.emit("detach",modified_objs[k].obj);
@@ -715,6 +718,7 @@ export function m_on( env  )
   env.feature("m_lambda", {lambda_start_arg:1} );
   //env.vz.m_lambda( env, 1 ); это следующий этап
 
+  //console.log('privet')
   m_auto_detach_algo( env,(obj) => {
     //console.log("m-on: attach to obj",obj.getPath())
 
@@ -734,7 +738,7 @@ export function m_on( env  )
       u1();
       //console.log("m-on: subscribing to event" , name, "of obj",obj.getPath() )
       u1 = obj.on( name ,(...args) => {
-        // console.log("m-on: passing event" , name, "of obj",obj.getPath() )
+        //console.log("m-on: passing event" , name, "of obj",obj.getPath() )
 
         let fargs = [ obj ].concat( args );
         // получается мы вызываем m-lambda приписав к вызову.. справа..

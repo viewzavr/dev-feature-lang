@@ -2079,7 +2079,8 @@ export function console_log_life( env, options )
 // а другие всякие вещи... ну отдельными методами.
 export function console_log( env, options )
 {
-  function print() {
+  function print(pn) {
+    if (pn == 'output') return;
     let acc=[];
     let h={};
     for (let i=0; i<env.params.args_count; i++) {
@@ -2095,6 +2096,8 @@ export function console_log( env, options )
       acc.push( n ); acc.push( "="); acc.push( env.params[n])
     }
 
+//    console.log('cons log is printing',pn)
+//    console.trace()
     console.log( ...acc );
   }
 
@@ -2107,7 +2110,7 @@ export function console_log( env, options )
 
   env.onvalue("input",(input) => {
     env.setParam("output",input); // доп-фича - консоле-лог пропускает дальше данные
-  });  
+  });
 }
 
 /*
@@ -3651,7 +3654,7 @@ export function computing_env_orig(env){
 // выход: output - результат работы созданного окружения
 // действие - разворачивает окружение согласно описанию, передает в него позиционные параметры
 
-export function computing_env(env){
+export function computing_env(env) {
 
   // соединяет позиционные аргументы computing_env с ||-аргументами scope
   function fill_scope_with_args(newscope,attrs) {
@@ -3706,7 +3709,7 @@ export function computing_env(env){
         
     return Promise.resolve("success");
   };
-  /////  
+  /////
   
 
   function fn () {
@@ -3753,7 +3756,7 @@ export function computing_env(env){
       function finish( res ) {
         env.setParam("output",res);
       }
-    });    
+    });
   };
 };
 
@@ -3766,6 +3769,15 @@ function fill_scope_with_args(env,newscope,attrs) {
         newscope.$add( argname, cell );
     };
 };
+
+export function catch_children(env) {
+  env.host.restoreChildrenFromDump = (dump, ismanual, $scopeFor) => {
+    let children_env_list = Object.values( dump.children );
+    children_env_list.env_args = dump.children_env_args;
+    env.host.setParam( env.params[0] || "children_list", children_env_list )
+    return Promise.resolve("success");
+  };
+}
 
 // для одного тож пойдет
 export function create_object(env) {
@@ -3834,7 +3846,7 @@ export function create_objects(env) {
            if (!k.removed)
              k.remove();
       }
-      
+
     });
   });
 };

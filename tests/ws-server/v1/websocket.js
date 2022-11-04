@@ -23,7 +23,7 @@ export function ws_server( env ) {
 
   wss.on('connection', function connection(ws) {
     let orig_ws_send = ws.send;
-    ws.send = (data) => { env.emit('sending',ws,data); return orig_ws_send.call( ws, JSON.stringify(data) ) }
+    ws.send = (data) => orig_ws_send.call( ws, JSON.stringify(data) )
 
     ws.on('message', function message(data,bin) {
       //console.log('received: %s', data);
@@ -51,7 +51,7 @@ export function ws_client( env ) {
        //console.log(333)
        env.emit('open',ws)
        env.setParam('channel',ws)
-       env.setParam('send', (arg) => { ws.emit('sending',ws,arg); return ws.send( JSON.stringify(arg) ) } )
+       env.setParam('send', (arg) => { return ws.send( JSON.stringify(arg) ) } )
      })
      ws.on('message', function message(data, isBinary) {
        data = JSON.parse( data )

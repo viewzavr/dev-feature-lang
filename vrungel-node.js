@@ -14,6 +14,7 @@ if (process.env.INIT_CWD)
 
 import './vrungel-node-fetch-fix.js';
 import './vrungel-node-console-fix.js';
+import './vrungel-node-console-fix-objs.js';
 
 /*
 console.log({__dirname});

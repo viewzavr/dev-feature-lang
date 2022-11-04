@@ -16,7 +16,7 @@ feature "remote-object" {
     read @r.remote | x-modify  {
       m-on "message" (m-lambda "(sobj,ws,msg) => {
           //msg = JSON.parse( msg )
-        console.log('see rep',msg)
+        //console.log('see rep',msg)
         if (msg.cmd == 'output-value')
            scope.r.setParam( 'output', msg.value )
       }")
@@ -28,7 +28,7 @@ feature "remote-object" {
 // создает объект согласно поступившему от comm параметру descr (строка)
 // и также получает от него input и шлет туда output
 feature "object-on-server" {
-  s: object
+  s: object 
      comm=@.->0
      input=null
      descr=null
@@ -36,7 +36,7 @@ feature "object-on-server" {
       @s.comm | x-modify {
         m-on "connection" (m-lambda "(sobj, ws) => {
           scope.s.setParam( 'send',ws.send )
-        }")
+        }")      
         m-on "message" (m-lambda "(sobj, ws,msg) => {
           // console.log('object-on-server see msg!',msg)
           if (msg.descr)
@@ -54,6 +54,6 @@ feature "object-on-server" {
      read @obj | get-cell 'output' | get-cell-value | m-eval "(output_value,send) => {
        //console.log('sending output value',send,output_value)
        send( { cmd: 'output-value', value: output_value } )
-     }" @s.comm.send
+     }" @s.send?
   }
 }

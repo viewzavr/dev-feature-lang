@@ -1,3 +1,5 @@
+// todo может быть стоит input после позиционных аргументов добавлять в m-eval - логичнее
+
 export function setup(vz, m) {
   vz.register_feature_set(m);
 }
@@ -15,7 +17,7 @@ export function m_eval( env ) {
     let warn_code_not_found = env.delayed( () => {
         console.warn("m_eval: code not specified",env.getPath() );
         env.vz.console_log_diag( env )
-    },20);
+    },600);
 
   function evl() {
     if (env.params.debug)
@@ -42,7 +44,7 @@ export function m_eval( env ) {
       */
       if (!env.params.allow_undefined_input && typeof(v) == "undefined") { // ну пока так.. хотя странно все это..
         //console.warn("m-eval: return default / no input");
-        return env.params.default;      
+        return env.params.default;
       }
       args.push( v );
     };

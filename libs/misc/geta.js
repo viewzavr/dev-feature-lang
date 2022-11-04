@@ -165,9 +165,13 @@ export function map_geta( env )
     else    
       env.setParam("output",[...output]);
   });
+  
+  let warn_func_stop = () => {};
 
   function process1( input, unsub_struc, index ) {
     env.params.args_count ||= 0;
+    //console.log(env.params[0])
+    
     
     get_one( input, env.params, 0,(res) => {
 
@@ -177,12 +181,14 @@ export function map_geta( env )
       }
       else
       if (res == null && !env.filter_mode) {
+        /* теперь мне стало непонятно. ну и что что нулл, разве это плохо?
         if (env.single_geta_mode)
           console.warn( "geta: result is null, arg=[", env.params[0],"] input=[",env.params.input,"]", env.getPath());
         else
           console.warn( "map_geta: query result is null, arg=[", env.params[0],
-               "] input=[",env.params.input,"] index=", index, env.getPath()); 
+               "] input=[",env.params.input,"] index=", index, env.getPath());
         env.vz.console_log_diag( env );
+        */
       }
 
       if (env.single_geta_mode) {
@@ -211,6 +217,8 @@ export function map_geta( env )
   }
 
   function get_one( input, params, current_arg_pos,cb, unsub_struc ) {
+    warn_func_stop(); warn_func_stop = () => {};
+  
     unsub_struc.unsub_from( current_arg_pos ); // снесем все подписки начиная с текущего уровня
     // важно что все ветви алгоритма начиная с текущего момента должны дать функцию отписки
     // для этого сделана go_next_level
@@ -278,7 +286,7 @@ export function map_geta( env )
     // это у нас не объект вьюзара, обращаемся просто как к js структуре
     // так-то можно было бы универсальное событие track_change по имени и там неважно - параметр или что..
     let nv = input[ name ];
-
+    
     if (typeof(nv) === "function" && !(env.params.eval || env.params.fok))
     {
        //console.warn("geta: you got function, new beh",name,input,nv);
@@ -325,15 +333,20 @@ export function map_geta( env )
           else
           {
              env.removeParam("output");
-             env.signalParam("output"); 
-          }   
+             env.signalParam("output");
+             // получается мы молча ничего не прочитали и не поругались
+             warn_func_stop = env.timeout( () => {
+               console.warn( "geta: result is not set, arg=[", env.params[0],"] input=[",env.params.input,"]", env.getPath());
+               env.vz.console_log_diag( env );
+             }, 300 );
+          }
           return;
         }
         else  
           return go_next_level( input.getParam(name), params, current_arg_pos,cb,unsub_struc, u );      
         // раньше было так для всех.. посмотрим..
     }
-
+    
     go_next_level( nv, params, current_arg_pos,cb,unsub_struc, () => {} );
   }
 }
