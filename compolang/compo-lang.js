@@ -3770,6 +3770,7 @@ function fill_scope_with_args(env,newscope,attrs) {
     };
 };
 
+// перехватывает создание детей у host-объекта и запихивает их в переменную к нему
 export function catch_children(env) {
   env.host.restoreChildrenFromDump = (dump, ismanual, $scopeFor) => {
     let children_env_list = Object.values( dump.children );
