@@ -92,6 +92,7 @@ feature "timeout-ms" `
 
 // выдает чиселку в аутпут
 feature "timer-ms" `
+  let unsub = () => {}
   env.setParam('output',0)
   env.feature("delayed");
   env.onvalue( 0, run )
@@ -100,8 +101,7 @@ feature "timer-ms" `
    if (env.params[0])
       run( env.params[0] )
   })
- 
- let unsub = () => {}
+
  function run(tm) {
     unsub()
     unsub = env.timeout_ms( () => {

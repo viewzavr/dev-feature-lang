@@ -3788,8 +3788,14 @@ export function create_object(env) {
 // временная вариация на тему
 // вход: input - описание
 //       позиционные аргументы - пойдут на вход scope согласно описанию
+//       дети - аналог input
 // выход: output - список созданных объектов
 export function create_objects(env) {
+
+  env.feature("catch_children")
+  env.onvalue("children_list",(cl) => {
+    if (cl.length > 0) env.setParam("input",cl)
+  });
 
   let cleanup = () => {};
   env.on("remove",() => { cleanup(); });
