@@ -1,6 +1,6 @@
 load "./websocket.js misc ./remote2.cl new-modifiers ./session.cl"
 
-s: ws-server port=8100 
+s: ws-server port=8100
   //{{ ws-logging }}
   on2_message=(m-lambda "(client,msg) => {
   console.log('got message',msg)
@@ -26,11 +26,18 @@ session-server @s { |comm|
 
   //read @comm | get-event-cell "message" | get-cell-value | console-log "comm msg see"
 
-/*
   read @comm | x-modify {
-    m-on "message" (m-lambda "() => console.log('helow')")
+    //m-on "message" (m-lambda "() => console.log('helow')")
+    m-on "message" (make-func { |obj ws msg|
+      console-log 'helow' @msg
+    })
   }
-*/
+
+  /* вот нормальный вариант:
+  read @comm | x-on "message" { |obj ws msg|
+    console-log 'helow' @msg
+  }
+  */
 
   //console-log "comm is" @comm @comm.sid @comm.send
 }

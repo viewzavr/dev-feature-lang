@@ -15,3 +15,10 @@ timer-ms 1000 | object on_param_input_changed=(make-func { |cnt|
 create-object { timer-ms 1000 } | get-cell "output" | c-on (make-func { |cnt|
   console-log "process-like eha on cell, cnt=" @cnt
 })
+
+ws-server on_message={ |msg|
+  console-log @msg
+}
+
+c: ws-client
+m_eval @c.send (json a=5 b=5)
