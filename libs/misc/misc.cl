@@ -65,9 +65,11 @@ feature "timeout_insert_siblings" code=`
 // по прошествии таймаута, указанного в аргументе, выставляет true в output
 // а еще есть pause_input
 feature "timeout" code=`
+  let unsub=() => {}
+  env.on('remove',() => unsub() )
   env.onvalue( 0, (tm) => {
     env.feature("delayed");
-    env.timeout( () => {
+    unsub=env.timeout( () => {
       env.setParam("output",true);
     }, tm );
   })`;
@@ -88,6 +90,8 @@ feature "timeout-ms" `
       env.setParam("output",true);
     }, tm );
  }
+ 
+ env.on('remove',() => unsub() )
 `;
 
 // выдает чиселку в аутпут
@@ -109,6 +113,8 @@ feature "timer-ms" `
       run( tm ) // todo repeat
     }, tm );
  }
+ 
+ env.on('remove',() => { unsub() } )
 `;
 
 feature "get_query_param" code=`

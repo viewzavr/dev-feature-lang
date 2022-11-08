@@ -7,6 +7,11 @@ feature "remote-object" {
     remote=@.->0
     descr=@.->1
     input=null
+    /* пересылка всех параметров..
+    on_param_changed={ |name value|
+      m_eval @r.remote.send (json param=(m_eval "(n) => (Number.isInteger(n)) ? n-2 : n" @name) value=@value)
+    }
+    */
   {
     m_eval @r.remote.send (json descr=@r.descr)
     m_eval @r.remote.send (json input=@r.input) // стало быть будет посылать при изменении инпута
@@ -16,7 +21,7 @@ feature "remote-object" {
     read @r.remote | x-modify  {
       m-on "message" (m-lambda "(sobj,ws,msg) => {
           //msg = JSON.parse( msg )
-        console.log('see rep',msg)
+        // console.log('see rep',msg)
         if (msg.cmd == 'output-value')
            scope.r.setParam( 'output', msg.value )
       }")
@@ -32,6 +37,7 @@ feature "object-on-server" {
      comm=@.->0
      input=null
      descr=null
+     output=@obj
      {
       @s.comm | x-modify {
         m-on "connection" (m-lambda "(sobj, ws) => {
@@ -46,9 +52,13 @@ feature "object-on-server" {
           // ну так-то мы можем любые значения присылать получается те. имя атрибута указывать.
           // и даже таким же макаром и метод вызывать
         }")
+        m-on "close" (m-lambda "(sobj) => {
+          //console.log('object-on-server close...',sobj)
+          //sobj.remove()
+        }")
      }
 
-     let obj = (read @s.descr? | compalang | create-object)
+     let obj = (read @s.descr? | compalang | create-object )
 
      read @obj | get-cell 'input' | set-cell-value @s.input?
      read @obj | get-cell 'output' | get-cell-value | m-eval "(output_value,send) => {

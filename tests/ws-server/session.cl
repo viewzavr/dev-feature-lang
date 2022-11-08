@@ -46,6 +46,20 @@ feature "session-server" {
   s: object server=@.->0 objects_list=[] {{
     catch-children 'code'
     read @s.server | x-modify {
+      m-on "connection" (m-lambda "(session_srv,server_obj,ws) => {
+        ws.on('close',() => {
+          //console.log('ws closed, emitting to srv',session_srv)
+          session_srv.emit('close',ws)
+          // console.log('ws closed, is is',ws.sid)
+          let found_session_obj = scope.s.params.session_table[ ws.sid ]
+          // console.log('fso',found_session_obj)
+          if (found_session_obj) {
+            // console.log('removing session obj')
+            delete scope.s.params.session_table[ ws.sid ]
+            found_session_obj.remove()
+          }
+        })
+      }" @s)
       m-on "message" (m-lambda "(obj,ws,msg) => {
 //        console.log('qqqqqqqq1',msg)
         if (msg.cmd == 'create-session') {
@@ -55,19 +69,21 @@ feature "session-server" {
            ns.setParam( 'sid', msg.sid );
            ns.setParam( 'send', (data) => {
              ws.send( {cmd: 'message', sid: msg.sid, value: data } )
-           })           
-
-           let st = scope.s.params.session_table || {}
-           st[ msg.sid ] = ns;
-           scope.s.setParam('session_table',st)
+           })
+           ws.sid = msg.sid;
 
            // это мы создали покамест коммуникатор еще ток
            // теперь надо создать собственно объект.
-           let cre = env.vz.createObj({parent:env})
+           let cre = env.vz.createObj({parent:ns}) // родитель это ns будем стирать его потом
            cre.feature('create-objects')
            cre.setParam( 0, ns )
            cre.setParam( 'input', scope.s.params.code )
            // все, пошло поехало - создали все по описанию и общаемся через коммуникатор
+           
+           // запомним таблицу сессии
+           let st = scope.s.params.session_table || {}
+           st[ msg.sid ] = ns;
+           scope.s.setParam('session_table',st)
            
            env.feature('delayed')
            env.timeout( () => ws.send( {cmd: 'created', sid: msg.sid} ), 50 ); // подождем и пошлем

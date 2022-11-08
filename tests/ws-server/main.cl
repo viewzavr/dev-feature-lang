@@ -1,4 +1,4 @@
-load "./websocket.js misc ./remote2.cl new-modifiers ./session.cl"
+load "./websocket.js misc ./remote2.cl new-modifiers ./session.cl set-params"
 
 s: ws-server port=8100
   //{{ ws-logging }}
@@ -21,8 +21,8 @@ a: object alfa=1 beta=2
 // object-on-server @s
 
 session-server @s { |comm|
-  a: object alfa=33
-  object-on-server @comm
+  a: object alfa=0.3
+  object-on-server @comm | x-modify { x-set-params a=@a }
 
   //read @comm | get-event-cell "message" | get-cell-value | console-log "comm msg see"
 
