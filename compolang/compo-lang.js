@@ -3663,7 +3663,7 @@ export function computing_env_orig(env){
 //       описание дается в children или в переменной code
 // выход: output - результат работы созданного окружения
 // действие - разворачивает окружение согласно описанию, передает в него позиционные параметры
-
+//
 export function computing_env(env) {
 
   // соединяет позиционные аргументы computing_env с ||-аргументами scope
@@ -3785,7 +3785,14 @@ export function catch_children(env) {
   env.host.restoreChildrenFromDump = (dump, ismanual, $scopeFor) => {
     let children_env_list = Object.values( dump.children );
     children_env_list.env_args = dump.children_env_args;
-    env.host.setParam( env.params[0] || "children_list", children_env_list )
+    let pname = env.params[0] || "children_list";
+    //if (!(env.params.keep_existing && env.host.paramAssigned(pname))) {
+    if (env.params.if_not_empty && children_env_list.length == 0) {
+        return Promise.resolve("success");
+    }
+    //console.log("catch-children assigning to", dump )
+    env.host.setParam( pname, children_env_list )
+    
     return Promise.resolve("success");
   };
 }

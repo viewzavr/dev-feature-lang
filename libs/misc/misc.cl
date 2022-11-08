@@ -12,8 +12,47 @@ feature "read-param" {
   ;
 };
 
+feature 'else' "
+  env.feature('catch-children')
+
+  let p = env.ns.parent
+  let cc = p.ns.getChildren();
+  let ind = -1
+  for (let i=0; i<cc.length; i++ ) {
+    let c = cc[i];
+    if (c == env)
+    {
+        ind = i
+        break
+    }
+  }
+  if (ind > 1) {
+    let fif = cc[ ind-1 ];
+    if (fif.is_feature_applied('if'))
+    {
+      //fif.setParam( 'else')
+      env.onvalue('children_list', (cl) => fif.setParam('else',cl))
+    }
+    else {
+      console.warn('else: previous statement is not if')
+      env.vz.console_log_diag( env );                
+    }    
+  }
+  else
+  {
+    if (ind < 0) {
+      console.warn('else: could not find self in parent statements')
+      env.vz.console_log_diag( env );                
+    }
+    else {
+      console.warn('else: statement is first in parent')  
+      env.vz.console_log_diag( env );                
+    }
+  }
+"
+
 feature "if" 
-code="
+code2="
   let cnt=0;
   env.on('appendChild',(c) => {
     if (cnt == 0)
@@ -31,11 +70,19 @@ code="
   });
 "
 {
-  i: object output=@t->output {
-      //insert input=@i->..
+   // catch-children 'then' keep_existing=true
+  i: object output=@t->output {{
+      catch-children 'then' if_not_empty=true
+
+      m_eval "(env, c) => {
+        // -2 это выход наружу if, на внешний скоп.. пипец..
+        c.$use_scope_for_created_things = env.$scopes[ env.$scopes.length -2 ];
+      }" @i @t
+
       t: insert_siblings_to_parent
        list=(eval @i @i->0? @i->then? @i->else? @i allow_undefined=true
              code="(if_env, cond,t,e,env) => {
+               //console.log('if tick, cond=',cond,'then=',t)
                if (cond && !t) {
                     console.error('if: no then section!');
                     env.vz.console_log_diag( env );                
@@ -46,7 +93,7 @@ code="
 
                return cond ? t : e
              };");
-    };
+    }};
 };
 
 /*
@@ -75,6 +122,7 @@ feature "timeout" code=`
   })`;
 
 feature "timeout-ms" `
+  let unsub = () => {}
   env.feature("delayed");
   env.onvalue( 0, run) 
   env.on('restart',() => {
@@ -82,7 +130,7 @@ feature "timeout-ms" `
       run( env.params[0] )
   })
  
- let unsub = () => {}
+ 
  function run(tm) {
     unsub()
     env.setParam('output',false)
