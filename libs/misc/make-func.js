@@ -2,6 +2,7 @@ export function setup(vz, m) {
   vz.register_feature_set(m);
 };
 
+// code либо дети { }
 export function make_func( env )
 {
   let env_list;

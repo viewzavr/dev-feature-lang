@@ -530,8 +530,10 @@ export function set_cell_value( env ) {
       // console.log("set cell value",cell,val)
       //if (val == 55) debugger;
       if (!cell.set) {
-        console.error("set_cell_value: cell.set is not defined",typeof(cell), env.getPath())
+        console.error("set_cell_value: cell.set is not defined. typeof(cell)=",typeof(cell),"cell=",cell, env.getPath())
+        return;
       }
+      // console.log('cell is setting val',val)
       cell.set( val );
       responding_channels.push( cell.reply_channel )
     })

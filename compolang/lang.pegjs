@@ -146,7 +146,7 @@
          let v = m.value.param_value_env_list;
          v.needLexicalParent=true;
          v.this_is_env_list = true;
-         env.params[ m.name ] = v;
+         env.params[ m.name ] = v; //qqqq
       }
       else
       if (m.param)

@@ -323,9 +323,18 @@ function parsed2dump( vz, parsed, base_url ) {
       if (n.startsWith("on_")) {
         parsed.features[ "connect_params_to_events" ] = true;
         break;
+        /*
+        let v = parsed.params[n];
+        if (v.this_is_env_list) {
+          console.log('see on env list',v)
+          let make_func = { features: ["make-func"], children: parsed }
+        }
+        */
+        // qqq
       };
   };
 
+  // для варианта вида on_msg=(m-lambda ... )
   if (!parsed.features[ "connect_params_to_events" ])
   for (let i=0; i<parsed?.features_list?.length; i++) {
     let f = parsed.features_list[i];
@@ -335,9 +344,9 @@ function parsed2dump( vz, parsed, base_url ) {
       parsed.features[ "connect_params_to_events" ] = true;
       break;
     };
-    
   }
   
+  // в случае если мы динамически захотим добавлять такие параметры...
   // parsed.features[ "connect_params_to_events" ] = true;
   /////////////////
   
@@ -2102,11 +2111,11 @@ export function console_log( env, options )
   }
 
   env.feature("delayed");
-  //let printd = env.delayed(print);
-  let printd = print; // пусть сразу
+  let printd = env.delayed(print,10);
+  //let printd = print; // пусть сразу
   env.on("param_changed",printd);
 
-  print();
+  printd();
 
   env.onvalue("input",(input) => {
     env.setParam("output",input); // доп-фича - консоле-лог пропускает дальше данные
@@ -3878,6 +3887,22 @@ export function connect_params_to_events(env) {
       let code = env.params[n];
       if (code && code.bind) {
           code.apply( env, args );
+      }
+      if (code && code[0]?.this_is_env) {
+        //let env_call_scope = env.$scopes.top(); // но может там своя скопе..
+        
+        let newscope = env.$scopes.createAbandonedScope("computing_env");
+        newscope.$lexicalParentScope = code[0].$scopeFor;
+    
+        //let parent = env; // todo сделать тут spawn obj
+        let spawn_obj = env.vz.createObj( { parent: env, name: "spawn" });
+        let parent = spawn_obj;
+        let cleanup = () => { spawn_obj.remove(); cleanup = () => {}; }
+
+        let p = env.vz.callEnvFunction( code, parent, false, newscope, ...args );
+        p.then( () => {
+          // todo ловить когда завершаемся
+        })
       }
       else
         console.error('compolang connect_params_to_events: param value is not function', n,code)
