@@ -102,6 +102,7 @@ export function register_packages( htmldir ) {
     vzPlayer.register_compalang( "lib3dv3",(htmldir + "./libs/lib3dv3/init.cl"));
     vzPlayer.register_compalang( "df",(htmldir + "./libs/df/init.cl"));
     vzPlayer.register_compalang( "misc",(htmldir + "./libs/misc/init.cl"));
+    vzPlayer.register_compalang( "ws-server",(htmldir + "./libs/ws-server/init.cl"));
     vzPlayer.register_compalang( "svg",(htmldir + "./libs/svg/init.cl"));
     vzPlayer.register_compalang( "set-params",(htmldir + "./libs/set-params/init.cl"));
     vzPlayer.register_compalang( "new-modifiers",(htmldir + "./libs/new-modifiers/init.cl"));

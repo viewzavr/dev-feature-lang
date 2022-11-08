@@ -1,4 +1,4 @@
-load "./websocket.js misc ./remote2.cl ./session.cl"
+load "misc ws-server"
 
 c: ws-client url="ws://localhost:8100" 
 //{{ ws-logging }}

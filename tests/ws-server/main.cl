@@ -1,4 +1,4 @@
-load "./websocket.js misc ./remote2.cl new-modifiers ./session.cl set-params"
+load "misc new-modifiers set-params ws-server"
 
 s: ws-server port=8100
   //{{ ws-logging }}
