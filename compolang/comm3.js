@@ -762,7 +762,7 @@ export function c_on( env ) {
   
 };
 
-// метод 22-11
+// метод F-NEW-EHA
 export function cc_on( env ) {
   env.setParam( "make_func_output","f")
   env.feature("make_func");
