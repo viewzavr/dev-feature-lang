@@ -27,6 +27,7 @@ export function setup(vz, m) {
       obj.get_param_cell = (name) => get_param_cell( obj, name );
       obj.get_method_cell = (name) => get_method_cell( obj, name );
       obj.get_cell = (name,ismanual) => get_cell( obj, name,ismanual );
+      obj.create_cell = create_cell;
       //obj.get_or_create_new_cell
 
       obj.get_existing_param_cell = (name) => {

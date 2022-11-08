@@ -2,14 +2,15 @@ load "misc new-modifiers set-params ws-server"
 
 session-server (ws-server {{ ws-logging }}) { |comm|
   read @comm | get-event-cell "message" | cc-on { |reply cmd arg|
+    console-log "rrrr reply is" @reply
     route @cmd
     privet={
-      console-log "case 1"
-      read (+ "sam ti " @arg) | m-eval @reply
+      console-log "case 1" @reply @cmd
+      read @reply | set-cell-value (+ "sam ti " @arg)
     }
     hello={
       console-log "case 2"
-      read "mmm" | m-eval @reply
+      read @reply | set-cell-value "mmm"
     }
     default={
       console-log "unkown cmd" @cmd

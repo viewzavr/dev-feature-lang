@@ -127,10 +127,13 @@ feature "session-server" {
             //console.log('emitting message to communicator',found_session_obj,msg.message)
             //let rep = new Promise( (resolve,reject) => {} )
             // функция ответа
-            let rep = (value) => {
-              // console.log( 'using rep to reply', msg.rid )
+            let rep = env.create_cell()
+            rep.on('assigned',value => {
+              console.log( 'using rep to reply', msg.request_id )
               ws.send( {cmd: 'reply', sid: msg.sid, value: value, request_id: msg.request_id} )
-            };
+              //delete rep
+            });
+            //console.log('emitting, rep is',rep)
             found_session_obj.emit( 'message',rep,msg.message )
           }
           else
