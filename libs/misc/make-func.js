@@ -2,11 +2,13 @@ export function setup(vz, m) {
   vz.register_feature_set(m);
 };
 
-// code либо дети { }
+// параметр code либо дети { }
 export function make_func( env )
 {
   let env_list;
   let env_call_scope = env.$scopes.top();
+
+  //let k = env.new_hosting_env().feature( "catch_children" )
 
   env.restoreChildrenFromDump = (dump, ismanual,$scopeFor) => {
     // короче выяснилось, что если у нас создана фича которая основана на repeater,
@@ -69,7 +71,7 @@ export function make_func( env )
 
   }
 
-  env.setParam("output",f);
+  env.setParam( env.params.make_func_output || "output",f);
 
 };
 

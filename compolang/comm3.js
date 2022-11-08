@@ -16,7 +16,8 @@ export function setup(vz, m) {
      get_method_cell: feature_get_method_cell,
      get_cell: feature_get_cell,
      create_cell: feature_create_cell,
-     c_on : c_on
+     c_on : c_on,
+     cc_on: cc_on
    });
 
 
@@ -759,6 +760,24 @@ export function c_on( env ) {
   $scopeFor.$add( "q",env);
   let res = env.restoreFromDump( Object.values(con_dump.children)[0],false,$scopeFor );
   
+};
+
+// метод 22-11
+export function cc_on( env ) {
+  env.setParam( "make_func_output","f")
+  env.feature("make_func");
+
+  let unsub = () => {}
+  env.onvalue('input',(channel) => {
+    unsub();
+    unsub = channel.on('assigned',(v) => {
+      env.params.f.call( env, v )
+    })
+    // todo мб ключи - реагировать ли если уже были события
+    // и одноразовое оно или многоразовое
+  })
+  env.on('remove',() => unsub())
+
 };
 
 /*

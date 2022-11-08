@@ -279,6 +279,10 @@ export function x_on( env  )
   //env.feature("lambda");
   env.feature("func");
 
+  /// теперь я думаю даже так:
+  // let func = vz.feature.func( env ); func.setParam('sigma',4); func.apply ....
+  // codea
+
   let detach = {};
 
   env.on("attach",(obj) => {
@@ -352,6 +356,7 @@ export function x_on( env  )
 
 export function x_patch( env  )
 {
+  
   env.feature("func");
 
   let detach = {};
@@ -515,6 +520,8 @@ export function x_js( env ) {
 // x-patch-r2 "(env,arg1,arg2) => что хотим делаем с env" arg1 arg2;
 // warning сейчас наоборот идет и это неправильно
 // todo свести это с x_patch_r воедино. чем они отличаются вообще?
+// это вообще все неправильно как я теперь вижу. надо вот так:
+// x-patch-r3 { |obj| m-eval } но одна проблема - это дорого... хотя опять же, eval отработает и это завершится
 export function x_patch_r2( env  )
 {
   env.feature("m_lambda");

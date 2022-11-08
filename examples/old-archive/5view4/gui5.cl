@@ -371,7 +371,7 @@ feature "one_of_all_dump" {
            oneof.setParam("objects_params", oparams, true );
          }  
        }`;
-     };    
+     };
 
      x-on "create_obj" {
        lambda code=`(oneof, obj, index) => {
