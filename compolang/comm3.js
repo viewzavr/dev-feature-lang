@@ -771,7 +771,7 @@ export function cc_on( env ) {
   env.onvalue('input',(channel) => {
     unsub();
     unsub = channel.on('assigned',(v) => {
-      env.params.f.call( env, v )
+      env.params.f.apply( env, v )
     })
     // todo мб ключи - реагировать ли если уже были события
     // и одноразовое оно или многоразовое

@@ -336,7 +336,7 @@ export function map_geta( env )
              env.signalParam("output");
              // получается мы молча ничего не прочитали и не поругались
              warn_func_stop = env.timeout( () => {
-               console.warn( "geta: result is not set, arg=[", env.params[0],"] input=[",env.params.input,"]", env.getPath());
+               console.warn( "geta: no requested data in source object, arg=[", env.params[0],"] input=[",env.params.input,"]", env.getPath());
                env.vz.console_log_diag( env );
              }, 300 );
           }

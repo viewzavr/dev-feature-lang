@@ -37,10 +37,15 @@ export function ws_server( env ) {
   }
 
   // todo: broadcast, get-clients, ...
+
+  env.setParam("output",env)
 }
 
 // url - ws://host:8080
 export function ws_client( env ) {
+  if (!env.paramAssigned('url'))
+    env.setParam('url','ws://localhost:8080')
+
   let ws
   env.onvalue("url",config )
 
@@ -58,4 +63,6 @@ export function ws_client( env ) {
        env.emit('message',ws,data,isBinary)
      })
   }
+
+  env.setParam("output",env)
 }
