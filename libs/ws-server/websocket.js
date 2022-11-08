@@ -56,7 +56,10 @@ export function ws_client( env ) {
        //console.log(333)
        env.emit('open',ws)
        env.setParam('channel',ws)
-       env.setParam('send', (arg) => { ws.emit('sending',ws,arg); return ws.send( JSON.stringify(arg) ) } )
+       env.setParam('send', (arg) => { 
+         ws.emit('sending',ws,arg); 
+         return ws.send( JSON.stringify(arg) )
+       } )
      })
      ws.on('message', function message(data, isBinary) {
        data = JSON.parse( data )

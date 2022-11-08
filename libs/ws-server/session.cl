@@ -17,6 +17,9 @@ feature "remote-session" {
       if (scope.r.a_unsub) scope.r.a_unsub()
 
       let sid = Math.random() * 1000000;
+      let session_counter = 0;
+      let pending_responces = {}
+
       remote_send( { cmd: 'create-session', sid: sid, session_type: session_type } )
       scope.r.a_unsub = remote.on('message',(ws,msg) => {
         // console.log(1111,msg)
@@ -24,7 +27,17 @@ feature "remote-session" {
         if (msg.cmd == 'created') {
           //console.log(222)
           scope.r.setParam( 'send',(m) => {
-            remote_send( {cmd: 'session-msg', sid: sid, message: m} )
+            let rid = session_counter++;
+            remote_send( {cmd: 'session-msg', sid: sid, message: m, request_id: rid } )
+            // но эта штука возвращает непойми что. а нам надо вернуть промису.. чтобы она сработалась с m-eval и тот мог вернуть output.. хотя бы так..
+            let k = new Promise( (resolve,reject) => {
+              pending_responces[ rid ] = [resolve, reject]
+              if (Object.keys(pending_responces).length > 1000) {
+                console.warn('remote-session: more than 1000 pending responces promises')
+              }
+            })
+            k.make_func_result=true;
+            return k;
           })
         }
         else
@@ -35,6 +48,15 @@ feature "remote-session" {
         if (msg.cmd == 'message') {
           //console.log('gggg message, sensing to self',env)
           scope.r.emit( 'message', ws, msg.value )
+        }
+        else
+        if (msg.cmd == 'reply') {
+          let r = pending_responces[ msg.request_id ]
+          if (r) {
+            // console.log('found rrrr' )
+            r[0]( msg.value ); // вызываем промису, насыщаем output у m-eval
+            delete pending_responces[ msg.request_id ]
+          }
         }
       })
     }" @r.remote @r.remote.send
@@ -103,7 +125,13 @@ feature "session-server" {
           let found_session_obj = scope.s.params.session_table[ msg.sid ]
           if (found_session_obj) {
             //console.log('emitting message to communicator',found_session_obj,msg.message)
-            found_session_obj.emit('message',ws,msg.message )
+            //let rep = new Promise( (resolve,reject) => {} )
+            // функция ответа
+            let rep = (value) => {
+              // console.log( 'using rep to reply', msg.rid )
+              ws.send( {cmd: 'reply', sid: msg.sid, value: value, request_id: msg.request_id} )
+            };
+            found_session_obj.emit( 'message',rep,msg.message )
           }
           else
             console.warn('session-creator: session.sid not found',msg.sid);

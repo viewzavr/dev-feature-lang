@@ -43,7 +43,7 @@ feature "object-on-server" {
         m-on "connection" (m-lambda "(sobj, ws) => {
           scope.s.setParam( 'send',ws.send )
         }")
-        m-on "message" (m-lambda "(sobj, ws,msg) => {
+        m-on "message" (m-lambda "(sobj,ws,msg) => {
           // console.log('object-on-server see msg!',msg)
           if (msg.descr)
             scope.s.setParam( 'descr', msg.descr );

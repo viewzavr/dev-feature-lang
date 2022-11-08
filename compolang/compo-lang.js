@@ -3941,7 +3941,7 @@ export function set_parent( env ) {
 
 // это нам нужно для новых пайпов
 export function feature_read( env ) {
-  env.trackParam(0,(v) => {
+  env.onvalue(0,(v) => {
     env.setParam("output",v);
   });
 };
