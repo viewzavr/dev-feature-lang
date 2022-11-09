@@ -1,3 +1,5 @@
+// позволяет создать на сервере объект по описанию, передавать в него input и получать его output
+
 load "new-modifiers"
 
 // remote-object @comm @descr_string input=....

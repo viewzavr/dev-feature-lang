@@ -772,6 +772,7 @@ export function cc_on( env ) {
   env.onvalue('input',(channel) => {
     unsub();
     unsub = channel.on('assigned',(v) => {
+      //console.log("cc-on passing",v)
       env.params.f.apply( env, v )
     })
     // todo мб ключи - реагировать ли если уже были события
@@ -833,6 +834,7 @@ export function c_on( env ) {
 /////////////////// операции над ячейками - экспериментально
 
 // Мишин мэпинг из набора ячеек в новую ячейку значение которой - набор значений
+// идея - еще any_cells (any_channel) - потипу Promise.any
 
 // по списку ячеек создает новую ячейку, которая содержит в себе массив значений
 // input - массив ячеек

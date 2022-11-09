@@ -129,7 +129,7 @@ feature "session-server" {
             // функция ответа
             let rep = env.create_cell()
             rep.on('assigned',value => {
-              console.log( 'using rep to reply', msg.request_id )
+              //console.log( 'using rep to reply', msg.request_id )
               ws.send( {cmd: 'reply', sid: msg.sid, value: value, request_id: msg.request_id} )
               //delete rep
             });

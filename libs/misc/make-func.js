@@ -41,7 +41,7 @@ export function make_func( env )
     let spawn_obj = env.vz.createObj( { parent: env, name: "spawn" });
 
     let k = new Promise( (resolve,reject) => {
-
+      //console.log("make-func passing",args)
       let p = env.vz.callEnvFunction( env_list, spawn_obj, false, env_call_scope, ...args );
       p.then( () => {
         // короче такая защита чтобы дать еще 1 цикл для счета...
@@ -68,7 +68,6 @@ export function make_func( env )
     });
     k.make_func_result=true;
     return k;
-
   }
 
   env.setParam( env.params.make_func_output || "output",f);
