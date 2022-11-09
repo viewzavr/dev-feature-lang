@@ -65,7 +65,10 @@ feature "remote-session" {
 
 // серверная компонента
 feature "session-server" {
-  s: object server=@.->0 objects_list=[] {{
+  s: object 
+    server=@.->0 
+    objects_list=[]
+    {{
     catch-children 'code'
     read @s.server | x-modify {
       m-on "connection" (m-lambda "(session_srv,server_obj,ws) => {
@@ -82,7 +85,9 @@ feature "session-server" {
           }
         })
       }" @s)
-      m-on "message" (m-lambda "(obj,ws,msg) => {
+   }
+   read @s.server.incoming_channel | cc-on { |ws msg|
+     m-eval "(ws,msg) => {
 //        console.log('qqqqqqqq1',msg)
         if (msg.cmd == 'create-session') {
 //           console.log('qqqqqqqq')
@@ -139,7 +144,7 @@ feature "session-server" {
           else
             console.warn('session-creator: session.sid not found',msg.sid);
         }
-      }")
+      }" @ws @msg
     }
   }}
 }
