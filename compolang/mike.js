@@ -49,7 +49,7 @@ export function m_eval( env ) {
       args.push( v );
     };
 
-    for (let i=1; i<env.params.args_count;i++) 
+    for (let i=1; i<env.params.args_count;i++)
     {
       let v = env.params[i];
       // надо не allow_undefined а allow_uncomputed.. а его проверять по hasParam
@@ -191,19 +191,32 @@ function js_access_compalang_scope( env ) {
       return true
      },
     get: function(target, prop, receiver) {
+
       let s = env.$scopes[0];
+
+      //console.log('access to scope. env.$scopes is', env.$scopes)
+
       let item = s[prop];
+      //if (!item)
+      //     return false;
+      /* можно поползать */
+      // оказалось что мы запускаем вложенные скопы on-message={ |a b c| .. }
+      while (!item && s.$lexicalParentScope)
+      {
+        s=s.$lexicalParentScope; 
+        item = s[prop]
+      }
       if (!item)
            return false;
-      /* можно поползать
+      /*
       if (!item) {
         s=s.$lexicalParentScope; // ну хотя бы раз надо заползти... хотя это дорого начинается..
         item = s[prop]
         if (!item)
            return false;
-      }  
+      }
       */
-
+      
       if (item.setParam && item.is_feature_applied('is_positional_env')) // там сидит позиционное
           return item.params[0];
       if (item.is_cell)  

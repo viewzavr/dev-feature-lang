@@ -17,7 +17,18 @@ export function setup(vz, m) {
      get_cell: feature_get_cell,
      create_cell: feature_create_cell,
      c_on : c_on,
-     cc_on: cc_on
+     cc_on: cc_on,
+
+     // новый язык не ячейки а каналы таки
+     create_channel: feature_create_cell,
+     convert_channel: convert_channel, // cc-process
+     redirect_to_channel: redirect_to_channel,
+     create_channel: feature_create_cell,
+     get_channel: feature_get_cell,  // мб сделать это через парамеры да и все. mode="param"
+     get_event_channel: feature_get_event_cell,
+     get_value: get_cell_value,
+     put_value: set_cell_value,
+     put_value_to: set_cell_value_to
    });
 
 
@@ -29,6 +40,8 @@ export function setup(vz, m) {
       obj.get_cell = (name,ismanual) => get_cell( obj, name,ismanual );
       obj.create_cell = create_cell;
       obj.create_buffer_cell = create_buffer_cell;
+      obj.create_channel = create_cell;
+      obj.create_buffer_channel = create_buffer_cell;
       //obj.get_or_create_new_cell
 
       obj.get_existing_param_cell = (name) => {
@@ -109,6 +122,7 @@ export function create_cell() {
   cell.get = () => { return cell.value };
 
   cell.push = cell.set; // ну теперь совсем события получились. push/monitor. ну и "канал" заодно.
+  cell.put = cell.set;
 
   E.addEventsTo( cell ); // так-то это вопросы...
   // но в целом это некий алгоритм для ТПУ. а именно это нам и надо когда мы говорим - ячейка.
@@ -142,6 +156,7 @@ export function create_buffer_cell( limit=100 ) {
   cell.consume = () => { if (cell.buffer.length > 0) return [cell.buffer.shift()]; return null; }
 
   cell.push = cell.set; // ну теперь совсем события получились. push/monitor. ну и "канал" заодно.
+  cell.put = cell.set;
 
   E.addEventsTo( cell );
   add_onvalue_etc( cell );
@@ -211,7 +226,6 @@ export function create_table_cell() {
   cell.values = () => Object.keys( cell.v );
   cell.table = () => cell.v;
   cell.add = cell.set;
-
 
   E.addEventsTo( cell ); // так-то это вопросы...
   // но в целом это некий алгоритм для ТПУ. а именно это нам и надо когда мы говорим - ячейка.
@@ -353,6 +367,7 @@ export function get_event_cell( target, name ) {
     let setting;
 
     c.on("assigned",(...v) => {
+       // console.log('event cell emittting',name,...v)
        if (setting) return;
        try {
          setting = true;
@@ -367,6 +382,7 @@ export function get_event_cell( target, name ) {
        if (setting) return;
        setting = true;
        try {
+         v.is_event_args = true; // попытка не пытка
          c.push( v );
        } finally { 
          setting = false;
@@ -498,6 +514,7 @@ export function get_cell( target, name, ismanual ) {
        if (setting) return;
        setting = true;
        try {
+         v.is_event_args = true; // попытка не пытка
          c.push( v );
        } finally { 
          setting = false;
@@ -520,6 +537,41 @@ export function get_cell( target, name, ismanual ) {
 // input - массив целевой, 0 - значение
 export function set_cell_value( env ) {
   env.onvalues( ["input",0], (arr, val) => {
+    if (env.params.disabled) return;
+
+    let single_elem_mode = false;
+    if (!Array.isArray(arr)) { arr=[arr]; single_elem_mode = true };
+    let responding_channels = [];
+
+    env.setParam("working",true);
+    try {
+    arr.forEach( (cell) => {
+      if (!cell) return;
+      // console.log("set cell value",cell,val)
+      //if (val == 55) debugger;
+      if (!cell.set) {
+        console.error("set_cell_value: cell.set is not defined. typeof(cell)=",typeof(cell),"cell=",cell, env.getPath())
+        return;
+      }
+      // console.log('cell is setting val',val)
+      cell.set( val );
+      responding_channels.push( cell.reply_channel )
+    })
+    } finally {
+      env.setParam("working",false);
+    }
+
+    env.setParam("output",single_elem_mode ? responding_channels[0] : responding_channels ); 
+    // todo optimize че их каждый раз пересчитывать то - собрать один раз и се..
+    //env.setParam("output",arr); // чтобы можно было цепочки строить | 
+    //env.setParam("output",val); // чтобы можно было цепочки строить | 
+    // чухня все это. надо ответные каналы давать.
+  });
+};
+
+// наоборот, input это значение а 0 это целевой канал. ну как-то так получается..
+export function set_cell_value_to( env ) {
+  env.onvalues( [0,"input"], (arr, val) => {
     if (env.params.disabled) return;
 
     let single_elem_mode = false;
@@ -575,7 +627,15 @@ export function get_cell_value( env ) {
       let has_assigned_values = false;
       let res = arr.map( (cell) => {
         if (!cell) return;
-        let u = cell.monitor(fnd); 
+        if (!cell.is_cell) {
+          console.log("get-channel-value: input is not a channel",typeof(cell))
+          env.vz.console_log_diag( env )
+          //return undefined
+        }
+        // медленно и печально, с задержками, всех соединяем...
+        //let u = cell.monitor(fnd);
+        // бодро и быстро
+        let u = cell.on('assigned',fn)
         unsub.push( u );
         has_assigned_values ||= cell.is_value_assigned();
         return cell.get();
@@ -656,7 +716,14 @@ export function feature_get_param_cell( env ) {
 // input - массив объектов
 // 0 - имя параметра
 export function feature_get_event_cell( env ) {
-  env.onvalues( ["input",0], (arr, param_name) => {
+
+  //console.log("get-event-cell herllo")
+
+  env.onvalues( ["input",0], go);
+  env.onvalues( [0,1], go);
+
+  function go (arr, param_name) {
+    //console.log("get-event-cell",arr,param_name)
     let single_elem_mode = !Array.isArray(arr);
     if (single_elem_mode) arr=[arr];
     let res = [];
@@ -669,7 +736,7 @@ export function feature_get_event_cell( env ) {
     
     env.setParam( "output", single_elem_mode ? res[0] : res );
     // single_elem_mode - это плохо или это норм? так-то сигнатура выхода меняется...
-  }); 
+  }; 
 }
 
 // получить ячейки "команд"
@@ -716,7 +783,10 @@ export function feature_get_cell( env ) {
   if (!env.hasParam("manual"))
        env.setParam("manual",false);
 
-  env.onvalues( ["input",0,"manual"], (arr, param_name,manual) => {
+  env.onvalues( ["input",0,"manual"], go);
+  env.onvalues( [0,1,"manual"], go);
+
+  function go (arr, param_name,manual) {
     let single_elem_mode = !Array.isArray(arr);
     if (single_elem_mode) arr=[arr];
     let res = [];
@@ -729,7 +799,7 @@ export function feature_get_cell( env ) {
     
     env.setParam( "output", single_elem_mode ? res[0] : res );
     // single_elem_mode - это плохо или это норм? так-то сигнатура выхода меняется...
-  }); 
+  }
 }
 
 // просто поржать
@@ -770,11 +840,25 @@ export function cc_on( env ) {
   env.feature("make_func");
 
   let unsub = () => {}
-  env.onvalue('input',(channel) => {
+  env.onvalues_any(['input',0],(channel,channel_arg) => {
+    channel ||= channel_arg;
     unsub();
+    if (!channel?.is_cell) {
+      console.warn("cc-on: input is not channel",channel)
+      env.vz.console_log_diag( env )
+      unsub = () => {}
+      return
+    }
+
     unsub = channel.on('assigned',(v) => {
       //console.log("cc-on passing",v)
-      env.params.f.apply( env, v )
+      if (v?.is_event_args) {
+        //console.log('cc-on passing extended event args',v)
+        //env.vz.console_log_diag( env )
+        env.params.f.apply( env, v )
+      }
+      else
+        env.params.f.call( env, v )
     })
     // todo мб ключи - реагировать ли если уже были события
     // и одноразовое оно или многоразовое
@@ -899,3 +983,56 @@ export function create_writing_cell( env ) {
     });
   }
 };
+
+// присоединяет канал к другим каналам на запись
+// input - входной канал
+// 0 - один или набор целевых каналов
+// выход - дубликат входного канала
+export function redirect_to_channel( env ) {
+
+  let unsub = () => {}
+  env.onvalue( 'input',(inc) => {
+    unsub()
+    //env.auto_unsub( 'id',inc.on('assigned',fn)) todo idea
+    unsub = inc.on('assigned',fn)
+    env.setParam( "output", inc );
+  })
+  env.on("remove",() => unsub())
+
+  function fn(v) {
+    let arr = env.params[0];
+    if (!arr) return;
+    if (!Array.isArray(arr)) arr=[arr];
+    arr.forEach( (cell) => {
+      cell.set( v );
+    });
+  }
+};
+
+// создает новый канал, который конвертирует значения исходного
+export function convert_channel( env ) {
+  let cc = create_cell()
+  env.setParam( "output", cc );
+
+  let unsub = () => {}
+  env.onvalue( 'input',(inc) => {
+    if (!inc?.is_cell) {
+      console.warn("convert_channel: input value is not a channel",inc)
+      return
+    }
+    unsub()
+    unsub = inc.on('assigned',fn)
+  })
+  env.on("remove",unsub())
+
+  //env.process_unsub( "p1", inc.on('assigned',fn) )
+  //env.p_unsub( "p1" )( inc.on('assigned',fn) )
+
+  function fn(v) {
+    let code = env.params[0];
+    let res = code.call( env, v );
+    // todo проверить может там и кода нет, а может там make-func
+    cc.set( res )
+  }
+};
+

@@ -86,8 +86,8 @@ register_feature name="+" code=`
     //console.log("plus: computing",count)
 
     for (let i=1; i<count; i++) {
-      // if (env.params[i] == null) return; // ждем..
-      if (env.params[i] == null) continue; // это не складываем...
+      if (env.params[i] == null) return; // ждем..
+      // if (env.params[i] == null) continue; // это не складываем...
       acc = acc + env.params[ i ];
     }
 
@@ -110,8 +110,10 @@ register_feature name="-" code=`
     
     let count = env.params.args_count;
     let acc = env.params[0];
-    for (let i=1; i<count; i++)
+    for (let i=1; i<count; i++) {
+      if (env.params[i] == null) return; // ждем..
       acc = acc - env.params[ i ];
+    }
     env.setParam("output",acc );
   };
   
@@ -130,8 +132,10 @@ feature "*" code=`
   function compute() {
     let count = env.params.args_count;
     let acc = env.params[0];
-    for (let i=1; i<count; i++)
+    for (let i=1; i<count; i++) {
+      if (env.params[i] == null) return; // ждем..
       acc = acc * env.params[ i ];
+    }
     env.setParam("output",acc );
   };
   
@@ -148,8 +152,10 @@ feature "/" code=`
   function compute() {
     let count = env.params.args_count;
     let acc = env.params[0];
-    for (let i=1; i<count; i++)
+    for (let i=1; i<count; i++) {
+      if (env.params[i] == null) return; // ждем..
       acc = acc / env.params[ i ];
+    }
     env.setParam("output",acc );
   };
   

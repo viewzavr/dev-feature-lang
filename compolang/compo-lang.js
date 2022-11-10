@@ -3907,6 +3907,9 @@ export function connect_params_to_events(env) {
         let parent = spawn_obj;
         let cleanup = () => { spawn_obj.remove(); cleanup = () => {}; }
 
+        //console.log("spawner calls",event_name,args.length)
+        if (args && args[0] && args[0].is_event_args)
+            args = args[0];
         let p = env.vz.callEnvFunction( code, parent, false, newscope, ...args );
         p.then( () => {
           // todo ловить когда завершаемся
@@ -3922,6 +3925,35 @@ export function connect_params_to_events(env) {
   }
 
   // очищать вроде не надо - объект же на свои параметры зацеплен
+
+}
+
+export function listen( env )
+{
+
+  function f(n,input) {
+    if (!n.startsWith("on_")) return;
+    let event_name = n.substring(3);
+
+    //console.log("listen subs to event",n)
+    return input.on( event_name, (...args) => env.emit( event_name,...args ) )
+  }
+
+  let unsub_arr = [];
+  function cleanup() {
+    unsub_arr.forEach( f => f() ); unsub_arr = [];
+  }
+
+  function setup() {
+    cleanup()
+
+    for (let k of env.getParamsNames()) {
+      unsub_arr.push( f( k, env.params.input ) );
+    }  
+  }
+
+  env.onvalue("input",setup)
+  env.on("remove",cleanup)
 
 }
 

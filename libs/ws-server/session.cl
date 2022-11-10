@@ -1,151 +1,174 @@
-feature 'ws-logging' {
+// неактуально
+feature 'ws-logging-old' {
   x-modify {
     m-on 'message' (m-lambda "(obj,ws,msg) => console.log('incoming message',msg)")
     m-on 'sending' (m-lambda "(obj,ws,msg) => console.log('outcoming message',msg)")
   }
 }
 
-/*
-  s: remote-session @remote {
-     m-eval @s.send (json cmd="create-object" descr=@some-descr)
+feature 'ws-logging' {
+  x: x-modify prefix="" {
+    y-on 'connection' { |sobj in out|
+      read @in | cc-on { |msg|
+        console-log @x.prefix "incoming message" @msg
+      }
+      read @out | cc-on { |msg|
+        console-log @x.prefix "outgoing message" @msg
+      }
+    }
   }
-*/
+}
+
+feature "put-request" {
+  x: object output=@c {
+    let c = (create_channel)
+    put-value input=@x->input (json request=@x->0 responce_channel=@c)
+  }
+}
 
 feature "remote-session" {
-  r: object remote=@.->0 {
-    m_eval "(remote,remote_send,session_type) => {
-      if (scope.r.a_unsub) scope.r.a_unsub()
+  r: object 
+    remote=@.->0 {
 
-      let sid = Math.random() * 1000000;
-      let session_counter = 0;
-      let pending_responces = {}
+      sigma: object
 
-      remote_send( { cmd: 'create-session', sid: sid, session_type: session_type } )
-      scope.r.a_unsub = remote.on('message',(ws,msg) => {
-        // console.log(1111,msg)
-        if (msg.sid != sid) return;
-        if (msg.cmd == 'created') {
-          //console.log(222)
-          scope.r.setParam( 'send',(m) => {
-            let rid = session_counter++;
-            remote_send( {cmd: 'session-msg', sid: sid, message: m, request_id: rid } )
-            // но эта штука возвращает непойми что. а нам надо вернуть промису.. чтобы она сработалась с m-eval и тот мог вернуть output.. хотя бы так..
-            let k = new Promise( (resolve,reject) => {
-              pending_responces[ rid ] = [resolve, reject]
-              if (Object.keys(pending_responces).length > 1000) {
-                console.warn('remote-session: more than 1000 pending responces promises')
+      read @r.remote 
+      | 
+      listen on_connection={ |in out| 
+        
+        m-eval "(cin,cout) => {
+          //console.log('scope.sigma=',scope.sigma)
+        if (scope.r.a_unsub) scope.r.a_unsub()
+
+        let sid = Math.random() * 1000000;
+        let session_request_counter = 0;
+        let pending_responces = {}
+
+        let session_input = env.create_cell();
+        let session_output = env.create_cell();
+
+        cout.put( { cmd: 'create-session', sid: sid } )
+
+        scope.r.a_unsub = cin.on('assigned', (msg) => {
+          if (msg.sid != sid) return;
+          if (msg.cmd == 'created') {
+
+            session_output.on('assigned',(m) => {
+              let rid = session_request_counter++;
+
+              if (m.request && m.responce_channel) {
+                 cout.put( {cmd: 'session-msg', sid: sid, message: m.request, request_id: rid } )
+                 pending_responces[ rid ] = m.responce_channel
+                 if (Object.keys(pending_responces).length > 1000) {
+                   console.warn('remote-session: more than 1000 pending responces promises')
+                 }
               }
+              else
+                cout.put( {cmd: 'session-msg', sid: sid, message: m, request_id: rid } )
+              
             })
-            k.make_func_result=true;
-            return k;
-          })
-        }
-        else
-        if (msg.cmd == 'finished') {
-          scope.r.setParam( 'send', null )
-        }
-        else
-        if (msg.cmd == 'message') {
-          //console.log('gggg message, sensing to self',env)
-          scope.r.emit( 'message', ws, msg.value )
-        }
-        else
-        if (msg.cmd == 'reply') {
-          let r = pending_responces[ msg.request_id ]
-          if (r) {
-            // console.log('found rrrr' )
-            r[0]( msg.value ); // вызываем промису, насыщаем output у m-eval
-            delete pending_responces[ msg.request_id ]
+            //console.log('cli emit connnection')
+            scope.r.emit( 'connection', session_input, session_output )
           }
+          else
+          if (msg.cmd == 'finished') {
+            // ?
+          }
+          else
+          if (msg.cmd == 'message') {
+            //console.log('gggg message, sensing to self',env)
+            session_input.put( msg.value )
+          }
+          else
+          if (msg.cmd == 'reply') {
+            let r = pending_responces[ msg.request_id ]
+            if (r) {
+              // console.log('found pending responce, calling its promise' )
+              //r[0]( msg.value ); // вызываем промису, насыщаем output у m-eval
+              r.put( msg.value )
+
+              delete pending_responces[ msg.request_id ]
+            }
         }
-      })
-    }" @r.remote @r.remote.send
+      }) // входящий пакет
+    }" @in @out
+    }
   }
 }
 
 // серверная компонента
 feature "session-server" {
   s: object 
-    server=@.->0 
+    server=@.->0
     objects_list=[]
     {{
-    catch-children 'code'
-    read @s.server | x-modify {
-      m-on "connection" (m-lambda "(session_srv,server_obj,ws) => {
-        ws.on('close',() => {
-          //console.log('ws closed, emitting to srv',session_srv)
-          session_srv.emit('close',ws)
-          // console.log('ws closed, is is',ws.sid)
-          let found_session_obj = scope.s.params.session_table[ ws.sid ]
-          // console.log('fso',found_session_obj)
-          if (found_session_obj) {
-            // console.log('removing session obj')
-            delete scope.s.params.session_table[ ws.sid ]
-            found_session_obj.remove()
-          }
-        })
-      }" @s)
-   }
-   read @s.server.incoming_channel | cc-on { |ws msg|
-     m-eval "(ws,msg) => {
-//        console.log('qqqqqqqq1',msg)
-        if (msg.cmd == 'create-session') {
-//           console.log('qqqqqqqq')
-           let ns = env.vz.createObj({parent:env})
-           // ns.feature( msg.session_type || 'session' )
-           ns.setParam( 'sid', msg.sid );
-           ns.setParam( 'send', (data) => {
-             ws.send( {cmd: 'message', sid: msg.sid, value: data } )
-           })
-           ws.sid = msg.sid;
+     read @s.server | listen on_connection={ |in out ws|
 
-           // это мы создали покамест коммуникатор еще ток
-           // теперь надо создать собственно объект.
-           let cre = env.vz.createObj({parent:ns}) // родитель это ns будем стирать его потом
-           cre.feature('create-objects')
-           cre.setParam( 0, ns )
-           cre.setParam( 'input', scope.s.params.code )
-           // все, пошло поехало - создали все по описанию и общаемся через коммуникатор
+       read @in | cc-on { |msg|
+         m-eval "(ws,cin,cout,msg) => {
+         if (msg.cmd == 'create-session') {
+        
+          let session_in = env.create_channel()
+          let session_out = env.create_channel()
+
+          session_out.on('assigned',(v) => {
+            cout.put({cmd: 'message', sid: msg.sid, value: v})
+          })
+          /*
+          in.on('assigned',(inmsg) => {
+            i
+          })
+          */
            
-           // запомним таблицу сессии
-           let st = scope.s.params.session_table || {}
-           st[ msg.sid ] = ns;
-           scope.s.setParam('session_table',st)
+          // запомним таблицу сессии
+          // console.log('scope.s=',scope.s)
+          let st = scope.s.params.session_table || {}
+          st[ msg.sid ] = { in: session_in, out: session_out, cout: cout }
+          scope.s.setParam('session_table',st)
            
-           env.feature('delayed')
-           env.timeout( () => ws.send( {cmd: 'created', sid: msg.sid} ), 50 ); // подождем и пошлем
+          env.feature('delayed')
+          env.timeout( () => cout.put( {cmd: 'created', sid: msg.sid} ), 50 ); // подождем и пошлем
+
+          scope.s.emit( 'connection', session_in, session_out )
         }
         if (msg.cmd == 'session-msg') {
-        /*
-          let found_c;
-          // todo optimize
-          for (let c of env.ns.getChildren()) {
-            if (c.params.sid == msg.sid) {
-              found_c = c;
-              break;
-            }
-          }
-          let found_session_obj = found_c;
-          */
-          let found_session_obj = scope.s.params.session_table[ msg.sid ]
-          if (found_session_obj) {
-            //console.log('emitting message to communicator',found_session_obj,msg.message)
-            //let rep = new Promise( (resolve,reject) => {} )
+          let session_record = scope.s.params.session_table[ msg.sid ]
+          if (session_record) {
             // функция ответа
-            let rep = env.create_cell()
+            let rep = env.create_channel()
             rep.on('assigned',value => {
               //console.log( 'using rep to reply', msg.request_id )
-              ws.send( {cmd: 'reply', sid: msg.sid, value: value, request_id: msg.request_id} )
+              session_record.cout.put( {cmd: 'reply', sid: msg.sid, value: value, request_id: msg.request_id} )
               //delete rep
             });
             //console.log('emitting, rep is',rep)
-            found_session_obj.emit( 'message',rep,msg.message )
+            let arg = [msg.message, rep]
+            arg.is_event_args = true
+            session_record.in.put( arg )
           }
           else
             console.warn('session-creator: session.sid not found',msg.sid);
         }
-      }" @ws @msg
-    }
+        }" @ws @in @out @msg
+         
+      } // cc-on
+
+      m-eval "(ws) => {
+        ws.on('close',() => {
+          //console.log('ws closed, emitting to srv',session_srv)
+          //session_srv.emit('close',ws)
+          // console.log('ws closed, is is',ws.sid)
+          let session_record = scope.s.params.session_table[ ws.sid ]
+          // console.log('fso',found_session_obj)
+          if (session_record) {
+            // console.log('removing session obj')
+            delete scope.s.params.session_record[ ws.sid ]
+            //found_session_obj.remove()
+          }
+        })
+      }" @ws
+     } // on-connection
+    
   }}
 }
 

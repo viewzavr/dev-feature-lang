@@ -454,6 +454,7 @@ feature "json" "
     // и на то что есть сейчас
     let res = {};
     for (let k of env.getParamsNames()) {
+      if (k == 'output') continue;
       res[ k ] = env.getParam( k );
     };
     env.setParam('output',res);

@@ -15,7 +15,6 @@ feature "remote-object" {
     }
     */
   {
-    //write-channel @remote.out (json descr=@r.descr)
     m_eval @r.remote.send (json descr=@r.descr)
     m_eval @r.remote.send (json input=@r.input) // стало быть будет посылать при изменении инпута
 

@@ -2,53 +2,18 @@ import WebSocket from 'ws';
 const WebSocketServer = WebSocket.Server;
 
 export function ws_json_serialize( env ) {
-
-/*
-  env.tpu_prepend( 'emit_connection', 'json', (orig, cin,cout,ws) => {
-
-    env.create_cell().chain( orig, (v) => {
-    })
-
-  })
-*/  
-
   let orig = env.host.emit_connection;
   env.host.emit_connection = (cin,cout,ws) => {
-    //console.log(444)
     let jin = env.create_cell()
     let jout = env.create_cell()
     cin.on('assigned',(v) => {
       jin.set( JSON.parse(v) )
     })
-    jout.on('assigned',v => {
-      cout.set( JSON.stringify(v) )
+    cout.on('assigned',v => {
+      jout.set( JSON.stringify(v) )
     })
-    //orig( jin, jout, ws )
-    env.host.emit( 'connection',jin,jout,ws )
+    orig( jin, jout, ws )
   }
-}
-
-export function ws_json1( env ) {
-
-  let unsub = () => {}
-  env.onvalue(0,(srv) => {
-    unsub()
-    unsub = srv.on('connection',(cin,cout,ws) => {
-    //console.log(444)
-    let jin = env.create_cell()
-    let jout = env.create_cell()
-    cin.on('assigned',(v) => {
-      jin.set( JSON.parse(v) )
-    })
-    jout.on('assigned',v => {
-      cout.set( JSON.stringify(v) )
-    })
-    //orig( jin, jout, ws )
-    env.emit( 'connection',jin,jout,ws )
-  })
-  })
-  
-  env.on("remove",() => unsub() )
 }
 
 // https://www.npmjs.com/package/ws
@@ -89,15 +54,13 @@ export function ws_server( env ) {
       //env.emit('message',ws,data,bin)
     });
 
-    //console.log(333)
     env.emit_connection( incoming, outgoing, ws )
     // env.emit( 'connection',incoming, outgoing, ws )
     // env.params.conns.set( [incoming, outgoing] )
   });
 
-  }
-
-  env.emit_connection ||= (incoming,outgoing,ws ) => {
+  
+  env.emit_connection = (incoming,outgoing,ws ) => {
     env.emit( 'connection',incoming, outgoing, ws )
   }
 
@@ -129,14 +92,13 @@ export function ws_client( env ) {
       let data = env.params.out.consume();
       if (data == null) break;
       data = data[0]
-      // console.log('client sending data',data)
+      //console.log('client sending data',data)
       //ws.send( JSON.stringify(data) )
-      
       ws.send( data )
     }
   }
 
-  env.emit_connection ||= (incoming,outgoing,ws ) => {
+  env.emit_connection = (incoming,outgoing,ws ) => {
     env.emit( 'connection',incoming, outgoing, ws )
   }
 
