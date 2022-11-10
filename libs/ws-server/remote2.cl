@@ -21,7 +21,7 @@ feature "remote-object" {
     read @r.out | put-value (json input=@r.input)
 
     read @r.in | cc-on { |msg|
-      object
+      //object
       if (@msg.cmd == "output-value") {
         read @r | get-channel "output" | put-value @msg.value
       }
@@ -40,25 +40,25 @@ feature "object-on-server" {
      out=@.->1
      output=@obj
      {
-      read @s.in | cc-on { |msg|
+      aaa: read @s.in | cc-on { |msg|
         //console-log "ssss" @msg
-        object
+        //object
         if (read @msg.descr) {
           read @s | get-channel "descr" | put-value @msg.descr
         }
         if (read @msg.input) {
           read @s | get-channel "input" | put-value @msg.input
         }
-      }
+     }
 
      let obj = (read @s.descr? | compalang | create-object | geta 0)
      //console-log "created object" @obj "descr was" @s.descr
      //console-log "obj output is" @obj.output
 
      read @obj | get-channel 'input' | put-value @s.input?
-     read @obj | get-channel 'output' | cc-on existing=true { |v|
+     xxx: read @obj | get-channel 'output' | cc-on existing=true { |v|
         // console-log 555 @v
-        read @s.out | put-value (json cmd='output-value' value=@obj.output?) //| read true
+        read @s.out | put-value (json cmd='output-value' value=@obj.output? | pause-input)
      }
   }
 }

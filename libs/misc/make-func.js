@@ -2,6 +2,47 @@ export function setup(vz, m) {
   vz.register_feature_set(m);
 };
 
+// обеспечивает завершение make-func-цыы
+export function feature_return( env )
+{
+  env.onvalues_any( ["input",0],(a,b) => {
+    a ||= b;
+    let p = env.ns.parent;
+    while (p) {
+      if (p.is_feature_applied("spawn_frame")) {
+        p.setParam("output",a)
+        break
+      }
+      p = p.ns.parent
+    }
+    if (!p) {
+      console.warn( "return: cannot find spawn_frame")
+    }
+  })
+}
+
+// корневой объект для содержимого make-func
+export function spawn_frame( env )
+{
+  let unsf = () => {}
+  function subscribe_for_finish() {
+    unsf(); 
+    let cc = env.ns.getChildren();
+    if (cc.length > 0) {
+        let lastc = cc[ cc.length-1 ];
+        unsf = lastc.onvalue("output",(v) => {
+          //console.log("spawn frame: catched output of last child,",v,env.getPath())
+          env.setParam("output",v);
+        });
+     }
+     else {  
+        unsf = () => {}
+     }
+  }
+  subscribe_for_finish();
+  env.on("childrenChanged",subscribe_for_finish)
+}
+
 // параметр code либо дети { }
 export function make_func( env )
 {
@@ -39,6 +80,7 @@ export function make_func( env )
     // теперь.. что мы вернем
     //console.log("call of f",...args)
     let spawn_obj = env.vz.createObj( { parent: env, name: "spawn" });
+    spawn_obj.feature("spawn_frame")
 
     let k = new Promise( (resolve,reject) => {
       //console.log("make-func passing",args)
@@ -47,10 +89,11 @@ export function make_func( env )
         // короче такая защита чтобы дать еще 1 цикл для счета...
         // изначально было вообще смотреть расчеты в дереве
         // еще идея - delayed-restart т.е. если еще раз прислали output то подождать еще циклов
-        env.feature("delayed");
-        let finish = env.delayed( finish0 );
+        // env.feature("delayed");
+        // let finish = env.delayed( finish0 );
 
-        spawn_obj.ns.getChildren()[0].onvalue("output",finish);
+        // spawn_obj.ns.getChildren()[0].onvalue("output",finish);
+        spawn_obj.onvalue("output",finish0)
 
         function finish0( res ) {
            // выяснилось что они во время удаления могут себе чистить output..
@@ -59,8 +102,9 @@ export function make_func( env )
            // от onvalue - тоже вариант
            if (spawn_obj.removed || spawn_obj.removing)
              return;
-           //console.log("call of f finish, res=",res, env.getPath())
+           console.log("call of f finish, res=",res, env.getPath())
            spawn_obj.remove();
+           //console.log("cleanup complete, resolving")
            resolve( res );
         }
       });
@@ -75,9 +119,9 @@ export function make_func( env )
 };
 
 
-
+/*
 export function once( env ) {
-let env_list;
+  let env_list;
   let env_call_scope = env.$scopes.top();
 
   env.restoreChildrenFromDump = (dump, ismanual,$scopeFor) => {
@@ -136,3 +180,4 @@ let env_list;
     ready();
   });  
 }
+*/

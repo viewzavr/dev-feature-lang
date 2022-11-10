@@ -267,7 +267,8 @@ export function m_apply( env, opts )
    env.setParamOption("apply","visible",false);
    env.addCmd( "apply",(...extra_args) => {
       if (env.removed) {
-         console.log("lambda remove ban - it is removed", env.getPath())
+         console.warn("lambda called but its env is removed", env.getPath())
+         env.vz.console_log_diag( env )
          return;
       }
 

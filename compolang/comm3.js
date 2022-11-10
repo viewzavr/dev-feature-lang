@@ -536,6 +536,12 @@ export function get_cell( target, name, ismanual ) {
 // запись в массив ячеек
 // input - массив целевой, 0 - значение
 export function set_cell_value( env ) {
+  /*
+  env.onvalue("output",(v) => {
+    console.log("qqqq",v)
+  })
+  */
+
   env.onvalues( ["input",0], (arr, val) => {
     if (env.params.disabled) return;
 
@@ -551,6 +557,7 @@ export function set_cell_value( env ) {
       //if (val == 55) debugger;
       if (!cell.set) {
         console.error("set_cell_value: cell.set is not defined. typeof(cell)=",typeof(cell),"cell=",cell, env.getPath())
+        env.setParam("output",true)
         return;
       }
       // console.log('cell is setting val',val)
@@ -561,7 +568,13 @@ export function set_cell_value( env ) {
       env.setParam("working",false);
     }
 
-    env.setParam("output",single_elem_mode ? responding_channels[0] : responding_channels ); 
+    // короче признаю эту тему с reply-channel несостоятельной..
+    // потому что она возвращает undefined если такого канала нет..
+    // если нужны ответы - давайте делать put-request...
+    // #design
+    // let o = single_elem_mode ? responding_channels[0] : responding_channels;
+    //console.log("vvv",o)
+    env.setParam("output", true );
     // todo optimize че их каждый раз пересчитывать то - собрать один раз и се..
     //env.setParam("output",arr); // чтобы можно было цепочки строить | 
     //env.setParam("output",val); // чтобы можно было цепочки строить | 
@@ -1033,7 +1046,7 @@ export function convert_channel( env ) {
     unsub()
     unsub = inc.on('assigned',fn)
   })
-  env.on("remove",unsub())
+  env.on("remove",unsub)
 
   //env.process_unsub( "p1", inc.on('assigned',fn) )
   //env.p_unsub( "p1" )( inc.on('assigned',fn) )

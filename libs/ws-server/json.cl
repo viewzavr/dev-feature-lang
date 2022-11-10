@@ -31,8 +31,15 @@ feature "ws-json" {
            let jin = (read @in | convert-channel (m-lambda "v => JSON.parse(v)"))
            let jout = (create-channel)
            read @jout | convert-channel (m-lambda "v => JSON.stringify(v)") | redirect-to-channel @out
+           
+           //comm: object in=... out=....
 
            get-event-channel @j "connection" | put-value (mark-event-args (list @jin @jout @ws))
+
+           x: return
+           read @ws | listen on_close={
+             read @x | get-channel "output" | put-value true
+           }
      }
    }
 }

@@ -1,8 +1,8 @@
 load "misc ws-server"
 
 ws-server {{ws-logging}} | ws-json | session-server on_connection={ |in out ws|
- console-log 22
- object-on-server @in @out
+  console-log 22
+  object-on-server @in @out
 }
 
 ws-client | ws-json | remote-session on_connection={ |in out|
