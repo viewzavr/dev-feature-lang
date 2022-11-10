@@ -6,6 +6,7 @@ feature 'ws-logging-old' {
   }
 }
 
+// модификатор
 feature 'ws-logging' {
   x: x-modify prefix="" {
     y-on 'connection' { |sobj in out|
@@ -19,6 +20,7 @@ feature 'ws-logging' {
   }
 }
 
+// капитально отдельная вещь конечно. посмотрим прикрутить ее к вызову методов.
 feature "put-request" {
   x: object output=@c {
     let c = (create_channel)
@@ -28,13 +30,15 @@ feature "put-request" {
 
 feature "remote-session" {
   r: object 
-    remote=@.->0 {
+    remote=@.->0
+    @.->input
+    {
 
       sigma: object
 
       read @r.remote 
       | 
-      listen on_connection={ |in out| 
+      listen on_connection={ |in out|
         
         m-eval "(cin,cout) => {
           //console.log('scope.sigma=',scope.sigma)
@@ -101,6 +105,7 @@ feature "session-server" {
   s: object 
     server=@.->0
     objects_list=[]
+    @.->input
     {{
      read @s.server | listen on_connection={ |in out ws|
 

@@ -2,12 +2,13 @@
 
 load "new-modifiers"
 
-// remote-object @comm @descr_string input=....
+// remote-object @in @out @descr_string input=....
 // выдает output - результат от удаленного объекта
 feature "remote-object" {
   r: object
-    remote=@.->0
-    descr=@.->1
+    in=@.->0
+    out=@.->1
+    descr=@.->2
     input=null
     /* пересылка всех параметров..
     on_param_changed={ |name value|
@@ -16,57 +17,48 @@ feature "remote-object" {
     */
   {
     //write-channel @remote.out (json descr=@r.descr)
-    m_eval @r.remote.send (json descr=@r.descr)
-    m_eval @r.remote.send (json input=@r.input) // стало быть будет посылать при изменении инпута
+    read @r.out | put-value (json descr=@r.descr)
+    read @r.out | put-value (json input=@r.input)
 
-    //m-eval "(a) => console.log('rs is ',typeof(a))" @r.remote.send
-
-    read @r.remote | x-modify  {
-      m-on "message" (m-lambda "(sobj,ws,msg) => {
-          //msg = JSON.parse( msg )
-        // console.log('see rep',msg)
-        if (msg.cmd == 'output-value')
-           scope.r.setParam( 'output', msg.value )
-      }")
+    read @r.in | cc-on { |msg|
+      object
+      if (@msg.cmd == "output-value") {
+        read @r | get-channel "output" | put-value @msg.value
+      }
     }
   }
 }
 
-// object-on-server @comm
-// создает объект согласно поступившему от comm параметру descr (строка)
-// и также получает от него input и шлет туда output
+// object-on-server in=@in out=@out
+// создает объект согласно поступившему от in параметру descr (строка)
+// и также получает от него input и шлет output в out
 feature "object-on-server" {
   s: object
-     comm=@.->0
      input=null
      descr=null
+     in=@.->0
+     out=@.->1
      output=@obj
      {
-      @s.comm | x-modify {
-        m-on "connection" (m-lambda "(sobj, ws) => {
-          scope.s.setParam( 'send',ws.send )
-        }")
-        m-on "message" (m-lambda "(sobj,ws,msg) => {
-          // console.log('object-on-server see msg!',msg)
-          if (msg.descr)
-            scope.s.setParam( 'descr', msg.descr );
-          if (msg.input)
-            scope.s.setParam( 'input', msg.input );
-          // ну так-то мы можем любые значения присылать получается те. имя атрибута указывать.
-          // и даже таким же макаром и метод вызывать
-        }")
-        m-on "close" (m-lambda "(sobj) => {
-          //console.log('object-on-server close...',sobj)
-          //sobj.remove()
-        }")
+      read @s.in | cc-on { |msg|
+        //console-log "ssss" @msg
+        object
+        if (read @msg.descr) {
+          read @s | get-channel "descr" | put-value @msg.descr
+        }
+        if (read @msg.input) {
+          read @s | get-channel "input" | put-value @msg.input
+        }
+      }
+
+     let obj = (read @s.descr? | compalang | create-object | geta 0)
+     //console-log "created object" @obj "descr was" @s.descr
+     //console-log "obj output is" @obj.output
+
+     read @obj | get-channel 'input' | put-value @s.input?
+     read @obj | get-channel 'output' | cc-on existing=true { |v|
+        // console-log 555 @v
+        read @s.out | put-value (json cmd='output-value' value=@obj.output?) //| read true
      }
-
-     let obj = (read @s.descr? | compalang | create-object )
-
-     read @obj | get-cell 'input' | set-cell-value @s.input?
-     read @obj | get-cell 'output' | get-cell-value | m-eval "(output_value,send) => {
-       //console.log('sending output value',send,output_value)
-       send( { cmd: 'output-value', value: output_value } )
-     }" @s.comm.send
   }
 }

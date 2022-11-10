@@ -24,6 +24,7 @@ feature "ws-json" {
  j: object
     io=@.->0
     output=@j
+    @.->input
     {
       cc-on (get-channel @j.io "connection") { |in out ws|
            //console-log "json see connection, in=" @in

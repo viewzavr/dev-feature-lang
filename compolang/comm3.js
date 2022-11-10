@@ -796,6 +796,8 @@ export function feature_get_cell( env ) {
       else
         res.push( obj.get_cell( param_name, manual ) );
     });
+
+    //console.log("get-channel. sem=",single_elem_mode,env.getPath())
     
     env.setParam( "output", single_elem_mode ? res[0] : res );
     // single_elem_mode - это плохо или это норм? так-то сигнатура выхода меняется...
@@ -852,18 +854,26 @@ export function cc_on( env ) {
 
     unsub = channel.on('assigned',(v) => {
       //console.log("cc-on passing",v)
+      emit_val( v )
+    })
+
+    if (env.params.existing && channel.is_value_assigned())
+      emit_val( channel.get() )
+
+    // todo мб ключи - реагировать ли если уже были события
+    // и одноразовое оно или многоразовое
+  })
+  env.on('remove',() => unsub())
+
+  function emit_val(v) {
       if (v?.is_event_args) {
         //console.log('cc-on passing extended event args',v)
         //env.vz.console_log_diag( env )
         env.params.f.apply( env, v )
       }
       else
-        env.params.f.call( env, v )
-    })
-    // todo мб ключи - реагировать ли если уже были события
-    // и одноразовое оно или многоразовое
-  })
-  env.on('remove',() => unsub())
+        env.params.f.call( env, v )    
+  }
 
 };
 
