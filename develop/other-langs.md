@@ -54,3 +54,7 @@ scala dotty
 в целом Михаил говорит что хороший тот язык на котором решаются реальные задачи. А не тот который что-то там теоретически хорош.
 
 https://lit.dev/docs/templates/directives/
+
+* CSPM
+https://cocotec.io/fdr/manual/cspm.html
+

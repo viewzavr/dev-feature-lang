@@ -3,6 +3,9 @@ export function setup(vz, m) {
 };
 
 // обеспечивает завершение make-func-цыы
+// todo масса идей.. мб множественный return.. - формально поток жеж.. красота..
+// или таки идти императивным путем и если надо поток то давайте вернем поток?
+// а что если return без аргумента тоже выходит?
 export function feature_return( env )
 {
   env.onvalues_any( ["input",0],(a,b) => {
@@ -44,6 +47,10 @@ export function spawn_frame( env )
 }
 
 // параметр code либо дети { }
+// запускает "подпроцесс" описанный в code
+// завершает его, когда последний оператор подпроцесса вернет что-то отличное от undefined
+// в своем параметре output
+// либо когда вызовут return <что-то>
 export function make_func( env )
 {
   let env_list;

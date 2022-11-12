@@ -429,7 +429,7 @@ feature "data"
   data: object output=@data->0;
 };
 
-// по массиву описания цвета [1,1,1] и прозрачности выдает запись rgb для css
+// по массиву описания цвета [1,1,1] и прозрачности 0..1 выдает запись rgb для css
 feature "css-color" {
   computing_env { |color opacity|
       + "rgb(" 
