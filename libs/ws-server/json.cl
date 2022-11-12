@@ -36,10 +36,13 @@ feature "ws-json" {
 
            yy: get-event-channel @j "connection" | put-value (mark-event-args (list @jin @jout @ws))
 
+           /* тут надо closed нормальный шерстить. и гооврит if (closed) { return }
            x: return
            read @ws | listen on_close={
+             console-log "socket closed, returning"
              read @x | get-channel "output" | put-value true
            }
+           */
      }
    }
 }

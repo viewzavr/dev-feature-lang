@@ -24,8 +24,8 @@ feature "remote-object" {
       //object
       if (@msg.cmd == "output-value") {
         read @r | get-channel "output" | put-value @msg.value | return
-      } else { 
-        return 
+      } else {
+        return
       }
 
     }
@@ -54,10 +54,10 @@ feature "object-on-server" {
             read @s | get-channel "input" | put-value @msg.input | return
           }
           else { return }
-        }  
+        }
      }
 
-     let obj = (read @s.descr? | compalang | create-object | geta 0)
+     let obj = (null or (read @s.descr? | compalang | create-object | geta 0))
      //console-log "created object" @obj "descr was" @s.descr
      //console-log "obj output is" @obj.output
 

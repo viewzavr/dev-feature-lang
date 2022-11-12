@@ -28,14 +28,16 @@ feature 'else' "
   }
   if (ind >= 1) {
     let fif = cc[ ind-1 ];
+    // будем пока всегда - у нас разваливается постепенное восстановление.. (if еще может фича не применена изза ожидания оргумента)
+    env.onvalue('children_list', (cl) => fif.setParam('else',cl))
     if (fif.is_feature_applied('if'))
     {
       //fif.setParam( 'else')
-      env.onvalue('children_list', (cl) => fif.setParam('else',cl))
+      //env.onvalue('children_list', (cl) => fif.setParam('else',cl))
     }
     else {
-      console.warn('else: previous statement is not if')
-      env.vz.console_log_diag( env );                
+      // console.warn('else: previous statement is not if')
+      // env.vz.console_log_diag( env );
     }    
   }
   else
@@ -84,7 +86,7 @@ code2="
       t: insert_siblings_to_parent
        list=(eval @i @i->0? @i->then? @i->else? @i allow_undefined=true
              code="(if_env, cond,t,e,env) => {
-               //console.log('if tick, cond=',cond,'then=',t)
+               //console.log('if tick, cond=',cond,'then=',t,'else=',e)
                /* щас не так актуально. а получается бывает t еще не вычислено
                if (cond && !t) {
                     console.error('if: no then section!');
@@ -94,7 +96,10 @@ code2="
                */
                // если вычисления еще не было то лесом выходим ничего не делаем..
                if (!if_env.hasParam(0))
+               { 
+                //console.log('if exiting, no param 0')
                 return null;
+               }
 
                return cond ? t : e
              };");

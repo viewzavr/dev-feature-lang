@@ -609,7 +609,9 @@ export function set_cell_value_to( env ) {
       env.setParam("working",false);
     }
 
-    env.setParam("output",single_elem_mode ? responding_channels[0] : responding_channels ); 
+    //env.setParam("output",single_elem_mode ? responding_channels[0] : responding_channels ); 
+    env.setParam("output",single_elem_mode ? arr[0] : arr ); 
+
     // todo optimize че их каждый раз пересчитывать то - собрать один раз и се..
     //env.setParam("output",arr); // чтобы можно было цепочки строить | 
     //env.setParam("output",val); // чтобы можно было цепочки строить | 
