@@ -34,7 +34,7 @@ feature "ws-json" {
            
            //comm: object in=... out=....
 
-           get-event-channel @j "connection" | put-value (mark-event-args (list @jin @jout @ws))
+           yy: get-event-channel @j "connection" | put-value (mark-event-args (list @jin @jout @ws))
 
            x: return
            read @ws | listen on_close={

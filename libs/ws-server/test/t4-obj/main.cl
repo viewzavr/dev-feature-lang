@@ -7,6 +7,8 @@ ws-server {{ws-logging}} | ws-json | session-server on_connection={ |in out ws|
 
 ws-client | ws-json | remote-session on_connection={ |in out|
   console-log 11
-  //remote-object @in @out "read (2 + 2) | console-log-input 'm'" | console-log "Result"
-  remote-object @in @out "timer-ms 1000" | console-log "res"
+  remote-object @in @out "read (2 + 2)" | console-log "Result"
+  //remote-object @in @out "timer-ms 1000" | console-log "res"
+//  remote-object @in @out "a: let x = 1 timer-ms 1000 | (read @a | get-channel 'x' | put-value (@x+1) | read @x) " | console-log "res"
+  //remote-object @in @out "a: let x = 1 read @a | get-channel 'x' | put-value (@x+1) | pause-input" | console-log "res"
 }

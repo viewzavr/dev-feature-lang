@@ -26,7 +26,7 @@ feature 'else' "
         break
     }
   }
-  if (ind > 1) {
+  if (ind >= 1) {
     let fif = cc[ ind-1 ];
     if (fif.is_feature_applied('if'))
     {
@@ -45,8 +45,10 @@ feature 'else' "
       env.vz.console_log_diag( env );                
     }
     else {
-      console.warn('else: statement is first in parent')  
+      console.warn('else: statement is first in parent',ind)
       env.vz.console_log_diag( env );                
+      console.log('children:')
+      cc.forEach( c => console.log(c))
     }
   }
 "
@@ -83,10 +85,13 @@ code2="
        list=(eval @i @i->0? @i->then? @i->else? @i allow_undefined=true
              code="(if_env, cond,t,e,env) => {
                //console.log('if tick, cond=',cond,'then=',t)
+               /* щас не так актуально. а получается бывает t еще не вычислено
                if (cond && !t) {
                     console.error('if: no then section!');
-                    env.vz.console_log_diag( env );                
+                    env.vz.console_log_diag( env );
+                    console.log( if_env.params )
                }
+               */
                // если вычисления еще не было то лесом выходим ничего не делаем..
                if (!if_env.hasParam(0))
                 return null;

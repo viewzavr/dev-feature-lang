@@ -109,8 +109,11 @@ feature "session-server" {
     {{
      read @s.server | listen on_connection={ |in out ws|
 
+       //console-log "session-server got on-connectoin"
+
        read @in | cc-on { |msg|
          m-eval "(ws,cin,cout,msg) => {
+          //console.log('session-server see msg!')
          if (msg.cmd == 'create-session') {
         
           let session_in = env.create_channel()
@@ -134,6 +137,7 @@ feature "session-server" {
           env.feature('delayed')
           env.timeout( () => cout.put( {cmd: 'created', sid: msg.sid} ), 50 ); // подождем и пошлем
 
+          console.log('session-server emits connection')
           scope.s.emit( 'connection', session_in, session_out )
         }
         if (msg.cmd == 'session-msg') {

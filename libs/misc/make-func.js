@@ -8,11 +8,13 @@ export function setup(vz, m) {
 // а что если return без аргумента тоже выходит?
 export function feature_return( env )
 {
-  env.onvalues_any( ["input",0],(a,b) => {
-    a ||= b;
+  function send_result(a) {
     let p = env.ns.parent;
     while (p) {
       if (p.is_feature_applied("spawn_frame")) {
+        //console.log("return: setting output to spawn-frame",a)
+        //env.vz.console_log_diag( env )
+        //console.trace()
         p.setParam("output",a)
         break
       }
@@ -21,7 +23,16 @@ export function feature_return( env )
     if (!p) {
       console.warn( "return: cannot find spawn_frame")
     }
+  }
+  env.onvalues_any( ["input",0],(a,b) => {
+    send_result(a || b)
   })
+  /* ладно пока не будем
+  if (!(env.paramAssigned("input") || env.paramAssigned(0))) {
+    // чистый ретюр.
+    send_result(null) // а закончится ли оно?
+  }
+  */
 }
 
 // корневой объект для содержимого make-func
@@ -34,16 +45,20 @@ export function spawn_frame( env )
     if (cc.length > 0) {
         let lastc = cc[ cc.length-1 ];
         unsf = lastc.onvalue("output",(v) => {
-          //console.log("spawn frame: catched output of last child,",v,env.getPath())
+          console.log("spawn frame: catched output of last child,",v,env,
+              "last-child:",lastc)
+          console.log("all children:")
+          cc.forEach( c => console.log(c))
+          //console.log(cc)
           env.setParam("output",v);
         });
      }
-     else {  
+     else {
         unsf = () => {}
      }
   }
-  subscribe_for_finish();
-  env.on("childrenChanged",subscribe_for_finish)
+  //subscribe_for_finish();
+  //env.on("childrenChanged",subscribe_for_finish)
 }
 
 // параметр code либо дети { }
@@ -109,7 +124,7 @@ export function make_func( env )
            // от onvalue - тоже вариант
            if (spawn_obj.removed || spawn_obj.removing)
              return;
-           console.log("call of f finish, res=",res, env.getPath())
+           console.log("make-func: call of f finish, res=",res, env.getPath())
            spawn_obj.remove();
            //console.log("cleanup complete, resolving")
            resolve( res );
