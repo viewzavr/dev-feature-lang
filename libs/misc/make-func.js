@@ -33,6 +33,8 @@ export function feature_return( env )
     // чистый ретюрн.
     //console.log("see clean return", env.params, env.linksToObject())
     //send_result(null) // а закончится ли оно?
+    // но быть может стоит сделать exit да и все. и не мудрить. это у императивов удачно совпало что
+    // return можно юзать в качестве exit-а. а у нас stop может стоит сделать отдельно.
     env.feature("delayed");
     env.timeout( () => {
 

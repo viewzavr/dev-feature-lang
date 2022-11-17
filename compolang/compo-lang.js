@@ -3984,6 +3984,7 @@ export function set_parent( env ) {
 
 // это нам нужно для новых пайпов
 export function feature_read( env ) {
+  // но спорно. пишем по наличию параметра... ? а если там null?
   env.monitor_values(0,(v) => {
     // прислали null - ну прислали, ево и отдадим
     env.setParam("output",v);

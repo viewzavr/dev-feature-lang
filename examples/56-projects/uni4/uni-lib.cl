@@ -10,7 +10,7 @@ feature "compatible_visual_processes_for" {
       repeater { | codes |
         create_objects input=@codes @k.curart
       }
-s      |
+      |
       map_geta "output" default=null // возьмем выходы create-objects-ов
       | 
       map_geta 0 default=null // там ж массив.. хотя это как бы намек что мы мейкеров можем вообще создавать пачкой сразу

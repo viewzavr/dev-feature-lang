@@ -944,7 +944,7 @@ export function c_on( env ) {
 /////////////////// операции над ячейками - экспериментально
 
 // Мишин мэпинг из набора ячеек в новую ячейку значение которой - набор значений
-// идея - еще any_cells (any_channel) - потипу Promise.any
+// идея - еще any_cells (any_channel) - потипу Promise.any - это есть merge
 
 // по списку ячеек создает новую ячейку, которая содержит в себе массив значений
 // input - массив ячеек
@@ -1013,6 +1013,7 @@ export function create_writing_cell( env ) {
 // input - входной канал
 // 0 - один или набор целевых каналов
 // выход - дубликат входного канала
+// todo мб во многие еще надо, т.е. уметь писат в массивы.. а уже есть см create_writing_cell
 export function redirect_to_channel( env ) {
 
   let unsub = () => {}
@@ -1035,6 +1036,7 @@ export function redirect_to_channel( env ) {
 };
 
 // создает новый канал, который конвертирует значения исходного
+// todo фильтр еще надо
 export function convert_channel( env ) {
   let cc = create_cell()
   env.setParam( "output", cc );
