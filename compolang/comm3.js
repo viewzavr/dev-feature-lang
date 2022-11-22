@@ -18,8 +18,9 @@ export function setup(vz, m) {
      create_cell: feature_create_cell,
      c_on : c_on,
      cc_on: cc_on,
+     on_message: cc_on,
 
-     // новый язык не ячейки а каналы таки
+     // новый язык не ячейки а каналы таки/ но это еще вопрос
      create_channel: feature_create_cell,
      convert_channel: convert_channel, // cc-process
      redirect_to_channel: redirect_to_channel,
@@ -27,6 +28,7 @@ export function setup(vz, m) {
      get_channel: feature_get_cell,  // мб сделать это через парамеры да и все. mode="param"
      get_event_channel: feature_get_event_cell,
      get_value: get_cell_value,
+     get_new_value: get_cell_new_value,
      put_value: set_cell_value,
      put_value_to: set_cell_value_to
    });
@@ -667,6 +669,54 @@ export function get_cell_value( env ) {
   env.on("remove", call_unsub)
 };
 
+// как get_cell_value но работает ток для новых событий
+export function get_cell_new_value( env ) {
+  let unsub = [];
+  function call_unsub() { unsub.map( f => f() ); unsub=[]; }
+
+  env.feature("delayed");
+
+  env.onvalues( ["input"], (arr) => {
+    let single_mode=false;
+    if (!Array.isArray(arr)) {
+        arr=[arr];
+        single_mode=true;
+    }
+
+    let fnd = env.delayed( fn ); // не факт кстати что это надо будет - мб надо сразу для скорости
+
+    function fn( only_subscribe ) {
+      call_unsub();
+      let has_assigned_values = false;
+      let res = arr.map( (cell) => {
+        if (!cell) return;
+        if (!cell.is_cell) {
+          console.log("get-channel-value: input is not a channel",typeof(cell))
+          env.vz.console_log_diag( env )
+          //return undefined
+        }
+        // медленно и печально, с задержками, всех соединяем...
+        //let u = cell.monitor(fnd);
+        // бодро и быстро
+        let u = cell.on('assigned',fn)
+        unsub.push( u );
+        if (only_subscribe) return
+
+        has_assigned_values ||= cell.is_value_assigned();
+        return cell.get();
+      })
+
+      if (has_assigned_values) // будем так
+          env.setParam( "output", single_mode ? res[0] : res );
+    };
+
+    fn( true );
+
+  });
+
+  env.on("remove", call_unsub)
+};
+
 // выдает 1 значение из массива ячеек - по очередности кто последний
 // input - массив ячеек
 export function get_cell_value_latest( env ) {
@@ -852,13 +902,19 @@ export function c_on( env ) {
 };
 
 // метод F-NEW-EHA
+// @channel | cc-on { ... }
+// cc-on @channel { ... }
+/* новое:
+   @channel | reaction { |x| .... }
+   @channel | reaction (m-lambda "(x) => ..... ")
+*/
 export function cc_on( env ) {
   env.setParam( "make_func_output","f")
   env.feature("make_func");
 
   let unsub = () => {}
-  env.onvalues_any(['input',0],(channel,channel_arg) => {
-    channel ||= channel_arg;
+  env.onvalues_any(['input'],(channel) => {
+    //channel ||= channel_arg;
     unsub();
     if (!channel?.is_cell) {
       console.warn("cc-on: input is not channel",channel)
@@ -881,13 +937,16 @@ export function cc_on( env ) {
   env.on('remove',() => unsub())
 
   function emit_val(v) {
+      let f = env.params[0] || env.params.f;
+      //let f = env.params.f;
+
       if (v?.is_event_args) {
         //console.log('cc-on passing extended event args',v)
         //env.vz.console_log_diag( env )
-        env.params.f.apply( env, v )
+        f.apply( env, v )
       }
       else
-        env.params.f.call( env, v )    
+        f.call( env, v )    
   }
 
 };

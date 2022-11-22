@@ -175,7 +175,7 @@ feature "timer-ms" `
  env.on('remove',() => { unsub() } )
 `;
 
-feature "get_query_param" code=`
+feature "get_query_param" `
     function getParameterByName(name) {
       name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
       var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
@@ -188,7 +188,7 @@ feature "get_query_param" code=`
       var v = getParameterByName(name);
       env.setParam("output",v);
     });
-`;
+`
 
 register_feature name="fill_parent" {
   object style="position: absolute; width:100%; height: 100%; left: 0px; top: 0px;";

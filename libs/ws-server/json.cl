@@ -26,7 +26,7 @@ feature "ws-json" {
     output=@j
     @.->input
     {
-      cc-on (get-channel @j.io "connection") { |in out ws|
+      get-channel @j.io "connection" | cc-on  { |in out ws|
            //console-log "json see connection, in=" @in
            let jin = (read @in | convert-channel (m-lambda "v => JSON.parse(v)"))
            let jout = (create-channel)
