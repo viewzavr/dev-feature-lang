@@ -1,5 +1,25 @@
 // разные методы заточенные под позиционные параметры. может их и не надо так группировать но пусть пока будут
 
+/*
+feature "join" {=
+  env.on("param_changed",(name) => {
+    if (name == "output") return;
+    compute();
+  });
+  
+  function compute() {
+
+    let count = env.params.args_count;
+    let arr = [];
+    for (let i=0; i<count; i++)
+      arr.push( env.params[ i ] );
+    let res = arr.join( env.params.with || "" ); // по умолчанию пустой строкой
+    env.setParam("output",res );
+  };
+  
+  compute();
+=}
+*/
 
 // join соединяет позиционные аргументы, считая их массивами, 
 // и соединяет эти массивы в СТРОКУ

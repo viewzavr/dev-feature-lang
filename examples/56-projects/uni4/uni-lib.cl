@@ -10,7 +10,6 @@ feature "compatible_visual_processes_for" {
       repeater { | codes |
         create_objects input=@codes @k.curart
       }
-  //    | console_log_input "QQQ"
       |
       map_geta "output" default=null // возьмем выходы create-objects-ов
       | 

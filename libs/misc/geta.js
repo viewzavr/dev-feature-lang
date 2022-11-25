@@ -177,10 +177,12 @@ export function map_geta( env )
 
       if (res == null && env.hasParam('default'))
       {
+          //console.log("keke1")
           res = env.params.default;
       }
       else
       if (res == null && !env.filter_mode) {
+        //console.log("keke2", env.params)
         /* теперь мне стало непонятно. ну и что что нулл, разве это плохо?
         if (env.single_geta_mode)
           console.warn( "geta: result is null, arg=[", env.params[0],"] input=[",env.params.input,"]", env.getPath());
@@ -192,6 +194,7 @@ export function map_geta( env )
       }
 
       if (env.single_geta_mode) {
+        //console.log("thus setting output",res)
         env.setParam( "output",res );
         return;
       }
@@ -286,6 +289,7 @@ export function map_geta( env )
     // это у нас не объект вьюзара, обращаемся просто как к js структуре
     // так-то можно было бы универсальное событие track_change по имени и там неважно - параметр или что..
     let nv = input[ name ];
+    //console.log("get_one name=",name,"nv=",nv,"input=",input)
     
     if (typeof(nv) === "function" && !(env.params.eval || env.params.fok))
     {

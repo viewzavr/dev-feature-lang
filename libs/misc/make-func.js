@@ -12,7 +12,7 @@ export function feature_return( env )
     let p = env.ns.parent;
     while (p) {
       if (p.is_feature_applied("spawn_frame")) {
-        //console.log("return: setting output to spawn-frame",a)
+//        console.log("return: setting output to spawn-frame",a)
         //env.vz.console_log_diag( env )
         //console.trace()
         p.setParam("output",a)
@@ -27,12 +27,29 @@ export function feature_return( env )
   env.onvalues_any( ["input",0],(a,b) => {
     send_result(a || b)
   })
-  /* ладно пока не будем
-  if (!(env.paramAssigned("input") || env.paramAssigned(0))) {
-    // чистый ретюр.
-    send_result(null) // а закончится ли оно?
-  }
-  */
+  /* ладно пока не будем */ /// будем
+  // почему то ссылки через пайпу не срабатывают сюда
+  
+    // чистый ретюрн.
+    //console.log("see clean return", env.params, env.linksToObject())
+    //send_result(null) // а закончится ли оно?
+    // но быть может стоит сделать exit да и все. и не мудрить. это у императивов удачно совпало что
+    // return можно юзать в качестве exit-а. а у нас stop может стоит сделать отдельно.
+    env.feature("delayed");
+    env.timeout( () => {
+
+      if (!(env.paramAssigned("input") || env.paramAssigned(0))) {    
+        //console.log("see clean return D", env.params, env.linksToObject())
+        send_result(null);
+      }
+
+    },10); // время пайпе построиться...
+    /*
+    setTimeout( () => {
+      console.log("see clean return T", env.params, env.linksToObject())
+    },100)
+    */
+    
 }
 
 // корневой объект для содержимого make-func
@@ -115,7 +132,7 @@ export function make_func( env )
         // let finish = env.delayed( finish0 );
 
         // spawn_obj.ns.getChildren()[0].onvalue("output",finish);
-        spawn_obj.onvalue("output",finish0)
+        spawn_obj.monitor_values("output",finish0)
 
         function finish0( res ) {
            // выяснилось что они во время удаления могут себе чистить output..
@@ -124,7 +141,7 @@ export function make_func( env )
            // от onvalue - тоже вариант
            if (spawn_obj.removed || spawn_obj.removing)
              return;
-           console.log("make-func: call of f finish, res=",res, env.getPath())
+           //console.log("make-func: call of f finish, res=",res, env.getPath())
            spawn_obj.remove();
            //console.log("cleanup complete, resolving")
            resolve( res );

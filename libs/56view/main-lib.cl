@@ -340,7 +340,8 @@ feature "render_project" {
          active_view=@rend->active_view
          active_view_tab=@of->output
          render_project=@rend
-         ;
+         {
+         }
 
 
        // теперь надо рендерер. как выяснилось он таки один должен быть даже на все экраны, иначе падает браузер 

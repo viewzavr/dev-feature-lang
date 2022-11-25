@@ -107,6 +107,7 @@ export function compalang(env)
       console.log("parser err")
       env.emit("error",e)
       env.emit("finished",e)
+      env.setParam( "output", null );
       console.error(e);
       
       if (typeof e.format === "function")
@@ -2101,6 +2102,7 @@ export function console_log( env, options )
     for (let n of Object.keys(env.params)) {
       if (h[n]) continue;
       if (n == "args_count" || n == "output") continue;
+      if (n.startsWith("on_")) continue;
       // не выводим output потому что там input ему равен
       acc.push( n ); acc.push( "="); acc.push( env.params[n])
     }
@@ -2108,6 +2110,7 @@ export function console_log( env, options )
 //    console.log('cons log is printing',pn)
 //    console.trace()
     console.log( ...acc );
+    env.emit("print")
   }
 
   env.feature("delayed");
@@ -2158,7 +2161,8 @@ export function console_log_input( env, options )
     env.vz.console_log_diag( env );
   }
 
-  env.onvalue("input",(input) => {
+  env.monitor_values("input",(input) => {
+   //    console.log("cli ! input")
     print();
     env.setParam("output",input); // доп-фича - консоле-лог пропускает дальше данные
   });
@@ -3023,7 +3027,9 @@ export function insert_children( env )
 
   env.restoreChildrenFromDump = (dump, ismanual) => {
     children = dump.children;
-    if (typeof(pending_perform) !== "undefined") perform( pending_perform );
+    //if (env.params.debug) debugger;
+    if (typeof(pending_perform) !== "undefined") 
+        perform( pending_perform );
     return Promise.resolve("success");
   }
   
@@ -3032,9 +3038,10 @@ export function insert_children( env )
   // а и опять же надо дать шанс active пересчитаться если он формула
   env.monitor_values(["input","list","active"],perform);
 
-  
 
   function perform() {
+    
+
     //console.log("inserT_children: perform called", env.params, env.getPath())
     let input = env.params.input || [];
     if (!Array.isArray(input)) input=[input]; // допускаем что не список а 1 штука
@@ -3057,7 +3064,8 @@ export function insert_children( env )
      // todo optimize! но сначала померять часто ли эта фигня и скоко времени занимаетs
 
      close_envs();
-     //debugger;
+
+     
 
      if (!env.params.active) return;
 
@@ -3896,6 +3904,7 @@ export function connect_params_to_events(env) {
       if (code && code.bind) {
           code.apply( env, args );
       }
+      else
       if (code && code[0]?.this_is_env) {
         //let env_call_scope = env.$scopes.top(); // но может там своя скопе..
         
@@ -3915,8 +3924,10 @@ export function connect_params_to_events(env) {
           // todo ловить когда завершаемся
         })
       }
-      else
-        console.error('compolang connect_params_to_events: param value is not function', n,code)
+      else {
+        console.error('compolang connect_params_to_events: param value is not function, nor code-env', n,code)
+        env.vz.console_log_diag( env )
+      }
     });
   }
 
@@ -3935,8 +3946,12 @@ export function listen( env )
     if (!n.startsWith("on_")) return;
     let event_name = n.substring(3);
 
-    //console.log("listen subs to event",n)
-    return input.on( event_name, (...args) => env.emit( event_name,...args ) )
+    // console.log("listen subs to event",event_name)
+    let r = input.on( event_name, (...args) => env.emit( event_name,...args ) )
+    if (typeof(r) !== "function") {
+        console.warn( "listen: subscribe to ",event_name,"returned not a function",typeof(r))
+        env.vz.console_log_diag( env )
+      }
   }
 
   let unsub_arr = [];
@@ -3948,8 +3963,11 @@ export function listen( env )
     cleanup()
 
     for (let k of env.getParamsNames()) {
-      unsub_arr.push( f( k, env.params.input ) );
-    }  
+      let r = f( k, env.params.input )
+      // криминала нет там просто не on_
+      if (r) 
+        unsub_arr.push( r );
+    }
   }
 
   env.onvalue("input",setup)
@@ -3973,7 +3991,9 @@ export function set_parent( env ) {
 
 // это нам нужно для новых пайпов
 export function feature_read( env ) {
-  env.onvalue(0,(v) => {
+  // но спорно. пишем по наличию параметра... ? а если там null?
+  env.monitor_values(0,(v) => {
+    // прислали null - ну прислали, ево и отдадим
     env.setParam("output",v);
   });
 };
