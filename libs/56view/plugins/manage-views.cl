@@ -1,6 +1,8 @@
 find-objects-bf features="render_project_right_col" recursive=false 
 |
-insert_children { manage_views block_priority=0; };
+insert_children { 
+  manage_views block_priority=0; 
+};
 
 feature "manage_views" {
 

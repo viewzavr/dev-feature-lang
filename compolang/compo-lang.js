@@ -2162,7 +2162,7 @@ export function console_log_input( env, options )
   }
 
   env.monitor_values("input",(input) => {
-    console.log("cli ! input")
+   //    console.log("cli ! input")
     print();
     env.setParam("output",input); // доп-фича - консоле-лог пропускает дальше данные
   });
@@ -3027,7 +3027,9 @@ export function insert_children( env )
 
   env.restoreChildrenFromDump = (dump, ismanual) => {
     children = dump.children;
-    if (typeof(pending_perform) !== "undefined") perform( pending_perform );
+    //if (env.params.debug) debugger;
+    if (typeof(pending_perform) !== "undefined") 
+        perform( pending_perform );
     return Promise.resolve("success");
   }
   
@@ -3036,9 +3038,10 @@ export function insert_children( env )
   // а и опять же надо дать шанс active пересчитаться если он формула
   env.monitor_values(["input","list","active"],perform);
 
-  
 
   function perform() {
+    
+
     //console.log("inserT_children: perform called", env.params, env.getPath())
     let input = env.params.input || [];
     if (!Array.isArray(input)) input=[input]; // допускаем что не список а 1 штука
@@ -3061,7 +3064,8 @@ export function insert_children( env )
      // todo optimize! но сначала померять часто ли эта фигня и скоко времени занимаетs
 
      close_envs();
-     //debugger;
+
+     
 
      if (!env.params.active) return;
 
@@ -3900,6 +3904,7 @@ export function connect_params_to_events(env) {
       if (code && code.bind) {
           code.apply( env, args );
       }
+      else
       if (code && code[0]?.this_is_env) {
         //let env_call_scope = env.$scopes.top(); // но может там своя скопе..
         
@@ -3919,8 +3924,10 @@ export function connect_params_to_events(env) {
           // todo ловить когда завершаемся
         })
       }
-      else
-        console.error('compolang connect_params_to_events: param value is not function', n,code)
+      else {
+        console.error('compolang connect_params_to_events: param value is not function, nor code-env', n,code)
+        env.vz.console_log_diag( env )
+      }
     });
   }
 
