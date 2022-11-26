@@ -3886,6 +3886,8 @@ export function create_objects(env) {
 // F_PARAM_EVENTS
 // прицепляет параметры on_ как обработчики событий
 // idea - только зарегистрированные параметры, а остальным отлуп
+// idea - сначала on_-параметры, а потом остальные.. чтобы on_assigned отработало при присвоении..
+// но тогда надо эту фичу добавлять до выставления параметров .. (мб сразу на createObject да и все)
 export function connect_params_to_events(env) {
   env.on("param_changed",f);
 
@@ -3902,6 +3904,7 @@ export function connect_params_to_events(env) {
     bound_vars[n] = env.on(event_name,(...args) => {
       let code = env.params[n];
       if (code && code.bind) {
+          //console.log("conn se bind",event_name)
           code.apply( env, args );
       }
       else
