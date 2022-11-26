@@ -574,9 +574,13 @@ export function set_cell_value( env ) {
     // потому что она возвращает undefined если такого канала нет..
     // если нужны ответы - давайте делать put-request...
     // #design
-    // let o = single_elem_mode ? responding_channels[0] : responding_channels;
+    let o = single_elem_mode ? responding_channels[0] : responding_channels;
     //console.log("vvv",o)
-    env.setParam("output", true );
+    env.setParam("output", o );
+
+    // это было для завершения прцоессов...
+    // env.setParam("output", true );
+
     // todo optimize че их каждый раз пересчитывать то - собрать один раз и се..
     //env.setParam("output",arr); // чтобы можно было цепочки строить | 
     //env.setParam("output",val); // чтобы можно было цепочки строить | 
@@ -645,7 +649,7 @@ export function get_cell_value( env ) {
       let res = arr.map( (cell) => {
         if (!cell) return;
         if (!cell.is_cell) {
-          console.log("get-channel-value: input is not a channel",typeof(cell))
+          console.log("get_cell_value: input is not a channel; type=",typeof(cell))
           env.vz.console_log_diag( env )
           //return undefined
         }
