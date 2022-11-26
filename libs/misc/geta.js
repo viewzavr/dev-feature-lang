@@ -258,7 +258,20 @@ export function map_geta( env )
       ////////////////// пораметр?
       if (input.hasParam(name)) {
         // поменяется параметр - рестартуем хвост
-        let u = input.trackParam( name, () => get_one( input, params, current_arg_pos, cb, unsub_struc));
+        // todo это не эффективно в плане что у меня сейчас 1 штучка используется...
+        // точнее что если мы и есть хвост - то чего рестартовать то
+        let u;
+        if (env.params.stream_mode)
+        {
+          //console.log("geta: using stream mode for",name)
+          //env.vz.console_log_diag( env )
+          // F-PARAMS-STREAM
+          u = input.on( name + "_assigned", () => get_one( input, params, current_arg_pos, cb, unsub_struc))
+        }
+        else
+        {
+          u = input.trackParam( name, () => get_one( input, params, current_arg_pos, cb, unsub_struc));
+        }  
         // едем дальше
         
         return go_next_level( input.getParam(name), params, current_arg_pos,cb,unsub_struc, u );
@@ -325,7 +338,14 @@ export function map_geta( env )
     if (nv == null && input.hasParam) {
         // копируем алгоритм выше
         // поменяется параметр - рестартуем хвост
-        let u = input.trackParam( name, () => { get_one( input, params, current_arg_pos, cb, unsub_struc)} );
+        let u
+        if (env.params.stream_mode)
+        {
+          // F-PARAMS-STREAM
+          u = input.on( name + "_assigned", () => get_one( input, params, current_arg_pos, cb, unsub_struc))
+        }
+        else
+          u = input.trackParam( name, () => { get_one( input, params, current_arg_pos, cb, unsub_struc)} );
         // едем дальше
         // а дальше - стало быть отменяем свое значение.
         if (env.single_geta_mode)

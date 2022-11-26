@@ -61,6 +61,7 @@
           m.from = m.value.value;
           m.to = "~->" + (env.positional_params_count-1).toString();
           m.soft_mode = m.value.soft_flag;
+          m.stream_mode = m.value.stream_flag; // F-PARAMS-STREAM
           m.locinfo = m.value.locinfo;
           // todo зарефакторить это а то дублирование с link_assignment
         }
@@ -159,7 +160,8 @@
       */
       else
       if (m.link)
-        env.links[ `link_${linkcounter++}` ] = { from: m.from, to: m.to, soft_mode: m.soft_mode, locinfo: m.locinfo }
+        env.links[ `link_${linkcounter++}` ] = { from: m.from, to: m.to, soft_mode: m.soft_mode, locinfo: m.locinfo, stream_mode: m.stream_mode }
+        // F-PARAMS-STREAM
     }
 
     //console.log(env);
@@ -291,18 +293,22 @@ positional_attr
   }
   
 link_assignment
-  = name:attr_name ws "=" ws linkvalue:link soft_flag:("?")? { 
+  = name:attr_name ws "=" ws linkvalue:link soft_flag:("?")? stream_flag:("!")? { 
     //var linkrecordname = `link_${Object.keys(current_env.links).length}`;
     //while (current_env.links[ linkrecordname ]) linkrecordname = linkrecordname + "x";
     //current_env.links[linkrecordname] = { to: `.->${name}`, from: linkvalue.value };
-    return { 
+    let linkvalue2 = { 
       link: true, 
       to: `~->${name}`, 
       from: linkvalue.value,
       soft_mode: soft_flag ? true : false,
+      stream_mode: stream_flag ? true : false, // F-PARAMS-STREAM
       locinfo: linkvalue.locinfo
-      }
-    //console.log("LINK",linkvalue);
+      };
+
+    //console.log("LINK",linkvalue2);
+    return linkvalue2
+    
   }
   
 feature_addition
@@ -546,7 +552,7 @@ link "link value"
 // F_ACCESSORS 
 
 accessor
-  = "@" first_attr:obj_id attrs:( "." @attr_name @qmark:("?")?)+
+  = "@" first_attr:obj_id attrs:( "." @attr_name @qmark:("?")? @stream_mark:("!")?)+
   {
      // пока оставлена ведущая @ но в принципе уже можно и без нее
      // оставлена потому что если например без аксессора надо просто сослаться на объект
@@ -573,8 +579,10 @@ accessor
        g.features["geta"]=true;
        //g.params[0] = { positional_param: true, value: a }
        g.params[0] = a;
-       if (attrs[i][1]) // отметка "?"
+       if (attrs[i][1]) // отметка "?" qmark - означает нам не страшно что нет значения, пусть будет null по умолчанию
          g.params['default'] = null;
+       if (attrs[i][2]) // отметка "!" stream_mark // F-PARAMS-STREAM
+         g.params['stream_mode'] = true;
        g.positional_params_count=1;
        g.params[ "args_count" ] = 1;
        g.locinfo = locinfo;
@@ -599,8 +607,9 @@ positional_value
   / array
   / number
   / string
-  / linkvalue:link soft_flag:("?")? {
-    linkvalue.soft_flag = soft_flag;
+  / linkvalue:link soft_flag:("?")? stream_flag:("!")? {
+    linkvalue.soft_flag = soft_flag ? true : false;
+    linkvalue.stream_flag = stream_flag ? true : false; // F-PARAMS-STREAM
     return linkvalue;
   }
   / "(" ws env_list:env_list ws ")" {

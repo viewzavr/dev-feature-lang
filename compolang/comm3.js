@@ -120,6 +120,8 @@ export function create_cell() {
     // в том числе потом - через метод monitor. и тогда у нас аналог промисы почти.
     if (different)
       cell.emit('changed',value);
+
+    return value
   };
   cell.get = () => { return cell.value };
 

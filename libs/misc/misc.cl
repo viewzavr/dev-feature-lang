@@ -152,7 +152,8 @@ feature "timeout-ms" `
  env.on('remove',() => unsub() )
 `;
 
-// выдает чиселку в аутпут
+// выдает чиселку в аутпут, начиная с 0 и увеличивая на каждом тике
+// аргумент 0 - задержка (мс)
 feature "timer-ms" `
   let unsub = () => {}
   env.setParam('output',0)
