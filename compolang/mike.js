@@ -72,6 +72,7 @@ export function m_eval( env ) {
     if (res && res.make_func_result)
     {
        //console.log("m-eval res is make_func_result, waiting output",res)
+       // получается у нас тут порядок пока не шибко то и определен
        res.then( (result) => {
           //console.log("m-eval res is make_func_result, got output",result)
           env.setParam("output",result);

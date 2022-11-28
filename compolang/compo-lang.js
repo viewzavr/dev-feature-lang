@@ -2090,7 +2090,8 @@ export function console_log_life( env, options )
 export function console_log( env, options )
 {
   function print(pn) {
-    if (pn == 'output') return;
+    
+    //if (pn == 'output') return;
     let acc=[];
     let h={};
     for (let i=0; i<env.params.args_count; i++) {
@@ -2098,31 +2099,37 @@ export function console_log( env, options )
       h[i]=true;
       h[i.toString()] = true;
     }
+    
     // также напечатаем все остальное
     for (let n of Object.keys(env.params)) {
       if (h[n]) continue;
       if (n == "args_count" || n == "output") continue;
       if (n.startsWith("on_")) continue;
       // не выводим output потому что там input ему равен
-      acc.push( n ); acc.push( "="); acc.push( env.params[n])
+      acc.push( n ); acc.push( "="); acc.push( env.params[n] )
     }
 
-//    console.log('cons log is printing',pn)
+    //console.log('cons log is printing',pn)
 //    console.trace()
     console.log( ...acc );
     env.emit("print")
+    //console.log('setting output')
+    env.setParam( "output", ...acc )
   }
 
   env.feature("delayed");
   let printd = env.delayed(print,10);
   //let printd = print; // пусть сразу
-  env.on("param_changed",printd);
+  env.on("param_assigned",(name) => { if (name !== "output") printd() } );
 
   printd();
 
+/* это что-то внешнее должно быть
   env.onvalue("input",(input) => {
     env.setParam("output",input); // доп-фича - консоле-лог пропускает дальше данные
+    // хреновая это фича.. лучше бы сказал pass_input { console-log .... } или типа того
   });
+*/  
 }
 
 /*
@@ -3925,6 +3932,7 @@ export function connect_params_to_events(env) {
         let p = env.vz.callEnvFunction( code, parent, false, newscope, ...args );
         p.then( () => {
           // todo ловить когда завершаемся
+          // это прям большое TODO.. так получается все висит покамест
         })
       }
       else {
@@ -4007,5 +4015,51 @@ export function m_eval_input( env )
   env.onvalue("input",v => {
     let r = v();
     env.setParam( "output",r );
+  })
+}
+
+//////////////////////// 110-й метод реакции
+
+// вариант 1: on-assigned a1 a2 a3 func
+// вариант 2: on-assigned a1 a2 a3 { |a b c| func }
+// пока обойдемся первым, там видно будет
+export function on_assigned( env ) {
+
+  env.on("param_assigned",(name) => {
+    //console.log("ON_ASSIGNED",name)
+
+    if (name != "input")
+        if (!/^\d+$/.test(name)) return; // пока такой тупой тест. идея - реагируем ток на позиционные параметры
+    
+    let i = env.params.args_count - 1;
+
+    let args = [];
+    // прицепим инпут
+    if (env.paramAssigned("input")) args.push( env.params.input)
+
+    for (let j=0; j<i; j++) //  j<=i это еще и функцию передать до кучи
+      args.push( env.params[j] )
+
+    let cod = env.params[ i ];
+
+    //console.log(args)
+
+    if (!cod) {
+      // ну вроде как функция еще не назначилась. когда назначится - нас опять вызовут... но уже недетерменизм..
+      //console.error('cod is not defined. i=',i)
+    }
+    else {
+      //console.log("calling cod")
+      let res = cod.call( env, ...args );
+      env.setParam("output",res); // а пущай тикает
+    }
+
+  })
+
+};
+
+export function verbose( env ) {
+  env.monitor_defined( 0, (v) => {
+    env.vz.verbose = v;
   })
 }

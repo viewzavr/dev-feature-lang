@@ -92,7 +92,7 @@ register_feature name="concat" code=`
 
 register_feature name="+" code=`
 
-  env.on("param_changed",(name) => {
+  env.on("param_assigned",(name) => {
     if (name == "output") return;
     //console.log("plus: pc")
     compute();
@@ -121,7 +121,7 @@ register_feature name="+" code=`
 
 register_feature name="-" code=`
 
-  env.on("param_changed",(name) => {
+  env.on("param_assigned",(name) => {
     if (name == "output") return;
     compute();
   });
@@ -144,7 +144,7 @@ register_feature name="-" code=`
 
 feature "*" code=`
 
-  env.on("param_changed",(name) => {
+  env.on("param_assigned",(name) => {
     if (name == "output") return;
     compute();
   });
@@ -164,7 +164,7 @@ feature "*" code=`
 
 feature "/" code=`
 
-  env.on("param_changed",(name) => {
+  env.on("param_assigned",(name) => {
     if (name == "output") return;
     compute();
   });

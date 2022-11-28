@@ -1079,6 +1079,7 @@ export function create_writing_cell( env ) {
 // 0 - один или набор целевых каналов
 // выход - дубликат входного канала
 // todo мб во многие еще надо, т.е. уметь писат в массивы.. а уже есть см create_writing_cell
+// формально это дублирование линка. но какое же оно маленькое и красивое. наверное так и должно быть.
 export function redirect_to_channel( env ) {
 
   let unsub = () => {}
@@ -1127,4 +1128,3 @@ export function convert_channel( env ) {
     cc.set( res )
   }
 };
-
