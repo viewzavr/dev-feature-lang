@@ -2,6 +2,14 @@ export function setup(vz, m) {
   vz.register_feature_set( m );
 }
 
+// специфика nodejs
+export function process_args( env )
+{
+  process.argv.forEach( (v,i) => {
+    env.setParam( i, v )
+  })
+}
+
 export function apply_by_hotkey(env) {
 
  env.feature("func");

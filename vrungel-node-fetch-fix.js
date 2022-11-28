@@ -10,6 +10,7 @@ globalThis.fetch = newfetch;
 // https://github.com/lucacasonato/deno_local_file_fetch/blob/main/mod.ts
 function newfetch( file, opts )
 {
+
   if (!(typeof(file) === 'string' && file.startsWith("file://")))
     return origfetch( file, opts );
 
@@ -19,7 +20,8 @@ function newfetch( file, opts )
      readFile(path, 'utf8', (err, data) => {
        if (err) reject(err);
        let r = {
-         text: () => data
+         text: () => Promise.resolve(data), // todo добавить еще обработку arraybuffer
+         ok: true
        }
        // console.log("loaded data",data);
        resolve( r );
