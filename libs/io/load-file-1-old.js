@@ -110,6 +110,8 @@ function loadFileBase( file_or_path, istext, handler, errhandler, setFileProgres
           payload = file_or_path.payload;
           file_or_path = file_or_path.path;
         }
+
+
         
         if (file_or_path && file_or_path.length > 0) {
             if (file_or_path.match(/^wss?:\/\//))
@@ -118,56 +120,105 @@ function loadFileBase( file_or_path, istext, handler, errhandler, setFileProgres
             setFileProgress( file_or_path,"loading");
             file_on();
 
-            let opts = { credentials:"include" }
-            if (payload) {
-                opts.method = 'POST'
-                opts.headers ||= {}
-                opts.headers['Content-Type'] = 'application/json;charset=utf-8'
-                opts.body = JSON.stringify(payload)
-                // todo поддержать и другие вещи. типа blob
-                // https://learn.javascript.ru/fetch
+            var xhr = new XMLHttpRequest();
+            //xhr.open('GET', file_or_path, true);
+            // нет слов.. чтобы работало payload, надо слать с post
+            xhr.open( payload ? 'POST' : 'GET', file_or_path, true);
+            xhr.responseType = istext ? 'text' : 'arraybuffer';
+            xhr.withCredentials = true;
+            // тоже нет слов.. это чтобы оно хотя бы с etag консультировалось
+            //xhr.setRequestHeader("Cache-Control", "no-cache");
+
+            xhr.onprogress = function(event) {
+                setFileProgress( file_or_path,(event.loaded/(1024)+"Kb") ) ;
+                //console.log( 'Получено с сервера ' + event.loaded + ' байт из ' + event.total,event );
             }
 
-            const controller = new AbortController()
-            opts.signal = controller.signal
+            xhr.onload = function(e) {
+                //console.log("xhr loadFileBase onload fired",file_or_path,e);
+                //console.log("this=",this);
+                // response is unsigned 8 bit integer
+                //var responseArray = new Uint8Array(this.response);
+                setFileProgress( file_or_path,"parsing");
+                file_off();
+                handler( this.response, file_or_path );
+                
+                /* тяжело отлаживаться получается
+                try {
+                  handler( this.response, file_or_path );
+                } catch (err) {
+                  console.error(err);
+                  setFileProgress( file_or_path,"PARSE ERROR");
+                  if (errhandler) errhandler(err,file_or_path);
+                  //throw err;
+                  return;
+                }*/
 
-            fetch( file_or_path, opts )
-            .then(handleErrors)
-            .then( res => {
-                let f = istext ? res.text : res.arrayBuffer
-                f().then( data => {
-                    setFileProgress( file_or_path,"parsing");
-                    file_off();
-                    handler( data, file_or_path );                    
-                })
-            })
-            .catch(error => {              
-              //console.log("fetch load error",error );//, "message=", error.message);
-              setFileProgress( file_or_path, "RESPONSE ERROR" );
+//setFileProgress( file_or_path );
 
-              if (errhandler) errhandler(error, file_or_path);
+                var iserr = this.status == 404 || !this.response;
+                if (!iserr) {
+                  setFileProgress( file_or_path, "loaded" );
+                  setTimeout( function() {
+                    setFileProgress( file_or_path );
+                  }, 500 ); // не сразу убирать сообщение
+                } else {
+                  console.log("xhr load error (soft)");
+                  console.log("xhr object=",this);
+                  console.log("event=",e);
+                  setFileProgress( file_or_path, "RESPONSE ERROR" );
+                  setTimeout( function() {
+                    setFileProgress( file_or_path );
+                  }, 25000 ); // не сразу убирать сообщение                
+                }
+                
+            };
 
-              setTimeout( function() {
-                setFileProgress( file_or_path );
-              }, 25000 ); // не сразу убирать сообщение       
-            } );
+            xhr.onerror = function(e) {
+                file_off();
+                setFileProgress( file_or_path,"AJAX READ ERROR");
+                setTimeout( function() {
+                    setFileProgress( file_or_path );
+                }, 25000 );
+                console.log("xhr error. file_or_path=",file_or_path);
+                if (errhandler) errhandler(e,file_or_path); // но вообще это спорно, то что мы передаем вторым параметром урль..
+            }
+            
+            if (payload) {
+              console.log("SENDING PAYLOAD",payload);
+//              debugger;
+              xhr.setRequestHeader("Content-Type", "application/json");
+              xhr.send( payload );
+            }
+            else
+              xhr.send();
 
             var result = {};
-            result.abort = function() { controller.abort(); setFileProgress( file_or_path ); file_off(); }
-            result.stoploading = function() { controller.abort(); setFileProgress( file_or_path ); file_off(); }
+            result.abort = function() { xhr.abort(); setFileProgress( file_or_path ); file_off(); }
+            result.stoploading = function() { xhr.abort(); setFileProgress( file_or_path ); file_off(); }
             return result;
 
-            function handleErrors(response) {
-                if (!response.ok) {                    
-                    throw Error(response.statusText || "[no status]");
-                }
-                return response;
-            }
+                /* ранее вызывали по jquery так. но еще нужен был для arraybuffer
+               https://github.com/henrya/js-jquery/blob/master/BinaryTransport/jquery.binarytransport.js
+            // https://api.jquery.com/jquery.get/
+            var jqxhr = jQuery.get( file_or_path, function(data) {
+                setFileProgress( file_or_path,"parsing");
+                handler(data);
+                setFileProgress( file_or_path );
+            }, istext ? "text" : "binary" );
+            // надо указать явно datatype text, а то если будет json-файл то его нам уже пропарсят, что неожиданно для нас.
+            jqxhr.fail(function() {
+                setFileProgress( file_or_path,"AJAX READ ERROR",-5000 );
+                setTimeout( function() {
+                    setFileProgress( file_or_path );
+                }, 5000 );
+            });
+            */
             
         }
         else
         {
-            if (errhandler) errhandler(null, file_or_path);
+            if (errhandler) errhandler(null,file_or_path);
         }
 
     }
