@@ -44,4 +44,11 @@ on-assigned "alfa=" @a->alfa! "beta=" @b->beta "teta=" @c->teta (k: make-func { 
 */
 
 //on-assigned @a->alfa! @b->beta! @c->teta! (m-lambda "(a,b,c) => { console.log('------------------ evalling ',a,b,c ); return a+b+c }") | console-log "result"
-on-assigned @a->alfa! @b->beta! @c->teta! (m-lambda "(a,b,c) => a+b+c") | console-log "result"
+//on-assigned @a->alfa! @b->beta! @c->teta! (m-lambda "(a,b,c) => a+b+c") | console-log "result"
+
+//on-assigned @a->alfa! @b->beta! @c->teta! (m-lambda "(a,b,c) => a+b+c") | on-assigned (delay (m-lambda "(val) => console.log( 'result',val )") pause=2)
+
+// тестируем быструю передачу из ()-скобок
+on-assigned
+  (on-assigned @a->alfa! @b->beta! @c->teta! (m-lambda "(a,b,c) => a+b+c"))
+  (m-lambda "(val) => console.log( 'result',val )") 

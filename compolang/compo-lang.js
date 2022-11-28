@@ -298,7 +298,7 @@ function parsed2dump( vz, parsed, base_url ) {
      // а там фичи еще не назначены и короче даже не выяснить кто он там..
      // хотя можно было бы так-то и ловить событие... что фича назначилась
      // ну да ладно, пока так, там посмотрим. @maybe @optimize убрать ссылки эти
-     parsed.links[ "p_link_for_output"] = { from: ".->0", to: ".->output", soft_mode: true };
+     parsed.links[ "p_link_for_output"] = { from: ".->0", to: ".->output", soft_mode: true, stream_mode:true };
      // soft-mode тут спорно конечно, но..
   }
 
@@ -630,7 +630,7 @@ export function pipe(env)
          // пропускаем ссылки.. вообще странное решение конечно.. сделать ссылки объектами
          // и потом об них спотыкаться
          if (cprev) {
-           let k = c.linkParam("input",`../${cprev.ns.name}->output`,true); // вообще странно все это
+           let k = c.linkParam("input",`../${cprev.ns.name}->output`,true, false, true); // вообще странно все это
            //created_links.push( k );
            // оно там само внутрях удаляет..
          }
@@ -638,9 +638,9 @@ export function pipe(env)
       }
       // output последнего ставим как output всей цепочки
       if (cprev)
-          created_links.push( env.linkParam("output",`${cprev.ns.name}->output`,true) );
+          created_links.push( env.linkParam("output",`${cprev.ns.name}->output`,true, false, true) );
       else
-          created_links.push( env.linkParam("output",`~->input`,true) ); // по умолчанию выход из пайпы пусть будет и входом?
+          created_links.push( env.linkParam("output",`~->input`,true, false, true) ); // по умолчанию выход из пайпы пусть будет и входом?
           //created_links.push( env.linkParam("output",`.->input`) ); // по умолчанию выход из пайпы пусть будет и входом?
           
       // input первому ставим на инпут пайпы
@@ -652,7 +652,7 @@ export function pipe(env)
           if (!cfirst.hasLinksToParam("input") && !cfirst.getParam("input"))
           {
             if (env.hasLinksToParam("input")) // если у пайпы есть input..
-                created_links.push( cfirst.linkParam("input",`..->input`,true) );
+                created_links.push( cfirst.linkParam("input",`..->input`,true, false, true) );
           }
       }
       
@@ -692,13 +692,10 @@ export function computer(env)
     }
     if (!c) return;
 
-    // а вот выясняется что фичи то еще и не назначены..
     let output_name = "output";
-    //let output_name = c.is_feature_applied("is-positional-env") ? 0 : "output";
-    //console.log(c.getPath(),JSON.stringify(c.$features_applied),output_name,c)
-    //let output_name = "output";
 
-    set_unsub( c.trackParam(output_name,(v) => {
+    set_unsub( c.trackParamAssigned(output_name,(v) => {
+      //console.log("expr: param assigned", env.getPath())
       if (!env.hasLinksFromParam("output"))
          console.warn("computer env has no links from it's output",env)
       env.setParam("output",v);
@@ -4062,4 +4059,24 @@ export function verbose( env ) {
   env.monitor_defined( 0, (v) => {
     env.vz.verbose = v;
   })
+}
+
+// напрашивается такая функция
+// возвращает функцию, которая есть delayed-версия функции указанной в аргументе
+// 0 - входная функция
+// pause - задержка в тактах, по умолч 0
+// drop - отбрасывать дополнительные вызовы если первый еще не сработала
+// append - думал очередь сделать, но семантика не ясна
+export function delay ( env ) {
+  env.feature("delayed");
+  env.monitor_assigned( [0,"pause","drop","append"], (v,pause,drop,append) => {
+    if (!v) {
+      env.setParam( "output", null )
+      return
+    }
+    let operator = drop ? env.delayed_first : env.delayed;
+    //console.log("pause=",pause)
+    let f = operator( v, pause || 0 )
+    env.setParam("output",f)
+  }, true)
 }
