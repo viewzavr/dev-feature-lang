@@ -654,6 +654,7 @@ export function pipe(env)
             if (env.hasLinksToParam("input")) // если у пайпы есть input..
                 created_links.push( cfirst.linkParam("input",`..->input`,true, false, true) );
           }
+          // но в целом он может появиться и динамически... возможный баг тут...
       }
       
 

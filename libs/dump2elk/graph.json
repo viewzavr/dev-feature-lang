@@ -1,0 +1,1696 @@
+{
+	"id": "/root",
+	"layoutOptions": {
+	    "elk.algorithm": "layered",
+        "org.eclipse.elk.edgeRouting": "ORTHOGONAL",
+     },
+	"width": 60,
+	"height": 30,
+	"labels": [{ "text": "root: " }],
+	"ports": [],
+	"children": [
+		{
+			"id": "/root/_load",
+			"width": 940,
+			"height": 30,
+			"labels": [
+				{
+					"text": "load 0=\"lib3dv3 csv params io gui render-params df scene-explorer-3d new-modifiers imperative\""
+				}
+			],
+			"ports": [],
+			"children": [],
+			"edges": []
+		},
+		{
+			"id": "/root/_load_0",
+			"width": 760,
+			"height": 30,
+			"labels": [
+				{
+					"text": "load 0=\"main-lib.cl plugins.cl gui5.cl gui4addons.cl editor-abstractions.cl\""
+				}
+			],
+			"ports": [],
+			"children": [],
+			"edges": []
+		},
+		{
+			"id": "/root/_feature",
+			"width": 230,
+			"height": 30,
+			"labels": [{ "text": "feature 0=\"the_project\"" }],
+			"ports": [],
+			"children": [
+				{
+					"id": "/root/_feature/project",
+					"width": 150,
+					"height": 30,
+					"labels": [{ "text": "project: object" }],
+					"ports": [
+						{
+							"id": "/root/_feature/project->views",
+							"width": 8,
+							"height": 8,
+							"labels": [{ "text": "views", "width": 25 }]
+						},
+						{
+							"id": "/root/_feature/project->processes",
+							"width": 8,
+							"height": 8,
+							"labels": [{ "text": "processes", "width": 45 }]
+						},
+						{
+							"id": "/root/_feature/project->top_processes",
+							"width": 8,
+							"height": 8,
+							"labels": [{ "text": "top_processes", "width": 65 }]
+						},
+						{
+							"id": "/root/_feature/project->cameras",
+							"width": 8,
+							"height": 8,
+							"labels": [{ "text": "cameras", "width": 35 }]
+						},
+						{
+							"id": "/root/_feature/project->.",
+							"width": 8,
+							"height": 8,
+							"labels": [{ "text": ".", "width": 5 }]
+						}
+					],
+					"children": [
+						{
+							"id": "/root/_feature/project//root/_feature/project/0_0",
+							"width": 80,
+							"height": 30,
+							"labels": [{ "text": "computer" }],
+							"ports": [
+								{
+									"id": "/root/_feature/project//root/_feature/project/0_0->output",
+									"width": 8,
+									"height": 8,
+									"labels": [{ "text": "out", "width": 15 }]
+								}
+							],
+							"children": [
+								{
+									"id": "/root/_feature/project//root/_feature/project/0_0/_find-objects-bf",
+									"width": 40,
+									"height": 30,
+									"labels": [{ "text": "pipe" }],
+									"ports": [
+										{
+											"id": "/root/_feature/project//root/_feature/project/0_0/_find-objects-bf->output",
+											"width": 8,
+											"height": 8,
+											"labels": [
+												{ "text": "out", "width": 15 }
+											]
+										}
+									],
+									"children": [
+										{
+											"id": "/root/_feature/project//root/_feature/project/0_0/_find-objects-bf/head",
+											"width": 150,
+											"height": 30,
+											"labels": [
+												{ "text": "find-objects-bf" }
+											],
+											"ports": [
+												{
+													"id": "/root/_feature/project//root/_feature/project/0_0/_find-objects-bf/head->root",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "root",
+															"width": 20
+														}
+													]
+												},
+												{
+													"id": "/root/_feature/project//root/_feature/project/0_0/_find-objects-bf/head->output",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "out",
+															"width": 15
+														}
+													]
+												}
+											],
+											"children": [],
+											"edges": [
+												{
+													"sources": [
+														"/root/_feature/project->."
+													],
+													"targets": [
+														"/root/_feature/project//root/_feature/project/0_0/_find-objects-bf/head->root"
+													],
+													"id": "/root/_feature/project//root/_feature/project/0_0/_find-objects-bf/head:edge_0"
+												}
+											]
+										},
+										{
+											"id": "/root/_feature/project//root/_feature/project/0_0/_find-objects-bf/_sort_by_priority",
+											"width": 160,
+											"height": 30,
+											"labels": [
+												{ "text": "sort_by_priority" }
+											],
+											"ports": [
+												{
+													"id": "/root/_feature/project//root/_feature/project/0_0/_find-objects-bf/_sort_by_priority->input",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "in",
+															"width": 10
+														}
+													]
+												},
+												{
+													"id": "/root/_feature/project//root/_feature/project/0_0/_find-objects-bf/_sort_by_priority->output",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "out",
+															"width": 15
+														}
+													]
+												}
+											],
+											"children": [],
+											"edges": []
+										}
+									],
+									"edges": [
+										{
+											"sources": [
+												"/root/_feature/project//root/_feature/project/0_0/_find-objects-bf/head->output"
+											],
+											"targets": [
+												"/root/_feature/project//root/_feature/project/0_0/_find-objects-bf/_sort_by_priority->input"
+											],
+											"id": "/root/_feature/project//root/_feature/project/0_0/_find-objects-bf:edge_0"
+										},
+										{
+											"sources": [
+												"/root/_feature/project//root/_feature/project/0_0/_find-objects-bf/_sort_by_priority->output"
+											],
+											"targets": [
+												"/root/_feature/project//root/_feature/project/0_0/_find-objects-bf->output"
+											],
+											"id": "/root/_feature/project//root/_feature/project/0_0/_find-objects-bf:edge_1"
+										}
+									]
+								}
+							],
+							"edges": [
+								{
+									"sources": [
+										"/root/_feature/project//root/_feature/project/0_0->output"
+									],
+									"targets": [
+										"/root/_feature/project->views"
+									],
+									"id": "/root/_feature/project//root/_feature/project/0_0:edge_0"
+								},
+								{
+									"sources": [
+										"/root/_feature/project//root/_feature/project/0_0/_find-objects-bf->output"
+									],
+									"targets": [
+										"/root/_feature/project//root/_feature/project/0_0->output"
+									],
+									"id": "/root/_feature/project//root/_feature/project/0_0:edge_1"
+								}
+							]
+						},
+						{
+							"id": "/root/_feature/project//root/_feature/project/1_1",
+							"width": 80,
+							"height": 30,
+							"labels": [{ "text": "computer" }],
+							"ports": [
+								{
+									"id": "/root/_feature/project//root/_feature/project/1_1->output",
+									"width": 8,
+									"height": 8,
+									"labels": [{ "text": "out", "width": 15 }]
+								}
+							],
+							"children": [
+								{
+									"id": "/root/_feature/project//root/_feature/project/1_1/_find-objects-bf",
+									"width": 40,
+									"height": 30,
+									"labels": [{ "text": "pipe" }],
+									"ports": [
+										{
+											"id": "/root/_feature/project//root/_feature/project/1_1/_find-objects-bf->output",
+											"width": 8,
+											"height": 8,
+											"labels": [
+												{ "text": "out", "width": 15 }
+											]
+										}
+									],
+									"children": [
+										{
+											"id": "/root/_feature/project//root/_feature/project/1_1/_find-objects-bf/head",
+											"width": 150,
+											"height": 30,
+											"labels": [
+												{ "text": "find-objects-bf" }
+											],
+											"ports": [
+												{
+													"id": "/root/_feature/project//root/_feature/project/1_1/_find-objects-bf/head->root",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "root",
+															"width": 20
+														}
+													]
+												},
+												{
+													"id": "/root/_feature/project//root/_feature/project/1_1/_find-objects-bf/head->output",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "out",
+															"width": 15
+														}
+													]
+												}
+											],
+											"children": [],
+											"edges": [
+												{
+													"sources": [
+														"/root/_feature/project->."
+													],
+													"targets": [
+														"/root/_feature/project//root/_feature/project/1_1/_find-objects-bf/head->root"
+													],
+													"id": "/root/_feature/project//root/_feature/project/1_1/_find-objects-bf/head:edge_0"
+												}
+											]
+										},
+										{
+											"id": "/root/_feature/project//root/_feature/project/1_1/_find-objects-bf/_sort_by_priority",
+											"width": 160,
+											"height": 30,
+											"labels": [
+												{ "text": "sort_by_priority" }
+											],
+											"ports": [
+												{
+													"id": "/root/_feature/project//root/_feature/project/1_1/_find-objects-bf/_sort_by_priority->input",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "in",
+															"width": 10
+														}
+													]
+												},
+												{
+													"id": "/root/_feature/project//root/_feature/project/1_1/_find-objects-bf/_sort_by_priority->output",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "out",
+															"width": 15
+														}
+													]
+												}
+											],
+											"children": [],
+											"edges": []
+										}
+									],
+									"edges": [
+										{
+											"sources": [
+												"/root/_feature/project//root/_feature/project/1_1/_find-objects-bf/head->output"
+											],
+											"targets": [
+												"/root/_feature/project//root/_feature/project/1_1/_find-objects-bf/_sort_by_priority->input"
+											],
+											"id": "/root/_feature/project//root/_feature/project/1_1/_find-objects-bf:edge_0"
+										},
+										{
+											"sources": [
+												"/root/_feature/project//root/_feature/project/1_1/_find-objects-bf/_sort_by_priority->output"
+											],
+											"targets": [
+												"/root/_feature/project//root/_feature/project/1_1/_find-objects-bf->output"
+											],
+											"id": "/root/_feature/project//root/_feature/project/1_1/_find-objects-bf:edge_1"
+										}
+									]
+								}
+							],
+							"edges": [
+								{
+									"sources": [
+										"/root/_feature/project//root/_feature/project/1_1->output"
+									],
+									"targets": [
+										"/root/_feature/project->processes"
+									],
+									"id": "/root/_feature/project//root/_feature/project/1_1:edge_0"
+								},
+								{
+									"sources": [
+										"/root/_feature/project//root/_feature/project/1_1/_find-objects-bf->output"
+									],
+									"targets": [
+										"/root/_feature/project//root/_feature/project/1_1->output"
+									],
+									"id": "/root/_feature/project//root/_feature/project/1_1:edge_1"
+								}
+							]
+						},
+						{
+							"id": "/root/_feature/project//root/_feature/project/2_2",
+							"width": 80,
+							"height": 30,
+							"labels": [{ "text": "computer" }],
+							"ports": [
+								{
+									"id": "/root/_feature/project//root/_feature/project/2_2->output",
+									"width": 8,
+									"height": 8,
+									"labels": [{ "text": "out", "width": 15 }]
+								}
+							],
+							"children": [
+								{
+									"id": "/root/_feature/project//root/_feature/project/2_2/_find-objects-bf",
+									"width": 40,
+									"height": 30,
+									"labels": [{ "text": "pipe" }],
+									"ports": [
+										{
+											"id": "/root/_feature/project//root/_feature/project/2_2/_find-objects-bf->output",
+											"width": 8,
+											"height": 8,
+											"labels": [
+												{ "text": "out", "width": 15 }
+											]
+										}
+									],
+									"children": [
+										{
+											"id": "/root/_feature/project//root/_feature/project/2_2/_find-objects-bf/head",
+											"width": 150,
+											"height": 30,
+											"labels": [
+												{ "text": "find-objects-bf" }
+											],
+											"ports": [
+												{
+													"id": "/root/_feature/project//root/_feature/project/2_2/_find-objects-bf/head->root",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "root",
+															"width": 20
+														}
+													]
+												},
+												{
+													"id": "/root/_feature/project//root/_feature/project/2_2/_find-objects-bf/head->output",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "out",
+															"width": 15
+														}
+													]
+												}
+											],
+											"children": [],
+											"edges": [
+												{
+													"sources": [
+														"/root/_feature/project->."
+													],
+													"targets": [
+														"/root/_feature/project//root/_feature/project/2_2/_find-objects-bf/head->root"
+													],
+													"id": "/root/_feature/project//root/_feature/project/2_2/_find-objects-bf/head:edge_0"
+												}
+											]
+										},
+										{
+											"id": "/root/_feature/project//root/_feature/project/2_2/_find-objects-bf/_sort_by_priority",
+											"width": 160,
+											"height": 30,
+											"labels": [
+												{ "text": "sort_by_priority" }
+											],
+											"ports": [
+												{
+													"id": "/root/_feature/project//root/_feature/project/2_2/_find-objects-bf/_sort_by_priority->input",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "in",
+															"width": 10
+														}
+													]
+												},
+												{
+													"id": "/root/_feature/project//root/_feature/project/2_2/_find-objects-bf/_sort_by_priority->output",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "out",
+															"width": 15
+														}
+													]
+												}
+											],
+											"children": [],
+											"edges": []
+										}
+									],
+									"edges": [
+										{
+											"sources": [
+												"/root/_feature/project//root/_feature/project/2_2/_find-objects-bf/head->output"
+											],
+											"targets": [
+												"/root/_feature/project//root/_feature/project/2_2/_find-objects-bf/_sort_by_priority->input"
+											],
+											"id": "/root/_feature/project//root/_feature/project/2_2/_find-objects-bf:edge_0"
+										},
+										{
+											"sources": [
+												"/root/_feature/project//root/_feature/project/2_2/_find-objects-bf/_sort_by_priority->output"
+											],
+											"targets": [
+												"/root/_feature/project//root/_feature/project/2_2/_find-objects-bf->output"
+											],
+											"id": "/root/_feature/project//root/_feature/project/2_2/_find-objects-bf:edge_1"
+										}
+									]
+								}
+							],
+							"edges": [
+								{
+									"sources": [
+										"/root/_feature/project//root/_feature/project/2_2->output"
+									],
+									"targets": [
+										"/root/_feature/project->top_processes"
+									],
+									"id": "/root/_feature/project//root/_feature/project/2_2:edge_0"
+								},
+								{
+									"sources": [
+										"/root/_feature/project//root/_feature/project/2_2/_find-objects-bf->output"
+									],
+									"targets": [
+										"/root/_feature/project//root/_feature/project/2_2->output"
+									],
+									"id": "/root/_feature/project//root/_feature/project/2_2:edge_1"
+								}
+							]
+						},
+						{
+							"id": "/root/_feature/project//root/_feature/project/3_3",
+							"width": 80,
+							"height": 30,
+							"labels": [{ "text": "computer" }],
+							"ports": [
+								{
+									"id": "/root/_feature/project//root/_feature/project/3_3->output",
+									"width": 8,
+									"height": 8,
+									"labels": [{ "text": "out", "width": 15 }]
+								}
+							],
+							"children": [
+								{
+									"id": "/root/_feature/project//root/_feature/project/3_3/_find-objects-bf",
+									"width": 40,
+									"height": 30,
+									"labels": [{ "text": "pipe" }],
+									"ports": [
+										{
+											"id": "/root/_feature/project//root/_feature/project/3_3/_find-objects-bf->output",
+											"width": 8,
+											"height": 8,
+											"labels": [
+												{ "text": "out", "width": 15 }
+											]
+										}
+									],
+									"children": [
+										{
+											"id": "/root/_feature/project//root/_feature/project/3_3/_find-objects-bf/head",
+											"width": 150,
+											"height": 30,
+											"labels": [
+												{ "text": "find-objects-bf" }
+											],
+											"ports": [
+												{
+													"id": "/root/_feature/project//root/_feature/project/3_3/_find-objects-bf/head->root",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "root",
+															"width": 20
+														}
+													]
+												},
+												{
+													"id": "/root/_feature/project//root/_feature/project/3_3/_find-objects-bf/head->output",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "out",
+															"width": 15
+														}
+													]
+												}
+											],
+											"children": [],
+											"edges": [
+												{
+													"sources": [
+														"/root/_feature/project->."
+													],
+													"targets": [
+														"/root/_feature/project//root/_feature/project/3_3/_find-objects-bf/head->root"
+													],
+													"id": "/root/_feature/project//root/_feature/project/3_3/_find-objects-bf/head:edge_0"
+												}
+											]
+										},
+										{
+											"id": "/root/_feature/project//root/_feature/project/3_3/_find-objects-bf/_sort_by_priority",
+											"width": 160,
+											"height": 30,
+											"labels": [
+												{ "text": "sort_by_priority" }
+											],
+											"ports": [
+												{
+													"id": "/root/_feature/project//root/_feature/project/3_3/_find-objects-bf/_sort_by_priority->input",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "in",
+															"width": 10
+														}
+													]
+												},
+												{
+													"id": "/root/_feature/project//root/_feature/project/3_3/_find-objects-bf/_sort_by_priority->output",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "out",
+															"width": 15
+														}
+													]
+												}
+											],
+											"children": [],
+											"edges": []
+										}
+									],
+									"edges": [
+										{
+											"sources": [
+												"/root/_feature/project//root/_feature/project/3_3/_find-objects-bf/head->output"
+											],
+											"targets": [
+												"/root/_feature/project//root/_feature/project/3_3/_find-objects-bf/_sort_by_priority->input"
+											],
+											"id": "/root/_feature/project//root/_feature/project/3_3/_find-objects-bf:edge_0"
+										},
+										{
+											"sources": [
+												"/root/_feature/project//root/_feature/project/3_3/_find-objects-bf/_sort_by_priority->output"
+											],
+											"targets": [
+												"/root/_feature/project//root/_feature/project/3_3/_find-objects-bf->output"
+											],
+											"id": "/root/_feature/project//root/_feature/project/3_3/_find-objects-bf:edge_1"
+										}
+									]
+								}
+							],
+							"edges": [
+								{
+									"sources": [
+										"/root/_feature/project//root/_feature/project/3_3->output"
+									],
+									"targets": [
+										"/root/_feature/project->cameras"
+									],
+									"id": "/root/_feature/project//root/_feature/project/3_3:edge_0"
+								},
+								{
+									"sources": [
+										"/root/_feature/project//root/_feature/project/3_3/_find-objects-bf->output"
+									],
+									"targets": [
+										"/root/_feature/project//root/_feature/project/3_3->output"
+									],
+									"id": "/root/_feature/project//root/_feature/project/3_3:edge_1"
+								}
+							]
+						}
+					],
+					"edges": []
+				}
+			],
+			"edges": []
+		},
+		{
+			"id": "/root/_feature_1",
+			"width": 180,
+			"height": 30,
+			"labels": [{ "text": "feature 0=\"camera\"" }],
+			"ports": [],
+			"children": [
+				{
+					"id": "/root/_feature_1/ccc",
+					"width": 290,
+					"height": 30,
+					"labels": [{ "text": "ccc: camera3d,editable-addons" }],
+					"ports": [],
+					"children": [
+						{
+							"id": "/root/_feature_1/ccc//root/_feature_1/ccc/0_0",
+							"width": 140,
+							"height": 30,
+							"labels": [{ "text": "x-param-string" }],
+							"ports": [],
+							"children": [],
+							"edges": []
+						}
+					],
+					"edges": []
+				}
+			],
+			"edges": []
+		},
+		{
+			"id": "/root/_feature_2",
+			"width": 260,
+			"height": 30,
+			"labels": [{ "text": "feature 0=\"the_view_types\"" }],
+			"ports": [],
+			"children": [],
+			"edges": []
+		},
+		{
+			"id": "/root/the_view_types_inst",
+			"width": 350,
+			"height": 30,
+			"labels": [{ "text": "the_view_types_inst: the_view_types" }],
+			"ports": [
+				{
+					"id": "/root/the_view_types_inst->.",
+					"width": 8,
+					"height": 8,
+					"labels": [{ "text": ".", "width": 5 }]
+				}
+			],
+			"children": [],
+			"edges": []
+		},
+		{
+			"id": "/root/_feature_3",
+			"width": 200,
+			"height": 30,
+			"labels": [{ "text": "feature 0=\"the_view\"" }],
+			"ports": [
+				{
+					"id": "/root/_feature_3->.",
+					"width": 8,
+					"height": 8,
+					"labels": [{ "text": ".", "width": 5 }]
+				}
+			],
+			"children": [
+				{
+					"id": "/root/_feature_3/tv",
+					"width": 100,
+					"height": 30,
+					"labels": [{ "text": "tv: object" }],
+					"ports": [
+						{
+							"id": "/root/_feature_3/tv->sources",
+							"width": 8,
+							"height": 8,
+							"labels": [{ "text": "sources", "width": 35 }]
+						},
+						{
+							"id": "/root/_feature_3/tv->visible_sources",
+							"width": 8,
+							"height": 8,
+							"labels": [
+								{ "text": "visible_sources", "width": 75 }
+							]
+						},
+						{
+							"id": "/root/_feature_3/tv->sibling_types",
+							"width": 8,
+							"height": 8,
+							"labels": [{ "text": "sibling_types", "width": 65 }]
+						},
+						{
+							"id": "/root/_feature_3/tv->sibling_titles",
+							"width": 8,
+							"height": 8,
+							"labels": [
+								{ "text": "sibling_titles", "width": 70 }
+							]
+						},
+						{
+							"id": "/root/_feature_3/tv->project",
+							"width": 8,
+							"height": 8,
+							"labels": [{ "text": "project", "width": 35 }]
+						},
+						{
+							"id": "/root/_feature_3/tv->sources_str",
+							"width": 8,
+							"height": 8,
+							"labels": [{ "text": "sources_str", "width": 55 }]
+						},
+						{
+							"id": "/root/_feature_3/tv->.",
+							"width": 8,
+							"height": 8,
+							"labels": [{ "text": ".", "width": 5 }]
+						}
+					],
+					"children": [
+						{
+							"id": "/root/_feature_3/tv//root/_feature_3/tv/0_0",
+							"width": 140,
+							"height": 30,
+							"labels": [{ "text": "x-param-string" }],
+							"ports": [],
+							"children": [],
+							"edges": []
+						},
+						{
+							"id": "/root/_feature_3/tv//root/_feature_3/tv/1_1",
+							"width": 140,
+							"height": 30,
+							"labels": [{ "text": "x-param-option" }],
+							"ports": [],
+							"children": [],
+							"edges": []
+						},
+						{
+							"id": "/root/_feature_3/tv//root/_feature_3/tv/2_2",
+							"width": 140,
+							"height": 30,
+							"labels": [{ "text": "x-param-option" }],
+							"ports": [],
+							"children": [],
+							"edges": []
+						},
+						{
+							"id": "/root/_feature_3/tv//root/_feature_3/tv/3_3",
+							"width": 80,
+							"height": 30,
+							"labels": [{ "text": "computer" }],
+							"ports": [
+								{
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/3_3->output",
+									"width": 8,
+									"height": 8,
+									"labels": [{ "text": "out", "width": 15 }]
+								}
+							],
+							"children": [
+								{
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/3_3/_find-objects-by-pathes",
+									"width": 220,
+									"height": 30,
+									"labels": [
+										{ "text": "find-objects-by-pathes" }
+									],
+									"ports": [
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/3_3/_find-objects-by-pathes->input",
+											"width": 8,
+											"height": 8,
+											"labels": [
+												{ "text": "in", "width": 10 }
+											]
+										},
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/3_3/_find-objects-by-pathes->root",
+											"width": 8,
+											"height": 8,
+											"labels": [
+												{ "text": "root", "width": 20 }
+											]
+										},
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/3_3/_find-objects-by-pathes->output",
+											"width": 8,
+											"height": 8,
+											"labels": [
+												{ "text": "out", "width": 15 }
+											]
+										}
+									],
+									"children": [],
+									"edges": [
+										{
+											"sources": [
+												"/root/_feature_3/tv->sources_str"
+											],
+											"targets": [
+												"/root/_feature_3/tv//root/_feature_3/tv/3_3/_find-objects-by-pathes->input"
+											],
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/3_3/_find-objects-by-pathes:edge_0"
+										},
+										{
+											"sources": [
+												"/root/_feature_3/tv->project"
+											],
+											"targets": [
+												"/root/_feature_3/tv//root/_feature_3/tv/3_3/_find-objects-by-pathes->root"
+											],
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/3_3/_find-objects-by-pathes:edge_1"
+										}
+									]
+								}
+							],
+							"edges": [
+								{
+									"sources": [
+										"/root/_feature_3/tv//root/_feature_3/tv/3_3->output"
+									],
+									"targets": ["/root/_feature_3/tv->sources"],
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/3_3:edge_0"
+								},
+								{
+									"sources": [
+										"/root/_feature_3/tv//root/_feature_3/tv/3_3/_find-objects-by-pathes->output"
+									],
+									"targets": [
+										"/root/_feature_3/tv//root/_feature_3/tv/3_3->output"
+									],
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/3_3:edge_1"
+								}
+							]
+						},
+						{
+							"id": "/root/_feature_3/tv//root/_feature_3/tv/4_4",
+							"width": 40,
+							"height": 30,
+							"labels": [{ "text": "pipe" }],
+							"ports": [
+								{
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/4_4->input",
+									"width": 8,
+									"height": 8,
+									"labels": [{ "text": "in", "width": 10 }]
+								},
+								{
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/4_4->output",
+									"width": 8,
+									"height": 8,
+									"labels": [{ "text": "out", "width": 15 }]
+								}
+							],
+							"children": [
+								{
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/4_4/_x-modify",
+									"width": 80,
+									"height": 30,
+									"labels": [{ "text": "x-modify" }],
+									"ports": [
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/4_4/_x-modify->output",
+											"width": 8,
+											"height": 8,
+											"labels": [
+												{ "text": "out", "width": 15 }
+											]
+										}
+									],
+									"children": [
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/4_4/_x-modify/_x-patch-r",
+											"width": 90,
+											"height": 30,
+											"labels": [{ "text": "x-patch-r" }],
+											"ports": [
+												{
+													"id": "/root/_feature_3/tv//root/_feature_3/tv/4_4/_x-modify/_x-patch-r->0",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "0",
+															"width": 5
+														}
+													]
+												}
+											],
+											"children": [],
+											"edges": [
+												{
+													"sources": [
+														"/root/_feature_3/tv->."
+													],
+													"targets": [
+														"/root/_feature_3/tv//root/_feature_3/tv/4_4/_x-modify/_x-patch-r->0"
+													],
+													"id": "/root/_feature_3/tv//root/_feature_3/tv/4_4/_x-modify/_x-patch-r:edge_0"
+												}
+											]
+										}
+									],
+									"edges": []
+								}
+							],
+							"edges": [
+								{
+									"sources": ["/root/_feature_3/tv->sources"],
+									"targets": [
+										"/root/_feature_3/tv//root/_feature_3/tv/4_4->input"
+									],
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/4_4:edge_0"
+								},
+								{
+									"sources": [
+										"/root/_feature_3/tv//root/_feature_3/tv/4_4/_x-modify->output"
+									],
+									"targets": [
+										"/root/_feature_3/tv//root/_feature_3/tv/4_4->output"
+									],
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/4_4:edge_1"
+								}
+							]
+						},
+						{
+							"id": "/root/_feature_3/tv//root/_feature_3/tv/5_5",
+							"width": 80,
+							"height": 30,
+							"labels": [{ "text": "computer" }],
+							"ports": [
+								{
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/5_5->output",
+									"width": 8,
+									"height": 8,
+									"labels": [{ "text": "out", "width": 15 }]
+								}
+							],
+							"children": [
+								{
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/5_5/item",
+									"width": 40,
+									"height": 30,
+									"labels": [{ "text": "pipe" }],
+									"ports": [
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/5_5/item->input",
+											"width": 8,
+											"height": 8,
+											"labels": [
+												{ "text": "in", "width": 10 }
+											]
+										},
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/5_5/item->output",
+											"width": 8,
+											"height": 8,
+											"labels": [
+												{ "text": "out", "width": 15 }
+											]
+										}
+									],
+									"children": [
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/5_5/item/_filter_geta",
+											"width": 230,
+											"height": 30,
+											"labels": [
+												{
+													"text": "filter_geta 0=\"visible\""
+												}
+											],
+											"ports": [
+												{
+													"id": "/root/_feature_3/tv//root/_feature_3/tv/5_5/item/_filter_geta->output",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "out",
+															"width": 15
+														}
+													]
+												}
+											],
+											"children": [],
+											"edges": []
+										}
+									],
+									"edges": [
+										{
+											"sources": [
+												"/root/_feature_3/tv->sources"
+											],
+											"targets": [
+												"/root/_feature_3/tv//root/_feature_3/tv/5_5/item->input"
+											],
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/5_5/item:edge_0"
+										},
+										{
+											"sources": [
+												"/root/_feature_3/tv//root/_feature_3/tv/5_5/item/_filter_geta->output"
+											],
+											"targets": [
+												"/root/_feature_3/tv//root/_feature_3/tv/5_5/item->output"
+											],
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/5_5/item:edge_1"
+										}
+									]
+								}
+							],
+							"edges": [
+								{
+									"sources": [
+										"/root/_feature_3/tv//root/_feature_3/tv/5_5->output"
+									],
+									"targets": [
+										"/root/_feature_3/tv->visible_sources"
+									],
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/5_5:edge_0"
+								},
+								{
+									"sources": [
+										"/root/_feature_3/tv//root/_feature_3/tv/5_5/item->output"
+									],
+									"targets": [
+										"/root/_feature_3/tv//root/_feature_3/tv/5_5->output"
+									],
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/5_5:edge_1"
+								}
+							]
+						},
+						{
+							"id": "/root/_feature_3/tv//root/_feature_3/tv/6_6",
+							"width": 80,
+							"height": 30,
+							"labels": [{ "text": "computer" }],
+							"ports": [
+								{
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/6_6->output",
+									"width": 8,
+									"height": 8,
+									"labels": [{ "text": "out", "width": 15 }]
+								}
+							],
+							"children": [
+								{
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/6_6/item",
+									"width": 40,
+									"height": 30,
+									"labels": [{ "text": "pipe" }],
+									"ports": [
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/6_6/item->input",
+											"width": 8,
+											"height": 8,
+											"labels": [
+												{ "text": "in", "width": 10 }
+											]
+										},
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/6_6/item->output",
+											"width": 8,
+											"height": 8,
+											"labels": [
+												{ "text": "out", "width": 15 }
+											]
+										}
+									],
+									"children": [
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/6_6/item/_get_children_arr",
+											"width": 160,
+											"height": 30,
+											"labels": [
+												{ "text": "get_children_arr" }
+											],
+											"ports": [
+												{
+													"id": "/root/_feature_3/tv//root/_feature_3/tv/6_6/item/_get_children_arr->output",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "out",
+															"width": 15
+														}
+													]
+												}
+											],
+											"children": [],
+											"edges": []
+										},
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/6_6/item/_map_geta",
+											"width": 180,
+											"height": 30,
+											"labels": [
+												{
+													"text": "map_geta 0=\"value\""
+												}
+											],
+											"ports": [
+												{
+													"id": "/root/_feature_3/tv//root/_feature_3/tv/6_6/item/_map_geta->input",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "in",
+															"width": 10
+														}
+													]
+												},
+												{
+													"id": "/root/_feature_3/tv//root/_feature_3/tv/6_6/item/_map_geta->output",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "out",
+															"width": 15
+														}
+													]
+												}
+											],
+											"children": [],
+											"edges": []
+										}
+									],
+									"edges": [
+										{
+											"sources": [
+												"/root/the_view_types_inst->."
+											],
+											"targets": [
+												"/root/_feature_3/tv//root/_feature_3/tv/6_6/item->input"
+											],
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/6_6/item:edge_0"
+										},
+										{
+											"sources": [
+												"/root/_feature_3/tv//root/_feature_3/tv/6_6/item/_get_children_arr->output"
+											],
+											"targets": [
+												"/root/_feature_3/tv//root/_feature_3/tv/6_6/item/_map_geta->input"
+											],
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/6_6/item:edge_1"
+										},
+										{
+											"sources": [
+												"/root/_feature_3/tv//root/_feature_3/tv/6_6/item/_map_geta->output"
+											],
+											"targets": [
+												"/root/_feature_3/tv//root/_feature_3/tv/6_6/item->output"
+											],
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/6_6/item:edge_2"
+										}
+									]
+								}
+							],
+							"edges": [
+								{
+									"sources": [
+										"/root/_feature_3/tv//root/_feature_3/tv/6_6->output"
+									],
+									"targets": [
+										"/root/_feature_3/tv->sibling_types"
+									],
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/6_6:edge_0"
+								},
+								{
+									"sources": [
+										"/root/_feature_3/tv//root/_feature_3/tv/6_6/item->output"
+									],
+									"targets": [
+										"/root/_feature_3/tv//root/_feature_3/tv/6_6->output"
+									],
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/6_6:edge_1"
+								}
+							]
+						},
+						{
+							"id": "/root/_feature_3/tv//root/_feature_3/tv/7_7",
+							"width": 80,
+							"height": 30,
+							"labels": [{ "text": "computer" }],
+							"ports": [
+								{
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/7_7->output",
+									"width": 8,
+									"height": 8,
+									"labels": [{ "text": "out", "width": 15 }]
+								}
+							],
+							"children": [
+								{
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/7_7/item",
+									"width": 40,
+									"height": 30,
+									"labels": [{ "text": "pipe" }],
+									"ports": [
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/7_7/item->input",
+											"width": 8,
+											"height": 8,
+											"labels": [
+												{ "text": "in", "width": 10 }
+											]
+										},
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/7_7/item->output",
+											"width": 8,
+											"height": 8,
+											"labels": [
+												{ "text": "out", "width": 15 }
+											]
+										}
+									],
+									"children": [
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/7_7/item/_get_children_arr",
+											"width": 160,
+											"height": 30,
+											"labels": [
+												{ "text": "get_children_arr" }
+											],
+											"ports": [
+												{
+													"id": "/root/_feature_3/tv//root/_feature_3/tv/7_7/item/_get_children_arr->output",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "out",
+															"width": 15
+														}
+													]
+												}
+											],
+											"children": [],
+											"edges": []
+										},
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/7_7/item/_map_geta",
+											"width": 180,
+											"height": 30,
+											"labels": [
+												{
+													"text": "map_geta 0=\"title\""
+												}
+											],
+											"ports": [
+												{
+													"id": "/root/_feature_3/tv//root/_feature_3/tv/7_7/item/_map_geta->input",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "in",
+															"width": 10
+														}
+													]
+												},
+												{
+													"id": "/root/_feature_3/tv//root/_feature_3/tv/7_7/item/_map_geta->output",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "out",
+															"width": 15
+														}
+													]
+												}
+											],
+											"children": [],
+											"edges": []
+										}
+									],
+									"edges": [
+										{
+											"sources": [
+												"/root/the_view_types_inst->."
+											],
+											"targets": [
+												"/root/_feature_3/tv//root/_feature_3/tv/7_7/item->input"
+											],
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/7_7/item:edge_0"
+										},
+										{
+											"sources": [
+												"/root/_feature_3/tv//root/_feature_3/tv/7_7/item/_get_children_arr->output"
+											],
+											"targets": [
+												"/root/_feature_3/tv//root/_feature_3/tv/7_7/item/_map_geta->input"
+											],
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/7_7/item:edge_1"
+										},
+										{
+											"sources": [
+												"/root/_feature_3/tv//root/_feature_3/tv/7_7/item/_map_geta->output"
+											],
+											"targets": [
+												"/root/_feature_3/tv//root/_feature_3/tv/7_7/item->output"
+											],
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/7_7/item:edge_2"
+										}
+									]
+								}
+							],
+							"edges": [
+								{
+									"sources": [
+										"/root/_feature_3/tv//root/_feature_3/tv/7_7->output"
+									],
+									"targets": [
+										"/root/_feature_3/tv->sibling_titles"
+									],
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/7_7:edge_0"
+								},
+								{
+									"sources": [
+										"/root/_feature_3/tv//root/_feature_3/tv/7_7/item->output"
+									],
+									"targets": [
+										"/root/_feature_3/tv//root/_feature_3/tv/7_7->output"
+									],
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/7_7:edge_1"
+								}
+							]
+						},
+						{
+							"id": "/root/_feature_3/tv//root/_feature_3/tv/8_8",
+							"width": 140,
+							"height": 30,
+							"labels": [{ "text": "x-param-option" }],
+							"ports": [],
+							"children": [],
+							"edges": []
+						},
+						{
+							"id": "/root/_feature_3/tv//root/_feature_3/tv/9_9",
+							"width": 90,
+							"height": 30,
+							"labels": [{ "text": "x-add-cmd" }],
+							"ports": [
+								{
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/9_9->code",
+									"width": 8,
+									"height": 8,
+									"labels": [{ "text": "code", "width": 20 }]
+								}
+							],
+							"children": [
+								{
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/9_9//root/_feature_3/tv//root/_feature_3/tv/9_9/0_0",
+									"width": 80,
+									"height": 30,
+									"labels": [{ "text": "computer" }],
+									"ports": [
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/9_9//root/_feature_3/tv//root/_feature_3/tv/9_9/0_0->output",
+											"width": 8,
+											"height": 8,
+											"labels": [
+												{ "text": "out", "width": 15 }
+											]
+										}
+									],
+									"children": [
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/9_9//root/_feature_3/tv//root/_feature_3/tv/9_9/0_0/_i-call-js",
+											"width": 90,
+											"height": 30,
+											"labels": [{ "text": "i-call-js" }],
+											"ports": [
+												{
+													"id": "/root/_feature_3/tv//root/_feature_3/tv/9_9//root/_feature_3/tv//root/_feature_3/tv/9_9/0_0/_i-call-js->view",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "view",
+															"width": 20
+														}
+													]
+												},
+												{
+													"id": "/root/_feature_3/tv//root/_feature_3/tv/9_9//root/_feature_3/tv//root/_feature_3/tv/9_9/0_0/_i-call-js->output",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "out",
+															"width": 15
+														}
+													]
+												}
+											],
+											"children": [],
+											"edges": [
+												{
+													"sources": [
+														"/root/_feature_3/tv->."
+													],
+													"targets": [
+														"/root/_feature_3/tv//root/_feature_3/tv/9_9//root/_feature_3/tv//root/_feature_3/tv/9_9/0_0/_i-call-js->view"
+													],
+													"id": "/root/_feature_3/tv//root/_feature_3/tv/9_9//root/_feature_3/tv//root/_feature_3/tv/9_9/0_0/_i-call-js:edge_0"
+												}
+											]
+										}
+									],
+									"edges": [
+										{
+											"sources": [
+												"/root/_feature_3/tv//root/_feature_3/tv/9_9//root/_feature_3/tv//root/_feature_3/tv/9_9/0_0->output"
+											],
+											"targets": [
+												"/root/_feature_3/tv//root/_feature_3/tv/9_9->code"
+											],
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/9_9//root/_feature_3/tv//root/_feature_3/tv/9_9/0_0:edge_0"
+										},
+										{
+											"sources": [
+												"/root/_feature_3/tv//root/_feature_3/tv/9_9//root/_feature_3/tv//root/_feature_3/tv/9_9/0_0/_i-call-js->output"
+											],
+											"targets": [
+												"/root/_feature_3/tv//root/_feature_3/tv/9_9//root/_feature_3/tv//root/_feature_3/tv/9_9/0_0->output"
+											],
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/9_9//root/_feature_3/tv//root/_feature_3/tv/9_9/0_0:edge_1"
+										}
+									]
+								}
+							],
+							"edges": []
+						},
+						{
+							"id": "/root/_feature_3/tv//root/_feature_3/tv/10_10",
+							"width": 140,
+							"height": 30,
+							"labels": [{ "text": "x-param-option" }],
+							"ports": [],
+							"children": [],
+							"edges": []
+						},
+						{
+							"id": "/root/_feature_3/tv//root/_feature_3/tv/11_11",
+							"width": 90,
+							"height": 30,
+							"labels": [{ "text": "x-add-cmd" }],
+							"ports": [
+								{
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/11_11->code",
+									"width": 8,
+									"height": 8,
+									"labels": [{ "text": "code", "width": 20 }]
+								}
+							],
+							"children": [
+								{
+									"id": "/root/_feature_3/tv//root/_feature_3/tv/11_11//root/_feature_3/tv//root/_feature_3/tv/11_11/0_0",
+									"width": 80,
+									"height": 30,
+									"labels": [{ "text": "computer" }],
+									"ports": [
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/11_11//root/_feature_3/tv//root/_feature_3/tv/11_11/0_0->output",
+											"width": 8,
+											"height": 8,
+											"labels": [
+												{ "text": "out", "width": 15 }
+											]
+										}
+									],
+									"children": [
+										{
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/11_11//root/_feature_3/tv//root/_feature_3/tv/11_11/0_0/_i-call-js",
+											"width": 90,
+											"height": 30,
+											"labels": [{ "text": "i-call-js" }],
+											"ports": [
+												{
+													"id": "/root/_feature_3/tv//root/_feature_3/tv/11_11//root/_feature_3/tv//root/_feature_3/tv/11_11/0_0/_i-call-js->view",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "view",
+															"width": 20
+														}
+													]
+												},
+												{
+													"id": "/root/_feature_3/tv//root/_feature_3/tv/11_11//root/_feature_3/tv//root/_feature_3/tv/11_11/0_0/_i-call-js->output",
+													"width": 8,
+													"height": 8,
+													"labels": [
+														{
+															"text": "out",
+															"width": 15
+														}
+													]
+												}
+											],
+											"children": [],
+											"edges": [
+												{
+													"sources": [
+														"/root/_feature_3/tv->."
+													],
+													"targets": [
+														"/root/_feature_3/tv//root/_feature_3/tv/11_11//root/_feature_3/tv//root/_feature_3/tv/11_11/0_0/_i-call-js->view"
+													],
+													"id": "/root/_feature_3/tv//root/_feature_3/tv/11_11//root/_feature_3/tv//root/_feature_3/tv/11_11/0_0/_i-call-js:edge_0"
+												}
+											]
+										}
+									],
+									"edges": [
+										{
+											"sources": [
+												"/root/_feature_3/tv//root/_feature_3/tv/11_11//root/_feature_3/tv//root/_feature_3/tv/11_11/0_0->output"
+											],
+											"targets": [
+												"/root/_feature_3/tv//root/_feature_3/tv/11_11->code"
+											],
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/11_11//root/_feature_3/tv//root/_feature_3/tv/11_11/0_0:edge_0"
+										},
+										{
+											"sources": [
+												"/root/_feature_3/tv//root/_feature_3/tv/11_11//root/_feature_3/tv//root/_feature_3/tv/11_11/0_0/_i-call-js->output"
+											],
+											"targets": [
+												"/root/_feature_3/tv//root/_feature_3/tv/11_11//root/_feature_3/tv//root/_feature_3/tv/11_11/0_0->output"
+											],
+											"id": "/root/_feature_3/tv//root/_feature_3/tv/11_11//root/_feature_3/tv//root/_feature_3/tv/11_11/0_0:edge_1"
+										}
+									]
+								}
+							],
+							"edges": []
+						}
+					],
+					"edges": [
+						{
+							"sources": ["/root/_feature_3->."],
+							"targets": ["/root/_feature_3/tv->project"],
+							"id": "/root/_feature_3/tv:edge_0"
+						}
+					]
+				}
+			],
+			"edges": []
+		},
+		{
+			"id": "/root/_feature_4",
+			"width": 260,
+			"height": 30,
+			"labels": [{ "text": "feature 0=\"visual_process\"" }],
+			"ports": [],
+			"children": [
+				{
+					"id": "/root/_feature_4/vp",
+					"width": 100,
+					"height": 30,
+					"labels": [{ "text": "vp: object" }],
+					"ports": [],
+					"children": [
+						{
+							"id": "/root/_feature_4/vp//root/_feature_4/vp/0_0",
+							"width": 140,
+							"height": 30,
+							"labels": [{ "text": "x-param-string" }],
+							"ports": [],
+							"children": [],
+							"edges": []
+						}
+					],
+					"edges": []
+				}
+			],
+			"edges": []
+		},
+		{
+			"id": "/root/_feature_5",
+			"width": 300,
+			"height": 30,
+			"labels": [{ "text": "feature 0=\"top_visual_process\"" }],
+			"ports": [],
+			"children": [],
+			"edges": []
+		}
+	],
+	"edges": []	
+}
