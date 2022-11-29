@@ -197,7 +197,7 @@ feature "lava-group" {
 		  gui3={
 		  	render-params @vp;
 		  }
-		  {{ x-on "cocreated" {
+		  {{ x-on "startup" {
 		  		setter target="@vis->initial_input_link" value=(+ (@load | geta "getPath") "->output");
 		  	} }}
 		  {
