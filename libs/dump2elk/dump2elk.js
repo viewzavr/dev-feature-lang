@@ -2,6 +2,9 @@
 https://github.com/kieler/elkjs
 https://github.com/eclipse/sprotty
 https://rtsys.informatik.uni-kiel.de/elklive/json.html
+
+todo: параметры окружений |a b c|
+
 */
 
 export function setup( vz, m ) {
@@ -113,7 +116,7 @@ function fix_links( objdump ) {
       if (fo) {
         if (value.endsWith("->."))
           //cb( fo ) // на объект ссылка.. (заодно и для let) - стало быть прямое оставим
-          cb( value.replace("@" + objname, fo))
+          cb( value.replace("@" + objname, fo)) // примерно тож самое
         else
           cb( value.replace("@" + objname, fo))
       }
@@ -272,8 +275,10 @@ function gen( objdump, parent_path="", parent_object, is_hosted, skip_links_fix 
 
   if (objdump.features.pipe) {
     let q = Object.values( objdump.children || {} );
-    for (let i=0; i<q.length-1; i++) 
+    for (let i=0; i<q.length-1; i++) {
+      //if (q[i].features.geta)
       add_edge( { sources: [q[i].$elk_id + "->output"], targets:[q[i+1].$elk_id + "->input"] })
+    }
     // мне кажется это можно опустить
     //add_edge( { sources: [id + "->input"], targets: [q[0].$elk_id + "->input"]})
     //add_edge( { targets: [id + "->output"], sources: [q[q.length-1].$elk_id + "->output"]})
@@ -298,6 +303,16 @@ function gen( objdump, parent_path="", parent_object, is_hosted, skip_links_fix 
     //add_edge( { targets: [id + "->output"], sources: [q[0].$elk_id + "->output"]})
     // выход из компутера наружу в цель
     t = t.children[0]
+
+    // и доп-случай - пайпа с гетой
+    /* ладно ниасилил
+    if (t.labels[0].text.startsWith("geta ")) {
+      let vvv = Object.values( objdump.children )
+      if (vvv.length == 1 && vvv[0].features.geta) {
+        // это гета-пайпа.. лесом ее..
+      }
+    }
+    */
 
     let fl = Object.values( objdump.links )[0];
     add_edge( genlink( { from:t.id + "->output", to: fl.to}, parent_object, parent_object, parent_object) )

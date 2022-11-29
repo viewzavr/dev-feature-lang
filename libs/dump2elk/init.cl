@@ -51,7 +51,7 @@ feature "the_view"
     read @tv->project | geta "processes" | repeater //target_parent=@qoco 
     {
        i: checkbox text=(@i->input | geta "title") 
-             value=(@qq->tv | geta "sources" | arr_contains @i->input)
+             value=(read @qq.tv.sources | arr_contains @i->input)
           {{ x-on "user-changed" {
               toggle_visprocess_view_assoc2 process=@i->input view=@qq->tv;
           } }};

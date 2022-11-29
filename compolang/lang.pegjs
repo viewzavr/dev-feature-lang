@@ -600,7 +600,14 @@ accessor
        g.locinfo = locinfo;
        arr.push( g )
      }
-     append_children_envs( pipe, arr );
+
+     if (arr.length == 1) { // простая гета - подсократим убрав пайпу
+       pipe = arr[0]
+       pipe.links["pipe_input_link"] = { to: "~->input", from: "@" + first_attr, locinfo: locinfo }
+       //console.warn( "PIPE optimized", pipe )
+     }
+     else
+       append_children_envs( pipe, arr );
 
      return { env_expression: [pipe], locinfo: locinfo }
   }
