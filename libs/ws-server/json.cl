@@ -27,6 +27,7 @@ feature "ws-json" {
     @.->input
     {
       get-channel @j.io "connection" | cc-on  { |in out ws|
+           mf-timeout 0
            //console-log "json see connection, in=" @in
            let jin = (read @in | convert-channel (m-lambda "v => JSON.parse(v)"))
            let jout = (create-channel)
@@ -35,6 +36,8 @@ feature "ws-json" {
            //comm: object in=... out=....
 
            yy: get-event-channel @j "connection" | put-value (mark-event-args (list @jin @jout @ws))
+           
+           //object on_shutdown=(m-lambda "() => console.log('JJJ shutdown')")
 
            /* тут надо closed нормальный шерстить. и гооврит if (closed) { return }
            x: return

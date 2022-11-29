@@ -21,6 +21,7 @@ feature "remote-object" {
     read @r.out | put-value (json input=@r.input)
 
     read @r.in | cc-on { |msg|
+      mf-timeout 0
       //object
       if (@msg.cmd == "output-value") {
         read @r | get-channel "output" | put-value @msg.value | return
@@ -44,7 +45,8 @@ feature "object-on-server" {
      output=@obj
      {
       aaa: read @s.in | cc-on { |msg|
-        console-log "ssss" @msg
+        //console-log "ssss" @msg
+        mf-timeout 0
         //object
         if (read @msg.descr?) {
           read @s | get-channel "descr" | put-value @msg.descr | return

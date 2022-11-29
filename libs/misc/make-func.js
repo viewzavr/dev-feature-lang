@@ -109,6 +109,7 @@ export function mf_timeout( env )
 // корневой объект для содержимого make-func
 export function spawn_frame( env )
 {
+  /*
   let unsf = () => {}
   function subscribe_for_finish() {
     unsf(); 
@@ -127,7 +128,7 @@ export function spawn_frame( env )
      else {
         unsf = () => {}
      }
-  }
+  }*/
 
   env.feature("delayed")
   env.perform_stop = () => {

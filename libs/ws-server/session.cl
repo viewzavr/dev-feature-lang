@@ -39,6 +39,7 @@ feature "remote-session" {
       read @r.remote 
       | 
       listen on_connection={ |in out|
+        //mf-timeout 0
         
         m-eval "(cin,cout) => {
           //console.log('scope.sigma=',scope.sigma)
@@ -108,7 +109,7 @@ feature "session-server" {
     @.->input
     {{
      read @s.server | listen on_connection={ |in out ws|
-
+       //mf-timeout 0
        //console-log "session-server got on-connectoin"
 
        read @in | cc-on { |msg|
