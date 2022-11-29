@@ -14,7 +14,7 @@ feature "mk-file" {
     //load-file file=@fname | compalang | console-log-input "DUMP" | dump2uml | console-log-input "UML" | uml_url | console-log "click"
     let dump = (load-file file=@fname | compalang)
     
-    //m-eval "(t) => JSON.stringify(t,null,' ')" @dump | console-log-input "DUMP"
+    // m-eval "(t) => JSON.stringify(t,null,' ')" @dump | console-log-input "DUMP"
     
     read @dump | dump2elk | console-log-input "ELKJSON"
   }
