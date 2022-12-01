@@ -14,3 +14,5 @@ ws-client | ws-json | remote-session on_connection={ |in out|
 //  remote-object @in @out "a: let x = 1 timer-ms 1000 | (read @a | get-channel 'x' | put-value (@x+1) | read @x) " | console-log "res"
   //remote-object @in @out "a: let x = 1 read @a | get-channel 'x' | put-value (@x+1) | pause-input" | console-log "res"
 }
+
++ @.->input? 100 {{ hosting }}
