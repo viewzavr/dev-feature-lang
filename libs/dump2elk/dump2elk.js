@@ -15,7 +15,7 @@ export function dump2elk( env )
 {
   env.onvalue ("input",(i) => {
     let res = gen( i );
-    res.layoutOptions = { 'algorithm': 'layered' };
+    res.layoutOptions = { 'algorithm': 'layered', "hierarchyHandling": "INCLUDE_CHILDREN" };
     //res = JSON.stringify( res,null," " )
     res = JSON.stringify( res )
     env.setParam("output",res)
