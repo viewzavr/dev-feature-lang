@@ -332,7 +332,7 @@ function peg$parse(input, options) {
 
   var peg$f0 = function(envs) {
        var env = new_env();
-       append_children_envs( env, envs );
+       append_children_envs( env, envs || [] );
        return env;
     };
   var peg$f1 = function(name, value) {

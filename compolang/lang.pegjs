@@ -251,7 +251,7 @@
 JSON_text
   = __ envs:env_list? __ {
      var env = new_env();
-     append_children_envs( env, envs );
+     append_children_envs( env, envs || [] );
      return env;
   }
 
