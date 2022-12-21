@@ -572,7 +572,7 @@ function peg$parse(input, options) {
       return { env_expression: env_list, locinfo: getlocinfo() }
     };
   var peg$f23 = function(env_list) {
-      return { param_value_env_list: env_list }
+      return { param_value_env_list: env_list || [] }
     };
   var peg$f24 = function(env_list) {
       // attr expression
@@ -777,16 +777,14 @@ function peg$parse(input, options) {
     var s0, s1, s2, s3;
 
     s0 = peg$currPos;
-    s1 = peg$parsews();
+    s1 = peg$parse__();
     s2 = peg$parseenv_list();
-    if (s2 !== peg$FAILED) {
-      s3 = peg$parsews();
-      peg$savedPos = s0;
-      s0 = peg$f0(s2);
-    } else {
-      peg$currPos = s0;
-      s0 = peg$FAILED;
+    if (s2 === peg$FAILED) {
+      s2 = null;
     }
+    s3 = peg$parse__();
+    peg$savedPos = s0;
+    s0 = peg$f0(s2);
 
     return s0;
   }
@@ -2721,24 +2719,22 @@ function peg$parse(input, options) {
                       if (peg$silentFails === 0) { peg$fail(peg$e1); }
                     }
                     if (s1 !== peg$FAILED) {
-                      s2 = peg$parsews();
+                      s2 = peg$parse__();
                       s3 = peg$parseenv_list();
-                      if (s3 !== peg$FAILED) {
-                        s4 = peg$parsews();
-                        if (input.charCodeAt(peg$currPos) === 125) {
-                          s5 = peg$c3;
-                          peg$currPos++;
-                        } else {
-                          s5 = peg$FAILED;
-                          if (peg$silentFails === 0) { peg$fail(peg$e3); }
-                        }
-                        if (s5 !== peg$FAILED) {
-                          peg$savedPos = s0;
-                          s0 = peg$f23(s3);
-                        } else {
-                          peg$currPos = s0;
-                          s0 = peg$FAILED;
-                        }
+                      if (s3 === peg$FAILED) {
+                        s3 = null;
+                      }
+                      s4 = peg$parse__();
+                      if (input.charCodeAt(peg$currPos) === 125) {
+                        s5 = peg$c3;
+                        peg$currPos++;
+                      } else {
+                        s5 = peg$FAILED;
+                        if (peg$silentFails === 0) { peg$fail(peg$e3); }
+                      }
+                      if (s5 !== peg$FAILED) {
+                        peg$savedPos = s0;
+                        s0 = peg$f23(s3);
                       } else {
                         peg$currPos = s0;
                         s0 = peg$FAILED;

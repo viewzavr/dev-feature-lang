@@ -249,7 +249,7 @@
 // ----- 2. JSON Grammar -----
 
 JSON_text
-  = ws envs:env_list ws {
+  = __ envs:env_list? __ {
      var env = new_env();
      append_children_envs( env, envs );
      return env;
@@ -669,8 +669,8 @@ value
   / array
   / number
   / string
-  / "{" ws env_list:env_list ws "}" {
-    return { param_value_env_list: env_list }
+  / "{" __ env_list:env_list? __ "}" {
+    return { param_value_env_list: env_list || [] }
   }
   / "(" ws env_list:env_list ws ")" {
     // attr expression
@@ -871,4 +871,4 @@ SingleLineComment
   = "//" (!LineTerminator SourceCharacter)*
 
 __
-  = (WhiteSpace / LineTerminatorSequence / Comment)*  
+  = (WhiteSpace / LineTerminatorSequence / Comment)*
