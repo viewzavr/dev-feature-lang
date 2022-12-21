@@ -2159,14 +2159,15 @@ export function console_log( env, options )
 
 export function console_log_input( env, options )
 {
-  env.createLinkTo( {param:"text",from:"~->0",soft:true });
+  //env.createLinkTo( {param:"text",from:"~->0",soft:true });
 
   function print() {
-    console.log( "console_log_input",env.params.text || "", env.params.input );
+    console.log( "console_log_input",env.params.text || env.params[0] || "", env.params.input );
     env.vz.console_log_diag( env );
   }
 
-  env.monitor_values("input",(input) => {
+  //env.monitor_values(["input","text",0],(input) => {
+  env.monitor_defined(["input"],(input) => {
    //    console.log("cli ! input")
     print();
     env.setParam("output",input); // доп-фича - консоле-лог пропускает дальше данные

@@ -20,6 +20,7 @@ feature "walk_objects" {
    k:  object
      output=(concat @my_result @my_items_result)
      depth=0
+     []
      {
       let my_result = (m_eval 
          "(obj,title,depth) => 
@@ -27,12 +28,12 @@ feature "walk_objects" {
                    title:'-'.repeat(depth)+title,
                    obj: obj} }" 
          @k->0 (@k->0 | geta "title") @k->depth);
-      let my_items = (data (@k->0 | geta @k->1 default=[]));
+      let my_items = (read @k->0 | geta @k->1 default=[])
       // console-log "k=" @k.getPath "k.0=" @k.0?.getPath? "found items=" @my_items;
       
       let my_items_result=(
-        @my_items | repeater {
-          w: walk_objects @w->input @k->1 depth=(@k->depth + 1);
+        read @my_items | repeater { |input|
+          w: walk_objects @input @k->1 depth=(@k->depth + 1)
         } 
         | map_geta "output" default=null | geta "flat" eval=true | arr_compact);
      }

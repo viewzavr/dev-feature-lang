@@ -77,16 +77,20 @@ export function map_geta( env )
     
     unsub_all();
 
+    if (env.params.debug) 
+       debugger;
+
     if (input_arr == null) { // вроде как норм вариант проверять и на ундефинет
       //console.log("geta setting output null...",env.getPath())
       if (env.single_geta_mode) {
-        if (env.params.output) // но только если там что-то было.. а если ничего не было то пока ничего и не пишем.. ибо мы еще не отработали
-            env.setParam( "output",null ); 
+        //if (env.params.output) // но только если там что-то было.. а если ничего не было то пока ничего и не пишем.. ибо мы еще не отработали
+        // ну нет наверное. наверное надо таки вернуть default
+            env.setParam( "output", env.params.default ); 
       }
       else
       {
         // ну тут может стоит проверку на то что и так выдаем [] поставить
-        env.setParam( "output",[] );
+        env.setParam( "output", [] );
       }
       
       return;
@@ -102,14 +106,14 @@ export function map_geta( env )
 
     if (!Array.isArray(input_arr)) {
       console.error("map_geta: input is not array!",input_arr);
-      env.setParam( "output",env.single_geta_mode ? null : [] );
+      env.setParam( "output",env.single_geta_mode ? env.params.default : [] );
       // qqq
       env.vz.console_log_diag( env );
       return;
     }
 
     if (input_arr.length == 0) {
-      env.setParam( "output",env.single_geta_mode ? null : [] );
+      env.setParam( "output",env.single_geta_mode ? env.params.default : [] );
       return;
     }
 
@@ -119,7 +123,7 @@ export function map_geta( env )
 
     // случай когда параметр-селектор get-ы еще не вычислен
     if (!env.hasParam(0)) {
-      env.setParam( "output",env.single_geta_mode ? null : [] );
+      env.setParam( "output",env.single_geta_mode ? env.params.default : [] );
       return; 
     }
 
@@ -174,6 +178,8 @@ export function map_geta( env )
     
     
     get_one( input, env.params, 0,(res) => {
+
+
 
       if (res == null && env.hasParam('default'))
       {

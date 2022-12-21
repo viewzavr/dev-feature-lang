@@ -22,7 +22,7 @@ v:
    blocks: detect-blocks @dir "particledata_(.+)_(\d+)\.vtk$";
 
    // покажем найденные серии файлов
-   @blocks->output | repeater {
+   read @blocks->output | repeater {
      it: vtk-vis-file title=(@it->input | geta 0) 
                       file=(@it->input | geta 1 | geta @v->N) 
                       default_column="visco_coeffs"

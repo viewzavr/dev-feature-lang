@@ -59,13 +59,14 @@ export function save_state_to_window_hash( player ) {
   ///////////////////////////////////////// дадим полезных методов
 
   player.saveToHash = function( obj ) {
+    console.log("save to hash called",obj)
     var name = obj.saveTreeToHashName;
     if (!name) return;
     
     var q = read_from_hash();
     q[ name ] = obj.dump();
     write_to_hash( q );
-    //console.log("saved to hash",q);
+    console.log("saved to hash",q);
   }
 
   function findRoot( obj ) {
@@ -106,7 +107,7 @@ export function save_state_to_window_hash( player ) {
           targetobj = player.root;
           console.error( "restoreFromHash: reading deprecated thing vz.root!" );
         }
-        //console.log("restoring",JSON.stringify(q))
+        //console.log("restoring",q[name])
         
         return vz.createSyncFromDump( q[name], targetobj, undefined, undefined, true );
       }
@@ -116,11 +117,15 @@ export function save_state_to_window_hash( player ) {
   }
 
   player.startSavingToHash = function( name="mvis",targetobj ) {
-    if (!targetobj) targetobj = player;
+    
+    if (!targetobj) 
+       targetobj = player;
+    
     targetobj.saveTreeToHashName = name;
   };
 
   player.stopSavingToHash = function( targetobj ) {
+    
     targetobj.saveTreeToHashName = undefined;
   };
 

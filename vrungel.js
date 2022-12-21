@@ -57,7 +57,7 @@ export function init() {
         obj.on("machine_done",(res) => {
           //console.log("done catched",res)
 
-          obj.delayed( vzPlayer.restore_state,2 )(); 
+          obj.delayed( () => vzPlayer.restore_state(obj),2 )(); 
           // все ссылки отработают (им нужен 1 такт)
           // но хотя и это спорно
         });
@@ -70,7 +70,7 @@ export function init() {
   // obj это ну машина компаланга, сиречь корневой объект
   vzPlayer.restore_state = (obj) => {
     return vzPlayer.loadFromHash("vrungel",obj).then( () => {
-        // console.log("restored. emitting global dump-loaded");
+        //console.log("restored. emitting global dump-loaded");
         // vzPlayer.getRoot().emit("dump-loaded");
         //vzPlayer.getRoot().setParam("dump_loaded",true);
         vzPlayer.setParam( "dump_loaded",true );

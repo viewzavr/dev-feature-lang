@@ -11,32 +11,38 @@ load "loaders-ext/init.cl";
 project: the_project 
   default_animation_parameter="project/adata/data->N"
 {
-  insert_children input=@project manual=true active=(is_default @project) list={
+  //insert_children input=@project manual=true active=(is_default @project | console-log-input "is-def") list={
 
     ld: dataset;
     av: addvis active_view=@rp->active_view project=@project;
     axes: axes-view size=10;
 
     v1: the_view_recursive title="Визуализация"
+    /*
       actions = { 
-        show_sources_params input=(list @ld @av) show_visible_cb=false;
-        text tag="h3" "Визуализация" style="color: white;";
+        //show_sources_params input=(list @ld @av) show_visible_cb=false;
+        //text tag="h3" "Визуализация" style="color: white;";
         //button "Добавить данные"; button "Добавить визуализацию"; text tag="h3" "Визуализация";
       }
+    */  
       {
           // area sources_str="@ld,@av,@axes";
           // area sources_str="@axes";
           camera pos=[10,10,10];
+          area_container_horiz {
+            area_3d sources_str="@ld,@av,@axes"
+          }
       };
 
-  };
+  //};
 
 };
 
 //////////////////////////////////////////////////////// главное окно программы
 
-screen1: screen auto-activate  {
+screen1: screen ~auto-activate  {
   rp: render_project @project active_view_index=0;
+  //text "privet"
 };
 
 ////////////////////////////
