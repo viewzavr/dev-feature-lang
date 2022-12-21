@@ -73,7 +73,7 @@ feature "arr_to_colors" {
     };
     param_checkbox name="auto_calculate" value=true;
 
-    if (@root->auto_calculate) then={
+    if (@root->auto_calculate) {
        setter target="@root->minmax" value=@mm->output ~auto_apply;
     };
     

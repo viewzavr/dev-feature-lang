@@ -349,6 +349,7 @@ attr_name
 // разрешим еще больше в имени чтобы фичи могли называться как угодно < || && + и т.д.
 feature_name "feature name"
   = [a-zA-Zа-яА-Я0-9_\-\.!]+ { return text(); } 
+  / feature_operator_name // оставим возможность фичам вида + a b c
 
 feature_operator_name  // разрешим еще больше в имени чтобы фичи могли называться как угодно < || && + и т.д.
   = "+" { return text(); }
@@ -383,6 +384,7 @@ obj_path
 one_env
   = one_env_operator
   / one_env_obj
+  / one_env_positional_attr
 
 //  / one_env_obj_no_features
 
@@ -423,20 +425,38 @@ one_env_obj "environment record"
   }
   //finalizer: (__ ";")*
 
+// особый случай на предмет записи в стиле a + b
 one_env_operator "environment operator record"
   =
   envid: (__ @(@attr_name ws ":")?)
+  first_positional_attr: (__ @positional_attr)
   env_modifiers:(__ @env_modifier_for_operator)+
   child_envs:(__ "{" __ @env_list? __ "}" __)? // нафига операторам чайл енвс
   {
     var env = new_env( envid );
     env.locinfo = getlocinfo();
-    fill_env( env, env_modifiers, child_envs )
+    fill_env( env, [first_positional_attr].concat(env_modifiers), child_envs )
 
     if (env_modifiers.length == 0) {
        console.error("operator record, no feature!",env_modifiers);
        console.log( env.locinfo );
     };
+
+    return env;
+  }
+
+// особый случай вида (@some) например для if (@some->k)
+one_env_positional_attr "environment positional record"
+  =
+  envid: (__ @(@attr_name ws ":")?)
+  first_positional_attr: (__ @positional_attr)
+  {
+    var env = new_env( envid );
+    
+    env.locinfo = getlocinfo();
+
+    env.features["read"] = {}; // ладно уж - пусть это будет read когда написали (@k)
+    fill_env( env, [first_positional_attr], [] )
 
     return env;
   }  

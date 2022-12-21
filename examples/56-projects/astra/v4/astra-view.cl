@@ -180,7 +180,7 @@ feature "astra-camera-rotate" {
 	{
 		astradata: find-data-source;
 
-		if (@avp->visible) then={
+		if @avp->visible {
 			@avp->camera | x-modify {
 				x-set-params theta=@avp->theta;
 			};
