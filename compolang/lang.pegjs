@@ -646,6 +646,7 @@ positional_value
   / array
   / number
   / string
+  / js_inline
   / linkvalue:link soft_flag:("?")? stream_flag:("!")? {
     linkvalue.soft_flag = soft_flag ? true : false;
     linkvalue.stream_flag = stream_flag ? true : false; // F-PARAMS-STREAM
@@ -669,6 +670,7 @@ value
   / array
   / number
   / string
+  / js_inline
   / "{" __ env_list:env_list? __ "}" {
     return { param_value_env_list: env_list || [] }
   }
@@ -685,6 +687,15 @@ value
 false = "false" { return false; }
 null  = "null"  { return null;  }
 true  = "true"  { return true;  }
+
+///////////////////////////////////////// F-JS-INLINE
+js_inline "js inline code"
+  = "[[[" chars:(!"]]]" .)* "]]]" { 
+    let code = chars.map(c=>c[1]).join("");
+    let result = eval( code )
+    return result;
+  }
+
 
 // ----- 4. Objects -----
 
