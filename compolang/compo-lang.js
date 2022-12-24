@@ -276,7 +276,7 @@ function parsed2dump( vz, parsed, base_url ) {
   }
   for (let pv of (Object.values(parsed.params) || [])) {
      // преобразуем очередной параметр если он окружение
-     if (Array.isArray(pv) && pv.length > 0 && pv[0].this_is_env) {
+     if (Array.isArray(pv) && pv.length > 0 && pv[0] && pv[0].this_is_env) {
 
         //console.log("pv",pv.env_args)
         //if (pv.env_args)          debugger;
@@ -495,6 +495,11 @@ export function load(env,opts)
 
          //console.log("interpreting file", file )
          let dp1 = subenv.parseSimpleLang( txt, {vz: env.vz, parent: env.ns.parent,base_url: new_base_url, diag_file: file } );
+
+         if (!dp1) {
+           console.error("compalang load: error parsing text")
+           return
+         }
          let load_env_scope = env.$scopes.top();
 
          let $scopeFor = env.$scopes.createScope("load"); // F-SCOPE
@@ -2462,7 +2467,10 @@ export function dump_to_manual( env )
   function convert_node( dump )
   {
     dump.manual = true;
-    dump.params.manual_features = Object.keys( dump.features ).filter( f => f != "base_url_tracing" );
+    if (dump.features) {
+      dump.params ||= {}
+      dump.params.manual_features = Object.keys( dump.features ).filter( f => f != "base_url_tracing" );
+    }
     for (let c of Object.values( dump.children || {}) )
       convert_node( c );
   }

@@ -134,7 +134,7 @@ function loadFileBase( file_or_path, istext, handler, errhandler, setFileProgres
             fetch( file_or_path, opts )
             .then(handleErrors)
             .then( res => {
-                let f = istext ? res.text : res.arrayBuffer
+                let f = istext ? res.text.bind(res) : res.arrayBuffer.bind(res)
                 f().then( data => {
                     setFileProgress( file_or_path,"parsing");
                     file_off();

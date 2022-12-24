@@ -59,14 +59,14 @@ export function save_state_to_window_hash( player ) {
   ///////////////////////////////////////// дадим полезных методов
 
   player.saveToHash = function( obj ) {
-    console.log("save to hash called",obj)
+    //console.log("save to hash called",obj)
     var name = obj.saveTreeToHashName;
     if (!name) return;
     
     var q = read_from_hash();
     q[ name ] = obj.dump();
     write_to_hash( q );
-    console.log("saved to hash",q);
+    //console.log("saved to hash",q);
   }
 
   function findRoot( obj ) {

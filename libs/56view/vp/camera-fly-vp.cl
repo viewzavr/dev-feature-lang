@@ -49,7 +49,7 @@ feature "camera-fly-vp" {
 			// (list @sp.mesh.material @sp_nodes.mesh.material) | x-modify { x-set-params single_sided=true };
 			// (list @sp.mesh @sp_nodes.mesh) | x-modify { x-set-params material=(mesh_phong_material single_sided=true)};
 			// чтобы сфера не перекрывала видимость когда она видна
-			(list @sp.mesh.material @sp_nodes.mesh.material) | arr_map code="(item) => item.side = 0;";
+			(list @sp.mesh.material @sp_nodes.mesh.material) | arr_map code="(item) => item ? item.side = 0 : null";
 
 			//get_param_option @liness/lines-env
 

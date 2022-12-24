@@ -232,6 +232,7 @@ function peg$parse(input, options) {
   var peg$c56 = "/*";
   var peg$c57 = "*/";
   var peg$c58 = "//";
+  var peg$c59 = "#";
 
   var peg$r0 = /^[ \t\n\r]/;
   var peg$r1 = /^[a-zA-Z\u0430-\u044F\u0410-\u042F0-9_\-]/;
@@ -334,6 +335,7 @@ function peg$parse(input, options) {
   var peg$e84 = peg$literalExpectation("/*", false);
   var peg$e85 = peg$literalExpectation("*/", false);
   var peg$e86 = peg$literalExpectation("//", false);
+  var peg$e87 = peg$literalExpectation("#", false);
 
   var peg$f0 = function(envs) {
        var env = new_env();
@@ -592,7 +594,13 @@ function peg$parse(input, options) {
   var peg$f27 = function() { return true;  };
   var peg$f28 = function(chars) { 
       let code = chars.map(c=>c[1]).join("");
-      let result = eval( code )
+      let result
+      try {
+        result = eval( code )
+      } catch(err) {
+        console.error("compalang pegjs: error in inline js:", err,code)
+        return null;
+      }
       return result;
     };
   var peg$f29 = function(head, tail) {
@@ -2717,13 +2725,13 @@ function peg$parse(input, options) {
           if (s0 === peg$FAILED) {
             s0 = peg$parseobject();
             if (s0 === peg$FAILED) {
-              s0 = peg$parsearray();
+              s0 = peg$parsejs_inline();
               if (s0 === peg$FAILED) {
-                s0 = peg$parsenumber();
+                s0 = peg$parsearray();
                 if (s0 === peg$FAILED) {
-                  s0 = peg$parsestring();
+                  s0 = peg$parsenumber();
                   if (s0 === peg$FAILED) {
-                    s0 = peg$parsejs_inline();
+                    s0 = peg$parsestring();
                     if (s0 === peg$FAILED) {
                       s0 = peg$currPos;
                       if (input.charCodeAt(peg$currPos) === 123) {
@@ -4576,6 +4584,75 @@ function peg$parse(input, options) {
     } else {
       peg$currPos = s0;
       s0 = peg$FAILED;
+    }
+    if (s0 === peg$FAILED) {
+      s0 = peg$currPos;
+      if (input.charCodeAt(peg$currPos) === 35) {
+        s1 = peg$c59;
+        peg$currPos++;
+      } else {
+        s1 = peg$FAILED;
+        if (peg$silentFails === 0) { peg$fail(peg$e87); }
+      }
+      if (s1 !== peg$FAILED) {
+        s2 = [];
+        s3 = peg$currPos;
+        s4 = peg$currPos;
+        peg$silentFails++;
+        s5 = peg$parseLineTerminator();
+        peg$silentFails--;
+        if (s5 === peg$FAILED) {
+          s4 = undefined;
+        } else {
+          peg$currPos = s4;
+          s4 = peg$FAILED;
+        }
+        if (s4 !== peg$FAILED) {
+          s5 = peg$parseSourceCharacter();
+          if (s5 !== peg$FAILED) {
+            s4 = [s4, s5];
+            s3 = s4;
+          } else {
+            peg$currPos = s3;
+            s3 = peg$FAILED;
+          }
+        } else {
+          peg$currPos = s3;
+          s3 = peg$FAILED;
+        }
+        while (s3 !== peg$FAILED) {
+          s2.push(s3);
+          s3 = peg$currPos;
+          s4 = peg$currPos;
+          peg$silentFails++;
+          s5 = peg$parseLineTerminator();
+          peg$silentFails--;
+          if (s5 === peg$FAILED) {
+            s4 = undefined;
+          } else {
+            peg$currPos = s4;
+            s4 = peg$FAILED;
+          }
+          if (s4 !== peg$FAILED) {
+            s5 = peg$parseSourceCharacter();
+            if (s5 !== peg$FAILED) {
+              s4 = [s4, s5];
+              s3 = s4;
+            } else {
+              peg$currPos = s3;
+              s3 = peg$FAILED;
+            }
+          } else {
+            peg$currPos = s3;
+            s3 = peg$FAILED;
+          }
+        }
+        s1 = [s1, s2];
+        s0 = s1;
+      } else {
+        peg$currPos = s0;
+        s0 = peg$FAILED;
+      }
     }
 
     return s0;

@@ -214,8 +214,11 @@ export function render3d( env ) {
     // это то что рендерера просят нарисовать, вложив в нево объекты
     env.scene.add( nested_items );
     // это то что рендерера попросили нарисовать явно
+    /* вроде как не надо - ниже само добавится
     if (env.params.input?.isObject3D)
         env.scene.add( env.params.input );
+    */    
+    add( env.params.input );
     // и еще списком - но может это стоит в node3d отдать..
 
     function add( item ) {
@@ -232,7 +235,7 @@ export function render3d( env ) {
             console.error("render3d: wrong input item", env.getPath(), "item=",item)  
       }
     }
-    add( env.params.input );
+    
 
     /*
     if (Array.isArray(env.params.input)) {
@@ -502,6 +505,16 @@ export function node3d( env, opts={} ) {
   var tracked=[];
   function rescan() {
 
+    function add(item) {
+        if (Array.isArray(item)) {
+          item.forEach( add );
+        }
+        if (!item?.isObject3D) return;
+        if (item.is_node3d)
+          item.rescan_children_for_3d(); // там тож пусть порядок наведут      
+        object3d.add( item );
+      }    
+
     tracked.forEach( (t) => t() ); tracked=[];
     
     object3d.clear();
@@ -511,18 +524,11 @@ export function node3d( env, opts={} ) {
       tracked.push( c.trackParam("output",rescan) ); // следим за изменениями
       var o = c.params.output;
       add( o ); // добавляем результат от этого дитя
-
-      function add(item) {
-        if (Array.isArray(item)) {
-          item.forEach( add );
-        }
-        if (!item?.isObject3D) return;
-        if (item.is_node3d)
-          item.rescan_children_for_3d(); // там тож пусть порядок наведут      
-        object3d.add( item );
-      }
-      
+    
     }
+
+    // добавим еще элемент или список из инпут
+    add( env.params.input )
 
     env.setParam("object3d_count",object3d.children.length);
   }

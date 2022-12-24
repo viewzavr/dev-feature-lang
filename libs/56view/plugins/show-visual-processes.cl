@@ -45,14 +45,14 @@ feature "render_process_hierarchy"
      /// верхний и след уровни...
 
      let objects_list=(@rh->objects | pause_input | repeater target_parent=@~ { 
-     	 q: object repeater_output=(concat @l1 @l2?) {
+     	 q: object repeater_output=(concat @l1 @l2) {
      		  l1: object
               id=(@q->input | geta "$vz_unique_id")
      	        title=(@q->input | geta "title")
      	        obj=@q->input
      	         ;
 
-     	    l2: (@q->input | geta "subprocesses" default=[] | repeater target_parent=@~ {
+     	    let l2 = (@q->input | geta "subprocesses" default=[] | repeater target_parent=@~ {
        	          qq: object id=(@qq->input | geta "$vz_unique_id")
      	                title=(join "  - " (@qq->input | geta "title"))
      	                obj=@qq->input
@@ -68,7 +68,8 @@ feature "render_process_hierarchy"
 
     /// параметры объекта
 
-     selected_object: (@objects_list | geta @cbsel->index? default=null | geta "obj");
+     let selected_object = (@objects_list | geta @cbsel->index? default=null | geta "obj")
+     
 
      co: column ~plashka style_r="position:relative; overflow: auto;"  
             input=@selected_object?
@@ -100,10 +101,17 @@ feature "render_process_hierarchy"
           }" @co->input? @rh->active_view? @cbsel;
         };
 
+        button "Удалить" 
+          on_click=(m-lambda [[[
+            (obj) => { obj.removedManually = true; obj.remove(); }
+          ]]] @co->input?)
+
+/*
         button "Удалить" //style="position:absolute; top:0px; right:0px;" 
         {
-          lambda @co->input? code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
+          lambda @co->input? code=`(obj) => { console.log('removing',obj); obj.removedManually = true; obj.remove(); }`;
         };
+*/        
 
      };
 

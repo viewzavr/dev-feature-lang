@@ -91,6 +91,7 @@ feature "data-entity" {
     project=@..
     initial_mode=1
     //output=@files->output
+    url=""
     {{ x-param-string name="url" }}
     {{ x-param-files name="files" }}
     {{ x-param-switch name="src" values=["URL","Файл с диска","Папка"] }}
@@ -159,7 +160,7 @@ feature "data-entity" {
      //files: select-files url=@qqe->url? index=@qqe->initial_mode;
      //insert_children input=@qqe list=(@files->output | types_from_files);
      
-     @qqe | grow-artefacts;
+     read @qqe | grow-artefacts;
 
      let found_artefacts=(find-objects-bf "data-artefact" root=@qqe include_root=false);
     };

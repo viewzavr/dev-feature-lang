@@ -147,3 +147,216 @@ feature "spheres_compute" {
     }			
   }` @s->nx @s->ny @s->positions @s->radiuses @s->colors @s->radius;
 };
+
+
+/////////////////////////////////////
+
+feature "cylinders" {
+  s: node3d 
+    ~points_df_input 
+    {{ x-param-slider name="radius" min=0.0 max=100 step=0.1 }}
+    nx=16 positions=[] radiuses=[] colors=[] radius=1
+    color=[1,1,1]
+    {
+        //mesh positions=[0,0,0, 1,1,1, 0,1,0 ];
+
+    m: mesh positions=(@mdata.output.0)
+             indices=(@mdata.output.1)
+             colors=(@mdata.output.2)
+             color=@s->color
+             ~editable-addons // временно
+             ;
+    
+    mdata: m_eval @makeCylinders @s.radius @s.radiuses @s.nx @s.positions @s.colors
+
+    //console-log "makeCylinders=" @makeCylinders
+
+    //mdata: m_eval (m-partial @s.radius @s.radiuses @s.nx @s.positions @s.colors @makeCylinders)
+
+// see https://bitbucket.org/pavelvasev/scheme2/src/tip/scheme2go/libs/suffixes/trimesher/meshcreator.cs?at=default&fileviewer=file-view-default
+      // aka 
+
+    let makeCylinders = [[[ 
+////////////////////////////////////////////////////////////////////////////////
+
+    // http://rosettacode.org/wiki/Vector_products#JavaScript
+    function crossProduct(a, b) {
+      return [a[1]*b[2] - a[2]*b[1],
+              a[2]*b[0] - a[0]*b[2],
+              a[0]*b[1] - a[1]*b[0]];
+    }
+    
+    function diff(p1,p2) {
+      return [ p1[0]-p2[0], p1[1]-p2[1],p1[2]-p2[2] ];
+    }
+
+    function vDiff(p1,p2) {
+      return [ p1[0]-p2[0], p1[1]-p2[1],p1[2]-p2[2] ];
+    }
+
+    function vAdd(p1,p2) {
+      return [ p1[0]+p2[0], p1[1]+p2[1],p1[2]+p2[2] ];
+    }
+    
+    function dotProduct(a,b) {
+      return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+    }    
+
+    // http://evanw.github.io/lightgl.js/docs/vector.html
+    function vNorm(a) {
+      var l = vLen( a );
+      if (l > 0.00001)
+        return vMulScal( a, 1.0 / l );
+      return a;
+    }
+    function vNormSelf(a) {
+      var l = vLen( a );
+      if (l < 0.000001) return;
+      a[0] /= l;
+      a[1] /= l;
+      a[2] /= l;
+      return a;
+    }
+
+    function vLen(a) {
+      return Math.sqrt(dotProduct(a,a));
+    }
+
+    function vMul(a,b) {
+      return [ a[0]*b[0], a[1]*b[1], a[2]*b[2] ];
+    }
+
+    function vMulScal(a,b) {
+      return [ a[0]*b, a[1]*b, a[2]*b ];
+    }
+    
+    function vMulScalar(a,b) {
+      return [ a[0]*b, a[1]*b, a[2]*b ];
+    }    
+
+    function vBasis( p1, p2 ) {
+      var v1 = diff( p2, p1 ); 
+      vNormSelf( v1 );
+      var v2;
+      if (Math.abs(v1[0]) < 0.0000001)
+        v2 = [ 0, -v1[2], v1[1] ];
+      else
+        v2 = [ -v1[1], v1[0], 0 ];
+      vNormSelf( v2 );
+
+      var v3 = crossProduct( v1, v2 );
+      return [ v1, v2, v3 ];
+    }
+
+    // use this? https://github.com/toji/gl-matrix/blob/master/src/gl-matrix/vec3.js
+
+    function vLerp (a, b, t) {
+      var ax = a[0],
+          ay = a[1],
+          az = a[2];
+      var out = [0,0,0];
+      out[0] = ax + t * (b[0] - ax);
+      out[1] = ay + t * (b[1] - ay);
+      out[2] = az + t * (b[2] - az);
+      return out;
+    };
+
+  function makeCylinders( radius, radiuses, nx, positions, colors, endRatio ) {
+        var circle = [];
+        var delta = 2.0 * Math.PI / nx;
+
+        // cache
+        for (var i=0; i<=nx; i++) {
+          var alpha = i*delta;
+          u1 = Math.cos(alpha);
+          w1 = Math.sin(alpha);
+          circle.push( [ u1,w1 ] );
+        }
+
+        var inds = [];
+        var poss = [];
+        var cols = [];
+
+        // vertices
+        var conesCount = positions.length / 6;
+        // debugger;
+
+        var vinring = nx+1;
+        var conn = false ///connect;
+
+        for (var q=0; q<conesCount; q++) {
+          var s1 = 2*3*q;
+          var s2 = s1+3;
+          var p1 = [ positions[s1], positions[s1+1], positions[s1+2] ];
+          var p2 = [ positions[s2], positions[s2+1], positions[s2+2] ];
+
+          // Преобразуем p2 к доле endRatio
+          if (endRatio)
+            p2 = vLerp( p1, p2, endRatio );
+
+          var basis = vBasis( p1, p2 );
+
+          var color = null;
+          if (Array.isArray(colors) && colors.length >= conesCount) {
+            var y1 = 3*q;
+            color = [ colors[ y1 ],colors[ y1+1 ], colors[ y1+2 ] ]
+          }
+
+          var startIndex = poss.length / 3;
+
+          let r = radius;
+          if (Array.isArray(radiuses) && radiuses.length > q) r = radiuses[q]
+
+          for (var i=0; i<=nx; i++) {
+            //coord[i, 0] = p1 + u1*v2 + w1*v3;
+            //coord[i, 1] = p2 + u2*v2 + w2*v3;
+
+            var u1 = circle[i][0]*r;
+            var w1 = circle[i][1]*r;
+            var dd = vAdd( vMulScal( basis[1], u1 ), vMulScal( basis[2], w1 ) );
+            var nv1 = vAdd( p1, dd );
+            var nv2 = vAdd( p2, dd );
+            poss.push( nv1[0] ); poss.push( nv1[1] ); poss.push( nv1[2] );
+            poss.push( nv2[0] ); poss.push( nv2[1] ); poss.push( nv2[2] );
+
+            if (color) {
+              cols.push( color[0] ); cols.push( color[1] ); cols.push( color[2] );
+              cols.push( color[0] ); cols.push( color[1] ); cols.push( color[2] );
+            }
+          }
+          
+          // indices
+          var vNext = poss.length / 3;
+          for (var i=0; i<nx; i++) {
+             var j = 2*i;
+             inds.push( startIndex + j );
+             inds.push( startIndex + j+1 );
+             inds.push( startIndex + j+3 );
+
+             inds.push( startIndex + j );
+             inds.push( startIndex + j+3 );
+             inds.push( startIndex + j+2 );
+
+             if (conn && q<conesCount-1) {
+               inds.push( startIndex + j+1 );
+               inds.push( vNext + j );
+               inds.push( vNext + j+2 );
+
+               inds.push( startIndex + j+1 );
+               inds.push( vNext + j+2 );
+               inds.push( startIndex + j+3 );
+             }
+          }
+        }
+
+        
+
+        return [ poss, inds, cols ];
+      }
+
+      makeCylinders
+
+    ]]]
+      
+  };
+};

@@ -667,10 +667,10 @@ value
   / true
   / accessor
   / object
+  / js_inline
   / array
   / number
-  / string
-  / js_inline
+  / string  
   / "{" __ env_list:env_list? __ "}" {
     return { param_value_env_list: env_list || [] }
   }
@@ -692,7 +692,13 @@ true  = "true"  { return true;  }
 js_inline "js inline code"
   = "[[[" chars:(!"]]]" .)* "]]]" { 
     let code = chars.map(c=>c[1]).join("");
-    let result = eval( code )
+    let result
+    try {
+      result = eval( code )
+    } catch(err) {
+      console.error("compalang pegjs: error in inline js:", err,code)
+      return null;
+    }
     return result;
   }
 
@@ -880,6 +886,7 @@ MultiLineCommentNoLineTerminator
 
 SingleLineComment
   = "//" (!LineTerminator SourceCharacter)*
+  / "#" (!LineTerminator SourceCharacter)*
 
 __
   = (WhiteSpace / LineTerminatorSequence / Comment)*

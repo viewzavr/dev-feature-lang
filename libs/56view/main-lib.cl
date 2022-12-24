@@ -139,7 +139,7 @@ feature "show_sources_params"
 
     if (@sv.settings_gui.length? > 0) then={
       let g = (create-objects input=@sv.show_settings_gui @sv.settings_gui | set-parent @sv);
-      read @g | get-event-cell "close" | get-cell-value | m_eval "(evt,c) => { console.log(333,evt); c.set([]); } " (@sv | get-cell "settings_gui" );
+      read @g | get-event-cell "close" | get-cell-value | m_eval "(evt,c) => { c.set([]); } " (@sv | get-cell "settings_gui" );
 
       // console-log "panel opened" @sv.show_settings_gui @sv.settings_gui;
 

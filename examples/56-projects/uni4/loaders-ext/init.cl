@@ -1,4 +1,4 @@
-object
+load "zal/zal.cl"
 /*
 load "
 lava/loader.cl

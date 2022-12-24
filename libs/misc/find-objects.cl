@@ -11,9 +11,9 @@ feature "find-one-object" {
 }
 */
 
-feature "find-one-object" code=`
+feature "find-one-object" [[[ (env) => {
   env.feature("delayed");
-  let refind = { stop: ()=>{} };
+  let refind_stop = ()=>{};
   let unmonitor_object = () => {};
 
   env.onvalues_any(["input","root"],(i,r) => {
@@ -28,7 +28,7 @@ feature "find-one-object" code=`
   		env.setParam("output",null);
   		return;
   	}
-  	refind.stop();
+  	refind_stop();
   	unmonitor_object(); 
   	if (!path) {
   		env.setParam("output",null);
@@ -52,20 +52,20 @@ feature "find-one-object" code=`
     }
     else {
     	// ну надо поиски начинать
-    	refind = env.timeout( () => start_process( path, root,retry-1 ), 5 );
+    	refind_stop = env.timeout( () => start_process( path, root,retry-1 ), 5 );
     	env.setParam("output",null);
     }
   }
   
   function stop_process() {
-  	refind.stop();
+  	refind_stop();
   }
 
   env.on("remove",() => {
-  	refind.stop();
+  	refind_stop();
   	unmonitor_object();
   })
-`;
+} ]]]
 
 // поиск массива объектов по путям
 // вход - input - строка с путями объектов (разделитель запятая ,)
