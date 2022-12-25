@@ -41,18 +41,17 @@ artmaker
  code={ |art|
 	 x: object 
 	  possible=@x.txt_file?
-	  txt_file=(find-files @art.output? ".*\.(txt)$" | geta 0 default=null)
+	  txt_file=(find-files @art.output? "data.*\.(txt)$" | geta 0 default=null)
 	  make={ |gen|
 	  	 zal-data input= @x.txt_file
 	  }
-	  {{ console-log "zal possible=" @x.possible (m-eval @x.getPath) }}
+	  //{{ console-log "zal possible=" @x.possible (m-eval @x.getPath) }}
 
   }
 
 feature "zal-data" { 
 	x: data-artefact title="Зал" 
-	  output=(load-file @x.input | compalang)
-	  //{{ load-file @x.input |}}
+	    output=(load-file @x.input | compalang)
 }
 
 vismaker 
@@ -84,16 +83,18 @@ feature "paint-zal" {
 	  	  }
 
 	  	  zal: object { // среда для моделирования, world
+	  	  	
 	  	  	g: grid 
 	  	  	  rangex=(find-objects-bf "RangeX" | geta 0 | geta 1)
 	  	  	  rangey=(find-objects-bf "RangeY" | geta 0 | geta 1)
 	  	  	  //gridstep=(find-objects-bf "GridStep" | geta 0 | geta [0,1] )
-	  	  	  gridstep=(find-objects-bf "GridStep" | geta 0 | m-eval [[[ (obj) => [obj.params[0], obj.params[1]] ]]] )
+	  	  	  gridstep=(find-objects-bf "GridStep" | geta 0 | m-eval [[[ (obj) => obj ? [obj.params[0], obj.params[1]] : [100,100] ]]] )
 	  	  	  opacity=0.3
 
 	  	  	//grid rangex=@g.rangex rangey=@g.rangey gridstep=m-eval [[[ (arr=@g.gridstep) => [ arr[0]*100, arr[1]*100 ] ]]]
 	  	  	grid rangex=@g.rangex rangey=@g.rangey gridstep=(m-eval [[[ (arr) => [ arr[0]*100, arr[1]*100 ] ]]] @g.gridstep)
 	  	  	  color=[0,1,0] radius=2
+
 	  	  }
 
 	  	  m-eval [[[ obj => {

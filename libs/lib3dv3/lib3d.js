@@ -501,6 +501,7 @@ export function node3d( env, opts={} ) {
   object3d.rescan_children_for_3d = rescan; 
 
   env.on("childrenChanged", rescan );
+  env.trackParam("input", rescan );
 
   var tracked=[];
   function rescan() {
