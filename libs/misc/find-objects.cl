@@ -11,7 +11,7 @@ feature "find-one-object" {
 }
 */
 
-feature "find-one-object" [[[ (env) => {
+feature "find-one-object" {: env | 
   env.feature("delayed");
   let refind_stop = ()=>{};
   let unmonitor_object = () => {};
@@ -65,7 +65,7 @@ feature "find-one-object" [[[ (env) => {
   	refind_stop();
   	unmonitor_object();
   })
-} ]]]
+:}
 
 // поиск массива объектов по путям
 // вход - input - строка с путями объектов (разделитель запятая ,)

@@ -5,6 +5,7 @@ import * as M from "./mike.js";
 import * as A from "./assert.js";
 import * as C from "./csp-tricks.js";
 import * as C2 from "./comm3.js";
+import * as CO23 from "./co23.js";
 
 export function setup(vz, m) {
   vz.register_feature_set(m);
@@ -14,6 +15,7 @@ export function setup(vz, m) {
   A.setup( vz, A);
   C.setup( vz, C);
   C2.setup( vz, C2);
+  CO23.setup( vz, CO23)
 
   add_compalang_to_vz(vz);
 }

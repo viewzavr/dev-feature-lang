@@ -3,6 +3,8 @@ import * as E from "../viewzavr-core/nodesystem/events/init.js";
 /*
   вопрос. а почему нельзя сделать read @obj | имя-метода @args ?
   мб это удобно будет. и семантика понятна
+
+  update 26.12.2022: set_cell_value, get_cell методы переведены на отслеживание присваиваний (assigned) параметров.
 */
 
 export function setup(vz, m) {
@@ -24,13 +26,21 @@ export function setup(vz, m) {
      create_channel: feature_create_cell,
      convert_channel: convert_channel, // cc-process
      redirect_to_channel: redirect_to_channel,
-     create_channel: feature_create_cell,
      get_channel: feature_get_cell,  // мб сделать это через парамеры да и все. mode="param"
      get_event_channel: feature_get_event_cell,
      get_value: get_cell_value,
      get_new_value: get_cell_new_value,
      put_value: set_cell_value,
-     put_value_to: set_cell_value_to
+     put_value_to: set_cell_value_to,
+
+     // еще более новый язык, 12.22 F-CO23
+     event: feature_get_event_cell,
+     param: feature_get_param_cell,
+     method: feature_get_method_cell,
+     cmd: feature_get_cmd_cell,
+     channel: feature_get_cell,
+     join_channels: join_cells,
+     race_channels: join_cells_positional // по аналогии с Promise.race
    });
 
 
@@ -333,7 +343,7 @@ export function get_param_cell( target, name ) {
        }
     })
 
-    target.trackParam( name, (v) => {
+    target.trackParamAssigned( name, (v) => {
        if (setting) return;
        setting = true;
        try {
@@ -451,7 +461,7 @@ export function get_method_cell( target, name ) {
 
   function try_consume_all() {
      let k = c.consume();
-     let fn = target.params[ name ];
+     let fn = target.params[ name ] || target[name]; // разрешим обращаться и к объектам..
      if (typeof( fn ) !== 'function') return;
      // console.log('method cell try_consume_all, fn=',fn,'name=',name)
      while (k) {
@@ -501,7 +511,7 @@ export function get_cell( target, name, ismanual ) {
 
     // казалось бы где отписка? но этот мониторинг создается разово для каждого имени
     // и ячейка раздается всем желающим. итого у нас тут нет роста подписок более чем 1 раз.
-    target.trackParam( name, (v) => {
+    target.trackParamAssigned( name, (v) => {
        if (setting) return;
        setting = true;
        try {
@@ -539,6 +549,8 @@ export function get_cell( target, name, ismanual ) {
 
 // запись в массив ячеек
 // input - массив целевой, 0 - значение
+
+// действие - при присвоении значения в аргумент 0 пересылает его в указанный канал
 export function set_cell_value( env ) {
   /*
   env.onvalue("output",(v) => {
@@ -546,8 +558,9 @@ export function set_cell_value( env ) {
   })
   */
 
-  env.onvalues( ["input",0], (arr, val) => {
+  env.monitor_assigned( ["input",0], (arr, val) => {
     if (env.params.disabled) return;
+    if (!arr) return;
 
     let single_elem_mode = false;
     if (!Array.isArray(arr)) { arr=[arr]; single_elem_mode = true };
@@ -879,6 +892,8 @@ export function feature_get_cell( env ) {
 export function feature_create_cell( env ) {
   let cell = create_cell();
 
+  env.trackParamAssigned( 0, (v) => cell.set( v )); // внедрим такое поведение оно частое
+
   env.setParam( "output", cell );
 }
 
@@ -1025,21 +1040,33 @@ export function join_cells( env ) {
 
   env.feature("delayed");
 
-  env.onvalues( ["input"], (arr) => {
+  env.onvalues( ["input"], setup );
+
+  if (env.params.args_count > 0) {
+    env.on("param_changed",(pn) => {
+      if (pn == "output") return;
+      let arr = [];
+      for (let i=0; i<env.params.args_count; i++)
+        arr.push( env.params[i] );
+      setup( arr )
+    })
+  }
+
+  function setup (arr) {
     let single_mode=false;
     if (!Array.isArray(arr)) {
         arr=[arr];
         single_mode=true;
     }   
 
-    let fnd = env.delayed( fn ); // не факт кстати что это надо будет - мб надо сразу для скорости
+    //let fnd = env.delayed( fn ); // не факт кстати что это надо будет - мб надо сразу для скорости
 
     function fn() {
       call_unsub();
       let has_assigned_values = false;
       let res = arr.map( (cell) => {
         if (!cell) return;
-        let u = cell.monitor(fnd); 
+        let u = cell.on("assigned",fn); 
         unsub.push( u );
         has_assigned_values ||= cell.is_value_assigned();
         return cell.get();
@@ -1050,13 +1077,72 @@ export function join_cells( env ) {
 
     fn();
 
-  });
+  };
+
+  env.on("remove", call_unsub)
+};
+
+// аналог join_cells но результатом будет канал значение которого массив из null, 
+// где i-е значение ненулевое только в позиции которая прислала результат
+// доп. идея - можно задействовать уже delayed-вещи, чтобы соединять их всяко
+// todo т.е. можно объединять значения на delayed-принципе или доп-ом, как в lf, управлять режимом объединения 
+// этим в момент посылки сообщения
+export function join_cells_positional( env ) {
+  let result = create_cell();
+  env.setParam( "output", result );
+
+  let unsub = [];
+  function call_unsub() { unsub.map( f => f() ); unsub=[]; }
+
+  env.feature("delayed");
+
+  env.onvalues( ["input"], setup );
+
+  if (env.params.args_count > 0) {
+    env.on("param_changed",(pn) => {
+      if (pn == "output") return;
+      let arr = [];
+      for (let i=0; i<env.params.args_count; i++)
+        arr.push( env.params[i] );
+      setup( arr )
+    })
+  }
+
+  function setup (arr) {
+    if (!Array.isArray(arr)) {
+        arr=[arr];
+    }
+
+    function fn() {
+      call_unsub();
+      let res = arr.map( (cell,index) => {
+        if (!cell) return;
+        let u = cell.on("assigned",(val) => {
+          forward_value( val, index )
+        }); 
+        unsub.push( u );
+        return cell.get();
+      })
+
+      
+    };
+
+    function forward_value( val, index ) {
+      let res = (new Array( arr.length )).fill(null)
+      res[index] = val;      
+      res.index = index; // отметку поставим..
+      result.set( res )
+    }
+
+    fn();
+
+  };
 
   env.on("remove", call_unsub)
 };
 
 // Мишин мэпинг из ячейки в набор ячеек
-// делает ячейку запись в которую пишет во все указанные в input ячейки
+// делает ячейку, запись в которую приводит к записи во все указанные в input ячейки
 // let k = (list @c1 @c2 @c3 | create-writing-cell)
 export function create_writing_cell( env ) {
   let result = create_cell();
