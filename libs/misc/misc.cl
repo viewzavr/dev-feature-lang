@@ -368,17 +368,17 @@ feature "joinlines" code=`
 // решил назвать var. еще было вариант cell но там сложно - get-cell-value, alfa->cell и это cell они ж все разные
 // посему пока var
 // но вместе с var сложно такое мыслить: var a = import_js(...); лучше уж let a = ...;
-feature "let" `
-// NHACK - на первом проходе в register_feature для js скоп еще не создан
-let $scopeFor = env.$scopes [env.$scopes.length-1]; 
+feature "let" {: env | 
+  // NHACK - на первом проходе в register_feature для js скоп еще не создан
+  let $scopeFor = env.$scopes [env.$scopes.length-1]; 
 
-function forget_param (name,value) {
-    if ($scopeFor[ name ]) 
-     if ($scopeFor[ name ].created_by_data_env === env)
-       $scopeFor.$forget( name );
-}
+  function forget_param (name,value) {
+      if ($scopeFor[ name ]) 
+       if ($scopeFor[ name ].created_by_data_env === env)
+         $scopeFor.$forget( name );
+  }
 
-function process_param (name,value) {
+  function process_param (name,value) {
     if (Number.isInteger(parseFloat(name)) || name == "args_count")
       return;
 
@@ -421,7 +421,10 @@ function process_param (name,value) {
   let linked_params = env.linksToObjectParamsNames();
   for (let k of linked_params) {
     if (!env.hasParam( k )) // потому что уже обработали..
-       process_param( k, env.getParam(k));
+       process_param( k, env.getParam(k)); 
+       // todo дык его еще не назначили, чего там null то писать.. или ошибки в скопе будут?
+       // или норм там все.. короче наша задача не делать вид что значение присвоено, если оно еще не присвоено
+       // это связано с todo 60-й строки mike.js QQQ
   };
 
   env.on("remove",() => {
@@ -430,7 +433,7 @@ function process_param (name,value) {
     };
   });
 
-`
+:}
 {
   data: object output=@data->0?;
 };

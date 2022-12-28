@@ -38,9 +38,12 @@ feature "x-param-label-small" {
 
 feature "x-param-switch" {
   xi: x-param-custom editor={
-  	 edt: switch_selector_row 
+  	 edt: switch_selector_row
   	        items=@xi->values
   	        index=(@edt->object | geta @edt->name)
+
+  	        //{{ read @edt->index | create-channel | reaction {: x | console.log("x=",x) :} }}
+
   	        {{ hilite_selected }}
   	        {{ @edt->object | get-cell @edt->name manual=true | set-cell-value @edt->index }};
   };

@@ -81,6 +81,11 @@ export function map_geta( env )
        debugger;
 
     if (input_arr == null) { // вроде как норм вариант проверять и на ундефинет
+
+      // новое поведение. если ничего мы ранее не назначали. то и выхода из нас не должно быть.
+      if (!env.paramAssigned("output"))
+        return;
+
       //console.log("geta setting output null...",env.getPath())
       if (env.single_geta_mode) {
         //if (env.params.output) // но только если там что-то было.. а если ничего не было то пока ничего и не пишем.. ибо мы еще не отработали

@@ -35,6 +35,7 @@ export function m_eval( env ) {
     let args = [];
 
     // надо бы и инпут подсобрать
+    //if (env.paramAssigned)
     if (env.hasParam("input") || env.hasLinksToParam( "input")) {
       let v = env.params.input;
       
@@ -54,14 +55,21 @@ export function m_eval( env ) {
     for (let i=1; i<env.params.args_count;i++)
     {
       let v = env.params[i];
+
+/*    todo будущее правильное вот так: QQQ
+      if (!env.params.allow_undefined && !env.hasParam(i)) { // еще не присвоили..
+         return env.params.default; 
+      }
+*/      
       // надо не allow_undefined а allow_uncomputed.. а его проверять по hasParam
       // todo
+      
       if (!env.params.allow_undefined && typeof(v) == "undefined") { // ну пока так.. хотя странно все это..
         /// 
         //console.warn("m-eval: return default / have undefined arg");
         return env.params.default;
-        return;
       }
+      
       args.push( v );
     }
 

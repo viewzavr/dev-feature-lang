@@ -131,6 +131,13 @@ feature "data-entity" {
               column { render-params-list object=@qqe list=["files"];; };
               column { files; };
             };
+            //console-log "@qqe->src=" @qqe->src
+            //m-eval {: k=@qqe->src! | if (k == null) debugger; return :}
+            /*
+            m-eval {: k=@qqe | k.trackParam( "src",(v) => {
+                if (v == null) debugger;
+            }) :}
+            */
           };
         };
 

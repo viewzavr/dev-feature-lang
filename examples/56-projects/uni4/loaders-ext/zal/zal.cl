@@ -80,15 +80,15 @@ feature "paint-zal" {
 	  	  {
 	  	  	//points title="Точке" positions=[[[ Array(100*3).fill(0).map( Math.random ) ]]]
 	  	  	//zal-paint
+
 	  	  }
 
 	  	  zal: object { // среда для моделирования, world
 	  	  	
 	  	  	g: grid 
-	  	  	  rangex=(find-objects-bf "RangeX" | geta 0 | geta 1)
-	  	  	  rangey=(find-objects-bf "RangeY" | geta 0 | geta 1)
-	  	  	  //gridstep=(find-objects-bf "GridStep" | geta 0 | geta [0,1] )
-	  	  	  gridstep=(find-objects-bf "GridStep" | geta 0 | m-eval {: obj | obj ? [obj.params[0], obj.params[1]] : [100,100] :} )
+	  	  	  rangex=(find-objects-bf "RangeX" root=@zal | geta 0 | geta 1)
+	  	  	  rangey=(find-objects-bf "RangeY" root=@zal | geta 0 | geta 1)
+	  	  	  gridstep=(find-objects-bf "GridStep" root=@zal | geta 0 | m-eval {: obj | obj ? [obj.params[0], obj.params[1]] : [100,100] :} )
 	  	  	  opacity=0.3
 
 	  	  	//grid rangex=@g.rangex rangey=@g.rangey gridstep=m-eval [[[ (arr=@g.gridstep) => [ arr[0]*100, arr[1]*100 ] ]]]
@@ -106,9 +106,9 @@ feature "paint-zal" {
 			//obj.rotation.x = -90 * Math.PI/180;
 	  	  :}
 	  	 
-	  	  //console-log "art is" @pz.input "it's output is" @pz.input.output
+	  	  //console-log "artefact is" @pz.input "it's output is" @pz.input.output
 	  	  //@pz.input.output | create target=@node
-	  	  read @zal | insert_children list=@pz.input.output
+	  	  read @zal | insert_children list=@pz.input.output 
 	  	}
 }
 

@@ -13,10 +13,13 @@ export function load_file( env ) {
 
   //function go() {
 
-  env.monitor_values(["file",0], (file,f0) => {
-    file ||= f0
+  function actual_file_path() { return (env.params.file || env.params[0]) }
+
+  env.monitor_values(["file",0], () => {
+    let file = actual_file_path();
+    //file ||= f0
     //let file = env.params.file || env.params[0]
-    //console.log("load-file: gonna load file from ",file,"env is",env.getPath());
+    //    console.log("load-file: gonna load file from ",file,"env is",env.getPath());
     if (!file) {
       env.setParam("output","");
       return;
@@ -33,13 +36,14 @@ export function load_file( env ) {
     env.loadFile( file,(text) => {
       root.setParam( "loading_files",root.params.loading_files.filter( f => f != file) );
       //console.log("load-file: file",file," loaded, text len is ",text.byteLength || text.length);
-      if (env.params.file == file) 
+      
+      if (actual_file_path() == file) // передаем только в случае если
         env.setParam("output",text );
       //else console.log('file is skipped - non actual');
     },(err) => {
       root.setParam( "loading_files",root.params.loading_files.filter( f => f != file) );
       console.error("load-file: file",file," load error",err);
-      if (env.params.file == file) { 
+      if (actual_file_path() == file) { 
         env.setParam("output","" );
       };// else console.log('file is skipped - non actual');
     });

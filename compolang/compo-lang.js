@@ -2169,12 +2169,17 @@ export function console_log_input( env, options )
   //env.createLinkTo( {param:"text",from:"~->0",soft:true });
 
   function print() {
-    console.log( "console_log_input",env.params.text || env.params[0] || "", env.params.input );
+    let acc = ["console_log_input",env.params.text || env.params[0] || "", env.params.input]
+    // до кучи напечатаем все позиционные
+    for (let i=1; i<env.params.args_count; i++) 
+      acc.push( env.params[i] );
+    
+    console.log( ...acc );
     env.vz.console_log_diag( env );
   }
 
   //env.monitor_values(["input","text",0],(input) => {
-  env.monitor_defined(["input"],(input) => {
+  env.monitor_assigned(["input"],(input) => {
    //    console.log("cli ! input")
     print();
     env.setParam("output",input); // доп-фича - консоле-лог пропускает дальше данные
@@ -4012,10 +4017,13 @@ export function set_parent( env ) {
 // это нам нужно для новых пайпов
 export function feature_read( env ) {
   // но спорно. пишем по наличию параметра... ? а если там null?
-  env.monitor_values(0,(v) => {
+  // либо monitor_values ?
+  env.monitor_assigned(0,(v) => {
     // прислали null - ну прислали, ево и отдадим
+    //console.log("read pass",v)
     env.setParam("output",v);
-  });
+  }, env.hasParam(0) );
+
 };
 
 // оказалось полезная вещь. на вход функция на выход результат. ну без параметров пока.
