@@ -40,10 +40,11 @@ artefact-maker
 artmaker
  code={ |art|
 	 x: object 
-	  possible=@x.txt_file?
-	  txt_file=(find-files @art.output? "data.*\.(txt)$" | geta 0 default=null)
+	  possible=@x.geom_file?
+	  geom_file=(find-files @art.output? "data.*\.(txt)$" | geta 0 default=null)
+	  rad_file=(find-files @art.output? "rad.*\.(csv)$" | geta 0 default=null)
 	  make={ |gen|
-	  	 zal-data input= @x.txt_file
+	  	 zal-data geom_file=@x.geom_file rad_file=@x.rad_file
 	  }
 	  //{{ console-log "zal possible=" @x.possible (m-eval @x.getPath) }}
 
@@ -51,26 +52,37 @@ artmaker
 
 feature "zal-data" { 
 	x: data-artefact title="Зал" 
-	    output=(load-file @x.input | compalang)
+	      geom=(load-file @x.geom_file | compalang)
+	      rad=(load-file @x.rad_file | text2arr)
+}
+
+feature "text2arr" {
+	x: object output=(m-eval {: str |
+      let r = str.split(/[\s,;]+/).map( parseFloat )
+      return r
+  :} @x.input)
 }
 
 vismaker 
   code={ |art|
 	  object 
-	    title="Виз2"
-	 	possible=(read @art | is-feature-applied name="zal-data")
+	    title="Визуализация зала"
+	 	  possible=(read @art | is-feature-applied name="zal-data")
 	  	make={ |view|
 	  		paint-zal input=@art
 	  	}
   }
+
+///////////////////////////////////  
 
 feature "paint-zal" {
 	pz: visual_process 
 	    {{ x-art-ref name="input" crit="zal-data" }}
 	  	//output=@p.output
 	  	title="Зал"
-	  	gui3={ 
+	  	gui={ 
 	  	  render-params @pz
+	  	  render-params @radpts
 	  	}
 	  	scene3d={ |view|
 	  	  object output=@node.output
@@ -85,16 +97,23 @@ feature "paint-zal" {
 
 	  	  zal: object { // среда для моделирования, world
 	  	  	
-	  	  	g: grid 
+	  	  	g: grid // ну это рисование сетки
 	  	  	  rangex=(find-objects-bf "RangeX" root=@zal | geta 0 | geta 1)
 	  	  	  rangey=(find-objects-bf "RangeY" root=@zal | geta 0 | geta 1)
-	  	  	  gridstep=(find-objects-bf "GridStep" root=@zal | geta 0 | m-eval {: obj | obj ? [obj.params[0], obj.params[1]] : [100,100] :} )
+	  	  	  stepx=(find-objects-bf "GridStep" root=@zal | geta 0 | geta 0)
+	  	  	  stepy=(find-objects-bf "GridStep" root=@zal | geta 0 | geta 1)
+	  	  	  //gridstep=(find-objects-bf "GridStep" root=@zal | geta 0 | m-eval {: obj | obj ? [obj.params[0], obj.params[1]] : [100,100] :} )
 	  	  	  opacity=0.3
 
 	  	  	//grid rangex=@g.rangex rangey=@g.rangey gridstep=m-eval [[[ (arr=@g.gridstep) => [ arr[0]*100, arr[1]*100 ] ]]]
 	  	  	// надо сделать их тупо независимыми
-	  	  	grid rangex=@g.rangex rangey=@g.rangey gridstep=(m-eval {: arr | [ arr[0]*100, arr[1]*100 ] :} @g.gridstep)
+	  	  	grid rangex=@g.rangex rangey=@g.rangey //gridstep=(m-eval {: arr | [ arr[0]*100, arr[1]*100 ] :} @g.gridstep)
+	  	  	  stepx=(@g.stepx * 100) stepy=(@g.stepy * 100)
 	  	  	  color=[0,1,0] radius=2
+
+	  	  	radpts: points 
+	  	  	   positions=(generate_grid_positions_pt rangex=@g.rangex rangey=@g.rangey stepx=@g.stepx stepy=@g.stepy) 
+	  	  	   colors=(arr_to_colors input=@pz.input.rad)  
 
 	  	  }
 
@@ -108,7 +127,9 @@ feature "paint-zal" {
 	  	 
 	  	  //console-log "artefact is" @pz.input "it's output is" @pz.input.output
 	  	  //@pz.input.output | create target=@node
-	  	  read @zal | insert_children list=@pz.input.output 
+	  	  read @zal | insert_children list=@pz.input.geom
+
+	  	  //console-log "rad is" @pz.input.rad
 	  	}
 }
 
@@ -192,7 +213,7 @@ feature "grid" {
 	x: //object {
 		lines color=[0, 0.5, 0]
 		  positions=(m-eval {: x,y,dx,dy |
-		  let acc=[];
+	   		  let acc=[];
           for (let i=0; i<=x; i+=dx) {
             acc.push( i, 0, 0 );
             acc.push( i, 0, y );
@@ -202,8 +223,21 @@ feature "grid" {
             acc.push( x, 0, i );
           };
           return acc
-		:} @x.rangex @x.rangey @x.gridstep.0 @x.gridstep.1 )
+		:} @x.rangex @x.rangey @x.stepx @x.stepy )
 	//}
+}
+
+// параметры rangex rangey dx dy
+// output - массив координат
+feature "generate_grid_positions_pt" {
+	x: object output=(m-eval {: x=@x.rangex y=@x.rangey dx=@x.stepx dy=@x.stepy |
+  		    let acc=[];
+          for (let i=0; i<=x; i+=dx) 
+          for (let j=0; j<=y; j+=dy) {
+            acc.push( i, 0, j );
+          };
+          return acc
+  :})
 }
 
 feature "RangeX" { object }
