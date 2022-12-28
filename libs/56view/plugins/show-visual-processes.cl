@@ -102,9 +102,9 @@ feature "render_process_hierarchy"
         };
 
         button "Удалить" 
-          on_click=(m-lambda [[[
-            (obj) => { obj.removedManually = true; obj.remove(); }
-          ]]] @co->input?)
+          on_click={: obj=@co.input? |
+            obj.removedManually = true; obj.remove(); 
+          :}
 
 /*
         button "Удалить" //style="position:absolute; top:0px; right:0px;" 

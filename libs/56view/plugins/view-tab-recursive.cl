@@ -75,8 +75,9 @@ feature "the_view_recursive"
         };
 
         button "x" style="position:absolute; top:0px; right:0px;" 
+          on_click={: obj=@selected_object | obj.removedManually = true; obj.remove() :}
         {
-          lambda @selected_object code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
+          //lambda @selected_object code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
         };
 
      };

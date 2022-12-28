@@ -88,22 +88,23 @@ feature "paint-zal" {
 	  	  	  rangex=(find-objects-bf "RangeX" | geta 0 | geta 1)
 	  	  	  rangey=(find-objects-bf "RangeY" | geta 0 | geta 1)
 	  	  	  //gridstep=(find-objects-bf "GridStep" | geta 0 | geta [0,1] )
-	  	  	  gridstep=(find-objects-bf "GridStep" | geta 0 | m-eval [[[ (obj) => obj ? [obj.params[0], obj.params[1]] : [100,100] ]]] )
+	  	  	  gridstep=(find-objects-bf "GridStep" | geta 0 | m-eval {: obj | obj ? [obj.params[0], obj.params[1]] : [100,100] :} )
 	  	  	  opacity=0.3
 
 	  	  	//grid rangex=@g.rangex rangey=@g.rangey gridstep=m-eval [[[ (arr=@g.gridstep) => [ arr[0]*100, arr[1]*100 ] ]]]
-	  	  	grid rangex=@g.rangex rangey=@g.rangey gridstep=(m-eval [[[ (arr) => [ arr[0]*100, arr[1]*100 ] ]]] @g.gridstep)
+	  	  	// надо сделать их тупо независимыми
+	  	  	grid rangex=@g.rangex rangey=@g.rangey gridstep=(m-eval {: arr | [ arr[0]*100, arr[1]*100 ] :} @g.gridstep)
 	  	  	  color=[0,1,0] radius=2
 
 	  	  }
 
-	  	  m-eval [[[ obj => {
+	  	  m-eval {: obj=@node.output |
 	  	  	let r = 0.01
 	  	  	obj.scale.set( r,r,-r )
 	  	  	//console.log("setting scale to",obj.scale)
 	  	  	//obj.rotation.z = 90 * Math.PI/180;
 			//obj.rotation.x = -90 * Math.PI/180;
-	  	  	} ]]] @node.output
+	  	  :}
 	  	 
 	  	  //console-log "art is" @pz.input "it's output is" @pz.input.output
 	  	  //@pz.input.output | create target=@node
@@ -145,7 +146,7 @@ feature "ObstaclePolyStart" {
 	x: object nodes=(find-objects-bf "ObstaclePolyPoint" root=@x)
 	   {
 		 node3d {
-		 	mesh positions=(m-eval [[[ (nodes) => {
+		 	mesh positions=(m-eval {: nodes=@x.nodes |
 		 		let arr = [];
 		 		let z = 250
 		 		for (let i=0; i<nodes.length; i++) {
@@ -164,11 +165,11 @@ feature "ObstaclePolyStart" {
 		 			arr.push( node.params[0], 0, node.params[1] )
 		 		})*/
 		 		return arr
-		 	}]]] @x.nodes)
+		 	:})
 		 }
 	   }	
 }
-feature "ObstaclePolyPoint" [[[ (env) => {
+feature "ObstaclePolyPoint" {: env |
 	//console.log("qq",env.ns.parent)
 	let cc = env.ns.parent.ns.getChildren();
 	let myindex = cc.indexOf( env );
@@ -185,12 +186,12 @@ feature "ObstaclePolyPoint" [[[ (env) => {
 		console.error("ObstaclePolyPoint cannot find ObstaclePolyStart",env)
 
 	}
-} ]]]
+:}
 
 feature "grid" {
 	x: //object {
 		lines color=[0, 0.5, 0]
-		  positions=(m-eval [[[ (x,y,dx,dy) => {
+		  positions=(m-eval {: x,y,dx,dy |
 		  let acc=[];
           for (let i=0; i<=x; i+=dx) {
             acc.push( i, 0, 0 );
@@ -201,7 +202,7 @@ feature "grid" {
             acc.push( x, 0, i );
           };
           return acc
-		} ]]] @x.rangex @x.rangey @x.gridstep.0 @x.gridstep.1 )
+		:} @x.rangex @x.rangey @x.gridstep.0 @x.gridstep.1 )
 	//}
 }
 

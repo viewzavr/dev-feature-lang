@@ -31,7 +31,7 @@ export function setup(vz, m) {
      get_value: get_cell_value,
      get_new_value: get_cell_new_value,
      put_value: set_cell_value,
-     put_value_to: set_cell_value_to,
+     //put_value_to: set_cell_value_to,
 
      // еще более новый язык, 12.22 F-CO23
      event: feature_get_event_cell,
@@ -552,58 +552,71 @@ export function get_cell( target, name, ismanual ) {
 
 // действие - при присвоении значения в аргумент 0 пересылает его в указанный канал
 export function set_cell_value( env ) {
-  /*
-  env.onvalue("output",(v) => {
-    console.log("qqqq",v)
-  })
-  */
-
-  env.monitor_assigned( ["input",0], (arr, val) => {
-    if (env.params.disabled) return;
-    if (!arr) return;
-
-    let single_elem_mode = false;
-    if (!Array.isArray(arr)) { arr=[arr]; single_elem_mode = true };
-    let responding_channels = [];
-
-    env.setParam("working",true);
-    try {
-    arr.forEach( (cell) => {
-      if (!cell) return;
-      // console.log("set cell value",cell,val)
-      //if (val == 55) debugger;
-      if (!cell.set) {
-        console.error("set_cell_value: cell.set is not defined. typeof(cell)=",typeof(cell),"cell=",cell, env.getPath())
-        env.setParam("output",true)
-        return;
-      }
-      // console.log('cell is setting val',val)
-      cell.set( val );
-      responding_channels.push( cell.reply_channel )
+  // нам важно - убедиться что есть значение (хоть даже и undefined) а затем начать процесс его перекидывания 
+  // мб это потом засунуть в логику monitor_assigned как-то...
+  if (env.hasParam(0))
+      start_process()
+  else {
+    let unsub_0 = env.monitor_assigned( [0], () => {
+      unsub_0();
+      //console.log("monitor_assigned started")
+      //env.vz.console_log_diag( env )
+      start_process();
     })
-    } finally {
-      env.setParam("working",false);
-    }
+  }    
 
-    // короче признаю эту тему с reply-channel несостоятельной..
-    // потому что она возвращает undefined если такого канала нет..
-    // если нужны ответы - давайте делать put-request...
-    // #design
-    let o = single_elem_mode ? responding_channels[0] : responding_channels;
-    //console.log("vvv",o)
-    env.setParam("output", o );
+  function start_process() {  
 
-    // это было для завершения прцоессов...
-    // env.setParam("output", true );
+    env.monitor_assigned( ["input",0], (arr, val) => {
+      if (env.params.disabled) return;
+      if (!arr) return;
 
-    // todo optimize че их каждый раз пересчитывать то - собрать один раз и се..
-    //env.setParam("output",arr); // чтобы можно было цепочки строить | 
-    //env.setParam("output",val); // чтобы можно было цепочки строить | 
-    // чухня все это. надо ответные каналы давать.
-  });
+      let single_elem_mode = false;
+      if (!Array.isArray(arr)) { arr=[arr]; single_elem_mode = true };
+      let responding_channels = [];
+
+      env.setParam("working",true);
+      try {
+      arr.forEach( (cell) => {
+        if (!cell) return;
+          //console.log("set cell value",cell,val)
+        //if (val == 55) debugger;
+        if (!cell.set) {
+          console.error("set_cell_value: cell.set is not defined. typeof(cell)=",typeof(cell),"cell=",cell, env.getPath())
+          env.setParam("output",true)
+          return;
+        }
+        // console.log('cell is setting val',val)
+        cell.set( val );
+        responding_channels.push( cell.reply_channel )
+      })
+      } finally {
+        env.setParam("working",false);
+      }
+
+      // короче признаю эту тему с reply-channel несостоятельной..
+      // потому что она возвращает undefined если такого канала нет..
+      // если нужны ответы - давайте делать put-request...
+      // #design
+      let o = single_elem_mode ? responding_channels[0] : responding_channels;
+      //console.log("vvv",o)
+      env.setParam("output", o );
+
+      // это было для завершения прцоессов...
+      // env.setParam("output", true );
+
+      // todo optimize че их каждый раз пересчитывать то - собрать один раз и се..
+      //env.setParam("output",arr); // чтобы можно было цепочки строить | 
+      //env.setParam("output",val); // чтобы можно было цепочки строить | 
+      // чухня все это. надо ответные каналы давать.
+    }, true);
+
+  }
 };
 
 // наоборот, input это значение а 0 это целевой канал. ну как-то так получается..
+// todo переделать это на assigned
+/*
 export function set_cell_value_to( env ) {
   env.onvalues( [0,"input"], (arr, val) => {
     if (env.params.disabled) return;
@@ -639,6 +652,7 @@ export function set_cell_value_to( env ) {
     // чухня все это. надо ответные каналы давать.
   });
 };
+*/
 
 // чтение массива ячеек
 // input - массив ячеек

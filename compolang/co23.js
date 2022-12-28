@@ -48,7 +48,7 @@ export function n_func( env )
   	}
 
   	let code = env.params.code;
-  	if (code.indexOf("return") < 0) code = `return (${code})`; // смело, но удобно. но видимо не исчерпает..
+  	if (code.indexOf("return") < 0 && code.indexOf(";") < 0) code = `return (${code})`; // смело, но удобно. но видимо не исчерпает..
 
   	let all_args = arr.concat( env.params.positional_args || [] )
   	let f1 = (new Function( all_args, code ))

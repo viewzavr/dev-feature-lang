@@ -101,7 +101,7 @@ export function m_eval( env ) {
 
   env.on('param_changed', (name) => {
      if (name != "output" && name != "recompute" && name != 0) {
-        console.log("eval scheduled due to param change",name)
+        //console.log("eval scheduled due to param change",name)
 
         //if (name == 0 || name == "0") update_code();
 
