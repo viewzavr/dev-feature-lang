@@ -53,12 +53,35 @@ artmaker
 feature "zal-data" { 
 	x: data-artefact title="Зал" 
 	      geom=(load-file @x.geom_file | compalang)
-	      rad=(load-file @x.rad_file | text2arr)
+	      rad=(load-file @x.rad_file | text2matr)
 }
 
 feature "text2arr" {
 	x: object output=(m-eval {: str |
-      let r = str.split(/[\s,;]+/).map( parseFloat )
+      let r = str.split(/[\s,;]+/);
+      if (r.length > 0 && r[ r.length-1].length == 0) r.pop();
+      r = r.map( parseFloat )
+      //if (isNaN(r[ r.length-1])) r.pop(); // последнее лишнее
+      return r
+  :} @x.input)
+}
+
+feature "text2matr" {
+	x: object output=(m-eval {: str |
+		  let lines = str.split("\n");
+		  //debugger
+		  if (lines.length > 0 && lines[ lines.length-1].length == 0) 
+		    lines.pop();
+		  
+
+		  let cols = (lines[0] || "").split(";");
+		  cols.pop();
+		  console.log( "readed matr. cols=",cols.length,"lines=",lines.length)
+
+      let r = str.split(/[\s,;]+/);
+      if (r.length > 0 && r[ r.length-1].length == 0) r.pop();
+      r = r.map( parseFloat )
+      //if (isNaN(r[ r.length-1])) r.pop(); // последнее лишнее
       return r
   :} @x.input)
 }
@@ -82,7 +105,8 @@ feature "paint-zal" {
 	  	title="Зал"
 	  	gui={ 
 	  	  render-params @pz
-	  	  render-params @radpts
+	  	  render-params @radpts manage-addons @radpts
+	  	  render-params @g2 manage-addons @g2
 	  	}
 	  	scene3d={ |view|
 	  	  object output=@node.output
@@ -92,28 +116,6 @@ feature "paint-zal" {
 	  	  {
 	  	  	//points title="Точке" positions=[[[ Array(100*3).fill(0).map( Math.random ) ]]]
 	  	  	//zal-paint
-
-	  	  }
-
-	  	  zal: object { // среда для моделирования, world
-	  	  	
-	  	  	g: grid // ну это рисование сетки
-	  	  	  rangex=(find-objects-bf "RangeX" root=@zal | geta 0 | geta 1)
-	  	  	  rangey=(find-objects-bf "RangeY" root=@zal | geta 0 | geta 1)
-	  	  	  stepx=(find-objects-bf "GridStep" root=@zal | geta 0 | geta 0)
-	  	  	  stepy=(find-objects-bf "GridStep" root=@zal | geta 0 | geta 1)
-	  	  	  //gridstep=(find-objects-bf "GridStep" root=@zal | geta 0 | m-eval {: obj | obj ? [obj.params[0], obj.params[1]] : [100,100] :} )
-	  	  	  opacity=0.3
-
-	  	  	//grid rangex=@g.rangex rangey=@g.rangey gridstep=m-eval [[[ (arr=@g.gridstep) => [ arr[0]*100, arr[1]*100 ] ]]]
-	  	  	// надо сделать их тупо независимыми
-	  	  	grid rangex=@g.rangex rangey=@g.rangey //gridstep=(m-eval {: arr | [ arr[0]*100, arr[1]*100 ] :} @g.gridstep)
-	  	  	  stepx=(@g.stepx * 100) stepy=(@g.stepy * 100)
-	  	  	  color=[0,1,0] radius=2
-
-	  	  	radpts: points 
-	  	  	   positions=(generate_grid_positions_pt rangex=@g.rangex rangey=@g.rangey stepx=@g.stepx stepy=@g.stepy) 
-	  	  	   colors=(arr_to_colors input=@pz.input.rad)  
 
 	  	  }
 
@@ -131,6 +133,33 @@ feature "paint-zal" {
 
 	  	  //console-log "rad is" @pz.input.rad
 	  	}
+	  	{
+				zal: object { // среда для моделирования, world
+	  	  	
+	  	  	g: grid // ну это рисование сетки
+	  	  	  rangex=(find-objects-bf "RangeX" root=@zal | geta 0 | geta 1)
+	  	  	  rangey=(find-objects-bf "RangeY" root=@zal | geta 0 | geta 1)
+	  	  	  stepx=(find-objects-bf "GridStep" root=@zal | geta 0 | geta 0)
+	  	  	  stepy=(find-objects-bf "GridStep" root=@zal | geta 0 | geta 1)
+	  	  	  //gridstep=(find-objects-bf "GridStep" root=@zal | geta 0 | m-eval {: obj | obj ? [obj.params[0], obj.params[1]] : [100,100] :} )
+	  	  	  opacity=0.3
+	  	  	  visible=false
+
+	  	  	//grid rangex=@g.rangex rangey=@g.rangey gridstep=m-eval [[[ (arr=@g.gridstep) => [ arr[0]*100, arr[1]*100 ] ]]]
+	  	  	// надо сделать их тупо независимыми
+	  	  	g2: grid rangex=@g.rangex rangey=@g.rangey //gridstep=(m-eval {: arr | [ arr[0]*100, arr[1]*100 ] :} @g.gridstep)
+	  	  	  stepx=(@g.stepx * 100) stepy=(@g.stepy * 100)
+	  	  	  color=[0,1,0] radius=2
+
+	  	  	radpts: points ~editable-addons
+	  	  	   positions=(generate_grid_positions_pt rangex=@g.rangex rangey=@g.rangey stepx=@g.stepx stepy=@g.stepy) 
+	  	  	   colors=(arr_to_colors input=@pz.input.rad base_color=[1,0,0])  
+	  	  	   radius=0.15
+
+	  	  	   //console-log "A1=" @radpts.positions "A2=" @radpts.colors "a3=" @pz.input.rad
+
+	  	  }	  		
+	  	}
 }
 
 feature "MeasuringPoint" {
@@ -139,6 +168,10 @@ feature "MeasuringPoint" {
 		   spheres positions=(list @x->0 0 @x->1) color=[1,0,0] radius=100	 	
 		 }
 	}
+}
+
+feature "measuringPoint" {
+	MeasuringPoint
 }
 
 // это видимо где надо провести замеры
@@ -154,6 +187,8 @@ feature "Vertex" {
 feature "DrawObstacled"
 feature "Speed"
 feature "RandomPathsCount"
+feature "RangeDose"
+feature "RandSeed"
 
 feature "ObstacleCircle" {
 	x: object {
@@ -232,8 +267,10 @@ feature "grid" {
 feature "generate_grid_positions_pt" {
 	x: object output=(m-eval {: x=@x.rangex y=@x.rangey dx=@x.stepx dy=@x.stepy |
   		    let acc=[];
-          for (let i=0; i<=x; i+=dx) 
-          for (let j=0; j<=y; j+=dy) {
+          
+          for (let i=0; i<=x; i+=dx)          
+          for (let j=0; j<=y; j+=dy) 
+          {
             acc.push( i, 0, j );
           };
           return acc
