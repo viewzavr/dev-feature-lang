@@ -176,7 +176,7 @@ feature "cylinders" {
 // see https://bitbucket.org/pavelvasev/scheme2/src/tip/scheme2go/libs/suffixes/trimesher/meshcreator.cs?at=default&fileviewer=file-view-default
       // aka 
 
-    let makeCylinders = [[[ 
+    let makeCylinders = {: radius, radiuses, nx, positions, colors, endRatio |
 ////////////////////////////////////////////////////////////////////////////////
 
     // http://rosettacode.org/wiki/Vector_products#JavaScript
@@ -261,7 +261,7 @@ feature "cylinders" {
       return out;
     };
 
-  function makeCylinders( radius, radiuses, nx, positions, colors, endRatio ) {
+    //function makeCylinders( radius, radiuses, nx, positions, colors, endRatio ) {
         var circle = [];
         var delta = 2.0 * Math.PI / nx;
 
@@ -352,11 +352,9 @@ feature "cylinders" {
         
 
         return [ poss, inds, cols ];
-      }
+      //}
 
-      makeCylinders
-
-    ]]]
+    :}
       
   };
 };
