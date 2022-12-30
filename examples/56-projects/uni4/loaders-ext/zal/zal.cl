@@ -43,8 +43,9 @@ artmaker
 	  possible=@x.geom_file?
 	  geom_file=(find-files @art.output? "data.*\.(txt)$" | geta 0 default=null)
 	  rad_file=(find-files @art.output? "rad.*\.(csv)$" | geta 0 default=null)
+	  out_file=(find-files @art.output? ".*\.(out)$" | geta 0 default=null)
 	  make={ |gen|
-	  	 zal-data geom_file=@x.geom_file rad_file=@x.rad_file
+	  	 zal-data geom_file=@x.geom_file rad_file=@x.rad_file out_file=@x.out_file
 	  }
 	  //{{ console-log "zal possible=" @x.possible (m-eval @x.getPath) }}
 
