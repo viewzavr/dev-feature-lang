@@ -57,7 +57,7 @@ export function m_eval( env ) {
       let v = env.params[i];
 
 /*    todo будущее правильное вот так: QQQ
-      if (!env.params.allow_undefined && !env.hasParam(i)) { // еще не присвоили..
+      if (!env.params.allow_undefined && !env.hasParam(i)) { // еще не присвоили.. - значит надо ждать
          return env.params.default; 
       }
 */      

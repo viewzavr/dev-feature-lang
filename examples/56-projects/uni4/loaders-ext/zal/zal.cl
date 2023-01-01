@@ -54,7 +54,8 @@ artmaker
 feature "zal-data" { 
 	x: data-artefact title="Зал" 
 	      geom=(load-file @x.geom_file | compalang)
-	      rad=(load-file @x.rad_file | text2matr)
+	      rad=(load-file @x.rad_file | text2arr)
+	      trajectories=(load-file @x.out_file | xtract_trajs)
 }
 
 feature "text2arr" {
@@ -67,6 +68,50 @@ feature "text2arr" {
   :} @x.input)
 }
 
+// вход: текст out-файла
+// выход: список найденных траекторий
+feature "xtract_trajs" {
+	x: object output=(m-eval {: str=@x.input |
+			let res = []
+		  let lines = str.split("\n");
+		  //console.log("looking trajs, str",lines)
+		  for (let i=0; i<lines.length; i++) {
+		  	if (lines[i].match(/from first vertex to last vertex/)) {
+		  		 // стало быть внутри набор
+		  		let j = i;
+		  		//console.log( "found traj set", lines[j] );
+
+		  		i++;
+		  		//debugger
+		  		
+		  		for (; i<lines.length; i++) 
+				  	if (lines[i].match(/From \(\d+, \d+\) to \(\d+, \d+\), cost/)) {
+				  		let traj = [];
+				  		let add;
+				  		//console.log( "found traj", lines[j],lines[i])
+				  		i++
+				  		for (; i<lines.length; i++) {
+				  		  add = lines[i].match(/vertex \((\d+), (\d+)\)/)
+								if (!add) { i--; break }
+				  			//console.log("adding",add)
+				  			traj.push( 10*parseFloat(add[1]), 0, 10*parseFloat(add[2]) )
+				  		}
+				  		traj.title = lines[j];
+				  		res.push( traj )
+				  		
+				  		console.log(traj)
+				  	}
+				  	else break;
+
+		    }
+		  }
+
+		  console.log("res=",res)
+      return res // набор траекторий
+  :})
+}
+
+/*
 feature "text2matr" {
 	x: object output=(m-eval {: str |
 		  let lines = str.split("\n");
@@ -86,6 +131,7 @@ feature "text2matr" {
       return r
   :} @x.input)
 }
+*/
 
 vismaker 
   code={ |art|
@@ -106,8 +152,15 @@ feature "paint-zal" {
 	  	title="Зал"
 	  	gui={ 
 	  	  render-params @pz
-	  	  render-params @radpts manage-addons @radpts
+	  	  collapsible "radpts" {
+	  	  	render-params @radpts manage-addons @radpts
+	  	  }	
+	  	  collapsible "g2" {
 	  	  render-params @g2 manage-addons @g2
+	  		}
+	  	  collapsible "traj" {
+	  	  	render-params @traj_optimal manage-addons @traj_optimal
+	  	  }	
 	  	}
 	  	scene3d={ |view|
 	  	  object output=@node.output
@@ -150,12 +203,17 @@ feature "paint-zal" {
 	  	  	// надо сделать их тупо независимыми
 	  	  	g2: grid rangex=@g.rangex rangey=@g.rangey //gridstep=(m-eval {: arr | [ arr[0]*100, arr[1]*100 ] :} @g.gridstep)
 	  	  	  stepx=(@g.stepx * 100) stepy=(@g.stepy * 100)
-	  	  	  color=[0,1,0] radius=2
+	  	  	  color=[0,1,0] radius=2 ~editable-addons
 
 	  	  	radpts: points ~editable-addons
 	  	  	   positions=(generate_grid_positions_pt rangex=@g.rangex rangey=@g.rangey stepx=@g.stepx stepy=@g.stepy) 
 	  	  	   colors=(arr_to_colors input=@pz.input.rad base_color=[1,0,0])  
 	  	  	   radius=0.15
+
+	  	  	traj_optimal: cylinders positions=(@pz.input.trajectories.0 | make-strip) radius=10 ~editable-addons color=[0,1,1]
+	  	  	//m-eval {: obj=@traj_optimal.output |	let r = 10;	obj.scale.set( r,r,r ) :}
+
+	  	  	//console-log "QQQQ=" @pz.input.trajectories.0
 
 	  	  	   //console-log "A1=" @radpts.positions "A2=" @radpts.colors "a3=" @pz.input.rad
 
@@ -165,8 +223,9 @@ feature "paint-zal" {
 
 feature "MeasuringPoint" {
 	x: object {
-		 node3d {
-		   spheres positions=(list @x->0 0 @x->1) color=[1,0,0] radius=100	 	
+		 node: node3d {
+		   spheres positions=(list @x->0 0 @x->1) color=[1,0,0] radius=30 opacity=0.2
+		   //m-eval {: obj=@node.output |	let r = 10;	obj.scale.set( r,r,r ) :} 	
 		 }
 	}
 }
@@ -179,8 +238,12 @@ feature "measuringPoint" {
 feature "Vertex" {
 	//x: spheres positions=(list @x->0 0 @x->1) radius=100
 	x: object {
-		 node3d {
-		   spheres positions=(list @x->0 0 @x->1) color=[1,1,1] radius=100	 	
+		 node: node3d //position=[10,0,0] // сдвиг..
+		 {
+		   spheres positions=(list @x->0 0 @x->1) color=[1,1,1] radius=30
+		   //m-eval {: obj=@node.output |	let r = 10;	obj.scale.set( r,r,r ) :}
+
+		   //m-eval {: obj=@n.output | obj.position.set( 30,0,0 ) :}
 		 }
 	}	
 }
@@ -247,7 +310,7 @@ feature "ObstaclePolyPoint" {: env |
 
 feature "grid" {
 	x: //object {
-		lines color=[0, 0.5, 0]
+		cylinders color=[0, 0.5, 0]
 		  positions=(m-eval {: x,y,dx,dy |
 	   		  let acc=[];
           for (let i=0; i<=x; i+=dx) {

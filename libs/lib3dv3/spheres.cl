@@ -1,6 +1,7 @@
 feature "spheres" {
 	s: node3d 
     ~points_df_input 
+    {{ x-param-color name="color" }}
 	  {{ x-param-slider name="radius" min=0.0 max=100 step=0.1 }}
 	  nx=16 ny=24 positions=[] radiuses=[] colors=[] radius=1
 	  color=[1,1,1]
@@ -12,6 +13,7 @@ feature "spheres" {
 		         indices=(@mdata->output | geta 3)
 		         colors=(@mdata->output | geta 4)
 		         color=@s->color
+             opacity=@s.opacity // подумать о передаче параметров.. или гуи сразу рисовать или алиасы..
 		         ~editable-addons // временно
 		         ;
 
@@ -151,20 +153,45 @@ feature "spheres_compute" {
 
 /////////////////////////////////////
 
+feature "make-strip" {
+  x: object output=(m-eval {: input=@x.input |
+    if (!input) return []
+
+    var acc = [];
+    var ilen = input.length -3;
+
+    for (var i=0; i<ilen; i+=3) {
+      acc.push( input[i] );
+      acc.push( input[i+1] );
+      acc.push( input[i+2] );
+
+      acc.push( input[i  +3] );
+      acc.push( input[i+1+3] );
+      acc.push( input[i+2+3] );
+    }
+
+    return acc;
+
+    :})
+}
+
 feature "cylinders" {
   s: node3d 
     ~points_df_input 
+    //{{ x-param-color name="color" }}
     {{ x-param-slider name="radius" min=0.0 max=100 step=0.1 }}
     nx=16 positions=[] radiuses=[] colors=[] radius=1
     color=[1,1,1]
+    mesh=@m
     {
         //mesh positions=[0,0,0, 1,1,1, 0,1,0 ];
 
-    m: mesh positions=(@mdata.output.0)
-             indices=(@mdata.output.1)
-             colors=(@mdata.output.2)
+    m: mesh  positions=@mdata.output.0
+             indices=@mdata.output.1
+             colors=@mdata.output.2
              color=@s->color
              ~editable-addons // временно
+             visible=@s.visible
              ;
     
     mdata: m_eval @makeCylinders @s.radius @s.radiuses @s.nx @s.positions @s.colors
@@ -178,6 +205,7 @@ feature "cylinders" {
 
     let makeCylinders = {: radius, radiuses, nx, positions, colors, endRatio |
 ////////////////////////////////////////////////////////////////////////////////
+    if (!positions) return []
 
     // http://rosettacode.org/wiki/Vector_products#JavaScript
     function crossProduct(a, b) {
@@ -348,8 +376,6 @@ feature "cylinders" {
              }
           }
         }
-
-        
 
         return [ poss, inds, cols ];
       //}
