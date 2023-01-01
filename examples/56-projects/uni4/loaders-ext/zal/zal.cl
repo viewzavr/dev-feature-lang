@@ -1,3 +1,5 @@
+// todo: сферы, цилиндры - что у них с параметрами и главное добавками?
+
 /*
 uni-maker code={ |art|
 	object 
@@ -161,6 +163,9 @@ feature "paint-zal" {
 	  	  collapsible "traj" {
 	  	  	render-params @traj_optimal manage-addons @traj_optimal
 	  	  }	
+	  	  collapsible "measuring_points" {
+	  	  	render-params @measuring_points manage-addons @measuring_points
+	  	  }	
 	  	}
 	  	scene3d={ |view|
 	  	  object output=@node.output
@@ -217,16 +222,20 @@ feature "paint-zal" {
 
 	  	  	   //console-log "A1=" @radpts.positions "A2=" @radpts.colors "a3=" @pz.input.rad
 
+	  	  	measuring_points: spheres ~editable-addons
+	  	  	  positions=(find-objects-bf "MeasuringPoint" root=@zal | map-geta "pos" | arr_flat) 
+	  	  	  color=[1,0,0] radius=30 opacity=0.2
+
 	  	  }	  		
 	  	}
 }
 
 feature "MeasuringPoint" {
-	x: object {
-		 node: node3d {
-		   spheres positions=(list @x->0 0 @x->1) color=[1,0,0] radius=30 opacity=0.2
+	x: object pos=(list (10 * @x->0) 0 (10 * @x->1)) {
+//		 node: node3d {
+//		   spheres positions=(list @x->0 0 @x->1) color=[1,0,0] radius=30 opacity=0.2
 		   //m-eval {: obj=@node.output |	let r = 10;	obj.scale.set( r,r,r ) :} 	
-		 }
+//		 }
 	}
 }
 

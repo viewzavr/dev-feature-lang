@@ -6,6 +6,6 @@ load files=`
  arr-methods.cl
  positional-methods.cl
  find-objects.cl
- geta.js
+ geta2.js
  make-func.js
 `;

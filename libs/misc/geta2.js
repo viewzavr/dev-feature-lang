@@ -1,3 +1,5 @@
+// 2023 - обрабатываем списки параметров. те.. geta [name1,name2]
+
 // новая идея - что если неск компонент то это запрос на выборку массива
 // т.е. obj | geta "title" "getPath" выдает пару [a,b]
 // но если запрос на 1 то выдается просто значение.. да уж, неконсистентность.. ну и ладно..
@@ -177,7 +179,6 @@ export function map_geta( env )
   
   let warn_func_stop = () => {};
 
-  // обрабатывает 1 объект
   function process1( input, unsub_struc, index ) {
     env.params.args_count ||= 0;
     //console.log(env.params[0])
@@ -231,7 +232,7 @@ export function map_geta( env )
     get_one( input, params, current_arg_pos+1, cb, unsub_struc );
   }
 
-  // возвращает запрос к объекту input
+  // обрабатывает запрос к 1 объекту.
   function get_one( input, params, current_arg_pos,cb, unsub_struc ) {
     warn_func_stop(); warn_func_stop = () => {};
   
@@ -246,6 +247,17 @@ export function map_geta( env )
       return cb(input);
 
     let name = params[ current_arg_pos ];
+
+    if (Array.isArray( name )) {
+      return name.map( x => 
+        get_one_item( input, x, params, current_arg_pos, cb, unsub_struc )
+      )
+    }
+    else 
+      return get_one_item( input, name, params, current_arg_pos, cb, unsub_struc )
+  }
+
+  function get_one_item( input, name, params, current_arg_pos, cb, unsub_struc ) {
     
     if (input.trackParam) {
       // это у нас объект и сообразно там все может быть
