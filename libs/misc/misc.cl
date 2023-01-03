@@ -1,4 +1,7 @@
-
+// map { |x| @x + 2 }
+feature "map" {
+  r: repeater output_param="output_objects" output=(read @r.output_objects | map-geta "output")
+}
 
 // input,0 - путь к параметру вида objnamepath->param
 feature "read-param" {

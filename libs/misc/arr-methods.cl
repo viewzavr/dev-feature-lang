@@ -217,7 +217,10 @@ register_feature name="arr_sort"
 ///////////////////////////////////
 
 
-register_feature name="arr_find_min_max" code=`
+feature "arr_find_min_max" {: env | 
+
+  //if (!env.hasParam('input')) env.setParam('output',[])
+
   env.onvalues(["input"],process);
 
   env.addCmd("refresh",() => process( env.params.input ));
@@ -240,11 +243,11 @@ register_feature name="arr_find_min_max" code=`
 
     if (!(Array.isArray(arr) || isTypedArray(arr))) {
       console.error("arr_find_min_max: not an array on input",arr);
+      //env.setParam('output',[])
       return;
     }
 
     let res = compute_array_minmax( arr );
-
 
     env.setParam("min",res.min);
     env.setParam("max",res.max);
@@ -252,7 +255,7 @@ register_feature name="arr_find_min_max" code=`
 
     env.setParam("output",[res.min, res.max])
   }
-`;
+:}
 
 ///////////////////////////////////////
 

@@ -664,7 +664,7 @@ feature "show_area_3d" {
 
                if (@area_rect->input | geta "show_fps" default=false) then={
                  show_render_fps renderer=@process_rect->renderer;
-               };               
+               };
                if (@area_rect->input | geta "show_stats" default=false) then={
                  show_render_stats renderer=@process_rect->renderer;
                };

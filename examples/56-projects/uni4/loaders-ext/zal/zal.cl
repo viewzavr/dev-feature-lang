@@ -1,5 +1,14 @@
 // todo: сферы, цилиндры - что у них с параметрами и главное добавками?
 
+// хак
+find-objects-bf features="show_3d_scene_r" | x-modify {
+  x-set-params camera_control={ |renderer camera target_dom|
+      // F-CAMERA-DAMPING
+      map-control camera=@camera target_dom=@target_dom renderer=@renderer damping=true;
+  };
+};
+
+
 /*
 uni-maker code={ |art|
 	object 
@@ -101,14 +110,14 @@ feature "xtract_trajs" {
 				  		traj.title = lines[j];
 				  		res.push( traj )
 				  		
-				  		console.log(traj)
+				  		//console.log(traj)
 				  	}
 				  	else break;
 
 		    }
 		  }
 
-		  console.log("res=",res)
+		  //console.log("res=",res)
       return res // набор траекторий
   :})
 }
@@ -166,6 +175,9 @@ feature "paint-zal" {
 	  	  collapsible "measuring_points" {
 	  	  	render-params @measuring_points manage-addons @measuring_points
 	  	  }	
+	  	  collapsible "vertex" {
+	  	  	render-params @vertex manage-addons @vertex
+	  	  }	
 	  	}
 	  	scene3d={ |view|
 	  	  object output=@node.output
@@ -175,7 +187,6 @@ feature "paint-zal" {
 	  	  {
 	  	  	//points title="Точке" positions=[[[ Array(100*3).fill(0).map( Math.random ) ]]]
 	  	  	//zal-paint
-
 	  	  }
 
 	  	  m-eval {: obj=@node.output |
@@ -187,13 +198,14 @@ feature "paint-zal" {
 	  	  :}
 	  	 
 	  	  //console-log "artefact is" @pz.input "it's output is" @pz.input.output
-	  	  //@pz.input.output | create target=@node
-	  	  read @zal | insert_children list=@pz.input.geom
+	  	  //@pz.input.output | create target=@node	  	  
 
 	  	  //console-log "rad is" @pz.input.rad
 	  	}
 	  	{
-				zal: object { // среда для моделирования, world
+	  		insert_children list=@pz.input.geom input=@zal
+
+				zal: object { // среда для моделирования, world -- update а ведь нет, теперь это сцена
 	  	  	
 	  	  	g: grid // ну это рисование сетки
 	  	  	  rangex=(find-objects-bf "RangeX" root=@zal | geta 0 | geta 1)
@@ -212,7 +224,7 @@ feature "paint-zal" {
 
 	  	  	radpts: points ~editable-addons
 	  	  	   positions=(generate_grid_positions_pt rangex=@g.rangex rangey=@g.rangey stepx=@g.stepx stepy=@g.stepy) 
-	  	  	   colors=(arr_to_colors input=@pz.input.rad base_color=[1,0,0])  
+	  	  	   colors=(arr_to_colors input=(@pz.input.rad or []) base_color=[1,0,0])
 	  	  	   radius=0.15
 
 	  	  	traj_optimal: cylinders positions=(@pz.input.trajectories.0 | make-strip) radius=10 ~editable-addons color=[0,1,1]
@@ -223,20 +235,26 @@ feature "paint-zal" {
 	  	  	   //console-log "A1=" @radpts.positions "A2=" @radpts.colors "a3=" @pz.input.rad
 
 	  	  	measuring_points: spheres ~editable-addons
-	  	  	  positions=(find-objects-bf "MeasuringPoint" root=@zal | map-geta "pos" | arr_flat) 
+	  	  	  positions=(find-objects-bf "MeasuringPoint" root=@zal | map { |x| list (10 * @x.0) 0 (10 * @x.1) } | arr_flat)
+	  	  	  //positions=(find-objects-bf "MeasuringPoint" root=@zal | map-geta "pos" | arr_flat) 
 	  	  	  color=[1,0,0] radius=30 opacity=0.2
+
+	  	    vertex: spheres ~editable-addons
+	  	  	  positions=(find-objects-bf "Vertex" root=@zal | map { |x| list (0 + (10 * @x.0)) 0 (10 * @x.1) } | arr_flat)
+	  	  	  color=[0,0,1] radius=30 opacity=0.2	  
 
 	  	  }	  		
 	  	}
 }
 
+
 feature "MeasuringPoint" {
-	x: object pos=(list (10 * @x->0) 0 (10 * @x->1)) {
+	x: object //pos=(list (10 * @x->0) 10 (10 * @x->1)) {
 //		 node: node3d {
 //		   spheres positions=(list @x->0 0 @x->1) color=[1,0,0] radius=30 opacity=0.2
 		   //m-eval {: obj=@node.output |	let r = 10;	obj.scale.set( r,r,r ) :} 	
 //		 }
-	}
+	//}
 }
 
 feature "measuringPoint" {
@@ -247,13 +265,13 @@ feature "measuringPoint" {
 feature "Vertex" {
 	//x: spheres positions=(list @x->0 0 @x->1) radius=100
 	x: object {
-		 node: node3d //position=[10,0,0] // сдвиг..
-		 {
-		   spheres positions=(list @x->0 0 @x->1) color=[1,1,1] radius=30
+		 //node: node3d //position=[10,0,0] // сдвиг..
+		 //{
+		   //spheres positions=(list @x->0 0 @x->1) color=[1,1,1] radius=30
 		   //m-eval {: obj=@node.output |	let r = 10;	obj.scale.set( r,r,r ) :}
 
 		   //m-eval {: obj=@n.output | obj.position.set( 30,0,0 ) :}
-		 }
+		 //}
 	}	
 }
 

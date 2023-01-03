@@ -66,7 +66,7 @@ feature "arr_to_colors" {
     {{ x-add-cmd2 "colorize_data" @colorize_data_l->output; }}
 
     {
-    mm: arr_find_min_max input=@root->input;
+    mm: arr_find_min_max input=@root->input
     
     param_cmd name="recalculate" {
        setter target="@root->minmax" value=@mm->output;

@@ -14,6 +14,7 @@ feature "spheres" {
 		         colors=(@mdata->output | geta 4)
 		         color=@s->color
              opacity=@s.opacity // подумать о передаче параметров.. или гуи сразу рисовать или алиасы..
+             visible=@s.visible
 		         ~editable-addons // временно
 		         ;
 
@@ -382,5 +383,5 @@ feature "cylinders" {
 
     :}
       
-  };
-};
+  }
+}

@@ -1516,7 +1516,11 @@ export function repeater( env, fopts, envopts ) {
     // короче выяснилось, что если у нас создана фича которая основана на repeater,
     // то у этого repeater свое тело поступает в restoreChildrenFromDump
     // а затем внешнее тело, которое сообразно затирает собственное тело репитера.
-    if (!children) {
+
+    // и допом выяснилось что есть случае когда нам таки надо внешних детей брать именно а не непосредственно репитера
+    
+    //if (!children || env.params.use_external_children ) {
+    if (!children || Object.values(dump.children).length > 0 ) {
       children = dump.children;
       
       scope_attrs = dump.children_env_args?.attrs;
@@ -1560,7 +1564,9 @@ export function repeater( env, fopts, envopts ) {
 
      if (!firstc) {
        // children чето не приехали.. странно все это..
-       console.error("repeater: children is blank during model change...");
+       console.error("repeater: children is blank during model change...", env);
+       pending_perform = true
+       children = null
        return;
      }
 
@@ -1690,7 +1696,8 @@ export function repeater( env, fopts, envopts ) {
              acc.push( e );
         }
         */
-        env.setParam( "output", envs );
+
+        env.setParam( env.params.output_param || "output", envs );
      })
      
   } // recreate
@@ -1734,7 +1741,7 @@ export function repeater( env, fopts, envopts ) {
     for (let i=0; i<attrs.length;i++)
     {
         let argname = attrs[i];
-        // console.log('fill_scope_with_args: argname=',argname,'i=',i)
+         //console.log('fill_scope_with_args: argname=',argname,'i=',i,"values[i]=",values[i],"newscope=",newscope)
         // let cell = env.get_cell(i);
         newscope.$add( argname, values[i], true );
     };
@@ -1744,6 +1751,7 @@ export function repeater( env, fopts, envopts ) {
 }
 
 ////////////////////////////
+
 export function compute( env ) {
   env.setParam("output",undefined);
   env.setParamOption("output","internal",true);
