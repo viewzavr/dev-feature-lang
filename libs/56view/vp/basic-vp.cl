@@ -8,7 +8,7 @@ feature "axes-view" {
 		    };
 			manage-addons @ab;
 		};
-	}	
+	}
 	scene3d={ |view opacity|
 	  object output=@ab->output;
 	}

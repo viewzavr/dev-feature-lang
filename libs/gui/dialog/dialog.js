@@ -49,7 +49,7 @@ export function dialog( obj, opts )
   obj.open = obj.show;
   obj.openModal = obj.showModal;
 
-  obj.close = (ret) => { console.log('dlg close invoked');
+  obj.close = (ret) => {
     obj.dom.close(ret); obj.emit("close"); }
 
   //obj.addCmd( "show", () => obj.show() );

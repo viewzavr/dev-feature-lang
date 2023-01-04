@@ -19,6 +19,17 @@ register_feature name="axes_box" {
       |
       render-guis extra={ |obj| manage-addons @obj; };
     }
+    gui4={
+      cat "main" {
+        render-params input=@root
+      }
+      cat "Вектора" {
+        render-params input=@axes_lines
+      }
+      cat "Подписи" {
+        render-params input=@axes_titles
+      }
+    }
   
   {
 

@@ -797,7 +797,11 @@ export function get_cell_value_latest( env ) {
 // input - массив объектов
 // 0 - имя параметра
 export function feature_get_param_cell( env ) {
-  env.onvalues( ["input",0], (arr, param_name) => {
+
+  env.onvalues( ["input",0], go);
+  env.onvalues( [0,1], go);
+
+  function go (arr, param_name) {
     let single_elem_mode = !Array.isArray(arr);
     if (single_elem_mode) arr=[arr];
     let res = [];
@@ -810,7 +814,7 @@ export function feature_get_param_cell( env ) {
     
     env.setParam( "output", single_elem_mode ? res[0] : res );
     // single_elem_mode - это плохо или это норм? так-то сигнатура выхода меняется...
-  }); 
+  }; 
 }
 
 // получить ячейки "событий"
@@ -844,7 +848,10 @@ export function feature_get_event_cell( env ) {
 // input - массив объектов
 // 0 - имя параметра
 export function feature_get_cmd_cell( env ) {
-  env.onvalues( ["input",0], (arr, param_name) => {
+  env.onvalues( ["input",0], go )
+  env.onvalues( [0,1], go )
+
+  function go(arr, param_name){
     let single_elem_mode = !Array.isArray(arr);
     if (single_elem_mode) arr=[arr];
     let res = [];
@@ -857,7 +864,7 @@ export function feature_get_cmd_cell( env ) {
     
     env.setParam( "output", single_elem_mode ? res[0] : res );
     // single_elem_mode - это плохо или это норм? так-то сигнатура выхода меняется...
-  }); 
+  };
 }
 
 export function feature_get_method_cell( env ) {
@@ -910,6 +917,7 @@ export function feature_get_cell( env ) {
 }
 
 // просто поржать
+// хотя не просто. это надо для reaction - оно же каналы хочет на вход
 export function feature_create_cell( env ) {
   let cell = create_cell();
 
