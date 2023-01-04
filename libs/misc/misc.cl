@@ -408,7 +408,7 @@ feature "let" {: env |
       cell.created_by_data_env = env;
       $scopeFor.$add( name, cell );
       //console.log("data: added name to scope",name,$scopeFor)
-    }   
+    }
 
     //console.log('pc',name, env.$scopes [env.$scopes.length-2] );
   };
@@ -440,6 +440,95 @@ feature "let" {: env |
 {
   data: object output=@data->0?;
 };
+
+// add-to-scope name=имя value=значение
+// идея - мб совместить с let. т.е. let __name=.. __value=...
+feature "add-to-scope" {: env | 
+  // NHACK - на первом проходе в register_feature для js скоп еще не создан
+  let $scopeFor = env.$scopes [env.$scopes.length-1]; 
+
+  function forget_param (name,value) {
+      if ($scopeFor[ name ]) 
+       if ($scopeFor[ name ].created_by_data_env === env)
+         $scopeFor.$forget( name );
+  }
+
+  function process_param (name,value) {
+    if (Number.isInteger(parseFloat(name)) || name == "args_count")
+      return;
+
+    //let $scopeFor = env.$scopes [env.$scopes.length-2]; 
+
+    if ($scopeFor[ name ]) {
+       // тут варианты
+       // может это мы ранее сами добавляли
+       // а может другое имя
+       // а если другое - то может мы можем перезатереь и это даж хорошо
+       if ($scopeFor[ name ].created_by_data_env === env)
+       // все хорошо это мы - ничего не делаем
+       {
+
+       }
+       else // поругаемся но мб в будущем что-то другое
+       console.error("add-to-scope: data param duplicated name!",name,'me=',env,'cell ',name,'existing=',$scopeFor[ name ])
+       //if (dump.locinfo)
+       //    console.log( dump.locinfo );
+    }
+    else
+    {
+      let cell = env.get_cell(name);
+      cell.created_by_data_env = env;
+      $scopeFor.$add( name, cell );
+      //console.log("data: added name to scope",name,$scopeFor)
+    }
+
+    //console.log('pc',name, env.$scopes [env.$scopes.length-2] );
+  };
+  //console.log("LET init",env.params)
+
+  env.monitor_defined( ["name","value"], (a,b) => process_param( a,b ))
+
+  env.on("remove",() => {
+    forget_param( env.params.name );
+  });
+
+:}
+
+// func "foo" {: a b | return a + b :}
+// console-log (foo 1 2)
+// func занято, поэтому jsfunc
+feature "jsfunc" {
+  f: object {
+    //add-to-scope name=@f.0 value=@f.1
+    //console-log "registering feature" @f.0
+    feature @f.0 {
+      x: object output=(m-eval @f.1 {{ append-positional-params @x }})
+      //m-eval @f.1 -- это будет работать только когда заработает append позиционных аргументов..
+      // а она заработает тогда когда будет порядок а) назначение фичи, б) применение параметров
+      //x: object output=(m-eval @f.1 @x.0? @x.1? @x.2? @x.3?)      
+      //m-eval @f.1 //{{ positional-append }}
+    }
+    //assign-to-scope items=(list (object name=@f.0 value=@f.1))
+  }
+}
+
+feature "append-positional-params" {: env |
+  let orig_pos_count = env.params.args_count;
+
+  let unsub = () => {}
+  env.onvalue( 0, (srcobj)=> {
+
+     let names = [];
+     for (let i=0; i<srcobj.params.args_count; i++) names.push( i )
+     env.host.params.args_count = orig_pos_count + srcobj.params.args_count
+
+     unsub()
+     unsub = srcobj.monitor_values( names,(...args) => {
+       for (let j=0; j<args.length; j++)
+        env.host.setParam( j+orig_pos_count, args[j] )
+     } )
+  })
+:}
 
 feature "data"
 {

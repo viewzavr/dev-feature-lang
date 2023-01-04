@@ -5,6 +5,7 @@ load "main-lib.cl plugins.cl gui5.cl gui4addons.cl editor-abstractions.cl";
 
 feature "the_project" {
   project: object
+  default_animation_parameter=""
   //views=(get-children-arr input=@project | pause_input | arr_filter_by_features features="the-view")
   views=(find-objects-bf features="the-view" root=@project | sort_by_priority)
   //active_view=(@project->views | geta @ssr->index)

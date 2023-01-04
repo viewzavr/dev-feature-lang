@@ -780,15 +780,35 @@ export function register_feature( env, envopts ) {
       console.log( children )
       console.log( env.$locinfo );
     }
-    compile();
+    //compile();
     
     //env.monitor_values(["code",0],compile );
     // теперь разик скомпилировались - будем мониторить еще и code переназначения
-    env.trackParam( "code", compile );
-    env.trackParam( 0, compile );
-    env.trackParam( 1, compile );
 
-    return Promise.resolve("success");
+    // получается эти вещи мы в догонку, после их переопределения, вызываем
+    // а так они учтутся в 1м compile
+    env.trackParam( "code", compile );    
+    env.trackParam( 1, compile ); // code
+
+    return new Promise( (resolve, reject) => {
+      //env.trackParam( 0, compile ); // name  
+      if (!env.hasParam(0) && !env.hasParam("name")) {
+        console.warn("feature pending name 0, name")
+        env.vz.console_log_diag( env )
+      }
+      env.monitor_defined( [0],(v) => {
+        compile()
+        resolve("success")
+      })
+      env.monitor_defined( ["name"],(v) => {
+        if (v) {
+          compile()
+          resolve("success")
+        }  
+      })
+    })
+
+    //return Promise.resolve("success");
   };
   
   var apply_feature = () => {};
@@ -819,14 +839,16 @@ export function register_feature( env, envopts ) {
     compalang_part = () => {};
 
     // маленький хак
-    env.params.name ||= env.params[0] || env.ns.name;
-    env.params.code ||= env.params[1];
+    if (env.params[0])
+      env.params.name ||= env.params[0]; // || env.ns.name;
+    if (env.params[1])
+      env.params.code ||= env.params[1];
 
     if (!env.params.name) {
       console.error("RESIGTER-FEATURE: feature have no name.")
+      debugger
       return;
     }
-
 
     if (env.params.code) {
       // я бы предложил делать код явно.. т.е. требовать что там функция должна быть
@@ -982,6 +1004,9 @@ export function register_feature( env, envopts ) {
         return apply_feature(e,...args)
       };
       feature_f.$locinfo = env.$locinfo;
+      //console.log("regging",env.params.name)
+      //if (env.params.name == "_feature")
+         //debugger
       env.vz.register_feature( env.params.name,feature_f );
     };
 

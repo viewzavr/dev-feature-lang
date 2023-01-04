@@ -270,6 +270,19 @@ register_feature name="arr_length" code=`
 // уже идея такая - может сделать N-арный arr-метод который в js уходит
 // т.к index, map, reverse и sort
 
+/*
+jsfunc "arr_contains" {: arr elem | 
+  if (!Array.isArray(arr)) return false
+  return arr.indexOf(elem) >= 0 
+:}
+
+feature "arr_contains" {
+  m-eval {: arr elem | 
+    if (!Array.isArray(arr)) return false
+    return arr.indexOf(elem) >= 0 
+  :}
+}*/
+
 register_feature name="arr_contains"
   code=`
 

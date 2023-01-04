@@ -34,6 +34,8 @@ export function setup(vz, m) {
      //put_value_to: set_cell_value_to,
 
      // еще более новый язык, 12.22 F-CO23
+     connect: redirect_to_channel,
+     '=>': redirect_to_channel,
      event: feature_get_event_cell,
      param: feature_get_param_cell,
      method: feature_get_method_cell,
@@ -463,7 +465,7 @@ export function get_method_cell( target, name ) {
      let k = c.consume();
      let fn = target.params[ name ] || target[name]; // разрешим обращаться и к объектам..
      if (typeof( fn ) !== 'function') return;
-     // console.log('method cell try_consume_all, fn=',fn,'name=',name)
+     //console.log('method cell try_consume_all, fn=',fn,'name=',name)
      while (k) {
        let args = k[0];
        // console.log('method cell try_consume_all, fn=',fn,'name=',name, 'apply args=',args)
@@ -476,6 +478,7 @@ export function get_method_cell( target, name ) {
 
   // это вызов - пишут в йачейку
   c.on("assigned",(v) => {
+//    debugger
       try_consume_all();
   });
 
@@ -858,7 +861,10 @@ export function feature_get_cmd_cell( env ) {
 }
 
 export function feature_get_method_cell( env ) {
-  env.onvalues( ["input",0], (arr, param_name) => {
+  env.onvalues( ["input",0], go )
+  env.onvalues( [0,1], go )
+
+  function go (arr, param_name) {  
     let single_elem_mode = !Array.isArray(arr);
     if (single_elem_mode) arr=[arr];
     let res = [];
@@ -869,9 +875,10 @@ export function feature_get_method_cell( env ) {
         res.push( obj.get_method_cell( param_name ) );
     });
     
+    //console.log("res=",res)
     env.setParam( "output", single_elem_mode ? res[0] : res );
     // single_elem_mode - это плохо или это норм? так-то сигнатура выхода меняется...
-  }); 
+  }; 
 }
 
 
@@ -1181,10 +1188,18 @@ export function create_writing_cell( env ) {
 // выход - дубликат входного канала
 // todo мб во многие еще надо, т.е. уметь писат в массивы.. а уже есть см create_writing_cell
 // формально это дублирование линка. но какое же оно маленькое и красивое. наверное так и должно быть.
+
+// новое: connect a1 a2 и далее мы сможем ввести алиас => и тогда: a1 => a2
 export function redirect_to_channel( env ) {
 
+  //debugger
+
+  let p1 = "input", p2 = 0
+  if (!env.paramConnected( "input") && env.params.args_count >= 2)
+    { p1 = 0; p2 = 1 }
+
   let unsub = () => {}
-  env.onvalue( 'input',(inc) => {
+  env.onvalue( p1,(inc) => {
     unsub()
     //env.auto_unsub( 'id',inc.on('assigned',fn)) todo idea
     unsub = inc.on('assigned',fn)
@@ -1193,7 +1208,7 @@ export function redirect_to_channel( env ) {
   env.on("remove",() => unsub())
 
   function fn(v) {
-    let arr = env.params[0];
+    let arr = env.params[p2];
     if (!arr) return;
     if (!Array.isArray(arr)) arr=[arr];
     arr.forEach( (cell) => {
