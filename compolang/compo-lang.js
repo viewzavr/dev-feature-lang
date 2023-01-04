@@ -798,20 +798,33 @@ export function register_feature( env, envopts ) {
       xtra = [1]
 
     return new Promise( (resolve, reject) => {
-      //env.trackParam( 0, compile ); // name  
-      if (!env.hasParam(0) && !env.hasParam("name")) {
-        console.warn("feature pending name 0, name")
+
+      env.feature("delayed");
+      let warn_value_not_found = env.delayed( () => {
+        console.warn("feature not initing:", env.params )
         env.vz.console_log_diag( env )
+      }, 20 )
+      warn_value_not_found();
+
+      //env.trackParam( 0, compile ); // name  
+      //if (!env.hasParam(0) && !env.hasParam("name")) {
+      if (!(env.paramConnected(0) || env.paramConnected("name"))) {
+        // ну вроде как если там не назначили.. то возьмем из.. но вопрос а надо?
+        env.setParam( 0,env.ns.name )
+        //console.warn("feature pending name 0, name")
+        //env.vz.console_log_diag( env )
       }
       env.monitor_defined( [0].concat(xtra),(v) => {
         compile()
+        warn_value_not_found.stop()
         resolve("success")
       })
-      env.monitor_defined( ["name"].concat(xtra),(v) => {
+      env.monitor_defined( ["name"].concat(xtra),(v) => {        
         if (v) {
           compile()
+          warn_value_not_found.stop()
           resolve("success")
-        }  
+        }
       })
     })
 
@@ -826,7 +839,10 @@ export function register_feature( env, envopts ) {
   debugger;
  */ 
 
+  //console.log("v1",env.params)
+  //debugger
   env.addLabel("name");
+  //console.log("v2",env.params)
   
 /*
   env.onvalue("name",() => {

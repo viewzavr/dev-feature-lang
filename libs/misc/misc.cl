@@ -519,17 +519,14 @@ feature "cofunc" {
     feature @f.0 {
       x: object output=(computing-env code=@f.code {{ append-positional-params @x }})
     }
-  }  
+  }
 }
 
 feature "fun" {: env |
-  //console.log(3355555)
-
   if (env.paramConnected(1))
     return env.feature("jsfunc")
   else  
     return env.feature("cofunc")
-
 :}
 
 /* вариант рабочий но тормозит.. лучше на js
