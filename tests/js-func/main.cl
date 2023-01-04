@@ -6,8 +6,14 @@ jsfunc "foo" {: a b | return a + b :}
 jsfunc "mul" {: a b | return a * b :}
 
 jsfunc "mylist" {: ...args | args :}
+jsfunc "mylist-n" {: n ...args |
+ let res = []
+ //console.log("mylist-n n=",n,"args=",args)
+ for (let i=0; i<n; i++) res = res.concat( args )
+ return res
+:}
 
-console-log (foo 1 (mul 2 2)) "list=" (mylist 1 2 3)
+console-log (foo 1 (mul 2 2)) "list=" (mylist 1 2 3) "list-n=" (mylist-n 3 1 2)
 
 ///////////////////////////////
 /* другие формы

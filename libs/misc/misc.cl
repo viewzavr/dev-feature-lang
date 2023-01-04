@@ -524,6 +524,7 @@ feature "append-positional-params" {: env |
 
      unsub()
      unsub = srcobj.monitor_values( names,(...args) => {
+       //console.log("append-positional-params: args=",...args)
        for (let j=0; j<args.length; j++)
         env.host.setParam( j+orig_pos_count, args[j] )
      } )

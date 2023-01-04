@@ -20,7 +20,7 @@ export function m_eval( env ) {
     },600);
 
   function evl() {
-    //console.log("evl called")
+    //console.log("evl called", env.getPath())
     //env.vz.console_log_diag( env )
     if (env.params.debug)
        debugger;
@@ -114,6 +114,7 @@ export function m_eval( env ) {
         //if (name == 0 || name == "0") update_code();
 
         if (env.params.react_only_on_input && name != "input") return;
+        //console.log("eval scheduled due to param change",name,env.getPath())
 
         eval_delayed();
      }
@@ -146,10 +147,10 @@ export function m_eval( env ) {
   })
 */  
   // ну или ладно сделаем хотя бы monitor-values а не onvalues
-  env.monitor_values([0],(c) => {
+  env.trackParam(0,(c) => {
      update_code();
      if (func) {
-         //console.log("eval scheduled due to code change [0]",c)
+         //console.log("eval scheduled due to code change [0]",c,env.getPath())
          eval_delayed();
      }    
      // итоого у нас уже вызов некий произойдет
