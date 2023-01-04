@@ -348,6 +348,9 @@ Word
 attr_name
   = Word
 
+//attr_name_with_dots
+//  = [a-zA-Zа-яА-Я0-9_-\.]+ { return text(); } 
+
 // разрешим еще больше в имени чтобы фичи могли называться как угодно < || && + и т.д.
 feature_name "feature name"
   = [a-zA-Zа-яА-Я0-9_\-\.!]+ { return text(); } 
@@ -701,8 +704,10 @@ true  = "true"  { return true;  }
 
 js_inline_attr_modifier
   = attr_assignment
-  / link_assignment
+  / link_assignment  
   / attr_name
+  / "..." attr_name:attr_name { return "..."+attr_name } // разрешим вариант ...args F-JS-INLINE-DOTS
+  
 
 js_inline "js inline code"
   = "{:" attrs: (__ (",")* __ @js_inline_attr_modifier __)+ "|" chars:(!":}" .)* ":}" {
@@ -717,6 +722,7 @@ js_inline "js inline code"
     // а именованные - сделаем пропертями.
     let env_modifiers = [];
     let pos_args = [];
+    //console.log("attrs=",attrs)
     for (let i=0; i<attrs.length; i++) {
       let attr = attrs[i];
       if (typeof(attr) === "string") {
