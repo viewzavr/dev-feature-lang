@@ -787,8 +787,15 @@ export function register_feature( env, envopts ) {
 
     // получается эти вещи мы в догонку, после их переопределения, вызываем
     // а так они учтутся в 1м compile
-    env.trackParam( "code", compile );    
+    env.trackParam( "code", compile );
     env.trackParam( 1, compile ); // code
+
+    let xtra = []
+    if (env.paramConnected( "code"))
+      xtra = ["code"]
+    else
+      if (env.paramConnected( 1))
+      xtra = [1]
 
     return new Promise( (resolve, reject) => {
       //env.trackParam( 0, compile ); // name  
@@ -796,11 +803,11 @@ export function register_feature( env, envopts ) {
         console.warn("feature pending name 0, name")
         env.vz.console_log_diag( env )
       }
-      env.monitor_defined( [0],(v) => {
+      env.monitor_defined( [0].concat(xtra),(v) => {
         compile()
         resolve("success")
       })
-      env.monitor_defined( ["name"],(v) => {
+      env.monitor_defined( ["name"].concat(xtra),(v) => {
         if (v) {
           compile()
           resolve("success")
@@ -3844,7 +3851,17 @@ function fill_scope_with_args(env,newscope,attrs) {
 
 // перехватывает создание детей у host-объекта и запихивает их в переменную к нему
 export function catch_children(env) {
+  let orig = env.host.restoreChildrenFromDump;
+  let counter = 0;
+
   env.host.restoreChildrenFromDump = (dump, ismanual, $scopeFor) => {
+
+    counter++;
+    if (env.params.external && counter == 1)
+      return orig( dump,ismanual,$scopeFor )
+
+    //console.log("catch_children",dump)
+
     let children_env_list = Object.values( dump.children );
     children_env_list.env_args = dump.children_env_args;
     let pname = env.params[0] || "children_list";
@@ -3854,6 +3871,8 @@ export function catch_children(env) {
     }
     //console.log("catch-children assigning to", dump )
     env.host.setParam( pname, children_env_list )
+
+    //if (env.params.once) env.host.restoreChildrenFromDump = orig;
     
     return Promise.resolve("success");
   };

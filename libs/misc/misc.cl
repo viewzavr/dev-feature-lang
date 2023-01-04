@@ -512,8 +512,49 @@ feature "jsfunc" {
   }
 }
 
+// cofunc "foo" { |a b| @a + @b }
+feature "cofunc" {
+  f: object {{ catch_children "code" external=true }}
+  {
+    feature @f.0 {
+      x: object output=(computing-env code=@f.code {{ append-positional-params @x }})
+    }
+  }  
+}
+
+feature "fun" {: env |
+  //console.log(3355555)
+
+  if (env.paramConnected(1))
+    return env.feature("jsfunc")
+  else  
+    return env.feature("cofunc")
+
+:}
+
+/* вариант рабочий но тормозит.. лучше на js
+feature "fun" {
+  f: object {{ catch_children "code" external=true }}
+  {
+    if (@f.1?)
+    {
+      feature @f.0
+      {
+        x: object output=(m-eval @f.1 {{ append-positional-params @x }})
+      }
+    }
+    else
+    {
+      feature @f.0 {
+        x: object output=(computing-env code=@f.code {{ append-positional-params @x }})
+      }
+    }
+  }
+}
+*/
+
 feature "append-positional-params" {: env |
-  let orig_pos_count = env.params.args_count;
+  let orig_pos_count = env.host.params.args_count || 0;
 
   let unsub = () => {}
   env.onvalue( 0, (srcobj)=> {
@@ -524,7 +565,7 @@ feature "append-positional-params" {: env |
 
      unsub()
      unsub = srcobj.monitor_values( names,(...args) => {
-       //console.log("append-positional-params: args=",...args)
+       //console.log("append-positional-params: args=",...args,"orig_pos_count=",orig_pos_count)
        for (let j=0; j<args.length; j++)
         env.host.setParam( j+orig_pos_count, args[j] )
      } )
