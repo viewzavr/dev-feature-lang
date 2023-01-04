@@ -809,10 +809,16 @@ export function register_feature( env, envopts ) {
       //env.trackParam( 0, compile ); // name  
       //if (!env.hasParam(0) && !env.hasParam("name")) {
       if (!(env.paramConnected(0) || env.paramConnected("name"))) {
-        // ну вроде как если там не назначили.. то возьмем из.. но вопрос а надо?
+        // это получается ветка  name : feature
+        // но вопрос - мб стоит отменить этот вариант а вместо него разрешить фичи из scope
+        // это было бы более правильно
+        // в т.ч. тогда: let x = (feature {: env | .... })
+        // другое дело что пойдет вопрос успевать определять фичи, чтобы они были доступные.
+
         env.setParam( 0,env.ns.name )
         //console.warn("feature pending name 0, name")
         //env.vz.console_log_diag( env )
+
       }
       env.monitor_defined( [0].concat(xtra),(v) => {
         compile()

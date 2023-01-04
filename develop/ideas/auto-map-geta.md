@@ -1,0 +1,1 @@
+@obj.list.title и если obj.list это массив то запрос на title превращается пусть в map-geta.
