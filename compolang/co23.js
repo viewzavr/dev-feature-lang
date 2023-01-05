@@ -104,18 +104,24 @@ export function reaction( env ) {
   let func
 
   env.onvalues_any(['input',0,1],() => {
+    
+  	unsub(); unsub = () => {};
 
   	let channel
-  	if (env.paramAssigned("input")) {
-  		channel = env.params.input;
-  		func = env.params[0] || env.params.f
+  	if (env.paramConnected("input")) {
+  		if (env.hasParam("input")) {
+  			channel = env.params.input;
+  			func = env.params[0] || env.params.f
+  		} else return
   	}
   	else {
-  		channel = env.params[0]
-  		func = env.params[1] || env.params.f
+  		if (env.hasParam(0)) {
+  			channel = env.params[0]
+  			func = env.params[1] || env.params.f
+  		}
+  		else
+  			return
   	}
-    
-    unsub();
 
     if (!channel?.is_cell) {
       console.warn("reaction: input is not channel",channel)
@@ -134,6 +140,8 @@ export function reaction( env ) {
   env.on('remove',() => unsub())
 
   function emit_val( v ) {
+  	  //if (!func) return
+
       if (v?.is_event_args) {
         // развернуть...
         func.apply( env, v )

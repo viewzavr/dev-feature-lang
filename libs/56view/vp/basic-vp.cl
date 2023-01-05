@@ -10,7 +10,7 @@ feature "axes-view" {
 		};
 	}
 	scene3d={ |view opacity|
-	  object output=@ab->output;
+	  return @ab->output
 	}
 	visible=true
 	size=20

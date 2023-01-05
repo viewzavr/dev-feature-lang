@@ -326,13 +326,22 @@ register_feature name="select_color" {
     перейти именно к хтмл-поведению в этом смысле и не заниматься пересчетами.
     но в общем пока так.
 */
-register_feature name="combobox" {
+
+feature "cb-follow-last" {: env |
+	let main = env.host
+	main.onvalue("titles",() => {
+ 	    let index = main.params.titles.length-1
+ 	    main.setParam("index",index)
+  });	
+:}
+
+feature "combobox" {
 	cbroot: dom tag="select" {{
 
    ///////////////////////////////////////////////
    // мостик из CL в dom
 
-	 x-js '(main) => {
+	 m-eval {: main=@cbroot |
 	   main.onvalue("index",(i) => {
 	   	 setup_index();
 	   	 // новооведение
@@ -401,6 +410,7 @@ register_feature name="combobox" {
 	   	  // поэтому тут мы отрабатываем случай если value подходящий
 	   	  let index = (values || []).indexOf( main.params.value );
 	   	  //console.log("cb interma, ",main.params.value,main.params.values ,index)
+
 	   	  if (index >= 0)
 	   	  	main.params.dom.selectedIndex = index;
 	   	  else {
@@ -412,11 +422,11 @@ register_feature name="combobox" {
 	   	  }
 
 	   }
-    }';
+    :}
 
     ///////////////////////////////////////////////
     // мостик из dom в cl
-    read @cbroot | dom_event_cell "change" | c_on `(event_data,object) => {
+    read @cbroot | dom_event_cell "change" | reaction {: event_data object=@cbroot |
       //console.log("dom onchange",object.dom.selectedIndex )
       object.setParam("index",object.dom.selectedIndex);
 
@@ -426,7 +436,7 @@ register_feature name="combobox" {
 			  object.setParam("value",object.params.values[ object.dom.selectedIndex ], true);
 			  object.emit("user_changed_value", object.params.value );
 		  }
-		}` @cbroot;
+		:};
 	  
 	}};
 };

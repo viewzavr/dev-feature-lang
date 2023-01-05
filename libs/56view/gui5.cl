@@ -85,6 +85,8 @@ feature "button_add_object" {
         
         link from="@bt_root->add_to" to="@cre->target" soft_mode=true;
 
+        //connect (event @cre "created")
+
         cre: creator input={}
           {{ onevent 
              name="created" 
@@ -105,7 +107,7 @@ feature "button_add_object" {
                  //arg1.setParam("manual_features",s,true)
                  //arg1.apply_manual_features();
                  
-                 console.log("created",arg1)
+                 //console.log("created -- emitting",arg1)
 
                  env.params.btroot.emit("created", arg1 );
              `

@@ -141,8 +141,9 @@ export function spawn_frame( env )
         env.stop_tmr = env.timeout_ms( env.perform_stop, t )
     else env.stop_tmr = () => {}
   }
-  env.trackParam("timeout_ms", env.set_timeout_ms )
-  env.setParam( "timeout_ms", 1000 ) // время работы по умолчанию
+  if (!env.paramAssigned("timeout_ms"))
+       env.setParam( "timeout_ms", 1000 ) // время работы по умолчанию
+  env.onvalue("timeout_ms", env.set_timeout_ms )   
   //env.set_timeout_ms( 10*1000 ); 
   
   //subscribe_for_finish();

@@ -3755,7 +3755,7 @@ export function computing_env_orig(env){
 //       описание дается в children или в переменной code
 // выход: output - результат работы созданного окружения
 // действие - разворачивает окружение согласно описанию, передает в него позиционные параметры
-//
+// F-COMPUTING-LIKE-MAKEFUNC - сделать так чтобы возврат был по return, как в make-func
 export function computing_env(env) {
 
   // соединяет позиционные аргументы computing_env с ||-аргументами scope
@@ -3844,6 +3844,9 @@ export function computing_env(env) {
     */
 
     let spawn_obj = env.vz.createObj( { parent: env, name: "spawn" });
+    spawn_obj.setParam("timeout_ms",-1) // выключаем таймер - у нас тут вечное вычисленье
+    spawn_obj.feature("spawn_frame")
+
     cleanup = () => { spawn_obj.remove(); cleanup = () => {}; }
 
     let p = env.vz.createObjectsList( env_list, spawn_obj, false, newscope );
@@ -3854,7 +3857,9 @@ export function computing_env(env) {
         return;
       }
 
-      spawn_obj.ns.getChildren()[0].onvalue("output",finish);
+      //spawn_obj.ns.getChildren()[0].onvalue("output",finish);
+      spawn_obj.monitor_defined("output",finish)
+
       function finish( res ) {
         env.setParam("output",res);
       }
@@ -3880,7 +3885,7 @@ export function catch_children(env) {
   env.host.restoreChildrenFromDump = (dump, ismanual, $scopeFor) => {
 
     counter++;
-    if (env.params.external && counter == 1)
+    if (env.params.external && counter == 1) // это внутренние стало быть, а надо внешние
       return orig( dump,ismanual,$scopeFor )
 
     //console.log("catch_children",dump)
@@ -3892,8 +3897,15 @@ export function catch_children(env) {
     if (env.params.if_not_empty && children_env_list.length == 0) {
         return Promise.resolve("success");
     }
-    //console.log("catch-children assigning to", dump )
+    
+    //console.log("catch-children assigning to", children_env_list )
+
     env.host.setParam( pname, children_env_list )
+
+    // надо утырить еще и scope ихнее...
+    let tscope = env.host.$scopes[ env.host.$scopes.length - counter]
+    for (let k of children_env_list)
+      k.$scopeFor = tscope;
 
     //if (env.params.once) env.host.restoreChildrenFromDump = orig;
     

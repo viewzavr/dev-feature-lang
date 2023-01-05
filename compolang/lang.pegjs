@@ -709,6 +709,7 @@ js_inline_attr_modifier
   / "..." attr_name:attr_name { return "..."+attr_name } // разрешим вариант ...args F-JS-INLINE-DOTS
   
 
+// todo надо выдавать ошибку если встретили {: внутри...
 js_inline "js inline code"
   = "{:" attrs: (__ (",")* __ @js_inline_attr_modifier __)+ "|" chars:(!":}" .)* ":}" {
     let code = chars.map(c=>c[1]).join("");
