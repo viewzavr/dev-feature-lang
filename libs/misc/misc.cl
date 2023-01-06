@@ -514,8 +514,17 @@ feature "jsfunc" {
     //assign-to-scope items=(list (object name=@f.0 value=@f.1))
   }
 }
+/* если перейти к нотации что {: .. :} это eval, то тогда:
+feature "foo" {
+  {: a b | return a + b :}
+}
+т.е. мб jsunc и лишняя.
+
+*/
 
 // cofunc "foo" { |a b| @a + @b }
+// вопрос - это же процесс а не функция. так что не эквивалентно fun
+// поэтому странно что я потом это в fun заворачиваю
 feature "cofunc" {
   f: object {{ catch_children "code" external=true }}
   {
