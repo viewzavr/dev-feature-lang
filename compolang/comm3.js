@@ -796,6 +796,7 @@ export function get_cell_value_latest( env ) {
 // получить ячейки "параметров"
 // input - массив объектов
 // 0 - имя параметра
+// добавить сюда флаг про manual
 export function feature_get_param_cell( env ) {
 
   env.onvalues( ["input",0], go);
@@ -899,6 +900,8 @@ export function feature_get_cell( env ) {
   env.onvalues( [0,1,"manual"], go);
 
   function go (arr, param_name,manual) {
+    //console.log("feature_get_cell go",arr, param_name)
+
     let single_elem_mode = !Array.isArray(arr);
     if (single_elem_mode) arr=[arr];
     let res = [];

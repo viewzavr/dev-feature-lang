@@ -130,11 +130,22 @@ export function reaction( env ) {
       return
     }
 
+    // особый случай - вместо функции целевой канал. по сути это аналог connect получается.
+    /*
+    if (func.is_cell) {
+    	let target_cell = func;
+    	func = (x) => target_cell.set(...args)
+    	надо тогда учесть еще is_event_args
+    }
+    */
+
     unsub = channel.on('assigned',(v) => {
       //console.log("cc-on passing",v)
       emit_val( v )
     })
 
+    // возможность отреагировать и на уже записанные данные
+    if (env.params.existing) emit_val( channel.get() )
 
   })
   env.on('remove',() => unsub())

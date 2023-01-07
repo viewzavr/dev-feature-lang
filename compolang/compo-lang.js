@@ -3149,8 +3149,6 @@ export function insert_children( env )
 
      close_envs();
 
-     
-
      if (!env.params.active) return;
 
      if (!features_list) return;
@@ -3878,6 +3876,8 @@ function fill_scope_with_args(env,newscope,attrs) {
 };
 
 // перехватывает создание детей у host-объекта и запихивает их в переменную к нему
+// external - захватывать внешних
+
 export function catch_children(env) {
   let orig = env.host.restoreChildrenFromDump;
   let counter = 0;
@@ -3885,7 +3885,8 @@ export function catch_children(env) {
   env.host.restoreChildrenFromDump = (dump, ismanual, $scopeFor) => {
 
     counter++;
-    if (env.params.external && counter == 1) // это внутренние стало быть, а надо внешние
+    // смешно то, что это прилетает restore-state еще - это случай ismanual
+    if ((env.params.external && counter == 1) || ismanual) // это внутренние стало быть, первый заход; и его надо провести как обычно; а ловить надо внешние
       return orig( dump,ismanual,$scopeFor )
 
     //console.log("catch_children",dump)
@@ -3893,21 +3894,29 @@ export function catch_children(env) {
     let children_env_list = Object.values( dump.children );
     children_env_list.env_args = dump.children_env_args;
     let pname = env.params[0] || "children_list";
-    //if (!(env.params.keep_existing && env.host.paramAssigned(pname))) {
+    // тут пропуск пустых
     if (env.params.if_not_empty && children_env_list.length == 0) {
         return Promise.resolve("success");
     }
     
     //console.log("catch-children assigning to", children_env_list )
 
-    env.host.setParam( pname, children_env_list )
-
     // надо утырить еще и scope ихнее...
+    
     let tscope = env.host.$scopes[ env.host.$scopes.length - counter]
-    for (let k of children_env_list)
+
+    //if (env.params.debug) debugger
+
+    let v = children_env_list.map(a => ({...a}))
+    v.env_args = children_env_list.env_args;
+    // todo - перестать копировать! создать над-структуру надо. { scope, items }
+
+    for (let k of v)
       k.$scopeFor = tscope;
 
-    //if (env.params.once) env.host.restoreChildrenFromDump = orig;
+    //console.log("catch_children tscope",tscope)
+
+    env.host.setParam( pname, v )
     
     return Promise.resolve("success");
   };

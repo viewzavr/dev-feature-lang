@@ -61,3 +61,12 @@ reaction @someobj.attr { |value| .... }
 let somevar=(....)
 reaction @somevar { |value| ..... }
 и вот непонятно, что лучше. пока приходится делать так: reaction (create-channel @somevar) { |value| ... }
+
+## Update доп идея
+
+1. reaction a b c d
+и сигнал на a рассылается во всех остальных, b,c,d.
+
+2. добавить вид реакции - другой канал.
+Хотя его можно выразить и как-то так: reaction @some.a (invoke (method @other "b")
+ну то есть по сути речь о внедрении адаптера.

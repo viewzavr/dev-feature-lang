@@ -6,24 +6,30 @@
 //      - features - строка список фич (сейчас одна)
 // выход - output - список объектов у которых эти фича есть
 
+/*
 feature "normalize-feature-name" {
-  computing_env
-  { |name|
-    m_eval "(name) => name.replaceAll('_','-')" @name;
+  computing_env { |name|
+    return (m_eval "(name) => name.replaceAll('_','-')" @name);
   };
 };
+*/
+
+jsfunc "normalize-feature-name" {: name | return name.replaceAll('_','-') :}
 
 feature "arr_filter_by_features"
 {
   p: 
-  pipe
+  pipe input=[]
   {
-    restart_input (@p->input 
+    restart_input (
+      read @p->input 
       | get-cell (normalize-feature-name (+ "feature-applied-" @p.features)) 
       | get-cell-value 
       )
     ;
     arr_filter code=(m_lambda "(f,val,index) => {
+       //let res = val.is_feature_applied( f );
+       //console.log('arr_filter_by_features checking',val,f,res)
        return val.is_feature_applied( f );
     }" @p->features);
   };

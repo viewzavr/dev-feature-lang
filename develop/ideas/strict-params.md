@@ -99,3 +99,13 @@ feature "data-load-files" {
 
 define-gui name={ string }
 add-param name="privet"
+
+/////
+но и кстати также вариант:
+add-param one=1 two=2 type="int" type={ int {{ range min=0 max=10 }} } 
+    gui={ slider min=0 max=10 }
+и типа эта запись gui будет прицеплена к обоим параметрам. это неплохо.
+
+а в целом нам получается что-то такое не помешает для определения структуры параметров.
+
+и кстати: add-param .... gui={ | in out | ...... }

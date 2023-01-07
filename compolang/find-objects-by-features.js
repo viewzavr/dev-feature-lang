@@ -273,12 +273,14 @@ export function find_objects_bf( env  ) {
 }
 
 // поиск - обход всех детей с вызовом fn
-function traverse_if( obj, fn, include_subfeatures ) {
+function traverse_if( obj, fn, include_subfeatures, depth_avail_left ) 
+{
 
   if (!fn( obj )) return;
+  
   var cc = obj.ns.getChildren();
   for (var cobj of cc) {
-    traverse_if( cobj,fn,include_subfeatures );
+    traverse_if( cobj,fn,include_subfeatures, depth_avail_left-1 );
   }
 
   if (include_subfeatures) {
@@ -286,7 +288,7 @@ function traverse_if( obj, fn, include_subfeatures ) {
     // экспериментально - пойдем ка по прицепленным фичам
     cc = obj.$feature_list_envs || [];
     for (var cobj of cc) {
-      traverse_if( cobj,fn,include_subfeatures );
+      traverse_if( cobj,fn,include_subfeatures, depth_avail_left-1 );
     }
   }  
 
@@ -294,7 +296,7 @@ function traverse_if( obj, fn, include_subfeatures ) {
   // важно - проверки на циклы нет
   cc = obj.$find_objects_follow_list || [];
   for (var cobj of cc) {
-    traverse_if( cobj,fn,include_subfeatures );
+    traverse_if( cobj,fn,include_subfeatures, depth_avail_left-1 );
   }
 }
 

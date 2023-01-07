@@ -3,6 +3,11 @@
 
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d new-modifiers imperative"
 load "56view"
+load "./cats.cl ./data-artefact.cl ./zal2.cl ./paint-gui.cl"
+
+coview-category title="Основное" id="basic" 
+coview-category title="Расчёты" id="compute" 
+coview-category title="Загрузка" id="data-io"
 
 project: the_project 
 {
@@ -23,7 +28,7 @@ project: the_project
       b: button "Сущности" //on_click={ method @d "show" | put-value 1 }
       d: manage-lists-dialog (list 
           (list "Данные" (find-objects-bf "data-artefact" root=@project) @project (gather-cats ["data-io"]))
-          (list "Расчёты" (find-objects-bf "computation" root=@project) @project [])
+          (list "Расчёты" (find-objects-bf "computation" root=@project) @project (gather-cats ["compute"]))
           (list "Образы" (find-objects-bf "visual-process" root=@project) @project (gather-cats ["basic"]))
           (list "Экраны" (find-objects-bf "the_view_recursive" root=@project) @project [])
       )
@@ -105,6 +110,7 @@ feature "load-dir-uni" {
   - справа тоже кнопочка плюс
   - нужна визуальная разно-модальность...
 */
+
 feature "manage-lists-dialog" {
   dlg: dialog 
     style_w="min-width: 400px"
@@ -132,9 +138,10 @@ feature "manage-lists-dialog" {
           }
     }
     right={ |obj|
+      //paint-gui @obj
       column {
         insert_children input=@.. list=@obj.gui
-      }  
+      } 
     }
   {
     column {
@@ -155,7 +162,8 @@ feature "manage-lists-dialog" {
 
           insert_children input=@.. list=@dlg.below
         }
-        r:column { // right
+
+        r:column style="margin: 5px;" { // right
           let selected_object = (@list | geta @cb.index? default=null)
           //ic: insert_children input=@r list=@selected_object.gui
           ic: insert_children input=@r list=@dlg.right @selected_object
@@ -169,37 +177,7 @@ feature "manage-lists-dialog" {
 
 //////// короче делаем диалог добавления
 
-coview-category title="Основное" id="basic" 
 coview-record title="Оси координат" type="axes-view" id="basic"
-
-//////////////////
-
-feature "coview-category" {
-  x: object 
-      records=(m-eval {: known_records=@known_records id=@x.id | return (known_records || []).filter( x => x.params.id == id ) :})
-}
-feature "coview-record"
-
-// filter_cats_func=func add_to=object
-
-let known_cats = (find-objects-bf "coview-category")
-let known_records = (find-objects-bf "coview-record")
-
-// вход: массив идентификаторов категорий
-// выход: список list в формате для add-object-dialog
-fun "gather-cats" { |id_array|
-  
-  let my_cats = (m-eval {: cats=@known_cats id_array=@id_array |
-    return cats.filter( x => id_array.indexOf( x.params.id )>=0 )
-  :})
-
-  //return (read @my_cats | map_geta "records" | arr_compact)
-  //return (read @my_cats | map_geta "title" | arr_compact)
-
-  return (@my_cats | map { |cat|
-    list @cat.title @cat.records
-  })
-}
 
 // вход: list=(список записей о категориях) target=куда-вставлять
 // list = массив элементов вида [ надпись, список-объектов-record ] 
@@ -279,4 +257,3 @@ feature "coview-record" {
 }
 */
 
-load "./data-artefact.cl"

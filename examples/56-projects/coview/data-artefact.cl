@@ -1,63 +1,9 @@
-coview-category title="Загрузка" id="data-io"
 coview-record title="Загрузчик файлов" type="data-load-files" id="data-io"
-
-//
-
-feature "data-artefact" {
-  x: object    
-};
 
 // это наша стартовая сущность которую пользователь добавляет в проект
 // а data-artefact это уже взгляд на нее. (ну как бы..)
 
 // включевое поле output это массив вида [ {name,url}, {name,url}, fileobject, ... ]
-
-feature "data-load-files" {
-  qqe: data-artefact title="Загрузка файлов" {
-
-    define-gui src={ gui-string } files={ gui-files } src={ gui-switch ["URL","Файл с диска","Папка"] }
-
-    add-params 
-      initial_mode=1
-      url=""
-      files=[]
-      {{ x-param-string name="url" }}
-      {{ x-param-files  name="files" }}
-      {{ x-param-switch name="src" values=["URL","Файл с диска","Папка"] }}
-      src=0
-      output=(m_eval "(a,b,index) => {
-        if (index == 0) {
-          if (a) {
-             let sp = a.split('/');
-             if (sp.at(-1) == '') sp.pop();
-             return [{name:sp.at(-1),url:a}];
-          }
-          return [];
-        }
-        return b;
-        }" @qqe->url? @qqe->files? @qqe->src allow_undefined=true)
-
-      gui={
-        column ~plashka {
-
-          render-params-list object=@qqe list=["title"];
-
-          param_field name="Источник" {
-
-            column {
-              render-params-list object=@qqe list=["src"];
-
-              show-one index=@qqe->src style="padding:0.3em;" {
-                column { render-params-list object=@qqe list=["url"];; };
-                column { render-params-list object=@qqe list=["files"];; };
-                column { files; };
-              };
-            };
-          };
-
-        };
-      } 
-};
 
 feature "data-load-files" {
   qqe: data-artefact
