@@ -14,6 +14,7 @@ feature "data-load-files" {
     {{ x-param-string name="url" }}
     {{ x-param-files  name="files" }}
     {{ x-param-switch name="src" values=["URL","Файл с диска","Папка"] }}
+    //{{ x-param-label name="output" }}
     src=0
     output=(m_eval "(a,b,index) => {
       if (index == 0) {
@@ -27,6 +28,7 @@ feature "data-load-files" {
       return b;
       }" @qqe->url? @qqe->files? @qqe->src allow_undefined=true)
 
+    gui1={ paint-gui @qqe }
     gui={
       column ~plashka {
 
@@ -42,10 +44,32 @@ feature "data-load-files" {
               column { render-params-list object=@qqe list=["files"];; };
               column { files; };
             };
+
+            //text @qqe->output
           };
         };
 
       };
+    }
+    {
+      gui { // на будущее
+        gui-tab {
+          gui-switch @qqe "src" values=["URL","Файл с диска","Папка"]
+          column {
+            if (@qqe.src == 0) {
+              gui-url @qqe "url"
+            }
+            if (@qqe.src == 1) {
+              gui-files @qqe "files"
+            }
+            if (@qqe.src == 2) {  
+              gui-dir @qqe "dir"
+            }
+          }
+        }
+      }
+
+      param-info "output" out=true
     }
     //url="http://127.0.0.1:8080/vrungel/public_local/Kalima/v2/vtk_8_20/list.txt"
     //url="https://viewlang.ru/assets/lava/Etna/list.txt"

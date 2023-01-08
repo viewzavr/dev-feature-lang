@@ -534,6 +534,16 @@ feature "cofunc" {
   }
 }
 
+// вроде так поправильнее будет называть
+feature "comp" {
+  f: object {{ catch_children "code" external=true }}
+  {
+    feature @f.0 {
+      x: object output=(computing-env code=@f.code {{ append-positional-params @x }})
+    }
+  }
+}
+
 feature "fun" {: env |
   if (env.paramConnected(1))
     return env.feature("jsfunc")

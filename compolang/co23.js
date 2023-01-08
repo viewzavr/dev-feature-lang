@@ -131,14 +131,14 @@ export function reaction( env ) {
     }
 
     // особый случай - вместо функции целевой канал. по сути это аналог connect получается.
-    /*
+    
     if (func.is_cell) {
     	let target_cell = func;
-    	func = (x) => target_cell.set(...args)
-    	надо тогда учесть еще is_event_args
+    	func = (...args) => target_cell.set(...args)
+      func.target_is_cell = true
+    	//надо тогда учесть еще is_event_args
     }
-    */
-
+    
     unsub = channel.on('assigned',(v) => {
       //console.log("cc-on passing",v)
       emit_val( v )
@@ -153,7 +153,7 @@ export function reaction( env ) {
   function emit_val( v ) {
   	  //if (!func) return
 
-      if (v?.is_event_args) {
+      if (v?.is_event_args && !func.target_is_cell) {
         // развернуть...
         func.apply( env, v )
       }

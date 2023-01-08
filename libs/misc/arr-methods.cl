@@ -368,3 +368,4 @@ feature "arr_skip" {
     r: m_eval "(arr,i) => arr.filter( (elem,index) => index%i == 0 )" @k->input @k->0;
   };
 };
+

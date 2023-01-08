@@ -1,3 +1,26 @@
+coview-record title="Прочитать файл" type="load-text" id="compute"
+
+feature "load-text" {
+	x: computation 
+	title="Прочитать файл"
+	output=(load-file @x.input?)
+	gui={ paint-gui @x }
+	{{ console-log "load-text input=" @x.input?}}
+	{
+		gui {
+			gui-tab "main" {
+				gui-param-field @x "input" {
+					text "value="
+					text (param @x "input" | get-value)
+				}
+				gui-text @x "output"
+			}
+		}
+
+		param-info "input" in=true out=true
+		param-info "output" out=true
+	}
+}
 
 coview-record title="Парсер геометрии" type="zal-parse-geom" id="compute"
 
@@ -23,6 +46,7 @@ feature "zal-parse-geom" {
 		gui { // gui tabs = ...
 			gui-tab "main" {
 				//me: console-log "gui x=" @x "me=" @me
+				//gui-param @x "input" { |io| gui-text @io }
 				gui-text  @x "input"				
 				gui-label @x "status"
 			}

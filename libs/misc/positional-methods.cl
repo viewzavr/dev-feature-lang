@@ -67,7 +67,15 @@ register_feature name="list" code=`
   compute();
 `;
 
-//jsfunc "list" {: ...args | args :}
+//jsfunc "list" {: ...args | return args :}
+
+jsfunc "arr-concat" {: ...args | 
+  let res=[];
+  for (let a of args) {
+    if (Array.isArray(a)) res = res.concat(a)
+  }
+  return res 
+:}
 
 // concat соединяет массивы в 1 массив, поданный на вход
 // ну и в качестве удобняшки если что-то не массив то оно делает его массивом
