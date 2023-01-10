@@ -5,6 +5,7 @@ feature "spheres" {
 	  {{ x-param-slider name="radius" min=0.0 max=100 step=0.1 }}
 	  nx=16 ny=24 positions=[] radiuses=[] colors=[] radius=1
 	  color=[1,1,1]
+    opacity=1.0
 	  mesh=@m
 	  {
         //mesh positions=[0,0,0, 1,1,1, 0,1,0 ];

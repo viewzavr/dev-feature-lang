@@ -1,33 +1,11 @@
-coview-record title="Прочитать файл" type="load-text" id="compute"
 
-feature "load-text" {
-	x: computation 
-	title="Прочитать файл"
-	output=(load-file @x.input?)
-	gui={ paint-gui @x }
-	{{ console-log "load-text input=" @x.input?}}
-	{
-		gui {
-			gui-tab "main" {
-				gui-param-field @x "input" {
-					text "value="
-					text (param @x "input" | get-value)
-				}
-				gui-text @x "output"
-			}
-		}
 
-		param-info "input" in=true out=true
-		param-info "output" out=true
-	}
-}
-
-coview-record title="Парсер геометрии" type="zal-parse-geom" id="compute"
+coview-record title="Парсер геометрии зала" type="zal-parse-geom" id="compute"
 
 feature "zal-parse-geom" {
 	x: computation 
 	input="" {{ x-param-text name="input" }}
-	title="Парсер геометрии"
+	title="Парсер геометрии зала"
 	output=@zal
 	gui={ paint-gui @x }
 	//gui={ render-params @x }
@@ -47,8 +25,10 @@ feature "zal-parse-geom" {
 			gui-tab "main" {
 				//me: console-log "gui x=" @x "me=" @me
 				//gui-param @x "input" { |io| gui-text @io }
-				gui-text  @x "input"				
-				gui-label @x "status"
+				gui-slot @x "input" gui={ |in out | gui-text @in @out }
+				gui-slot @x "status" gui={ |in out | gui-label @in @out }
+				//gui-text  @x "input"
+				//gui-label @x "status"
 			}
 			gui-tab "test"
 		}
@@ -62,6 +42,13 @@ feature "zal-parse-geom" {
 	  	  	  rangey=((find-objects-bf "RangeY" root=@zal | geta 0 | geta 1) or 0)
 	  	  	  stepx=((find-objects-bf "GridStep" root=@zal | geta 0 | geta 0) or 1)
 	  	  	  stepy=((find-objects-bf "GridStep" root=@zal | geta 0 | geta 1) or 1)
+
+	  	let mpoints_data = 
+	  	   (find-objects-bf root=@zal "MeasuringPoint" | map-geta [0,1,2] 
+	  	   	  | df_create_from_arrays columns=["X","Y","VAL"] 
+	  	   	  | df-mul column="X" coef=@zal.stepx | df-mul column="Y" coef=@zal.stepy )
+
+	  	param-info "mpoints_data" out=true value=@mpoints_data
 
 		// param @x "output" | put-value @zal
 		// assign (param @x "output") @zal

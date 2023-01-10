@@ -3,7 +3,7 @@
 
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d new-modifiers imperative"
 load "56view"
-load "./cats.cl ./data-artefact.cl ./zal2.cl ./paint-gui.cl"
+load "./cats.cl ./data-artefact.cl ./zal2.cl ./paint-gui.cl ./paint-3d.cl ./compute.cl"
 
 coview-category title="Основное" id="basic" 
 coview-category title="Расчёты" id="compute" 

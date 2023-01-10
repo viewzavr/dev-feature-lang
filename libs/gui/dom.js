@@ -1,3 +1,10 @@
+/*
+  update чтобы сделать получше - чтобы все проходило через аутпут:
+  - убрать проверку dom-generator
+  - отказаться от rescan-children
+  - отказаться от var od = c.params.output; if (typeof(od) === "function") od = od();
+*/
+
 // update
 // теперь объект проходит по объектам и собирает их output
 // которые должны содержать дом, массив дом, или функцию возвращающую оное.
@@ -291,7 +298,7 @@ export function dom( obj, options={} )
       if (!(c.dom_generator || c.params.dom_generator)) continue;
 
       var od = c.params.output;
-      if (typeof(od) === "function") od = od();
+      if (typeof(od) === "function") od = od(); // это сильно..
 
        //let od = c.outputDom ? c.outputDom() : null;
        if (od) {

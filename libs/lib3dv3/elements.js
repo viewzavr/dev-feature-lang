@@ -316,7 +316,7 @@ export function mesh( env ) {
 // считаем это универсальной структурой (попыткой ее создать)
 export function points_df_input( env ) {
   env.onvalue("input",(df) => {
-    //console.log("gonna paint df=",df);
+    // console.log("gonna paint df=",df);
     var dat = df;
     if (dat.XYZ || dat.positions)
       env.setParam("positions", dat.XYZ || dat.positions );

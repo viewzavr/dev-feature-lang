@@ -23,42 +23,8 @@ feature "my-object" {
 }
 
 feature "gui" {
-	y: object {{ catch_children "code" reverse=true }} 
-	   { 
-	   	gui-tab "debug" {
-	      button "inspect" on_click={: guiobj=@y | 
-	    	  if(guiobj) console.log( guiobj.ns.parent )
-	    	:}
-	  } }
+	y: object {{ catch_children "code" external=true }}
 }
-
-// задача - добавить табу inspect всем гуи-объеткам
-// желательно через модификатор. как?
-/*
-find-object-bf "gui" | x-modify {
-	x-append-param code={
-	  gui-tab "debug" {
-	    ...
-	  }
-	}
-	или x-set-param code += { ..... } ?
-}
-*/
-
-// find-object-bf "gui" | insert_children .. - не сработает
-
-/* todo debug
-feature "gui-add-inspect-tab" {
-	object {
-		gui-tab "debug" {
-	    button "inspect"
-	  }
-	}
-}
-
-append_feature "gui" "gui-add-inspect-tab"
-*/
-
 
 // paing-gui @object
 feature "paint-gui" {
@@ -119,9 +85,7 @@ feature "gui-row" {
 // апи
 // объект имя-параметра
 
-/*
-feature "gui-text" {
-	d: dom_group in=@.->0 out=@.->1 {
+comp "gui-text" { | in out |
 
 		btn: button "Редактировать"
 
@@ -131,37 +95,6 @@ feature "gui-text" {
 	        column {
 	          //text text="Введите текст"; // todo hints
 	          text style="max-width:70vh;" "Введите массив"
-	               //((get_param_option @pf->obj @pf->name "hint") or "Введите массив");
-
-	          ta: dom tag="textarea" style="width: 70vh; height: 30vh;" 
-	          		dom_obj_value=(read @d.in | get-value) // | console_log_input "XXX" @g.0 @g.1)
-	                  
-	          enter: button text="ВВОД"
-
-	          //text style="max-width:70vh;"
-	          //     (get_param_option @pf->obj @pf->name "hint");
-
-	          reaction (event @enter "click") {: ta=@ta dlg=@dlg out=@d.out |
-	                let v = ta.dom?.value;
-	                out.set( v )
-	                dlg.close()
-	          :}
-	        }
-	      }
-	}
-}
-*/
-
-dom-comp "gui-text" { | in out |
-
-		btn: button "Редактировать"
-
-		connect (event @btn "click") (method @dlg "show")
-
-	  dlg: dialog {
-	        column {
-	          //text text="Введите текст"; // todo hints
-	          text style="max-width:70vh;" "Введите текст"
 	               //((get_param_option @pf->obj @pf->name "hint") or "Введите массив");
 
 	          ta: dom tag="textarea" style="width: 70vh; height: 30vh;" 
@@ -190,9 +123,7 @@ dom-comp "gui-text" { | in out |
 
 // с каналами прикольнее и яснее. но. получается оно там будет парсить все по 10 раз
 // а оно нам может и не надо.. 
-
-// пробелы или , ? или в опцию вынести?
-dom-comp "gui-df" { |in out|
+comp "gui-df" { |in out|
 
 	//console-log "gui-df in=" @in1 "me=" @.
 
@@ -225,7 +156,7 @@ feature "gui-df" {
 */ 
 
 
-dom-comp "gui-label" { |in|
+comp "gui-label" { |in|
 	 text (read @in | get-value)
 }
 
@@ -238,9 +169,7 @@ feature "gui-label" {
 */
 
 // вот это канеш прикол
-// тут надо по-другому все делать...
-// идея что комбинация типа-и-слота мб дала бы свободу творчества?
-dom-comp "gui-checkbox" { |in out|
+comp "gui-checkbox" { |in out|
 	 cb: checkbox value(read @in | get-value) 
 	 reaction (event @cb "user_change") @out
 }
@@ -250,10 +179,10 @@ feature "gui-slot" {
     //items=(get-block @x)
   {
     dom tag="legend" innerText=@x.1;
-    gui-setup-link @x.0 @x.1 style="float: right;"
+    gui-setup-link @x.0 @x.1 style="position: absolute; right: 5px;"
 
     insert_children list=@x.gui input=@x (param @x.0 @x.1) (param @x.0 @x.1 manual=true)
-      
+      {{ console_log_life }}
   }
 }
 

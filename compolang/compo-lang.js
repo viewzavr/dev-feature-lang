@@ -3877,6 +3877,8 @@ function fill_scope_with_args(env,newscope,attrs) {
 
 // перехватывает создание детей у host-объекта и запихивает их в переменную к нему
 // external - захватывать внешних
+// todo а что делать если надо много уровней? или если мы хотим добавить еще детей через модификатор?
+//
 
 export function catch_children(env) {
   let orig = env.host.restoreChildrenFromDump;
@@ -3915,6 +3917,14 @@ export function catch_children(env) {
       k.$scopeFor = tscope;
 
     //console.log("catch_children tscope",tscope)
+
+    if (env.host.hasParam( pname )) {
+       // оо там уже есть
+       if (env.params.reverse) 
+         v = v.concat( env.host.getParam( pname ) )
+       else      
+         v = env.host.getParam( pname ).concat(v)
+    }
 
     env.host.setParam( pname, v )
     

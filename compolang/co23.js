@@ -94,7 +94,21 @@ export function n_func( env )
 
    я думаю сейчас - лучше так. там можно разно управлять каналами будет - чтобы то ли 1 сигнал присылало, то ли что.
    в общем - значение. это удобно и гибко и всяко ортогонально.
-*/   
+*/
+
+/* заметка
+  сейчас reaction создается бывает после того как вычислен параметр
+  вот нежелание вводить их явно в синтаксис и семантику..
+  пример
+
+  output=(m-eval .... )
+  {{ param @qqe "output" | reaction {:val | 
+      console.log('qqq reaction',val)
+   :} }}
+
+*/
+
+// update а что если целевых аргументов сделать массив? много реакций?..
 
 export function reaction( env ) {
   env.setParam( "make_func_output","f")
@@ -124,8 +138,10 @@ export function reaction( env ) {
   	}
 
     if (!channel?.is_cell) {
-      console.warn("reaction: input is not channel",channel)
-      env.vz.console_log_diag( env )
+      if (channel != null) { // оказалось что бывает еще не вычислились.. а мы уже ругаемся..
+        console.warn("reaction: input is not channel",channel)
+        env.vz.console_log_diag( env )
+      }  
       unsub = () => {}
       return
     }
@@ -145,7 +161,8 @@ export function reaction( env ) {
     })
 
     // возможность отреагировать и на уже записанные данные
-    if (env.params.existing) emit_val( channel.get() )
+    if (env.params.existing && channel.is_value_assigned()) 
+        emit_val( channel.get() )
 
   })
   env.on('remove',() => unsub())
@@ -165,4 +182,3 @@ export function reaction( env ) {
 
 
 // event, param, cmd, и прочие реализованы в comm3.js
-

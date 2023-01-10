@@ -27,9 +27,12 @@ feature "data-load-files" {
       }
       return b;
       }" @qqe->url? @qqe->files? @qqe->src allow_undefined=true)
+    first_file =@qqe.output.0
+     //{{ console-log "first_file=" @qqe.output.0 "@qqe.output=" @qqe.output "@qqe->output" @qqe->output "tt" (param @qqe "output" |get-value) }}
+     //{{ console-log "@qqe" @qqe}}
 
-    gui1={ paint-gui @qqe }
-    gui={
+    gui={ paint-gui @qqe }
+    gui1={
       column ~plashka {
 
         render-params-list object=@qqe list=["title"];
@@ -53,6 +56,28 @@ feature "data-load-files" {
     }
     {
       gui { // на будущее
+        gui-tab "main" {
+          render-params-list object=@qqe list=["title"];
+
+          param_field name="Источник" {
+
+          column {
+            render-params-list object=@qqe list=["src"];
+
+            show-one index=@qqe->src style="padding:0.3em;" {
+              column { render-params-list object=@qqe list=["url"];; };
+              column { render-params-list object=@qqe list=["files"];; };
+              column { files; };
+            };
+
+            //text @qqe->output
+          };
+          };
+        } // main
+        gui-tab "status" {
+          gui-slot @qqe "first_file" gui={ |in out| gui-label @in @out }
+        }
+        /*
         gui-tab {
           gui-switch @qqe "src" values=["URL","Файл с диска","Папка"]
           column {
@@ -67,17 +92,44 @@ feature "data-load-files" {
             }
           }
         }
+        */
       }
 
       param-info "output" out=true
+      param-info "first_file" out=true
     }
     //url="http://127.0.0.1:8080/vrungel/public_local/Kalima/v2/vtk_8_20/list.txt"
     //url="https://viewlang.ru/assets/lava/Etna/list.txt"
     //url=""
 };
 
+coview-record title="Прочитать файл" type="load-text" id="compute"
 
-/////////////////////////////////////////
+feature "load-text" {
+  x: computation 
+  title="Прочитать файл"
+  output=(load-file @x.input?)
+  gui={ paint-gui @x }
+  
+  {
+    gui {
+      gui-tab "main" {
+        gui-slot @x "input" gui={ |in out|
+          text "value="
+          text (read @in | get-value)
+        }
+        gui-slot @x "output" gui={ |in out| gui-text @in @out }
+      }
+    }
+
+    param-info "input" in=true out=true
+    param-info "output" out=true
+  }
+}
+
+
+
+///////////////////////////////////////// летнее
 
 feature "find-file" {
   r: object output=@mm->output {

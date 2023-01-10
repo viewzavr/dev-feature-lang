@@ -31,7 +31,7 @@ export function setup(vz, m) {
      get_value: get_cell_value,
      get_new_value: get_cell_new_value,
      put_value: set_cell_value,
-     //put_value_to: set_cell_value_to,
+     put_value_to: set_cell_value_to,
 
      // еще более новый язык, 12.22 F-CO23
      connect: redirect_to_channel,
@@ -49,7 +49,7 @@ export function setup(vz, m) {
   vz.chain( "create_obj", function (obj,options) {
       obj.get_cmd_cell = (name) => get_cmd_cell( obj, name );
       obj.get_event_cell = (name) => get_event_cell( obj, name );
-      obj.get_param_cell = (name) => get_param_cell( obj, name );
+      obj.get_param_cell = (name,ismanual) => get_param_cell( obj, name, ismanual );
       obj.get_method_cell = (name) => get_method_cell( obj, name );
       obj.get_cell = (name,ismanual) => get_cell( obj, name,ismanual );
       obj.create_cell = create_cell;
@@ -121,6 +121,7 @@ export function create_cell() {
 
   cell.set = (value) => {
     let different = (cell.value != value);
+    //console.log('cell.set',cell.value,value,different)
     // особый случай с NaN
     if (different)
         if (Number.isNaN(cell.value) && Number.isNaN(value))
@@ -314,12 +315,35 @@ export function get_comms_hash( target ) {
 
 // todo придется возможно разделить понятия "ячейка" и далее от нее - параметр, очередь и т.п.
 // и таблица - это будет про любую, а вот create - это уже конкретно про параметры, однако
-export function get_or_create_cell( target,name, default_value ) 
+// assign_default_value должно идти отдельным флагом, т.к. иначе получается что мы можем 
+// выставлять туда и неверные значения... ? например мы когда-то захотем записать undefined, а оно не запишется
+// по признаку (if (default-value)). ну и плюс 0-ки не проходят.
+// if (env.params.existing && channel.is_value_assigned()) 
+export function get_or_create_cell( target,name, default_value, assign_default_value ) 
 {
   let k = get_comm( target, name );
   if (!k) {
     k = create_cell();
-    if (default_value) k.set( default_value );
+    //if (default_value && !assign_default_value) debugger
+    
+    /*
+    if (default_value) {
+      console.log("get_or_create_cell",name,default_value,assign_default_value)
+       k.set( default_value );
+    }*/   
+    if (assign_default_value) {
+      //if (!default_value)
+          //console.log("get_or_create_cell",name,default_value,assign_default_value)
+       k.set( default_value );
+    }       
+
+    /*
+    if (assign_default_value) 
+      k.set( default_value );
+    else
+      if (default_value)
+        debugger
+        */
     bind_comm( target, name,k )
   }
   return k;
@@ -328,18 +352,22 @@ export function get_or_create_cell( target,name, default_value )
 //////////////////////////// 
 
 // todo manual надо будет отработать видимо на уровне опций ячейки, что ли..
-export function get_param_cell( target, name ) {
-  let c = get_or_create_cell( target, name, target.getParam(name) );
+export function get_param_cell( target, name, ismanual ) {
+
+  let name_for_table = ismanual ? "manual:"+name : name
+
+  let c = get_or_create_cell( target, name_for_table, target.getParam(name), target.hasParam(name) );
 
   if (!c.attached_to_params) {
     c.attached_to_params = true;
+    c.ismanual = ismanual
 
     let setting;
     c.on("assigned",(v) => { // мониторим assigned чтобы там свои changed отработали
        if (setting) return;
        try {
          setting = true;
-         target.setParam( name, v );
+         target.setParam( name, v, c.ismanual );
        } finally { 
          setting = false;
        }
@@ -375,7 +403,7 @@ export function get_param_cells( target, names )
 export function get_event_cell( target, name ) {
   //let c = get_or_create_cell( target, "event:" + name, target.getParam(name) );
   // пущай в одном пр-ве имен попробуют жить
-  let c = get_or_create_cell( target, name, target.getParam(name) );
+  let c = get_or_create_cell( target, name, target.getParam(name), target.hasParam(name) );
 
   if (!c.attached_to_compalang) {
     c.attached_to_compalang = [target,name];
@@ -493,7 +521,7 @@ export function get_method_cell( target, name ) {
 
 // универсальное - и для событий и для параметров
 export function get_cell( target, name, ismanual ) {
-  let c = get_or_create_cell( target, name, target.getParam(name) );
+  let c = get_or_create_cell( target, name, target.getParam(name), target.hasParam(name) );
   c.ismanual = ismanual; 
   // todo разделить эти 2 вида йачеек в таблице.. мб по именам
 
@@ -556,7 +584,9 @@ export function get_cell( target, name, ismanual ) {
 // действие - при присвоении значения в аргумент 0 пересылает его в указанный канал
 export function set_cell_value( env ) {
   // нам важно - убедиться что есть значение (хоть даже и undefined) а затем начать процесс его перекидывания 
+  // в противном случае пойдет присвоение лишних деталей
   // мб это потом засунуть в логику monitor_assigned как-то...
+
   if (env.hasParam(0))
       start_process()
   else {
@@ -566,7 +596,7 @@ export function set_cell_value( env ) {
       //env.vz.console_log_diag( env )
       start_process();
     })
-  }    
+  }
 
   function start_process() {  
 
@@ -619,10 +649,12 @@ export function set_cell_value( env ) {
 
 // наоборот, input это значение а 0 это целевой канал. ну как-то так получается..
 // todo переделать это на assigned
-/*
+
 export function set_cell_value_to( env ) {
-  env.onvalues( [0,"input"], (arr, val) => {
+  env.monitor_assigned( [0,"input"], (arr, val) => {
     if (env.params.disabled) return;
+    if (!arr) return
+    if (!env.hasParam("input")) return
 
     let single_elem_mode = false;
     if (!Array.isArray(arr)) { arr=[arr]; single_elem_mode = true };
@@ -632,7 +664,7 @@ export function set_cell_value_to( env ) {
     try {
     arr.forEach( (cell) => {
       if (!cell) return;
-      // console.log("set cell value",cell,val)
+      //console.log("set cell value",cell,val)
       //if (val == 55) debugger;
       if (!cell.set) {
         console.error("set_cell_value: cell.set is not defined. typeof(cell)=",typeof(cell),"cell=",cell, env.getPath())
@@ -655,7 +687,7 @@ export function set_cell_value_to( env ) {
     // чухня все это. надо ответные каналы давать.
   });
 };
-*/
+
 
 // чтение массива ячеек
 // input - массив ячеек
@@ -683,7 +715,7 @@ export function get_cell_value( env ) {
         if (!cell.is_cell) {
           console.log("get_cell_value: input is not a channel; type=",typeof(cell))
           env.vz.console_log_diag( env )
-          //return undefined
+          return undefined
         }
         // медленно и печально, с задержками, всех соединяем...
         //let u = cell.monitor(fnd);
@@ -734,7 +766,7 @@ export function get_cell_new_value( env ) {
         // медленно и печально, с задержками, всех соединяем...
         //let u = cell.monitor(fnd);
         // бодро и быстро
-        let u = cell.on('assigned',fn)
+        let u = cell.on('assigned',() => fn())
         unsub.push( u );
         if (only_subscribe) return
 
@@ -799,10 +831,13 @@ export function get_cell_value_latest( env ) {
 // добавить сюда флаг про manual
 export function feature_get_param_cell( env ) {
 
-  env.onvalues( ["input",0], go);
-  env.onvalues( [0,1], go);
+  if (!env.hasParam("manual"))
+       env.setParam("manual",false);  
 
-  function go (arr, param_name) {
+  env.onvalues( ["input",0,"manual"], go);
+  env.onvalues( [0,1,"manual"], go);
+
+  function go (arr, param_name,ismanual) {
     let single_elem_mode = !Array.isArray(arr);
     if (single_elem_mode) arr=[arr];
     let res = [];
@@ -810,7 +845,7 @@ export function feature_get_param_cell( env ) {
       if (!obj)
         res.push( null);
       else
-        res.push( obj.get_param_cell( param_name ) );
+        res.push( obj.get_param_cell( param_name,ismanual ) );
     });
     
     env.setParam( "output", single_elem_mode ? res[0] : res );

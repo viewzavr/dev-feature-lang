@@ -49,6 +49,8 @@ export function generate_csv( env ) {
 
 }
 
+// вход - df-ка
+// generate-csv2
 export function generate_csv2( env ) {
   env.setParam("include_column_names",true);
 

@@ -419,8 +419,50 @@ register_feature name="render-param-slider" {
   rps: column {
     text text=@..->name;
     row {
-      (list (get-cell-by-path @rps.param_path manual=true) (get-cell input=@sl "value") (get-cell input=@if2 "value"))
-        | bind-cells;
+      /* перестало работать
+      list (get-cell-by-path @rps.param_path manual=true) (get-cell input=@sl "value") (get-cell input=@if2 "value")
+        | bind-cells initial_value=(get-cell-by-path @rps.param_path | get-value);
+      */  
+
+/* зацикливает
+      // передаем имеющееся
+      reaction existing=true (get-cell-by-path @rps.param_path) (get-cell input=@sl "value")
+      reaction existing=true (get-cell-by-path @rps.param_path) (get-cell input=@if2 "value")
+
+      // не передаем имеющееся. но зато когда передаем - ставим флаг manual
+      reaction (get-cell input=@sl "value") (get-cell-by-path @rps.param_path manual=true) 
+      reaction (get-cell input=@if2 "value") (get-cell-by-path @rps.param_path manual=true) 
+*/      
+
+      let param_ch = (get-cell-by-path @rps.param_path)
+          param_ch_m = (get-cell-by-path @rps.param_path manual=true)
+          slider_ch = (get-cell input=@sl "value")
+          editor_ch = (get-cell input=@if2 "value")
+
+/*
+      reaction @param_ch existing=true {: val slider_ch=@slider_ch editor_ch=@editor_ch |
+         if (slider_ch && slider_ch.get() != val)
+             slider_ch.set(val)
+         if (editor_ch && editor_ch.get() != val)    
+             editor_ch.set(val)
+      :}
+      
+      reaction @slider_ch {: val param_ch_m=@param_ch_m |
+         if (param_ch_m && param_ch_m.get() != val)
+             param_ch_m.set( val,true )
+      :}
+
+      // codea reaction (list ....) и там позиционно пусть тупо всех шлет, undefined кроме значения которое пришло
+      reaction @editor_ch {: val param_ch_m=@param_ch_m |
+         if (param_ch_m && param_ch_m.get() != val)
+             param_ch_m.set( val,true )
+      :}
+*/      
+
+      read @param_ch | get-value | pass_if_changed | put-value-to (list @slider_ch @editor_ch)
+      read @slider_ch | get-new-value | pass_if_changed | put-value-to @param_ch
+      read @editor_ch | get-new-value | pass_if_changed | put-value-to @param_ch
+
 
       sl: slider manual=false 
       {

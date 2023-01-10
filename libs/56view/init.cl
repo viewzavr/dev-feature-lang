@@ -137,7 +137,8 @@ feature "visual_process" {
     vp: object
     title="Визуальный процесс"
     visible=true
-    scene3d={ object output=@vp->output?; } // типа это мостик
+    scene3d={ return @vp->output? }
+    //scene3d={ object output=@vp->output?; } // типа это мостик
     //output=@~->scene3d?
     //project=""
 

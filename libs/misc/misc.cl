@@ -544,6 +544,16 @@ feature "comp" {
   }
 }
 
+// времянка эксперимент. времянка т.к заменить на comp и собирать output надо? или что?
+feature "dom-comp" {
+  f: object {{ catch_children "code" external=true }}
+  {
+    feature @f.0 {
+      x: dom_group {{ insert-children input=@x list=@f.code {{ append-positional-params @x }} }}
+    }
+  }
+}
+
 feature "fun" {: env |
   if (env.paramConnected(1))
     return env.feature("jsfunc")
@@ -595,6 +605,12 @@ feature "data"
 {
   data: object output=@data->0;
 };
+
+// дошло до того что все ссылки сейчас сразу все передают..
+// и надо сообразно проверять 
+feature "pass_if_changed" {: env |
+   env.monitor_defined(["input"],(val) => env.setParam("output",val), true )
+:}
 
 // по массиву описания цвета [1,1,1] и прозрачности 0..1 выдает запись rgb для css
 feature "css-color" {
