@@ -84,6 +84,7 @@ register_feature name="checkbox" {
 	};
 };
 
+/*
 register_feature name="checkbox-c" {
 	dom tag="label" //value=true 
 	    dom_style_whiteSpace="nowrap" // это важно чтобы чекбоксы не разрывались
@@ -97,7 +98,7 @@ register_feature name="checkbox-c" {
 		text text=@..->text?;
 	};
 };
-
+*/
 ///////////////////////////////////////////////////// input_float
 /* входы
      value - начальное значение
@@ -109,6 +110,18 @@ register_feature name="input_float" {
 		dom_event name="change" code=`
 				var v = parseFloat( env.params.object.dom.value );
 				env.params.object.setParam("value",v);;
+				env.params.object.emit("user_change",v);
+			`;
+	};
+};
+
+////////////////////////////// input_string
+register_feature name="input_string" {
+	dom tag="input" dom_obj_value=@.->value? {
+		dom_event name="change" code=`
+				var v = env.params.object.dom.value;
+				//env.params.object.setParam("value",v);;
+				env.params.object.emit("user_change",v);
 			`;
 	};
 };
@@ -435,6 +448,7 @@ feature "combobox" {
 		  	//console.log('setting value to',object.params.values[ object.dom.selectedIndex ],'current is', object.params.value)
 			  object.setParam("value",object.params.values[ object.dom.selectedIndex ], true);
 			  object.emit("user_changed_value", object.params.value );
+			  object.emit("user_change", object.params.value );
 		  }
 		:};
 	  

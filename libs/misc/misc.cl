@@ -325,14 +325,14 @@ register_feature name="monitor_all_params" {
 };
 
 
-feature "pause_input" code=`
+feature "pause_input" {: env |
   env.feature("delayed");
   let pass = env.delayed( () => {
     env.setParam("output", env.params.input);
-  },1000/30); // мобуть задержка на пару тактов.. или секунд?
+  }, env.params[0] || (1000/30) ); // мобуть задержка на пару тактов.. или секунд?
 
   env.onvalue("input",pass);
-`;
+:}
 
 feature "restart_input" code=`
   //env.bind_cells( "input","output" );
@@ -500,6 +500,13 @@ feature "add-to-scope" {: env |
 // func "foo" {: a b | return a + b :}
 // console-log (foo 1 2)
 // func занято, поэтому jsfunc
+
+// update это ж вообще не func получился. а некая запускалка вычислений...
+// и результатом func здесь является - именно что результат вычислений. а не например функция.
+// т.е. не получится сказать что-то типа func "foo" .... reaction (foo ...)
+// и еще - к этим jsfunc нет доступа из других jsfunc. это потому что мы "поднимается с уровня js на компаланг"
+// а не "строим уровень базового языка с помощью компаланг"... codea
+// cobug
 feature "jsfunc" {
   f: object {
     //add-to-scope name=@f.0 value=@f.1

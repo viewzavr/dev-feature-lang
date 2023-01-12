@@ -3259,7 +3259,10 @@ export function insert_children( env )
    created_envs = [];
  }
 
- env.on("remove",close_envs)
+ env.on("remove",() => {
+  if (!env.params.keep) // поведение "оставить, не удалять.."
+      close_envs()
+ })
 
 }
 

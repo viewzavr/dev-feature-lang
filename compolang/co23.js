@@ -11,7 +11,7 @@ export function setup(vz, m) {
 // реализация n-func
 // nfunc code=code positional_args=["list","of","names"] named_args1=... named_arg2=...
 // см также в pegjs код js_inline 
-export function n_func( env ) 
+export function n_func( env )
 {
   //env.monitor_values
   //console.log( "n-func feature called")
