@@ -31,31 +31,34 @@ register_feature name="plashka" {
 
 feature "sort_by_priority"
 {
-    eval code="(arr) => {
-       if (!env.params.input) return [];
+    m-eval {: arr |
+       //if (!env.params.input) return [];
        let qprev;
-       for (let q of env.params.input) {
+       for (let q of arr) {
          if (q.params.block_priority == null)
           {
-            if (qprev)
-              q.setParam('block_priority', qprev.params.block_priority+1,true);
-            else
-              q.setParam('block_priority',0,true);
+            //if (qprev)
+            //  q.setParam('block_priority', qprev.params.block_priority+1,true);
+            //else
+            q.setParam('block_priority',0,true);
           }
-          else
-          if (qprev && q.params.block_priority == qprev.params.block_priority)
+         
+         if (qprev && q.params.block_priority == qprev.params.block_priority)
             q.setParam('block_priority', qprev.params.block_priority+1,true);
+
          qprev = q;   
        }
-       //console.log('after cure, arr is ',env.params.input);
-       return env.params.input.sort( (a,b) => {
+
+       //console.log('after cure, arr is ',arr);
+
+       return arr.sort( (a,b) => {
         function getpri(q) { 
             return q.params.block_priority;
           }
         return getpri(a) - getpri(b); 
        })
-       }";    
-};
+   :}
+}
 
 feature "created_mark_manual" {
   onevent name="created" 

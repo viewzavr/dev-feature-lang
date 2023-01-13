@@ -9,7 +9,8 @@ project: the_project
 
   layer title="Физкульт-привет" {
     process output=(list @pts) {
-      pts: points positions=[1,2,3, 5,5,2 ]
+      pts: cv_spheres input=(df_create X=[0,1,2] Y=[1,1,5] Z=[1,0,1])
+      //pts: cv_spheres input=(df positions=[1,2,3, 5,5,2 ]
     }
     camera pos=[10,10,10];
   }

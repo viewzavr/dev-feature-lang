@@ -1,6 +1,6 @@
 load "
 ./cats.cl 
-lib.cl 
+coview-lib.cl 
 gui-system/init.cl 
 render-project-gui/init.cl
 addons-system/init.cl

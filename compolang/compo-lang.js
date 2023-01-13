@@ -3166,7 +3166,7 @@ export function insert_children( env )
      let ii=0;
 
      function create_scope_for_item(tenv) {
-      let $scopeFor = tenv.$scopes.createAbandonedScope("created by insert_children "+env.$vz_unique_id);
+      let $scopeFor = tenv.$scopes.createAbandonedScope("created by insert_children " + env.$locinfo);
        if (using_children)
            $scopeFor.$lexicalParentScope = env.$scopes.top();
        if (env.$use_scope_for_created_things)
@@ -3889,7 +3889,11 @@ export function catch_children(env) {
 
   env.host.restoreChildrenFromDump = (dump, ismanual, $scopeFor) => {
 
+    // if (env.host.params.debug) 
+    // console.log("mememe catch",env.host.getPath(),env.host,counter,dump)
+
     counter++;
+
     // смешно то, что это прилетает restore-state еще - это случай ismanual
     if ((env.params.external && counter == 1) || ismanual) // это внутренние стало быть, первый заход; и его надо провести как обычно; а ловить надо внешние
       return orig( dump,ismanual,$scopeFor )
@@ -3903,12 +3907,16 @@ export function catch_children(env) {
     if (env.params.if_not_empty && children_env_list.length == 0) {
         return Promise.resolve("success");
     }
+
+    
     
     //console.log("catch-children assigning to", children_env_list )
 
     // надо утырить еще и scope ихнее...
     
     let tscope = env.host.$scopes[ env.host.$scopes.length - counter]
+
+    if (!tscope) debugger
 
     //if (env.params.debug) debugger
 

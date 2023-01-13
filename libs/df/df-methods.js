@@ -10,6 +10,13 @@ export function setup(vz, m) {
 */
 }
 
+export function df_create(env) {
+ let output = df.create();
+ //env.setParam("output",output)
+ env.setParam("input",output)
+ env.feature("df_set")
+}
+
 /* df_create_from_arrays columns=["X,Y,Z,TEXT"] input=(list @arr1 @arr2);
 */
 export function df_create_from_arrays(env) {
@@ -42,13 +49,20 @@ export function df_set( env, opts ) {
    var colvals = env.params;
    // моно сделать фильтр что выставлено из языка
    for (let colname of cols) {
+     if (colname == "output" || colname == "input") continue
+
      var colvalue = colvals[colname];
      var colarr;
      if (typeof(colvalue) == "string" && colvalue.slice(0,2) == "->" ) {
         colarr = value[ colvalue.slice( 2 ) ] || []; // так-то get_column здесь..
      }
-     else
-        colarr = new Array( df.get_length(value) ).fill(colvalue); // так то тут выгоднее ставить функцию было бы
+     else {
+        // если colvalue это уже массив
+        if (Array.isArray(colvalue))
+          colarr = colvalue.slice(0)
+        else
+          colarr = new Array( df.get_length(value) ).fill(colvalue); // так то тут выгоднее ставить функцию было бы
+     }        
         // но для этого df должен уметь поддержать колонку-функцию
         // и кстати эта ф-я не обязана быть константой...
         // но надо решить вопросы с копированием тогда..

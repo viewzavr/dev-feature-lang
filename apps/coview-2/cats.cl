@@ -143,22 +143,28 @@ feature "load-text" {
 }
 
 /////////////////////
-coview-record title="Сферы" type="spheres_vp_3d" cat_id="basic"
+coview-record title="Сферы" type="cv_spheres" cat_id="basic"
 
 // вопрос как передать addons в меш..
-feature "spheres_vp_3d" {
+feature "cv_spheres" {
   vp: visual-process
-   ~editable-addons
    title="Сферы"
    gui={ paint-gui @vp }
-  ~spheres {
+   ~editable-addons
+   ~spheres 
+   {
     param-info "input" in=true // df-ка
 
-    //console-log "vvv" @vp.output
+    //console-log "vvv" @vp.input
 
-    gui {
+    gui debug=true {
+      //kkk: console-log "hi from spheres" @kkk
       gui-tab "main" {
-        gui-slot @vp "input" gui={ | in out| gui-df @in @out }
+        gui-slot @vp "input" gui={ |in out| gui-df @in @out;
+           //me: console-log "invalue=" (read @in | get-value) "in=" @in me=@me; 
+           //link from="@in->." to="@k->1" debug=true
+           //k: object
+         }
       }
       gui-tab "view" {
       render-params @vp
@@ -167,7 +173,7 @@ feature "spheres_vp_3d" {
              filters={ params-hide list="visible"; };
       }
       gui-tab "addons" {
-    manage-addons @vp->mesh;
+        manage-addons @vp;
       }
     }
   }

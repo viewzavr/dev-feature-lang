@@ -27,12 +27,15 @@ feature "my-object" {
 
 feature "gui" {
 	y: object {{ catch_children "code" reverse=true }} 
-	   { 
+
+	   	/* это робит но вставим в рисователь
+	   	{
 	   	gui-tab "debug" {
 	      button "inspect" on_click={: guiobj=@y | 
 	    	  if(guiobj) console.log( guiobj.ns.parent )
 	    	:}
-	  } }
+	    }*/
+	    
 }
 
 // задача - добавить табу inspect всем гуи-объеткам
@@ -62,13 +65,19 @@ feature "gui-add-inspect-tab" {
 append_feature "gui" "gui-add-inspect-tab"
 */
 
+let xtra_gui_codes={	   	
+	    
+	  }
+
 
 // paing-gui @object
 feature "paint-gui" {
 	x: column gap="0.2em" {
 		let target = @x->0
+		//console-log "target=" @target
 		
-		let gui_records = (read @target | get-children-arr | arr_filter_by_features features="gui")
+		let gui_records = (find-objects-bf "gui" root=@target depth=1)
+		//let gui_records = (read @target | get-children-arr | arr_filter_by_features features="gui")
 		//console-log "gui_records=" @gui_records "gui_codes=" @gui_codes	"gui_tabs=" 
 		//@gui_tabs "chi=" (@gui_space | get-children-arr)
 
@@ -79,11 +88,12 @@ feature "paint-gui" {
 */		
 
 		let gui_codes = (read @gui_records | map-geta "code" | arr_flat)
+		//console-log "gui_codes=" @gui_codes
 		insert_children list=@gui_codes input=@gui_space always_recreate=true
 
 		// gui_space: object
 
-		let gui_tabs = (@gui_space | get-children-arr | arr_filter_by_features features="gui-tab")
+		let gui_tabs = (@gui_space | get-children-arr | arr_filter_by_features features="gui-tab" | sort_by_priority)
 
         ssr: switch_selector_row 
                  index=0
@@ -94,7 +104,17 @@ feature "paint-gui" {
 
         // todo можно будет не index передавать а объект. надежней
         
-        gui_space: show_one index=@ssr->index
+        gui_space: show_one index=(read @gui_tabs | geta @ssr->index) {
+        	if @target { 
+	        	gui-tab "Общее" block_priority=10 {
+	        		gui-slot @target "title" gui={ |in out| gui-string @in @out }
+
+				      button "Отладка" on_click={: guiobj=@target | 
+				    	  if(guiobj) console.log( guiobj )
+				    	:}
+				    }
+			    }
+        }
 
         //read @gui_space | get-children-arr | console_log_input "YYY"
 	}

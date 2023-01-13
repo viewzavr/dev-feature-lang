@@ -351,13 +351,15 @@ feature "area_3d" {
       opacity_3d=1.0
   show={
       dom_group {
-        let has_3d_sources = (@it.sources | map_geta "scene3d" default=null | arr_compact) 
+        //let has_3d_sources = (@it.sources | map_geta "scene3d" default=null | arr_compact) 
+
         // получается еще и дублирование с effective-visible эффектом.. ну ладно
         //console-log "@has_3d_sources=" @has_3d_sources
         dom_group {
-            if (@has_3d_sources.length > 0) then={
-               show_area_3d input=@it visible=((@it.sources | filter_geta "scene3d" | filter_geta "visible" | geta "length") > 0)
-            }
+            //if (@has_3d_sources.length > 0) then={
+               show_area_3d input=@it 
+                 //visible=((@it.sources | filter_geta "scene3d" | filter_geta "visible" | geta "length") > 0)
+            //}
         }
 
         d2: dom_group
@@ -609,19 +611,20 @@ feature "show_3d_scene_r" {
 feature "show_area_3d" {
   area_rect: dom style_k="border: 1px solid grey;" 
      scene2d_tgt=@dg
-             {{ show_area_base input=@area_rect->input }}
+       {{ show_area_base input=@area_rect->input }}
   {
     process_rect: show_3d_scene_r
         //camera_control={ map-control }
         // renderer - установим снаружи..
 
         scene3d=(
-            @area_rect.input.sources | map { |source|
+            @area_rect.input.sources 
+            | map { |source|
                 find-objects-bf "node3d" root=@source recursive=false 
                   // | фильтрация какая-то? например "это есть результат"
                   | map_geta "output" 
             } 
-            | arr_flat
+            | arr_flat 
         )
 
         scene3d_next=(@area_rect.input.sources 
@@ -723,7 +726,6 @@ feature "walk_objects" {
                    obj: obj} }" 
          @k->0 (@k->0 | geta "title") @k->depth);
       let my_items = (read @k->0 | geta @k->1 default=[])
-      // console-log "k=" @k.getPath "k.0=" @k.0?.getPath? "found items=" @my_items;
       
       let my_items_result=(
         read @my_items | repeater { |input|

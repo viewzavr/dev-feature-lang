@@ -359,7 +359,7 @@ export function get_param_cell( target, name, ismanual ) {
   let c = get_or_create_cell( target, name_for_table, target.getParam(name), target.hasParam(name) );
 
   if (!c.attached_to_params) {
-    c.attached_to_params = true;
+    c.attached_to_params = { target: target, name: name, mode: "param", ismanual: ismanual }
     c.ismanual = ismanual
 
     let setting;
@@ -406,7 +406,7 @@ export function get_event_cell( target, name ) {
   let c = get_or_create_cell( target, name, target.getParam(name), target.hasParam(name) );
 
   if (!c.attached_to_compalang) {
-    c.attached_to_compalang = [target,name];
+    c.attached_to_compalang = {target:target,name:name,mode:"event"};
 
     let setting;
 
@@ -526,7 +526,7 @@ export function get_cell( target, name, ismanual ) {
   // todo разделить эти 2 вида йачеек в таблице.. мб по именам
 
   if (!c.attached_to_params) {
-    c.attached_to_params = true;
+    c.attached_to_params = { target: target, name: name, mode: "universal", ismanual: ismanual };
 
     let setting;
     c.on("assigned",(v) => { // мониторим assigned чтобы там свои changed отработали
@@ -1258,7 +1258,10 @@ export function redirect_to_channel( env ) {
     if (!arr) return;
     if (!Array.isArray(arr)) arr=[arr];
     arr.forEach( (cell) => {
-      cell.set( v );
+      if (cell.bind) // ну бывает я туда функции запихиваю.. а так.. - почти reaction получается
+        cell.call( this, v)
+      else
+        cell.set( v );
     });
   }
 };

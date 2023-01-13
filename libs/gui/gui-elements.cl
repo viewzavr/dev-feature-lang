@@ -348,6 +348,19 @@ feature "cb-follow-last" {: env |
   });	
 :}
 
+feature "cb-follow-last-on-length-change" {: env |
+	let main = env.host
+	let prev_len
+	main.onvalue("titles",() => {
+ 	    let len = main.params.titles.length
+ 	    if (len != prev_len) {
+ 	    	prev_len = len
+ 	    	let index = main.params.titles.length-1
+ 	    	main.setParam("index",index)
+ 	    }
+  });	
+:}
+
 feature "combobox" {
 	cbroot: dom tag="select" {{
 
@@ -632,7 +645,7 @@ register_feature name="show_one" {
 					  // то ли в субфичи его загонять то ли в eval превращать а его делать тоже особым/в альт дерево загоняемым
 					  if (c.is_feature_applied("link") || c.is_feature_applied("repeater") || c.is_feature_applied("js")) continue;
 					  // todo тут наоборот надо проверять что оно dom..
-					  let v = (i == index);
+					  let v = (i == index) || (c == index);
 						c.setParam("visible", v)
 						i++;
 				}

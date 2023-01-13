@@ -42,8 +42,8 @@ export function dialog( obj, opts )
 
   obj.setParam("output",null); // чтобы не затаскивали в свои дом-ы
 
-  obj.show = () => { obj.emit("show"); obj.dom.show(); }
-  obj.showModal = () => { obj.emit("show"); obj.dom.showModal(); }
+  obj.show = () => { obj.emit("show"); obj.emit("opened"); obj.dom.show(); }
+  obj.showModal = () => { obj.emit("show"); obj.emit("opened"); obj.dom.showModal(); }
   
   // совместимость - надоело запоминать что там
   obj.open = obj.show;
