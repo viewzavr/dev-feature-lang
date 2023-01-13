@@ -261,6 +261,12 @@ export function map_geta( env )
   }
 
   function get_one_item( input, name, params, current_arg_pos, cb, unsub_struc ) {
+/*
+    if (name == "items") {
+      console.log("get_one_item",input,name)
+      debugger
+    }
+*/    
     
     if (input.trackParam) {
       // это у нас объект и сообразно там все может быть
@@ -306,6 +312,8 @@ export function map_geta( env )
       }
 
       //////////////////// дите?
+      /* не будет доступа к дитям через ето. надо как-то отдельно scope заводить или типа того,
+         единое пр-во для всех.. и параметров и событий и т.п.
       let cc = input.ns.getChildByName( name )
       if (cc) {
         let u = cc.on("parent_change",() => get_one( input, params, current_arg_pos, cb));
@@ -313,6 +321,7 @@ export function map_geta( env )
 
         return go_next_level( cc, params, current_arg_pos,cb,unsub_struc,u );
       }
+      */
 
       // ну все, специальные вещи кончились - уходим на обычный подход
       
@@ -329,7 +338,7 @@ export function map_geta( env )
 
     // это у нас не объект вьюзара, обращаемся просто как к js структуре
     // так-то можно было бы универсальное событие track_change по имени и там неважно - параметр или что..
-    let nv = input[ name ];
+    let nv = input.trackParam ? null : input[ name ];
     //console.log("get_one name=",name,"nv=",nv,"input=",input)
     
     if (typeof(nv) === "function" && !(env.params.eval || env.params.fok))
