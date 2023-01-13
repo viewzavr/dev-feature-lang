@@ -34,7 +34,10 @@ export function find_objects_bf( env  ) {
   ////// отладка
   let log = () => {};
   env.onvalue("debug",(v) => {
-    if (v) log = console.log;
+    if (v) log = (...args) => {
+      console.log(...args)
+      env.vz.console_log_diag( env )
+    };
     else log = () => {};
   })
 
@@ -128,26 +131,29 @@ export function find_objects_bf( env  ) {
     // поэтому приведем все к "стандартному" виду.
     features = features.map( str => str.replaceAll("_","-"));
 
-
-    traverse_if( root,(obj) => process_one_obj( obj, features ), env.params.include_subfeatures );
+    traverse_if( root,(obj,depth) => process_one_obj( obj, features, depth ), env.params.include_subfeatures, env.params.depth );
   }
 
-  function process_one_obj (obj, features ) {
+  function process_one_obj (obj, features, depth ) {
+
+      if (depth < -1) return false // закончили обход
 
       unsub_for_obj( obj );
-      //if (env.params.debug)
-        //console.log("find-objects process_one_obj",obj.getPath(),features)
+      if (env.params.debug)
+        console.log("find-objects process_one_obj",obj.getPath(),features, depth, "root=",env.params.root ? env.params.root.getPath(): null )
+      //if (depth < 0) debugger
 
       // 1. ходить по фичам объекта и если все нашли - то фиксируем это
       let unsub = { f: () => {} };
       walk_on_obj_features( obj, features,0, () => {
         // наш клиент
         // доп условие
-        log("fobf: next object found",features,obj);
+        
         //debugger;
         //next_object_found( obj )
         if (env.params.include_root || (!env.params.include_root && obj !== env.params.root)) {
-            next_object_found( obj,features )
+            log("fobf: next object found",features,obj,depth, "root=",env.params.root );
+            next_object_found( obj,features, depth )
         }
         //env.emit("next_object_found", obj );
       }, unsub );
@@ -157,7 +163,7 @@ export function find_objects_bf( env  ) {
       // идея - нельзя ли тут нам как-то красиво подписать объект appendChild на вот это событие перенаправить?...
       let apc_unsub2 = obj.on("rescan-find-objects",() => {
         // process_one_obj(obj)
-        traverse_if( obj,process_one_obj,env.params.include_subfeatures );
+        traverse_if( obj,(obj,depth) => process_one_obj( obj, features, depth ),env.params.include_subfeatures, depth );
         // тут место для утечки - если объект уже был подписан и просканирован, то мы получается
         // сейчас повторно на-подписываемся.
         // нам бы тогда сохранять, на кого мы уже подписки все нужные оформили?
@@ -174,7 +180,7 @@ export function find_objects_bf( env  ) {
          //console.log("fobf: obj-append-child",cobj.getPath());
          //log("fobf: obj-append-child",features, cobj.$features_applied, cobj);
          if (!is_object_in_found_set( obj ) || env.params.recursive)
-              process_one_obj(cobj,features);
+              process_one_obj(cobj,features, depth-1 );
             // тут бы traverse_if + отслеживание если уже отслеживаем
       });
       add_obj_unsub( obj, apc_unsub );
@@ -189,7 +195,7 @@ export function find_objects_bf( env  ) {
 
   //env.on("next_object_found",(obj))
   // здесь могут быть дубликаты
-  function next_object_found(obj,features) {
+  function next_object_found(obj,features, depth) {
     let id = obj.$vz_unique_id;
     if (result_object_ids[id]) return; // такое уже у нас есть
     result_object_ids[id] = id;
@@ -209,7 +215,7 @@ export function find_objects_bf( env  ) {
         delete result_object_ids[id]; 
         uniq_object_disappeared( obj );
         // убрались из резульатов и опять себя мониторим
-        process_one_obj( obj,features );
+        process_one_obj( obj,features,depth );
       })
       add_obj_unsub( obj, u2 );
     }
@@ -275,12 +281,16 @@ export function find_objects_bf( env  ) {
 // поиск - обход всех детей с вызовом fn
 function traverse_if( obj, fn, include_subfeatures, depth_avail_left ) 
 {
+  //if (typeof(depth_avail_left) != "undefined" && depth_avail_left < 0) return
+  let next_depth = depth_avail_left-1
 
-  if (!fn( obj )) return;
+  if (!fn( obj,next_depth )) return;
+
+  // if (next_depth < 0) return
   
   var cc = obj.ns.getChildren();
   for (var cobj of cc) {
-    traverse_if( cobj,fn,include_subfeatures, depth_avail_left-1 );
+    traverse_if( cobj,fn,include_subfeatures, next_depth );
   }
 
   if (include_subfeatures) {
@@ -288,15 +298,15 @@ function traverse_if( obj, fn, include_subfeatures, depth_avail_left )
     // экспериментально - пойдем ка по прицепленным фичам
     cc = obj.$feature_list_envs || [];
     for (var cobj of cc) {
-      traverse_if( cobj,fn,include_subfeatures, depth_avail_left-1 );
+      traverse_if( cobj,fn,include_subfeatures, next_depth );
     }
-  }  
+  }
 
   // возможность указать дополнительный маршрут
   // важно - проверки на циклы нет
   cc = obj.$find_objects_follow_list || [];
   for (var cobj of cc) {
-    traverse_if( cobj,fn,include_subfeatures, depth_avail_left-1 );
+    traverse_if( cobj,fn,include_subfeatures, next_depth );
   }
 }
 
