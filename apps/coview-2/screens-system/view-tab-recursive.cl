@@ -31,34 +31,7 @@ feature "the_view_recursive"
     }
     active_area = null
     gui={ // это контролы для диалога
-      render-params @tv;
-
-      cb: combobox values=(@tv->list_of_areas | map_geta "id") 
-                   titles=(@tv->list_of_areas | map_geta "title")
-                   index=0 dom_size=5
-      ;
-
-      let selected_object = (@tv->list_of_areas | geta @cb->index default=null | geta "obj");
-
-      // console_log "selected_object = " @selected_object;
-      // @selected_object | m_eval "(obj) => console.log( 'sel obj get path',obj.getPath() );";
-
-      read @tv | get-cell "active_area" | set-cell-value @selected_object;
-
-      //render-params @curobj;
-
-     co: column ~plashka style_r="position:relative; overflow: auto;"  
-      {
-        column {
-          text "Параметры области"
-          //text ()
-          insert_children input=@.. list=(@selected_object | geta "gui" default=null);
-        };
-
-        button "x" style="position:absolute; top:0px; right:0px;" 
-          on_click={: obj=@selected_object | obj.removedManually = true; obj.remove() :}
-
-     };
+      paint-gui @tv
 
     }
 
@@ -92,6 +65,39 @@ feature "the_view_recursive"
        })
        // а еще идея активировать сей экран ~~cv2idea
        // и идея находить теги по ~~
+
+       gui {
+        gui-tab "main" {
+            render-params @tv;
+
+              cb: combobox values=(@tv->list_of_areas | map_geta "id") 
+                           titles=(@tv->list_of_areas | map_geta "title")
+                           index=0 dom_size=5
+              ;
+
+              let selected_object = (@tv->list_of_areas | geta @cb->index default=null | geta "obj");
+
+              // console_log "selected_object = " @selected_object;
+              // @selected_object | m_eval "(obj) => console.log( 'sel obj get path',obj.getPath() );";
+
+              read @tv | get-cell "active_area" | set-cell-value @selected_object;
+
+              //render-params @curobj;
+
+             co: column ~plashka style_r="position:relative; overflow: auto;"  
+              {
+                column {
+                  text "Параметры области"
+                  //text ()
+                  insert_children input=@.. list=(@selected_object | geta "gui" default=null);
+                };
+
+                button "x" style="position:absolute; top:0px; right:0px;" 
+                  on_click={: obj=@selected_object | obj.removedManually = true; obj.remove() :}
+
+             };
+        }
+       }
    }
 };
 

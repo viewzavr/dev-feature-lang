@@ -16,7 +16,7 @@ feature "manage_animation" {
       active_view_tab=@..->active_view_tab
       render_project=@..->render_project
     	{
-        animations_panel objects=(@vp->project | geta "processes") 
+        animations_panel 
                          active_view_tab=@vp->active_view_tab
                          project=@vp->project
                          render_project=@vp->render_project

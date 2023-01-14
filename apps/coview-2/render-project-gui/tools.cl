@@ -263,7 +263,8 @@ feature "render_project" {
 
             {
 
-               row  style_qq="margin-bottom:15px;" {
+               row {
+
                  top_row: row {
                   @top_row | insert_children list=@rend.top_row_items?;
                  }; 
@@ -272,7 +273,9 @@ feature "render_project" {
                  index=@rend->active_view_index
                  items=(@rend->sorted_views | map_geta "title")
                  {{ hilite_selected }}
-                  ;
+                 visible=(@ssr.items.length > 1)
+                 style_qq="margin-bottom:15px;"
+                 ;
                };
 
 /*
@@ -284,7 +287,7 @@ feature "render_project" {
          */
 
        collapsible "Команды" // {{ set_dom_children list=(@xtra_items | get_children_arr | sort_by_priority) }}
-           style="padding-left:2em; min-width: 80px; position:absolute; right: 1em; top: 1em; gap: 0.2em;"
+           style="padding-left:2em; min-width: 150px; position:absolute; right: 1em; top: 1em; gap: 0.2em;"
            style_fit_h="max-height: 80vh; overflow-y: auto" 
            ~plashka
          {
@@ -316,7 +319,7 @@ feature "render_project" {
       ;
       
        of: one_of 
-              index=@ssr->index
+              index=(m-eval {: index=@ssr->index arr=@rend->sorted_views | return Math.min( index, arr.length-1 ) :})
               list={ // cotask - генерить бы такие описания репитером - милое дело. но тогда createObject должно перехватываться.. codea!
                 show_visual_tab rend=@rend input=(@rend->project | geta "views" | geta 0 default=null); // так то.. так то.. показывай просто текущий, согласно project[index].. но параметры сохраняй...
                 show_visual_tab rend=@rend input=(@rend->project | geta "views" | geta 1 default=null);
