@@ -1,5 +1,7 @@
 load "gui-system/init.cl"
+// непонятно почему это здесь
 load "lib/init.cl"
+load "plugins/init.cl"
 
 // Конкретные категории
 
@@ -10,6 +12,7 @@ coview-category title="Надписи" id="gr2d"
 
 coview-category title="Слои" id="layer"
 coview-category title="Экраны" id="screen"
+coview-category title="Плагины" id="plugin"
 
 coview-record title="Загрузчик файлов" type="data-load-files" cat_id="data"
 

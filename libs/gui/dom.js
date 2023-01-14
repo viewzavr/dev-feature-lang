@@ -637,7 +637,7 @@ export function sort_dom_children( env ) {
      k = k.sort( (a,b) => {
          function getpri(q) { 
             if (!q.hasParam(fieldname))
-               q.setParam( fieldname, 50 );
+               q.setParam( fieldname, 0 );
             return q.params[fieldname];
          }
          return getpri(a) - getpri(b);

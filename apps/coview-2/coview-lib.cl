@@ -83,8 +83,8 @@ feature "layer" {
                      index=0 
                      dom_size=(m-eval {: arr=@list_of_layer_items | return Math.min( 10, 1+arr.length ) :})
 
-            row {
-              bplus:  button "+ добавить"
+            row gap="0.1em" {
+              bplus:  button "+ добавить" class="important_button"
               bminus: button "-"
               bup:    button "↑"
               bdown:  button "↓"
@@ -188,4 +188,10 @@ feature "camera" {
       }
     }
   }
-};
+}
+
+feature "plugin" 
+{
+  tv:  layer_object
+  title="Плагин"
+}

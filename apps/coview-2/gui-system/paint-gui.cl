@@ -65,10 +65,9 @@ feature "gui-add-inspect-tab" {
 append_feature "gui" "gui-add-inspect-tab"
 */
 
-let xtra_gui_codes={	   	
-	    
-	  }
+let xtra_gui_codes={}
 
+feature "paint_gui_show_tabs"
 
 // paing-gui @object
 feature "paint-gui" {
@@ -105,9 +104,12 @@ feature "paint-gui" {
 
         // todo можно будет не index передавать а объект. надежней
         
-        gui_space: show_one index=@current_tab {
+        gui_space: show_one index=@current_tab 
+          ~paint_gui_show_tabs 
+          target=@target 
+          {
         	if @target { 
-        		// todo вынести в фичи, в отд модуль
+        		// todo мб вынести в фичи, в отд модуль
         		if @x.show_common {
 		        	gui-tab "Общее" block_priority=10 {
 		        		gui-slot @target "title" gui={ |in out| gui-string @in @out }

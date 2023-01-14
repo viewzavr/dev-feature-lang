@@ -283,18 +283,19 @@ feature "render_project" {
          render_project=@rend;
          */
 
-       right_col: column // {{ set_dom_children list=(@xtra_items | get_children_arr | sort_by_priority) }}
-         style="padding-left:2em; min-width: 80px; position:absolute; right: 1em; top: 1em; gap: 0.2em;"
-         style_fit_h="max-height: 80vh; overflow-y: auto"
-         {{ sort_dom_children }}
-
-         ~render_project_right_col 
-         project=@rend->project
-         active_view=@rend->active_view
-         active_view_tab=@of->output
-         render_project=@rend
+       collapsible "Команды" // {{ set_dom_children list=(@xtra_items | get_children_arr | sort_by_priority) }}
+           style="padding-left:2em; min-width: 80px; position:absolute; right: 1em; top: 1em; gap: 0.2em;"
+           style_fit_h="max-height: 80vh; overflow-y: auto" 
+           ~plashka
          {
+           column ~render_project_right_col style_qq="padding-left: 10px;" gap="0.2em"
+           {{ sort_dom_children }}           
+           project=@rend->project
+           active_view=@rend->active_view
+           active_view_tab=@of->output
+           render_project=@rend
          }
+         
 
 
        // теперь надо рендерер. как выяснилось он таки один должен быть даже на все экраны, иначе падает браузер 

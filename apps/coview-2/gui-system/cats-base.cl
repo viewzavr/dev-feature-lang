@@ -44,7 +44,7 @@ fun "gather-cats" { |id_array|
 
 feature "manage-lists-dialog" {
   dlg: dialog 
-    style_w="min-width: 400px"
+    style_w="min-width: 600px; min-height: 500px;" // todo увеличивать эти значения по мере роста диалога
     list=@.->0
     below={
       row gap="0.2em" {
