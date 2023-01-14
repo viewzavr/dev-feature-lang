@@ -182,11 +182,11 @@ feature "object_change_type"
             titles=@cot->titles?
             value=(detect_type @cot->input? @cbb->values?)
             style="width: 120px;"
-           {{ on "user_changed_value" {
+            {{ on "user_change" {
               lambda @cot->input? @cot code=`(obj,cot, v) => {
                 // вот мы спотыкаемся - что это, начальное значение или управление пользователем
 
-                console.log("existing obj",obj,"creating new obj type",v);
+                // console.log("existing obj",obj,"creating new obj type",v);
 
                 let dump = obj.dump();
 
@@ -209,7 +209,7 @@ feature "object_change_type"
                 Promise.allSettled( newobj.manual_feature( v ) ).then( () => {
                   newobj.manuallyInserted=true;
 
-                  console.log("setted manual feature",v);
+                  //onsole.log("setted manual feature",v);
 
                   if (dump) {
                     if (dump.params) {
@@ -224,7 +224,7 @@ feature "object_change_type"
                     console.log("created obj", newobj)
                   }
 
-                  cot.emit('type-changed');
+                  cot.emit('type-changed', newobj);
                 });
                 
 
@@ -255,96 +255,9 @@ feature "object_change_type"
 */
 
 
-feature "render_layers_inner" {
-
-rl_root: 
-    column text=@.->title
-    style="min-width:250px" 
-    style_h = "max-height:80vh;"
-    {
-     s: switch_selector_row {{ hilite_selected }} 
-         items=(@rl_root->items | arr_map code="(v) => v.title")
-         ~plashka style_qq="margin-bottom:0px !important;"
-         ;
-
-     link to="@ba->add_to" from=(@rl_root->items | geta @s->index | geta "add_to")
-          {{ attach_scope @rl_root -2 }}
-           ;
-          
-     ba: button_add_object 
-              add_type=(@rl_root->items | geta @s->index | geta "add");
-
-     objects_list:
-     find-objects-bf (@rl_root->items | geta @s->index | geta "find") 
-                     root=@rl_root->root
-                     recursive=false
-                     include_root=false
-     | sort_by_priority;
-     ;
-
-     /// выбор объекта
-
-     cbsel: combobox style="margin: 5px;" dom_size=5 
-       values=(@objects_list->output | arr_map code="(elem) => elem.$vz_unique_id")
-       titles=(@objects_list->output | map_param "title")
-       visible=( (@cbsel->values |geta "length") > 0)
-       ;
-
-    /// параметры объекта   
-
-     co: column ~plashka style_r="position:relative; overflow: auto;"  
-            input=(@objects_list->output | geta @cbsel->index? default=null)
-            visible=(@co->input?)
-      {
-        row visible=((@co->input?  | geta  "sibling_types" | geta "length" default=0) > 1) 
-        {
-          object_change_type input=@co->input?
-            types=(@co->input?  | geta  "sibling_types" )
-            titles=(@co->input? | geta "sibling_titles")
-            //types=(@co->input  | geta  "items" | geta (i_call_js code="Object.keys"))
-            //titles=(@co->input  | geta  "items" | geta (i_call_js code="Object.values"))
-            ;
-        };
-
-        column {
-          insert_children input=@.. list=(@co->input? | geta "gui" default=[]);
-        };
-
-        if (has_feature input=@co->input? name="editable-addons") then={
-          manage_addons input=@co->input?;
-        };
-
-        button "x" style="position:absolute; top:0px; right:0px;" 
-        {
-          lambda @co->input? code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
-        };
-
-     };
-
-
-  };   
-
-};
-
-
-// добавляет запись в таблицу типов
-// todo сделать проще, просто @some->items | geta "push" {record};
-feature "add_sib_item" code=`
-  env.onvalues([0,1,2],(tgt,code,title)=> {
-    let nv = (tgt.params.sibling_types || []).concat([code]);
-    let nv2 = (tgt.params.sibling_titles || []).concat([title]);
-    tgt.setParam("sibling_types",nv);
-    tgt.setParam("sibling_titles",nv2);
-    // может быть еще уж добавлять append-feature
-    // env.vz.register_feature_append( code,tgt.params.name );
-    // todo подумать не запутает ли это нас
-  })
-`;
-
-
 // по объекту выдает его первичный тип (находя его в массиве types)
 // эта странная вещь т.к. я отказался от типа объекта и теперь его не знаю. хм.
-detect_type: feature {
+feature "detect_type" {
   eval code="(obj,types) => {
     //console.log('detect_type:',obj,types)
     if (!(obj && types)) return null;
@@ -365,99 +278,6 @@ detect_type: feature {
 
 };
 
-/*
- вход:
-    items - описание слоев где каждая запись
-      title="Основное" 
-      objects=(find-objects-bf "datavis" root=@v)
-      add="linestr" 
-      add_to=@v;
-*/      
-
-feature "render_layers_inner_3" {
-
-rl_root: 
-    column text=@.->title
-    style="min-width:250px" 
-    style_h = "max-height:80vh;"
-    {
-      let items=(create-objects input=@rl_root->items);
-
-     s: switch_selector_row {{ hilite_selected }}
-         items=(@items | map_geta "title")
-         ~plashka style_qq="margin-bottom:0px !important;"
-         ;
-
-     let current_category=(@items | geta @s->index);
-          
-     ba: button_add_object 
-              add_type=(list @current_category.add @current_category.label?)
-              add_to=@current_category.add_to
-              ;
-
-     let objects_list = @current_category.objects;
-
-     /// выбор объекта
-
-     cbsel: combobox style="margin: 5px;" dom_size=5 
-       values=(@objects_list | arr_map code="(elem) => elem.$vz_unique_id")
-       titles=(@objects_list | map_param "title")
-       visible=( (@cbsel->values |geta "length") > 0)
-       ;
-
-    let current_object=(@objects_list | geta @cbsel->index? default=null);
-
-    /// параметры объекта
-
-     co: column ~plashka style_r="position:relative; overflow: auto;"  
-           visible=@current_object?
-      {
-        row visible=((@current_category.siblings? | geta "length" default=0) > 1) 
-        {
-          let types1=(@current_category.siblings? | map_geta "type");
-          let types2=(@types1 | repeater { |t|
-              object output=(list @t @current_category.label?)
-          } | map_geta "output" default=null);
-
-          object_change_type input=@current_object?
-            types=@types2
-            titles=(@current_category.siblings? | map_geta "title")
-            ;
-        };
-
-        column {
-          insert_children input=@.. list=(@current_object? | geta "gui" default=[]);
-        };
-
-        if (has_feature input=@current_object? name="editable-addons") then={
-          manage_addons input=@current_object?;
-        };
-
-        button "x" style="position:absolute; top:0px; right:0px;" 
-        {
-          lambda @current_object? code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
-        };
-
-     };
-
-
-  };   
-
-};
-
-
-/*
-detect_type_l: feature {
-  lambda code="(obj,types) => {
-    if (obj && types) {
-      for (let f of types)
-        if (obj.$features_applied[f]) {
-          return f;
-        };
-    };
-  }"
-};
-*/
 
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////

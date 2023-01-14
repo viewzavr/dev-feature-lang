@@ -14,6 +14,24 @@ export function setup(vz, m) {
 // идея надо не root а input!
 export function find_objects_bf( env  ) {
 
+  // сделано т.к. у нас по нескольку новых объектов за так может появляться
+  env.feature("delayed");
+  env.do_publish = env.delayed( () => {
+     // todo optimize добавить счетчик $vz_param_state_counter см geta.js
+     env.setParam( "output", [...result_object_list] ) 
+   });
+  
+  function publish_result() {
+    env.do_publish();
+  }
+
+  let result_object_ids = {};
+  env.on("reset",() => {result_object_ids = {}});
+  let result_object_list = [];
+  env.on("reset",() => {result_object_list = []});    
+
+  let perobject_unsub_list = {};
+
   //if (!env.hasParam("root")) env.setParam("root","/");  
 
   env.addObjectRef("root","/");
@@ -41,7 +59,7 @@ export function find_objects_bf( env  ) {
     else log = () => {};
   })
 
-  env.feature("delayed");
+  //env.feature("delayed");
   // env.setParam("output",[]); // не будем смущать население
   // ну или посмущаем
 
@@ -90,7 +108,7 @@ export function find_objects_bf( env  ) {
   }
 
   // пообъектные отписки
-  let perobject_unsub_list = {};
+  
   function add_obj_unsub( obj, f ) {
     if (!obj.$vz_unique_id )
     {
@@ -189,9 +207,6 @@ export function find_objects_bf( env  ) {
       
   }; // process_one_obj  
 
-  
-  let result_object_ids = {};
-  env.on("reset",() => {result_object_ids = {}});
 
   //env.on("next_object_found",(obj))
   // здесь могут быть дубликаты
@@ -226,9 +241,7 @@ export function find_objects_bf( env  ) {
   function is_object_in_found_set( obj ) {
     return result_object_ids[ obj.$vz_unique_id ];
   }
-
-  let result_object_list = [];
-  env.on("reset",() => {result_object_list = []});
+  
 
   function next_unique_object_found( obj ) {
     result_object_list.push( obj );
@@ -249,15 +262,7 @@ export function find_objects_bf( env  ) {
      //let i = result_object_list.indexOf( obj );
   }
 
-  // сделано т.к. у нас по нескольку новых объектов за так может появляться
-  env.feature("delayed");
-  env.do_publish = env.delayed( () => {
-     // todo optimize добавить счетчик $vz_param_state_counter см geta.js
-     env.setParam( "output", [...result_object_list] ) 
-   });
-  function publish_result() {
-    env.do_publish();
-  }
+
 
   // unsub_item.f это возможность нам изнутри менять функцию отписки
   function walk_on_obj_features( obj, features_list,i, when_all_found, unsub_item ) {

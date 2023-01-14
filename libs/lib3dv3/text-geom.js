@@ -9,6 +9,8 @@ export function setup(vz, m) {
 
 export function text3d_one( env ) {
   var material = new THREE.MeshPhongMaterial( { color: 0xffffff } ); // front , flatShading: true
+  env.setParam("material",material)
+
   var group = new THREE.Group();
   env.setParam("output",group ); // я это сделал чтобы позицию понимаешь сохранять можно было..
 
@@ -72,6 +74,8 @@ export function text3d_one( env ) {
 //       size - размер текста
 export function text3d( env ) {
   var material = new THREE.MeshPhongMaterial( { color: 0xffffff } ); // front , flatShading: true
+  env.setParam("material",material)
+  
   var group = new THREE.Group();
   env.setParam("output",group ); // я это сделал чтобы позицию понимаешь сохранять можно было..
 
@@ -155,7 +159,7 @@ export function text3d( env ) {
         geometry.computeBoundingBox();
         const centerOffset = - 0.5 * ( geometry.boundingBox.max.x - geometry.boundingBox.min.x );
 
-        var own_material = new THREE.MeshPhongMaterial( { color: 0xffffff } ); // front , flatShading: true
+        //var own_material = new THREE.MeshPhongMaterial( { color: 0xffffff } ); // front , flatShading: true
 
         //var textMesh1 = new THREE.Mesh( geometry, [material,own_material] );
         var textMesh1 = new THREE.Mesh( geometry, material );

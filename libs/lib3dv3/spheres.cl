@@ -16,7 +16,7 @@ feature "spheres" {
 		         color=@s->color
              opacity=@s.opacity // подумать о передаче параметров.. или гуи сразу рисовать или алиасы..
              visible=@s.visible
-		         ~editable-addons // временно
+             ~apply_old_modifiers
 		         ;
 
 		// result: [ positions, normals, uvs, indices, colors ]
@@ -31,7 +31,7 @@ feature "spheres" {
           gui-slot @s "radius" gui={ |in out| gui-slider @in @out }
         }
         gui-tab "positions" {
-          
+
         }
       }
 	}
@@ -204,7 +204,6 @@ feature "cylinders" {
              indices=@mdata.output.1
              colors=@mdata.output.2
              color=@s->color
-             ~editable-addons // временно
              visible=@s.visible
              ;
     

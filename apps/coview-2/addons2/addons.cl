@@ -1,5 +1,26 @@
 // метка для объектов для которых добавить визуальное управление добавками
 
+feature "apply_old_modifiers" {
+  x: object 
+  {
+     // подключаем модификаторы
+     x-modify-list input=@x list=(find-objects-bf root=@x include_root=false "addon-object" depth=1 | filter_geta "visible")
+  }
+}
+
+feature "compute_title" {
+  r: object output=@q->output {
+    q: m-eval "(t,a,b) =>
+       {
+          
+          let ind = a.indexOf(t); 
+          return b[ind];
+       }" @r->key @r->types @r->titles;
+  };
+};
+
+// todo это уходит
+/*
 feature "editable-addons" {
    eathing: object
    addons_list=(@addons_p | get_children_arr) // интерфейс с gui4addons.cl
@@ -12,26 +33,32 @@ feature "editable-addons" {
      insert-children input=@addons_p list=@eathing->addons;
    }}
    {
-     addons_p: {
+     addons_p: object {
      }; // целенаправленно размещаются addon-ы в children, ибо оно сохранится в dump
    };
 };
+*/
 
+// это запись о типе
 feature "addon" {
   ai22: object type=@.->0
       title=( @ai22->1? or @ai22->type )
       crit=(m_lambda "() => true");
 };
 
+// это запись об экземпляре
+feature "addon_object"
+
 addons_list: find-objects-bf features="addon";
 
 geffect3d: feature {
-  ef: object appropritate_addons = (m_eval "(list,elem) => {
+  ef: addon_object 
+      appropritate_addons = (m_eval "(list,elem) => {
         return list.filter( it => it.params.crit( elem ) )
       }" @addons_list->output @ef->element)
       sibling_titles=(@ef->appropritate_addons | map_geta "title")
       sibling_types=(@ef->appropritate_addons | map_geta "type")
-      element=@../..
+      element=@..
 
       title=(compute_title key=(detect_type @ef @ef->sibling_types) 
                          types=@ef->sibling_types 
@@ -72,8 +99,9 @@ feature "effect3d_additive"
   //{{ load THREE="../../../lib3d/three.js/build/three.module.js" }}
 {
   ea: geffect3d 
-    gui={render-params @ea; }
-  ~x-patch-r THREE=(import_js (resolve_url "../../../libs/lib3dv3/three.js/build/three.module.js"))
+      gui={render-params @ea; }
+  ~x-patch-r 
+    THREE=(import_js (resolve_url "../../../libs/lib3dv3/three.js/build/three.module.js"))
     code=`(tenv) => {
       //console.log("additive, tenv",tenv,env)
       let THREE=env.params.THREE;
@@ -291,7 +319,7 @@ feature "effect3d_script" {
 //////////////
 
 /// ну тут вопрос что входы хотелось бы из других объектов..
-addon "effect3d-delta" "Разместить детей (delta)";
+addon "effect3d-delta" "Разместить детей повдоль";
 feature "effect3d_delta" {
   eff: geffect3d
   {{ x-param-slider name="dx" min=-10.0 max=10 step=0.1 }}
@@ -302,11 +330,10 @@ feature "effect3d_delta" {
       render-params @eff; 
     }
   
-  element=@../..
   // нужен x-insert-children. тогда
   {
   //find-objects-bf root=@eff->element features="node3d" recursive=false include_root=false
-  find-objects-by-crit "node3d, lib3d_visual" root=@eff->element recursive=false include_root=false
+  find-objects-by-crit "node3d, lib3d_visual" root=@eff->element recursive=false include_root=false depth=1
     | pass_input_if @eff->visible default=[]
     | filter_geta "visible"
     | repeater { |child_obj input_index|
@@ -322,11 +349,13 @@ feature "effect3d_delta" {
   };
 };
 
+/*
 addon3d "effect3d-debug" "Отладка";
 feature "effect3d_debug" {
   eff: geffect3d
   {{ x-param-cmd name="Запустить js отладчик" cmd="debugger" }}
 };
+*/
 
 /// ну тут вопрос что входы хотелось бы из других объектов..
 addon3d "effect3d-colorize" "Раскраска по данным";

@@ -111,6 +111,7 @@ feature "find-objects-by-crit" {
 	    root=@/ //{{ console_log_params "crit objs"}}
 	    recursive=true
 	    include_root=true
+	    depth=null
 	{
 		m_eval "(p) => p.split(',').map(s => s.trim())" @ee->input
 		//| console_log_input "UU: after eval"
@@ -143,7 +144,7 @@ feature "find-objects-by-crit" {
 				  else={
 				  	//console_log "else --";
 	  				// else тупо фичи
-						bf: find-objects-bf root=@ee->root features=@q->input include_root=@ee->include_root recursive=@ee->recursive;
+						bf: find-objects-bf root=@ee->root features=@q->input include_root=@ee->include_root recursive=@ee->recursive depth=@ee->depth;
 						link to="@q->output" from="@bf->output" soft_mode=true;
 						// soft_mode=true тут стоит чтобы undefined значения не пропихивать
 				  };

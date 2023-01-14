@@ -134,7 +134,13 @@ feature "layer" {
 }
 
 feature "layer_object" {
-  x: object subitems=(find-objects-bf "layer_object" root=@x include_root=false depth=1)
+  x: object 
+       subitems=(find-objects-bf "layer_object" root=@x include_root=false depth=1)
+  {{
+     // подключаем модификаторы
+     x-modify-list input=@x list=(find-objects-bf root=@x include_root=false "addon-object" depth=1 | filter_geta "visible")
+  }}
+       
 }
 
 ////////////////////////// вот это следующее непонятнО, нужно ли вообще..
@@ -154,6 +160,7 @@ feature "visual_process" {
     title="Визуальный процесс"
     visible=true
     gui={paint-gui @vp}
+    ~node3d
     //scene3d={ return @vp->output? }
     //scene3d={ object output=@vp->output?; } // типа это мостик
     //output=@~->scene3d?
@@ -170,7 +177,6 @@ feature "camera" {
   ccc: camera3d title="Камера" 
     sibling_titles=["Камера"] sibling_types=["camera"]
     ~layer_object
-    ~editable-addons 
     {{ x-param-string name="title"}}
     gui={ paint-gui @ccc; }
   {

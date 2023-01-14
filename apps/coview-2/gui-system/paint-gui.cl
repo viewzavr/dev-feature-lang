@@ -72,7 +72,7 @@ let xtra_gui_codes={
 
 // paing-gui @object
 feature "paint-gui" {
-	x: column gap="0.2em" {
+	x: column gap="0.2em" show_common=true {
 		let target = @x->0
 		//console-log "target=" @target
 		
@@ -108,13 +108,16 @@ feature "paint-gui" {
         gui_space: show_one index=@current_tab {
         	if @target { 
         		// todo вынести в фичи, в отд модуль
-	        	gui-tab "Общее" block_priority=10 {
-	        		gui-slot @target "title" gui={ |in out| gui-string @in @out }
+        		if @x.show_common {
+		        	gui-tab "Общее" block_priority=10 {
+		        		gui-slot @target "title" gui={ |in out| gui-string @in @out }
 
-				      button "Отладка" on_click={: guiobj=@target | 
-				    	  if(guiobj) console.log( guiobj )
-				    	:}
+					      button "Отладка" on_click={: guiobj=@target | 
+					    	  if(guiobj) console.log( guiobj )
+					    	:}
+					    }
 				    }
+
 				    gui-tab "Модификаторы" block_priority=11 {
 	        		addons_area input=@target
 				    }
@@ -276,7 +279,7 @@ dom-comp "gui-checkbox" { |in out|
 
 dom-comp "gui-string" { |in out|
 	 g: input_string value=(read @in | get-value)
-	 reaction (event @g "user_change") @out	 
+	 reaction (event @g "user_change") @out
 }
 
 dom-comp "gui-float" { |in out|

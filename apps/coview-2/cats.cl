@@ -13,6 +13,34 @@ coview-category title="Экраны" id="screen"
 
 coview-record title="Загрузчик файлов" type="data-load-files" cat_id="data"
 
+//////////////////
+coview-record title="Тест: Генератор сфер" type="test-process" cat_id="process"
+
+feature "test-process" {
+    p: visual_process count=10 title="Генератор сфер" {
+      gui {
+        gui-tab "main" {
+          //m: slider
+          gui-slot @p "count" gui={ |in out| gui-slider @in @out }
+          //gui-slot @p "radius" gui={ |in out| gui-slider @in @out }
+        }
+      }
+      // идея - разные распределения потестить. ну и тогда надо точки а не сферы
+
+      mydf: df_create // пока оно так не умеет ~layer_object
+          X=(create-array @p.count | arr_map {: r=10 | return Math.random()*r :} )
+          Y=(create-array @p.count | arr_map {: r=10 | return Math.random()*r :} )
+          Z=(create-array @p.count | arr_map {: r=10 | return Math.random()*r :} )
+      //console-log "@mydf.output=" @mydf.output "cnt=" @p.count
+
+      pts: cv_spheres input=@mydf.output
+      //pts: cv_spheres input=(df_create X=[0,1,2] Y=[1,1,5] Z=[1,0,1])
+      //pts: cv_spheres input=(df positions=[1,2,3, 5,5,2 ]
+    }  
+}
+
+//////
+
 // кстати мб было бы проще - если бы id леера совпадало с некоей фичей объектов.. тогда было бы проще искать.. ну ладно..
 
 // это наша стартовая сущность которую пользователь добавляет в проект
@@ -150,7 +178,6 @@ feature "cv_spheres" {
   vp: visual-process
    title="Сферы"
    gui={ paint-gui @vp }
-   ~editable-addons
    ~spheres 
    {
     param-info "input" in=true out=true // df-ка
@@ -166,17 +193,17 @@ feature "cv_spheres" {
            //k: object
          }
       }
+      
+      gui-tab "mesh" {
+        paint-gui @vp.mesh show_common=false
+      } 
       /*
-      gui-tab "view" {
-        /*
       render-params @vp
              filters={ params-hide list="title"; };
        render-params @vp->mesh
              filters={ params-hide list="visible"; };
       }*/
-      gui-tab "addons" {
-        manage-addons @vp;
-      }
+      
     }
   }
 }
@@ -190,7 +217,6 @@ feature "cv_points" {
   vp: visual-process
    title="Точки"
    gui={ paint-gui @vp }
-   ~editable-addons
    ~points 
    {
     param-info "input" in=true out=true // df-ка
@@ -212,9 +238,6 @@ feature "cv_points" {
            filters={ params-hide list="title"; }
       }
 
-      gui-tab "addons" {
-        manage-addons @vp;
-      }
     }
   }
 }
