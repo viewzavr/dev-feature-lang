@@ -629,7 +629,7 @@ export function camera3d( env ) {
   env.addSlider("theta",0,-180,180,0.1);
 
   env.onvalue( "pos", (v) => {
-    // console.log("camera onval pos",v,cam)
+     //console.log("camera onval pos",v,cam)
     if (v !== a1 && v) {
       if (isFinite(v[0]) && isFinite(v[1]) && isFinite(v[2]))
       {

@@ -37,7 +37,10 @@ export function df_create_from_arrays(env) {
 // при этом старые колонки сохраняются
 export function df_set( env, opts ) {
  //Object.keys( args ) 
- env.onvalue("input",(value) => {
+ 
+
+  function process () {
+    let value = env.params.input;
    if (!df.is_df(value)) {
       console.error( "df_set: incoming value is not df", value)
       return
@@ -70,6 +73,15 @@ export function df_set( env, opts ) {
     df.add_column( output, colname, colarr );
    }
    env.setParam("output",output);
+ }
+
+ //env.onvalue("input",process )
+ env.feature("delayed")
+ let process_delayed = env.delayed( process )
+ env.on('param_changed',(pn) => {
+  if (pn == "output") return
+  process_delayed(); // потому что мало ли там будут шпарить..
+  // но это кстати некий аналог потактовой обработки lingua franca
  })
 }
 

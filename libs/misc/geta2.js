@@ -366,8 +366,22 @@ export function map_geta( env )
          return;
        };
        nv = nv.bind( input ); // оказалось так надо делать чтобы всякие flat работали
-
+       // т.е. мы щас nv вернем как результат
     }
+    else
+      /*
+      if (Array.isArray( input )) // фича применить map на тему вытаскивания значения. @obj.somearr.field
+      {
+         // geta 0 сразу и сломалось тут )))) нам надо 0й элемент а не 0 применить ко всем
+         
+         console.log("apply array semantics",input,name)
+         env.vz.console_log_diag( env )
+         let res = input.map( x => (x == null) ? undefined : x[name] )
+         cb( res );
+         return;
+         
+      }
+      */
 
     // особый случай - запрашиваем параметр а его еще не прописали...
     // но так-то тут может быть история что там не только параметр а и команда и дите..

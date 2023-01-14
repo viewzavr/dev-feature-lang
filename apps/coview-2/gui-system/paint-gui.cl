@@ -98,13 +98,14 @@ feature "paint-gui" {
         ssr: switch_selector_row 
                  index=0
                  items=(read @gui_tabs| map-geta "title")
+                 // visible = (@ssr.items.length > 1)
                  {{ hilite_selected }}
 
-        let current_tab = (read @gui_tabs | geta @ssr.index)
+        let current_tab = (read @gui_tabs | geta (m-eval {: i=@ssr.index tabs=@gui_tabs | return Math.min( i, tabs.length-1 ) :}))
 
         // todo можно будет не index передавать а объект. надежней
         
-        gui_space: show_one index=(read @gui_tabs | geta @ssr->index) {
+        gui_space: show_one index=@current_tab {
         	if @target { 
 	        	gui-tab "Общее" block_priority=10 {
 	        		gui-slot @target "title" gui={ |in out| gui-string @in @out }
@@ -124,7 +125,7 @@ feature "paint-gui" {
 // но это если я окончательно определюсь что gui-tab и т.п. gui не идут в генерацию
 // разных подсказок
 feature "gui-tab" {
-	g: column "main" id=@.->0 title=(@g->1? or @g->0?) {
+	g: column "main" id=@.->0 title=(@g->1? or @g->0?) gap="0.2em" {
 
 	}
 }
@@ -142,9 +143,8 @@ feature "gui-row" {
 // апи
 // объект имя-параметра
 
-/*
 feature "gui-text" {
-	d: dom_group in=@.->0 out=@.->1 {
+	d: dom_group in=@.->0 out=@.->1 hint="Введите текст" {
 
 		btn: button "Редактировать"
 
@@ -153,7 +153,7 @@ feature "gui-text" {
 	  dlg: dialog {
 	        column {
 	          //text text="Введите текст"; // todo hints
-	          text style="max-width:70vh;" "Введите массив"
+	          text style="max-width:70vh;" @d.hint
 	               //((get_param_option @pf->obj @pf->name "hint") or "Введите массив");
 
 	          ta: dom tag="textarea" style="width: 70vh; height: 30vh;" 
@@ -173,8 +173,8 @@ feature "gui-text" {
 	      }
 	}
 }
-*/
 
+/*
 dom-comp "gui-text" { | in out |
 
 		btn: button "Редактировать"
@@ -204,6 +204,7 @@ dom-comp "gui-text" { | in out |
 	      }
 	
 }
+*/
 
 // упс. вот приехали - нет ортогональности. я не могу отнаследоваться от gui-text
 // и плохо то что они работают объектом напрямую.. каналы было бы гораздо лучше - я бы мог редиректить
@@ -228,6 +229,7 @@ dom-comp "gui-df" { |in out|
 		{{ read @z->output | get-value | parse_csv | put-value-to @out }}	
 
 }
+
 
 /* можно и так ручками но зачем когда есть comp
    но вообще это идея - подумать - таки на уровне фичи бы делать вещи да и все.. 
@@ -273,8 +275,125 @@ dom-comp "gui-string" { |in out|
 	 reaction (event @g "user_change") @out	 
 }
 
+dom-comp "gui-float" { |in out|
+	 g: input_float value=(read @in | get-value)
+	 reaction (event @g "user_change") @out	 
+}
+
+feature "gui-vector" {
+	g: input_vector_c2 in=@.->0 out=@.->1 value=(read @g.in | get-value) rows=3
+	{{ reaction (event @g "user_change") @g.out }}
+}
+
+feature "gui-array" { // имеется ввиду array-of-floats ну да ладно
+
+	d: dom_group cols=3 separator=' ' hint="Введите массив (по 3 числа в строке)" {
+		let in = @d.0 out=@d.1
+
+		//console-log "gui-df in=" @in1 "me=" @.
+		//find-in-scope
+
+		gui-text hint=@d.hint rows=3
+	  	(read @in | get-value | m-eval {: arr cols=@d.cols separator=@d.separator| 
+	  		//return arr.map( line => line.map(toString).join(separator) ).join('\n')
+	  		console.log('arr=',arr)
+
+	  		var TypedArray = Object.getPrototypeOf(Uint8Array);
+	  	  if (!(Array.isArray(arr) || arr instanceof TypedArray)) {
+	  	  	console.log('gui array input is not array', arr)
+	  	  	return `входное значение должно быть массивом, а оно ${typeof(arr)}`
+	  	  }
+	  		
+	  		let s = ''
+	  		for (let i=0; i<arr.length; i++) {
+	  			let elem = arr[i];
+	  			if (elem?.toString)
+		  			s = s + elem.toString();	  		
+		  			else s = s + 'null'
+	  			if (cols > 0 && i % cols == cols - 1) s = s + '\n'; else s = s + separator
+	  		}
+	  		return s
+	  		
+	  		:} | create-channel)
+			(z: create_channel)
+
+		read @z->output | get-value | m-eval {: str | 
+			  str = str.trim();
+			  if (str === "") return []
+			  let s = str.split( /[,\s]+/ );
+		    return s.map( parseFloat );
+		    // todo тут мб своить к Float32Array или что там попросят
+			:} | put-value-to @out
+
+  }
+
+}
+
+// создает массив массивов "слов" (аля Денис) - экспериментально. ну и мб float-matrx надо будет
+feature "gui-text-matrix" {
+
+	d: dom_group cols=3 separator=' ' {
+		let in = @d.0 out=@d.1
+
+		//console-log "gui-df in=" @in1 "me=" @.
+		//find-in-scope
+
+		gui-text 
+	  	(read @in | get-value | m-eval {: arr cols=@d.cols separator=@d.separator| 
+	  		return arr.map( line => line.join(separator) ).join('\n')
+	  		:} | create-channel)
+			(z: create_channel)
+
+		read @z->output | get-value | m-eval {: str | 
+			  return str.split('\n').map( line => line.split( /[,\s]+/ ) );
+			:} | put-value-to @out
+
+  }
+
+}
+
+
+/*
+dom-comp "gui-vector" { |in out|
+	 g: input_vector_c2 value=(read @in | get-value) rows=3
+	 reaction (event @g "user_change") @out
+}
+*/
+
+dom-comp "gui-color" { |in out|
+	 g: select_color value=(read @in | get-value)
+	 reaction (event @g "user_change") @out
+}
+
+feature "gui-slider" {
+	gg: dom-group in=@.->0 out=@.->1 min=0 max=100 step=1 {
+	 	 g: slider2 value=(read @gg.in | get-value) min=@gg.min max=@gg.max step=@gg.step
+
+	 	 if2: input_float style="width:30px;" value=(read @gg.in | get-value)
+
+     connect (event @g "user_change")   @gg.out
+     connect (event @if2 "user_change") @gg.out
+	}
+}
+
+/* ну либо позиционно можно было бы передать
+dom-comp "gui-slider" { |in out|
+	 r: row min=0 max=100 step=1 {
+	 	 g: slider2 value=(read @in | get-value) min=@r.min max=@r.max step=@r.step
+	 	 // reaction (event @g "user_change") @out	 
+
+	 	 if2: input_float style="width:30px;" value=(read @in | get-value)
+
+	 	 //read @in | get-value | pass_if_changed | put-value-to (list @slider_ch @editor_ch)
+     connect (event @g "user_change")   @out
+     connect (event @if2 "user_change") @out
+     // event @if2 "user_change" | get-value | console-log "i het value from if2"
+     //connect (event @if2 "user_change") {: val | console.log('kkk',val) :}
+	 }
+}*/
+
 feature "gui-slot" {
-  x: dom tag="fieldset" style="border-radius: 5px; padding: 4px; width: 100%;" 
+  x: dom tag="fieldset" style="border-radius: 5px; padding: 4px; width: 95%;" 
     //items=(get-block @x)
   {
     dom tag="legend" innerText=@x.1;
@@ -286,8 +405,9 @@ feature "gui-slot" {
 }
 
 jsfunc "param-path" {: object param_name | 
-				   	  let path = object.getPath() + "->" + param_name;
-				   	  return path :}
+
+   	  let path = object && param_name ? object.getPath() + "->" + param_name : null;
+   	  return path :}
 
 feature "gui-setup-link" {
 	g: dom {
@@ -344,7 +464,7 @@ feature "gui-setup-link" {
 		  	  titles = (
 		  	  	  arr_concat
 		  	  	  ["-"]
-		  	  	  (@outgoing_params | map { |x| join (@x.object.title or @x.object.getPath) " - " @x.name })
+		  	  	  (@outgoing_params | map { |x| join (@x.object.title or (m-eval {: obj=@x.object | return obj.getPath():})) " - " @x.name })
 		  	  	  )
 
 		  	select: button "Выбрать"  

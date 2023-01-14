@@ -460,8 +460,8 @@ register_feature name="render-param-slider" {
 */      
 
       read @param_ch | get-value | pass_if_changed | put-value-to (list @slider_ch @editor_ch)
-      read @slider_ch | get-new-value | pass_if_changed | put-value-to @param_ch
-      read @editor_ch | get-new-value | pass_if_changed | put-value-to @param_ch
+      read @slider_ch | get-new-value | pass_if_changed | put-value-to @param_ch_m
+      read @editor_ch | get-new-value | pass_if_changed | put-value-to @param_ch_m
 
 
       sl: slider manual=false 

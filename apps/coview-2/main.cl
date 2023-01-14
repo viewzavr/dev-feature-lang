@@ -4,14 +4,40 @@
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d new-modifiers imperative"
 load "init.cl"
 
+//////
+
+coview-record title="Генератор сфер" type="test-process" cat_id="process"
+
+feature "test-process" {
+    p: process output=(list @pts) count=10 title="Тестовый процесс" {
+      gui {
+        gui-tab "main" {
+          //m: slider
+          gui-slot @p "count" gui={ |in out| gui-slider @in @out }
+          //gui-slot @p "radius" gui={ |in out| gui-slider @in @out }
+        }
+      }
+      // идея - разные распределения потестить. ну и тогда надо точки а не сферы
+
+      mydf: df_create // пока оно так не умеет ~layer_object
+          X=(create-array @p.count | arr_map {: r=10 | return Math.random()*r :} )
+          Y=(create-array @p.count | arr_map {: r=10 | return Math.random()*r :} )
+          Z=(create-array @p.count | arr_map {: r=10 | return Math.random()*r :} )
+      //console-log "@mydf.output=" @mydf.output "cnt=" @p.count
+
+      pts: cv_spheres input=@mydf.output
+      //pts: cv_spheres input=(df_create X=[0,1,2] Y=[1,1,5] Z=[1,0,1])
+      //pts: cv_spheres input=(df positions=[1,2,3, 5,5,2 ]
+    }  
+}
+
+//////
+
 project: the_project 
 {
 
   layer title="Физкульт-привет" {
-    process output=(list @pts) {
-      pts: cv_spheres input=(df_create X=[0,1,2] Y=[1,1,5] Z=[1,0,1])
-      //pts: cv_spheres input=(df positions=[1,2,3, 5,5,2 ]
-    }
+    test-process count=77
     camera pos=[10,10,10];
   }
 

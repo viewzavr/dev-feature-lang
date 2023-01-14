@@ -110,6 +110,7 @@ register_feature name="input_float" {
 		dom_event name="change" code=`
 				var v = parseFloat( env.params.object.dom.value );
 				env.params.object.setParam("value",v);;
+				//console.log('emitting',v)
 				env.params.object.emit("user_change",v);
 			`;
 	};
@@ -156,12 +157,31 @@ register_feature name="input_vector_c" {
 		    let s = env.params.object.dom.value.split( /[,\s]+/ );
 		    let v = s.map( parseFloat );
 				//var v = parseFloat( env.params.object.dom.value );
-				//console.log('emitting to',env.params.object )
+				// console.log('emitting to',v )
 				env.params.object.emit("user-changed",v);
+				env.params.object.emit("user_change",v);
 			`;
 	};
 };
 
+// todo приделать кнопку ВВОД или типа того.. щас как-то оно не интуитивно
+// todo приделать length или limit параметр и чтобы оно приводило к этому значению такой длины
+feature "input_vector_c2" {
+	dv: dom tag="textarea" rows=3 
+	  dom_obj_rows=@.->rows
+	  dom_obj_value=(m_eval {: v=@dv->value? |
+		  if (Array.isArray(v)) v=v.join('\n');
+		  return v ? v.toString() : null;
+		:}) 
+		{
+	  reaction (dom_event_cell @dv "change") {: event_data obj=@dv |
+	  	  let s = event_data.target.value.split( /[,\s]+/ );
+		    let v = s.map( parseFloat );
+				obj.emit("user-changed",v);
+				obj.emit("user_change",v);
+	  	:}
+   	}
+}
 
 ///////////////////////////////////////////////////// radio_button
 /* входы
@@ -252,6 +272,34 @@ register_feature name="slider" {
   };
 };
 
+///////////////////////////////////////////////////// slider
+register_feature name="slider2" {
+	the_slider: dom tag="input" dom_type="range" 
+	    min=0 max=100 step=1 value=0
+	    manual=true
+	    sliding=true 
+	    dom_min=@the_slider.min
+	    dom_max=@the_slider.max
+	    dom_step=@the_slider.step
+	    dom_obj_value=@the_slider.value
+	{
+		reaction (param @the_slider "dom_max") {: the_slider=@the_slider | 
+			  the_slider.dom.value = the_slider.params.value 
+			  the_slider.setParam('dom_obj_value', the_slider.params.value)
+			  :}
+
+		 if @the_slider->sliding then={		 	  
+			 read @the_slider | dom_event_cell "input" | reaction {: k tgt=(event @the_slider "user_change") |
+			   tgt.set( parseFloat( k.target.value ) )
+			 :}
+		 }
+
+		 read @the_slider | dom_event_cell "change" | reaction {: k tgt=(event @the_slider "user_change") |
+			   tgt.set( parseFloat( k.target.value ) )
+		 :}
+  }
+}
+
 
 ///////////////////////////////////////////////////// select_color
 
@@ -311,6 +359,7 @@ register_feature name="select_color" {
       var c = env.ns.parent.hex2tri(env.params.object.dom.value);
       //console.log("CC: setting param output to ",c, env.params.object.getPath() );
       env.params.object.setParam("value",c,true);
+      env.params.object.emit("user_change",c);
     `;
     dom_event name="input" code=@d1->code;
   };

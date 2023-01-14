@@ -367,6 +367,7 @@ export function get_param_cell( target, name, ismanual ) {
        if (setting) return;
        try {
          setting = true;
+         if (v?.is_event_args) v=v[0]; // а что делать
          target.setParam( name, v, c.ismanual );
        } finally { 
          setting = false;
@@ -534,6 +535,7 @@ export function get_cell( target, name, ismanual ) {
        try {
          setting = true;
          //console.log("cell of",target.getPath(),"param '",name,"' setting value",v,"with manual flag", c.ismanual)
+         if (v?.is_event_args) v=v[0]; // а что делать
          target.setParam( name, v, c.ismanual );
        } finally {
          setting = false;

@@ -175,7 +175,7 @@ export function reaction( env ) {
         func.apply( env, v )
       }
       else
-        func.call( env, v )    
+        func.call( env, v )
   }
 
 }

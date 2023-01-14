@@ -14,7 +14,10 @@ export function setup( vz, m ) {
 // todo мб не только объекты сделать, а еще и dom.. но тогда тут отписываться придется
 // хотя это возможно я думаю.
 export function feature_dom_event_cell( env ) {
-  env.onvalues( ["input",0], (arr, param_name) => {
+  env.onvalues( ["input",0], fn );
+  env.onvalues( [0,1], fn );
+
+  function fn(arr, param_name) {
     let single_elem_mode = !Array.isArray(arr);
     if (single_elem_mode) arr=[arr];
     let res = [];
@@ -23,11 +26,11 @@ export function feature_dom_event_cell( env ) {
         res.push( null );
       else
         res.push( obj.get_dom_event_cell( param_name ) );
-    });
+    })  
     
     env.setParam( "output", single_elem_mode ? res[0] : res );
     // single_elem_mode - это плохо или это норм? так-то сигнатура выхода меняется...
-  }); 
+  }
 }
 
 // универсальное - и для событий и для параметров

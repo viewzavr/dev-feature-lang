@@ -24,7 +24,19 @@ feature "spheres" {
 		  positions=@s->positions radiuses=@s->radiuses 
 		  colors=@s->colors radius=@s->radius
 		  nx=@s->nx ny=@s->ny;
-	};
+
+      gui {
+        gui-tab "view" {
+          gui-slot @s "color" gui={ |in out| gui-color @in @out }
+          gui-slot @s "radius" gui={ |in out| gui-slider @in @out }
+        }
+        gui-tab "positions" {
+          
+        }
+      }
+	}
+
+
 };
 
 // входные параметры

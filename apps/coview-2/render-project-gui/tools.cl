@@ -85,7 +85,7 @@ feature "show_sources_params"
             body_features={ set_params style_h="max-height: inherit; overflow-y: auto;"}
             expanded=( (@mm->input_index == 0) and @sv->auto_expand_first)
           {
-             insert_children input=@.. list=(@mm->input | get_param "gui");
+             insert_children input=@.. list=(@mm->input | get_param "gui") // sidebar_gui ?
              // вот мы вставили гуи
           };
 

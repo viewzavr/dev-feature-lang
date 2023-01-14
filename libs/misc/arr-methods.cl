@@ -1,3 +1,7 @@
+// create-array 100 - создаст массив длины 100
+jsfunc "create-array" {: length | return new Array(length).fill(0) :}
+
+
 // кстати если в list добавить length - число аргументов, и привести параметры к аксессорам по именам
 // то все arr-методы смогут обрабатывать list.
 
@@ -136,6 +140,7 @@ feature "arr_map"
   env.onvalues(["input","code"],process);
 
   function process(arr,code) {
+
     if (!Array.isArray(arr)) {
       env.setParam("output",[]);
       return;
@@ -143,7 +148,7 @@ feature "arr_map"
     //var f = new Function( "line", code );
     //var res = dfjs.create_from_df_filter( df, f );
     
-    var f = eval( code ); // todo optimize
+    var f = code.bind ? code : eval( code ); // todo optimize
 
     let res = [];
     arr.forEach( (v,index) => {

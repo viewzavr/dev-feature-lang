@@ -2,18 +2,18 @@ load "gui-system/init.cl"
 
 // Конкретные категории
 
-coview-category title="Слои" id="layer"
-
-coview-category title="Загрузка" id="data-io"
+coview-category title="Загрузка" id="data"
 coview-category title="Программы" id="process"
-coview-category title="Расчёты" id="compute"
-coview-category title="Основное" id="basic" 
+coview-category title="Графика" id="gr3d" 
+coview-category title="Надписи" id="gr2d"
+
+coview-category title="Слои" id="layer"
 coview-category title="Экраны" id="screen"
 
+coview-record title="Оси координат" type="axes-view"          cat_id="gr3d"
+coview-record title="Загрузчик файлов" type="data-load-files" cat_id="data"
 
-coview-record title="Оси координат" type="axes-view" cat_id="basic"
-
-coview-record title="Загрузчик файлов" type="data-load-files" cat_id="data-io"
+// кстати мб было бы проще - если бы id леера совпадало с некоей фичей объектов.. тогда было бы проще искать.. ну ладно..
 
 // это наша стартовая сущность которую пользователь добавляет в проект
 // а data-artefact это уже взгляд на нее. (ну как бы..)
@@ -21,7 +21,7 @@ coview-record title="Загрузчик файлов" type="data-load-files" cat
 // включевое поле output это массив вида [ {name,url}, {name,url}, fileobject, ... ]
 
 feature "data-load-files" {
-  qqe: data-artefact
+  qqe: layer_object
     title="Загрузка файлов"
     initial_mode=1
     url=""
@@ -118,10 +118,10 @@ feature "data-load-files" {
     //url=""
 };
 
-coview-record title="Прочитать файл" type="load-text" cat_id="compute"
+coview-record title="Прочитать файл" type="load-text" cat_id="data"
 
 feature "load-text" {
-  x: computation 
+  x: layer_object
   title="Прочитать файл"
   output=(load-file @x.input?)
   gui={ paint-gui @x }
@@ -143,7 +143,7 @@ feature "load-text" {
 }
 
 /////////////////////
-coview-record title="Сферы" type="cv_spheres" cat_id="basic"
+coview-record title="Сферы" type="cv_spheres" cat_id="gr3d"
 
 // вопрос как передать addons в меш..
 feature "cv_spheres" {
@@ -153,7 +153,7 @@ feature "cv_spheres" {
    ~editable-addons
    ~spheres 
    {
-    param-info "input" in=true // df-ка
+    param-info "input" in=true out=true // df-ка
 
     //console-log "vvv" @vp.input
 
@@ -166,15 +166,55 @@ feature "cv_spheres" {
            //k: object
          }
       }
+      /*
       gui-tab "view" {
+        /*
       render-params @vp
              filters={ params-hide list="title"; };
        render-params @vp->mesh
              filters={ params-hide list="visible"; };
-      }
+      }*/
       gui-tab "addons" {
         manage-addons @vp;
       }
     }
   }
-};
+}
+
+
+/////////////////////
+coview-record title="Точки" type="cv_points" cat_id="gr3d"
+
+// вопрос как передать addons в меш..
+feature "cv_points" {
+  vp: visual-process
+   title="Точки"
+   gui={ paint-gui @vp }
+   ~editable-addons
+   ~points 
+   {
+    param-info "input" in=true out=true // df-ка
+    param-info "positions" in=true out=true // df-ка
+    param-info "colors" in=true out=true // df-ка
+
+    gui debug=true {
+      gui-tab "main" {
+        gui-slot @vp "input" gui={ |in out| gui-df @in @out }
+      }
+
+      gui-tab "positions" {
+        gui-slot @vp "positions" gui={ |in out| gui-array @in @out }
+        gui-slot @vp "colors" gui={ |in out| gui-array @in @out }
+      }
+      
+      gui-tab "view" {
+        render-params @vp
+           filters={ params-hide list="title"; }
+      }
+
+      gui-tab "addons" {
+        manage-addons @vp;
+      }
+    }
+  }
+}
