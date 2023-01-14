@@ -14,21 +14,23 @@ register_feature name="axes_box" {
     // а причем render-guis2 вызывает render-params что как бы не рекурсивно..
     // странно все это... очень странно... надо какую-то модель тут разработать другую может
     gui={
-      paint-gui @root 
+      render-params input=@root;
+      find-objects pattern_root=@root pattern="** include_gui" 
+      |
+      render-guis extra={ |obj| manage-addons @obj; };
     }
-  {
-
-    gui {
-      gui-tab "main" {
+    gui4={
+      cat "main" {
         render-params input=@root
       }
-      gui-tab "Вектора" {
+      cat "Вектора" {
         render-params input=@axes_lines
       }
-      gui-tab "Подписи" {
+      cat "Подписи" {
         render-params input=@axes_titles
       }
-    }
+    }  
+  {
 
   	size: param_slider min=0 max=100 step=1;
 

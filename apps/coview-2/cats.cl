@@ -1,4 +1,5 @@
 load "gui-system/init.cl"
+load "lib/init.cl"
 
 // Конкретные категории
 
@@ -10,7 +11,6 @@ coview-category title="Надписи" id="gr2d"
 coview-category title="Слои" id="layer"
 coview-category title="Экраны" id="screen"
 
-coview-record title="Оси координат" type="axes-view"          cat_id="gr3d"
 coview-record title="Загрузчик файлов" type="data-load-files" cat_id="data"
 
 // кстати мб было бы проще - если бы id леера совпадало с некоей фичей объектов.. тогда было бы проще искать.. ну ладно..

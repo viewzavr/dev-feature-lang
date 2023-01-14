@@ -107,6 +107,7 @@ feature "paint-gui" {
         
         gui_space: show_one index=@current_tab {
         	if @target { 
+        		// todo вынести в фичи, в отд модуль
 	        	gui-tab "Общее" block_priority=10 {
 	        		gui-slot @target "title" gui={ |in out| gui-string @in @out }
 
@@ -114,7 +115,10 @@ feature "paint-gui" {
 				    	  if(guiobj) console.log( guiobj )
 				    	:}
 				    }
-			    }
+				    gui-tab "Модификаторы" block_priority=11 {
+	        		addons_area input=@target
+				    }
+			    } // if target
         }
 
         //read @gui_space | get-children-arr | console_log_input "YYY"
