@@ -1,7 +1,7 @@
-coview-record title="Анимация" type="animation" cat_id="plugin"
+coview-record title="Анимация параметра" type="animation" cat_id="plugin"
 
 feature "animation" {
-  plugin title="Анимация"
+  plugin title="Анимация параметра"
   {
     load "animation.cl"
   }

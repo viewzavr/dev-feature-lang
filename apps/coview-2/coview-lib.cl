@@ -59,15 +59,15 @@ feature "the_view"
 coview-record title="Слой" type="layer" cat_id="layer"
 
 feature "layer" {
-    l: layer_object
+    l: layer_object ~node3d // F-LAYER-IS-NODE3D
     title="Слой"
     visible=true
     //scene3d={ return @l->output? }    
     gui={paint-gui @l }
-    sidebar_gui={paint-gui @l ~plashka true}
+    sidebar_gui={paint-gui @l filter=["Состав"]}
     //subitems=(find-objects-bf "layer_object" root=@l include_root=false recursive=false)
     {
-      gui { |is_sidebar|
+      gui {
         /*
         gui-tab "main" {
           gui-slot @l "title" gui={ |in out| gui-string @in @out}
@@ -76,7 +76,7 @@ feature "layer" {
           let list_of_layer_items=(walk_objects @l "subitems" | m-eval {: arr | return arr.slice(1) :} )
           //let list_of_layer_items=(walk_objects @l "subitems" | m-eval "slice" 1 )
 
-          column gap="0.2em" {
+          column gap="0.2em" style="margin-top: 5px;" {
             cb: combobox 
                      values=(@list_of_layer_items | map-geta "id")
                      titles=(@list_of_layer_items | map-geta "title")
@@ -172,6 +172,8 @@ feature "visual_process" {
     }
     // это сделано чтобы визпроцесс можно было как элемент сцены использовать
 }
+
+feature "have-scene-env"
 
 feature "camera" {
   ccc: camera3d title="Камера" 

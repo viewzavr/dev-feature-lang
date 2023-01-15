@@ -355,7 +355,8 @@ feature "area_3d" {
       {{ x-param-checkbox name="show_stats" title="Показать статистику"}}
       {{ x-param-slider name="opacity_3d" min=0.0 max=1.0 step=0.01 }}
       opacity_3d=1.0
-  show={
+      //camera_control={ |renderer camera dom| orbit-control }
+      show={
       dom_group {
         //let has_3d_sources = (@it.sources | map_geta "scene3d" default=null | arr_compact) 
 
@@ -582,7 +583,7 @@ feature "show_3d_scene_r" {
     dom style="width:100%; height:100%;" tag="div"
     // renderer=@r1 // тпУ
     private_camera=@r1->private_camera // это на выход
-    camera_control={ |renderer camera dom| orbit-control }
+    camera_control={ |renderer camera dom| orbit-control } // заменяется снаружи
     { // max-height: 100vh;
       // max-height 100vh багфиксит грида
     
@@ -597,7 +598,9 @@ feature "show_3d_scene_r" {
           //camera3d pos=[-400,350,350] center=[0,0,0];
 
           //orbit_control;
+          // вставляем в r1 camera-control, взятый из параметра - show_3d_scene_r
           let camera_control = (@r1 | insert-children list=@scene_3d_view->camera_control @r1 @r1.camera @scene_3d_view.dom | geta 0);
+          //console-log "thus camera_control=" @camera_control
           
           /* да это красиво. но оно трясется -- изза обратной связи с объектом камеры похоже.
              и плюс изза одновременной работы нескольких update. тут надо крепко поработать пока не приоритено.
@@ -620,30 +623,27 @@ feature "show_area_3d" {
        {{ show_area_base input=@area_rect->input }}
   {
     process_rect: show_3d_scene_r
-        //camera_control={ map-control }
-        // renderer - установим снаружи..
 
-        scene3d=(
-            @area_rect.input.sources 
+        {{ let scene3d_items = (read @area_rect.input.sources 
+              | map_geta "output" // типа слой у нас есть node3d
+              | arr_flat | pass_input_if @area_rect.input.visible)
+
+           let scene3d_envs=(read @area_rect.input.sources 
             | map { |source|
-                find-objects-bf "node3d" root=@source recursive=false 
-                  // | фильтрация какая-то? например "это есть результат"
-                  | map_geta "output" 
-            } 
-            | arr_flat 
-        )
-
-        scene3d_next=(@area_rect.input.sources 
-            | map_geta "scene3d" default=[] 
-            | repeater target_parent=@area_rect { |code|
-                computing_env code=@code @process_rect @area_rect.input.opacity_3d;
-            }
-            | map_geta "output" default=null 
-              // уберем содержимое сцены если область экрана отключена
-            | pass_input_if (@area_rect->input | geta "visible") default=null
+                find-objects-bf "have-scene-env" root=@source recursive=false
+                | map_geta "scene_env" default=[]
+                | repeater target_parent=@area_rect { |code|
+                    computing_env code=@code @process_rect @area_rect.input.opacity_3d // @source
+                  }  
+                | map_geta "output" default=null 
+            } | arr_flat | arr_compact | pass_input_if @area_rect.input.visible
             )
-        camera=(@area_rect->input | geta "camera")
+        }}
+
+        scene3d=(concat @scene3d_items @scene3d_envs)
+        camera=@area_rect.input.camera
         style="width:100%; height:100%;"
+        // camera_control=@area_rect.input.camera_control
         // {{ @area_rect->input | geta "sources" | get-cell "show-view-attached" | set-cell-value @process_rect }}
     ;
 

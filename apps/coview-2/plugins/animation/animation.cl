@@ -11,7 +11,7 @@ insert_children { manage_animation block_priority=20 };
 
 // вход - project - визпроект
 feature "manage_animation" {
-	vp: collapsible "Анимация"
+	vp: collapsible "Анимация параметра"
       project=@..->project
       active_view_tab=@..->active_view_tab
       render_project=@..->render_project

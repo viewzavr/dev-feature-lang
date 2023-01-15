@@ -71,7 +71,7 @@ feature "paint_gui_show_tabs"
 
 // paing-gui @object
 feature "paint-gui" {
-	x: column gap="0.2em" show_common=true {
+	x: column gap="0.2em" show_common=true filter=null {
 		let target = @x->0
 		//console-log "target=" @target
 		
@@ -96,8 +96,8 @@ feature "paint-gui" {
 
         ssr: switch_selector_row 
                  index=0
-                 items=(read @gui_tabs| map-geta "title")
-                 // visible = (@ssr.items.length > 1)
+                 items=(read @gui_tabs | arr_filter code={: tab filter=@x.filter | return filter ? filter.indexOf( tab.params.title ) >= 0 : true :} | map-geta "title")
+                 visible = (@ssr.items.length > 1)
                  {{ hilite_selected }}
 
         let current_tab = (read @gui_tabs | geta (m-eval {: i=@ssr.index tabs=@gui_tabs | return Math.min( i, tabs.length-1 ) :}))

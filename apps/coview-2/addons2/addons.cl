@@ -1,5 +1,5 @@
-// метка для объектов для которых добавить визуальное управление добавками
 
+// активирует применение модификаторов
 feature "apply_old_modifiers" {
   x: object 
   {
@@ -348,6 +348,34 @@ feature "effect3d_delta" {
       };
   };
 };
+
+addon "addon-map-control" "Управление камерой - карта"
+
+feature "addon-map-control" {
+  vp: geffect3d 
+     title = "Управление камерой - карта"
+     ~have-scene-env
+     scene_env={ |show_3d_scene|
+       
+       //console-log "privet medved" @show_3d_scene
+       if @vp.visible {
+         list @show_3d_scene | x-modify {
+           x-set-params camera_control={ |renderer camera target_dom| 
+              map-control camera=@camera target_dom=@target_dom renderer=@renderer damping=@vp.damping
+           }
+         }
+       }
+     }
+     damping=true
+     gui={ paint-gui @vp filter=["main"] }
+     {
+      gui {
+        gui-tab "main" {
+          gui-slot @vp "damping" gui={ |in out| gui-checkbox @in @out }
+        }
+      }
+     }
+}
 
 /*
 addon3d "effect3d-debug" "Отладка";

@@ -14,7 +14,7 @@ coview-category title="Слои" id="layer"
 coview-category title="Экраны" id="screen"
 coview-category title="Плагины" id="plugin"
 
-coview-record title="Загрузчик файлов" type="data-load-files" cat_id="data"
+coview-record title="Загрузчик файлов" type="cv-select-files" cat_id="data"
 
 //////////////////
 coview-record title="Тест: Генератор сфер" type="test-process" cat_id="process"
@@ -51,7 +51,7 @@ feature "test-process" {
 
 // включевое поле output это массив вида [ {name,url}, {name,url}, fileobject, ... ]
 
-feature "data-load-files" {
+feature "cv-select-files" {
   qqe: layer_object
     title="Загрузка файлов"
     initial_mode=1
@@ -244,3 +244,24 @@ feature "cv_points" {
     }
   }
 }
+
+
+/////////////////////
+/*
+coview-record title="Управление камерой - карта" type="cv-map-control" cat_id="gr3d"
+
+feature "cv-map-control" {
+  vp: process 
+     title = "Управление камерой - карта"
+     ~have-scene-env
+     scene_env={ |show_3d_scene|
+       
+       //console-log "privet medved" @show_3d_scene
+       list @show_3d_scene | x-modify {
+         x-set-params camera_control={ |renderer camera target_dom| 
+            map-control camera=@camera target_dom=@target_dom renderer=@renderer damping=true
+         }
+       }
+     }
+}
+*/

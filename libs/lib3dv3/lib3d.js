@@ -708,6 +708,10 @@ export function orbit_control( env ) {
 
   env.onvalues(["type","camera","target_dom"],update);
 
+  env.on("remove",() => {
+    unsub();
+    if (cc) cc.dispose();
+  })
   
   function update() {
     unsub(); unsub = () => {};
@@ -789,8 +793,6 @@ export function orbit_control( env ) {
          }
          skip_camera_update=false;        
       }
-
-      
 
     }
 
