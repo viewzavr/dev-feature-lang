@@ -6,8 +6,10 @@ register_feature name="button" {
 	tb: dom tag="button" innerHTML=@.->text text=@.->0?
 	~func 
 	{{
-		dom_event name="click" cmd="@tb->apply";
-		on_dom_event @tb "click" (m_lambda "(obj) => { obj.emit('click'); }" @tb);
+		reaction (dom_event_cell @tb "click") (method @tb "apply")
+		reaction (dom_event_cell @tb "click") (event @tb "click")
+		//dom_event name="click" cmd="@tb->apply";
+		//on_dom_event @tb "click" (m_lambda "(obj) => { obj.emit('click'); }" @tb);
 	}};
 };
 
@@ -26,36 +28,20 @@ register_feature name="file" {
 	};
 };
 
-register_feature name="files" {
-	dom tag="input" dom_type="file" dom_attr_multiple=true {
-		dom_event object=@.. name="change" code=`
-		  let files = env.params.object.dom.files;
-		  /*
-		  let arr = [];
-		  for (let i=0; i<files.length; i++)
-		  	arr.push( [files[i].name, files[i]] );
-		  */	
-		  let arr = [];
+feature "files" {
+	d: dom tag="input" dom_type="file" dom_attr_multiple=true {
+		reaction (dom-event-cell @d "change") {: event_data obj=@d |
+			let files = event_data.target.files;
+			let arr = [];
 		  for (let i=0; i<files.length; i++)
 		  	arr.push( files[i] );
 		  
-		  env.params.object.setParam("value",arr,true);
-		  env.params.object.setParam("output",arr,true);
-		   
-		  
-		`;
-	};
-};
+		  obj.emit("user_change",arr);
+		  obj.setParam("output",arr,true);
 
-/*
-register_feature name="color" {
-	dom tag="input" dom_type="file" {
-		dom_event object=@.. name="change" code=`
-		  env.params.object.setParam("value",env.params.object.dom.files[0],true)
-		`;
-	};
-};
-*/
+			:}		
+	}
+}
 
 ///////////////////////////////////////////////////// checkbox
 /* входы
@@ -68,17 +54,17 @@ register_feature name="color" {
    а не следует ли сделать их разными?.. если да то почему, если нет то почему?  
 */
 register_feature name="checkbox" {
-	dom tag="label" //value=true 
+	cbr: dom tag="label" //value=true 
 	    dom_style_whiteSpace="nowrap" // это важно чтобы чекбоксы не разрывались
 	  {
-		dom tag="input" dom_type="checkbox" dom_obj_checked=@..->value? {
-			dom_event name="change" code=`
-				var v = env.params.object.dom.checked;
-				//console.log('cb setting value to',v)
-				env.params.object.ns.parent.setParam("value",v);
-				env.params.object.ns.parent.emit("user-changed",v); // todo вычистить
-				env.params.object.ns.parent.emit("user_change",v);
-			`;
+		 cb: dom tag="input" dom_type="checkbox" dom_obj_checked=@..->value? {
+			reaction (dom_event_cell @cb "change") {: event_data obj=@cbr |
+				let v = event_data.target.checked;
+				//obj.setParam('value',v) // вот это зло конечно
+				obj.emit("user-changed",v)
+				obj.emit("user_change",v)
+				:}
+			
 		};
 		text text=@..->text?;
 	};
@@ -106,24 +92,21 @@ register_feature name="checkbox-c" {
      value - выбираемое значение
 */
 register_feature name="input_float" {
-	dom tag="input" dom_obj_value=@.->value? {
-		dom_event name="change" code=`
-				var v = parseFloat( env.params.object.dom.value );
-				env.params.object.setParam("value",v);;
-				//console.log('emitting',v)
-				env.params.object.emit("user_change",v);
-			`;
+	d: dom tag="input" dom_obj_value=@.->value? {
+		reaction (dom_event_cell @d "change") {: event_data obj=@d|
+			  var v = parseFloat( event_data.target.value );
+			  obj.emit("user_change",v);
+		:}		
 	};
 };
 
 ////////////////////////////// input_string
 register_feature name="input_string" {
-	dom tag="input" dom_obj_value=@.->value? {
-		dom_event name="change" code=`
-				var v = env.params.object.dom.value;
-				//env.params.object.setParam("value",v);;
-				env.params.object.emit("user_change",v);
-			`;
+	d:dom tag="input" dom_obj_value=@.->value? {
+		reaction (dom_event_cell @d "change") {: event_data obj=@d|
+			  var v = event_data.target.value;
+			  obj.emit("user_change",v);
+		:}		
 	};
 };
 
@@ -306,7 +289,7 @@ register_feature name="slider2" {
 // вход, выход: value - значение в форме массива [r,g,b] (от 0 до 1)
 
 register_feature name="select_color" {
-  dom tag="input" dom_type="color" {
+  sc: dom tag="input" dom_type="color" {
 
     // value передаем в dom
     setter target="..->dom_value" value=@val2dom->output ~auto_apply;
@@ -331,16 +314,12 @@ register_feature name="select_color" {
       function tri2hex( triarr ) {
          return rgbToHex( Math.floor(triarr[0]*255),Math.floor(triarr[1]*255),Math.floor(triarr[2]*255) )
       }
-
-      //if (env.params.inp)
+      
       if (Array.isArray(env.params.inp)) {
           let h=tri2hex( env.params.inp );
-          //console.log("CC: computed dom elem color,",h,"from",env.params.inp)
           env.setParam("output", h)
       }
-      //    return tri2hex( env.params.inp );
-      //else
-      //    return "#ffffff";
+      
     `;
 
     
@@ -355,15 +334,15 @@ register_feature name="select_color" {
         ] : [1,1,1];
       }
     `;
-    d1: dom_event name="change" code=`
-      var c = env.ns.parent.hex2tri(env.params.object.dom.value);
-      //console.log("CC: setting param output to ",c, env.params.object.getPath() );
-      env.params.object.setParam("value",c,true);
-      env.params.object.emit("user_change",c);
-    `;
-    dom_event name="input" code=@d1->code;
-  };
-};
+
+    reaction (race_channels (dom_event_cell @sc "change") (dom_event_cell @sc "input")) {: event_data obj=@sc |
+    	event_data = event_data[0] || event_data[1]
+    	var c = obj.hex2tri( event_data.target.value );
+      obj.setParam("value",c,true);
+      obj.emit("user_change",c);
+    :}
+  }
+}
 
 ///////////////////////////////////////////////////// combobox
 /*

@@ -113,6 +113,9 @@ export function n_func( env )
 */
 
 // update а что если целевых аргументов сделать массив? много реакций?..
+// таки для упрощения напрашивается на вход массив каналов
+// и была фантазия - и на выход тоже. 
+// а воообще там всякие паттерны могут быть (например i-й вход с i-м выходом)... 
 
 export function reaction( env ) {
   env.setParam( "make_func_output","f")
@@ -161,6 +164,7 @@ export function reaction( env ) {
     
     unsub = channel.on('assigned',(v) => {
       //console.log("cc-on passing",v)
+      if (env.params.debug) debugger
       emit_val( v )
     })
 

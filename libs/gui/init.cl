@@ -3,7 +3,6 @@ dom.js
 layout.js 
 screen.js
 style.js
-dom-event.js
 dom-event-cell.js
 gui-elements.cl
 gui-events.cl

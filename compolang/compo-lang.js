@@ -1145,7 +1145,7 @@ export function setter( env )
    env.addParamRef("target","");
    env.setParamOption("target","is_outgoing",true);
 
-   env.addObjectRef("object","");
+   //env.addObjectRef("object","");
 
    ////////////////////////////// кусочек глупого кеширования
    let tobj;

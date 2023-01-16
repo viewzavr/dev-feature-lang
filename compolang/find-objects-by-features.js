@@ -34,7 +34,11 @@ export function find_objects_bf( env  ) {
 
   //if (!env.hasParam("root")) env.setParam("root","/");  
 
-  env.addObjectRef("root","/");
+  // F-NOZREF-VZ env.addObjectRef("root","/");
+  if (!env.paramConnected("root")) {
+    //debugger
+    env.setParam("root", vzRoot )
+  }
 
   if (!env.hasParam("features") && !env.hasLinksToParam("features"))
        env.createLinkTo( {param:"features",from:"~->0",soft:true });

@@ -122,7 +122,8 @@ feature "x-param-objref-3" {
       	//console.log("objref-3 init: name=",name,"cur val=",obj.params[name],"obj=",obj.getPath(),obj.dump())
       	//console.log("objref-3 init: name=",name,"cur val=",obj.params[name],"obj=",obj.getPath(), values );
       	//debugger;
-      	obj.setReference( name );
+      	//obj.setReference( name );
+
         obj.addGui( {name:name, type: "custom",value: obj.params[name]} );
         obj.setParamOption( name,"editor",editor_code );
 
@@ -145,7 +146,7 @@ feature "x-param-objref-3" {
 		        	{{ x-on "user_changed_value" 
 	                  code=(m_apply "(area,param_var, b,c,val) => {
 	                  	console.log('>>>>>>>>>>>>>>>>',param_var,val)
-	                       area.setParam(param_var,val,true);
+	                       area.setParam(param_var+'_ref',val,true);
 	                       }" @edt->object @edt->name);
 	            }}
 		        ;

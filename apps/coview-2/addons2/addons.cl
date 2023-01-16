@@ -50,7 +50,7 @@ feature "addon" {
 feature "addon_object"
 
 let addons_list =(find-objects-bf "addon")
-//console-log "addons_list=" @addons_list
+console-log "addons_list=" @addons_list
 
 geffect3d: feature {
   ef: addon_object 
@@ -352,11 +352,11 @@ feature "effect3d_delta" {
 
 /// решил сделать такой модификатор для слоя, т.к. тогда "приложения" могут добавлять его в слой
 /// и через это управлять поведением камеры.
-addon "addon-map-control" "Управление камерой - карта"
+addon "addon-map-control" "Управление камерой - режим карты"
 
 feature "addon-map-control" {
   vp: geffect3d 
-     title = "Управление камерой - карта"
+     title = "Управление камерой - режим карты"
      ~have-scene-env
      scene_env={ |show_3d_scene|
        

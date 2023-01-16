@@ -245,23 +245,3 @@ feature "cv_points" {
   }
 }
 
-
-/////////////////////
-/*
-coview-record title="Управление камерой - карта" type="cv-map-control" cat_id="gr3d"
-
-feature "cv-map-control" {
-  vp: process 
-     title = "Управление камерой - карта"
-     ~have-scene-env
-     scene_env={ |show_3d_scene|
-       
-       //console-log "privet medved" @show_3d_scene
-       list @show_3d_scene | x-modify {
-         x-set-params camera_control={ |renderer camera target_dom| 
-            map-control camera=@camera target_dom=@target_dom renderer=@renderer damping=true
-         }
-       }
-     }
-}
-*/

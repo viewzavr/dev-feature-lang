@@ -229,13 +229,14 @@ register_feature name="render-one-param-p" code='
 register_feature name="render-param-string" {
   cos: column {
     text text=@..->name;
-    dom tag="input" dom_obj_readOnly=(get_param_option @cos->obj @cos->name "readonly"){
+    dt: dom tag="input" dom_obj_readOnly=(get_param_option @cos->obj @cos->name "readonly") {
       link from=@../..->param_path to=".->dom_value" tied_to_parent=true;
-      link to=@../..->param_path from=".->value" tied_to_parent=true 
-        soft_mode=true manual_mode=true;
-      dom_event name="change" code=`
-        env.params.object.setParam("value",env.params.object.dom.value,true);
-      `;
+      //link to=@../..->param_path from=".->value" tied_to_parent=true 
+      //  soft_mode=true manual_mode=true;
+      reaction (dom_event_cell @dt "change") {: event_data obj=@cos->obj name=@cos->name |
+        obj.setParam(name, event_data.target.value, true )
+        :}
+      
     };
   };
 };
@@ -345,21 +346,22 @@ register_feature name="render-param-cmd" {
 };
 
 register_feature name="render-param-float" {
-  column {
+  dc: column {
     text text=@..->name;
 
-    dom tag="input" {
+    d: dom tag="input" {
       link from=@../..->param_path to=".->dom_obj_value" tied_to_parent=true;
       link to=@../..->param_path from=".->value" tied_to_parent=true 
          manual_mode=true
          soft_mode=true; // пустышки не передаем
 
-      dom_event name="change" code=`
-        env.params.object.setParam("value",parseFloat( env.params.object.dom.value ),true);
-      `;
-    };
-  };
-};
+      reaction (dom_event_cell @d "change") {: event_data obj=@d |
+         obj.setParam("value", parseFloat( event_data.target.value ), true )
+      :}
+
+    }
+  }
+}
 
 register_feature name="render-param-checkbox" {
   checkbox text=@.->name {
@@ -397,7 +399,7 @@ register_feature name="render-param-file" {
 register_feature name="render-param-files" {
   pf: param_field {
     link from=@pf->param_path to="@ff->value" tied_to_parent=true;
-    link to=@pf->param_path from="@ff->value" tied_to_parent=true soft_mode=true;
+    link to=@pf->param_path from="@ff->output" tied_to_parent=true soft_mode=true;
     ff: files;
   };
 };

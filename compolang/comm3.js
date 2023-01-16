@@ -1162,6 +1162,7 @@ export function join_cells( env ) {
 // доп. идея - можно задействовать уже delayed-вещи, чтобы соединять их всяко
 // todo т.е. можно объединять значения на delayed-принципе или доп-ом, как в lf, управлять режимом объединения 
 // этим в момент посылки сообщения
+// update - вообще конечно треш этот массив. лучше уж значение и index..
 export function join_cells_positional( env ) {
   let result = create_cell();
   env.setParam( "output", result );
