@@ -1179,11 +1179,16 @@ export function join_cells_positional( env ) {
   if (env.params.args_count > 0) {
     env.on("param_changed",(pn) => {
       if (pn == "output") return;
-      let arr = [];
+      setup_with_positional()      
+    })
+    setup_with_positional()      
+  }
+
+  function setup_with_positional() {
+    let arr = [];
       for (let i=0; i<env.params.args_count; i++)
         arr.push( env.params[i] );
       setup( arr )
-    })
   }
 
   function setup (arr) {

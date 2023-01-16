@@ -171,12 +171,16 @@ export function make_func( env )
       env_list = Object.values( dump.children );
       env_list.env_args = dump.children_env_args;
       env_call_scope = $scopeFor;
+      if (env_list.length > 0)
+        env.setParam( env.params.make_func_output || "output",f);
     }
     return Promise.resolve("success");
   }
 
   env.onvalue("code",(list) => {
     env_list = list;
+    if (env_list.length > 0)
+        env.setParam( env.params.make_func_output || "output",f);
   });
 
   //env.$vz_children_autocreate_enabled = false;
@@ -225,7 +229,7 @@ export function make_func( env )
     return k;
   }
 
-  env.setParam( env.params.make_func_output || "output",f);
+  
 
 };
 

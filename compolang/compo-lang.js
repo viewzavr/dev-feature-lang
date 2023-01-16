@@ -681,12 +681,18 @@ export function pipe(env)
    }
 }
 
+// F-EXPRESSIONS-INLINE-COMPUTE
+// + потребность отслеживать такие окружения с целью правильно понимать - создавать их или нет.
+// Мб кстати проще будет в этот компутер засадить в некий параметр - целевой параметр у хост-объекта.
+export function inline_computer(env) {}
+
 // потребность: удобный метод построения вычисления
 // computer { c1; c2; c3; }
 // такого что результат computer->output это есть c3->output
 // на это идет завязка из pegjs
 // F-PARAM-EXPRESSION-COMPUTE
 // update оказалось чухней и редким случаем; всегда только с1
+/*
 export function computer(env) 
 {
 
@@ -726,11 +732,6 @@ export function computer(env)
     if (c.hasParam(output_name))
         env.setParam("output", c.params[output_name] );
     
-    /*
-    c.on("feature-applied-link",() => {
-      console.log('link detected',c)
-    })
-    */
     
   };
   env.on("remove",unsub_and_forget);
@@ -744,6 +745,7 @@ export function computer(env)
   // вот тут мб делейед подошло бы а то она тыркаться будет каждый раз
   // но ладно пока @todo @optimize
 }
+*/
 
 
 // добавляет фичу в цепочку активации фич

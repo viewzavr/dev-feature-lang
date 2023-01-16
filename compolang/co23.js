@@ -125,6 +125,9 @@ export function reaction( env ) {
   let func
 
   env.onvalues_any(['input',0,1],() => {
+
+    if (env.params.debug)
+      debugger
     
   	unsub(); unsub = () => {};
 
@@ -136,7 +139,7 @@ export function reaction( env ) {
   		} else return
   	}
   	else {
-  		if (env.hasParam(0)) {
+  		if (env.hasParam(0) && (env.hasParam(1) || env.hasParam("f"))) {
   			channel = env.params[0]
   			func = env.params[1] || env.params.f
   		}

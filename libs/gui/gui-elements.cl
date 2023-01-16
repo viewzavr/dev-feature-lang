@@ -335,10 +335,12 @@ register_feature name="select_color" {
       }
     `;
 
+    
     reaction (race_channels (dom_event_cell @sc "change") (dom_event_cell @sc "input")) {: event_data obj=@sc |
     	event_data = event_data[0] || event_data[1]
     	var c = obj.hex2tri( event_data.target.value );
       obj.setParam("value",c,true);
+      console.log('emitting',c)
       obj.emit("user_change",c);
     :}
   }
