@@ -34,6 +34,7 @@ feature "animations_panel" {
 
      ap: animation-player 
             parameter=(@apan->project | geta "default_animation_parameter")
+            parameters=(find-objects-bf "param-info" | m-eval {: arr | return arr.filter( x => x.params.out ) :} | map_geta "path" )
             //search_root="/"
             //search_root=@apan->project
             //step_allowed=(( (@/->loading_files or [] ) | geta "length") == 0)

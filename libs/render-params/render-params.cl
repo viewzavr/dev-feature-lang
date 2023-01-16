@@ -364,21 +364,26 @@ register_feature name="render-param-float" {
 }
 
 register_feature name="render-param-checkbox" {
-  checkbox text=@.->name {
+  cb: checkbox text=@.->name {
     link from=@..->param_path to=".->value" tied_to_parent=true;
-    link to=@..->param_path from=".->value" tied_to_parent=true 
+    link to=@..->param_path from=".->user_value" tied_to_parent=true 
       manual_mode=true soft_mode=true;
+
+    connect (event @cb "user_change") (param @cb->obj @cb->name manual=true)
+
   }
 };
 
 register_feature name="render-param-color" {
-  column {
+  co: column {
     text text=@..->name;
     //text text=" : ";
     select_color {
       link from=@../..->param_path to=".->value" tied_to_parent=true;
       link to=@../..->param_path from=".->value" tied_to_parent=true 
         manual_mode=true soft_mode=true;
+
+
 /*
       connection event_name="param_value_changed" object=@.. code=`
         debugger;

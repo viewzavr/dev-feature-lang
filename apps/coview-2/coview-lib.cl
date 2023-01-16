@@ -189,6 +189,7 @@ feature "camera" {
         gui-slot @ccc "theta"  gui={ |in out| gui-slider @in @out min=-180 max=180 step=0.1 }
       }
     }
+    param-info "theta" out=true in=true
   }
 }
 

@@ -1142,7 +1142,7 @@ feature "link" {
 //   * имя name и тогда будет выставлено значение параметру объекта host
 export function setter( env )
 {
-   env.addParamRef("target","");
+   //env.addParamRef("target","");
    env.setParamOption("target","is_outgoing",true);
 
    //env.addObjectRef("object","");

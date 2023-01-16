@@ -98,7 +98,7 @@ feature "show_sources_params"
           //@sv->input | get-event-cell "remove" | m_eval "(evt,ch) => console.log(333); " (@sv | get-cell "settings_gui" );
 
           x-modify input=@mm->input {
-            x-set-params visible=(event @cbv "user_change" | get-value | console-log-input "ZZZ") __manual=true;
+            x-set-params visible=(event @cbv "user_change" | get-value) __manual=true;
             x-on "hide-settings" {
               lambda (@sv | get-cell "settings_gui" ) code="(gui_channel,obj,settings) => {
                 //if (gui_channel.get() == settings)

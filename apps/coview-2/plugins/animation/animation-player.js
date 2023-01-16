@@ -24,11 +24,18 @@ export function animation_player( obj, opts )
   //obj.setParamOption("enabled","visible",false);
 
   //obj.addCombo( "parameter",0,["a","b","c"] );
+  
+  /*
   obj.addParamRef( "parameter","", crit, (param_path) => {
     // здесь param_path это строковая ссылка
     // updateminmax();
-  }, root )
+  }, root )*/
 
+  obj.addComboValue( "parameter", obj.params.parameter, ["-"].concat( obj.params.parameters || []) )
+  obj.onvalue("parameters",() => {
+    obj.addComboValue( "parameter", obj.params.parameter, ["-"].concat( obj.params.parameters || []) )
+  })
+  
   obj.onvalue("parameter",updateminmax);
 
   //obj.setParamOption("parameter","title","Choose parameter")
@@ -123,8 +130,11 @@ export function animation_player( obj, opts )
   function updateminmax() {
     unsub(); unsub = () => {};
     if (!obj.params.parameter) return;
-    var [tobj,tparam] = obj.params.parameter.split("->");
-    tobj = root.findByPath( tobj );
+    var [tobjs,tparam] = obj.params.parameter.split("->");
+
+    let tobj = root.findByPath( tobjs );
+    //console.log("zeze",root)
+    // debugger
     if (!tobj) { updminmax_delayed(); return; }
 
     var g = tobj.getGui( tparam );
