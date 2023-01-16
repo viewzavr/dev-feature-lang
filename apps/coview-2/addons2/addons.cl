@@ -49,13 +49,14 @@ feature "addon" {
 // это запись об экземпляре
 feature "addon_object"
 
-addons_list: find-objects-bf features="addon";
+let addons_list =(find-objects-bf "addon")
+//console-log "addons_list=" @addons_list
 
 geffect3d: feature {
   ef: addon_object 
-      appropritate_addons = (m_eval "(list,elem) => {
+      appropritate_addons = ( m_eval "(list,elem) => {
         return list.filter( it => it.params.crit( elem ) )
-      }" @addons_list->output @ef->element)
+      }" @addons_list @ef->element)
       sibling_titles=(@ef->appropritate_addons | map_geta "title")
       sibling_types=(@ef->appropritate_addons | map_geta "type")
       element=@..
@@ -217,7 +218,7 @@ feature "effect3d_pos" {
     {{ x-param-float name="z"; }}
     x=0 y=0 z=0
 
-    gui={render-params @eo; }
+    gui={ render-params @eo }
     ~x-patch-r code=`(tenv) => {
       //console.log("patching",tenv.getPath(),env.params.x,env.params.y,env.params.z);
         if (!tenv) debugger;

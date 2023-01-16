@@ -13,14 +13,14 @@ feature "show_addons"
 
           dom_group {
 
-            if ( (@amm->input | geta "title" default='') == "-") {
+            if ( (@amm->input | geta "title" default='-') == "-") {
 
                row 
                
                {
                    oct: object_change_type text="" input=@amm->input
-                      types=(@amm->input  | geta  "sibling_types" default=[] )
-                      titles=(@amm->input | geta "sibling_titles" default=[] )
+                      types=(@amm->input  | geta "sibling_types" default=[] )
+                      titles=(@amm->input | geta "sibling_titles" default=[])
                       {{ reaction (event @oct "type-changed") {: obj | obj.setParam('tab_expanded',true):} }}
                       //{{ x-on "type-changed" { m_lambda "(e) => { e.setParam('expanded',true); }" @amm }; }};
                }
@@ -32,7 +32,7 @@ feature "show_addons"
                  	acbv: checkbox value=(@amm->input | geta "visible");
                   button (@amm->input | geta "title")
                   {
-                    m_apply "(env) => env.setParam('expanded', !env.params.expanded, true)" @amm;
+                    m_apply "(env) => { env.setParam('expanded', !env.params.expanded, true) }" @amm;
                   };
                     
                   x-modify input=@amm->input {
@@ -46,14 +46,17 @@ feature "show_addons"
 
            }; // else
 
-         };
+         } // dom-group
 
          button "x" style="position:absolute; top:5px; right:3px;" 
               {
                 lambda @amm->input code=`(obj) => { obj.removedManually = true; obj.remove(); }`;
               };
 
-         insert_children input=@.. list=(@amm->input | get_param "gui") active=@amm->expanded;
+         iccc: insert_children input=@.. list=(@amm->input | get_param "gui") active=@amm->expanded;
+
+         //console-log "@amm->expanded=" @amm->expanded "iccc=" @iccc
+
         }; 
 
     }; // svlist  

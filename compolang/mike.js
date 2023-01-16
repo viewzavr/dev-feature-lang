@@ -37,6 +37,7 @@ export function m_eval( env ) {
     // надо бы и инпут подсобрать
     //if (env.paramAssigned)
     if (env.hasParam("input") || env.hasLinksToParam( "input")) {
+    //if (env.paramConnected( "input")) {
       let v = env.params.input;
       
       /* пусть тема инпута контролируется ток одним
@@ -108,10 +109,13 @@ export function m_eval( env ) {
 */  
 
   env.on('param_changed', (name) => {
+
      if (name != "output" && name != "recompute" && name != 0) {
         //console.log("eval scheduled due to param change",name)
 
         //if (name == 0 || name == "0") update_code();
+
+        
 
         if (env.params.react_only_on_input && name != "input") return;
         //console.log("eval scheduled due to param change",name,env.getPath())
@@ -157,6 +161,8 @@ export function m_eval( env ) {
   })
 
   env.addCmd("recompute",eval_delayed);
+
+  eval_delayed(); // таки попробуем вычислица
 
 // косяк евала иметь 2й вызов вычисления
 // по сути оно с первым не связано и посему - они оба выполнятся

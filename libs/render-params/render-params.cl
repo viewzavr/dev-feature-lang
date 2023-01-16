@@ -130,14 +130,16 @@ register_feature name="render-params" {
     // а кстати классно было бы cmd="(** file_uploads)->recompute"
     // connection object=@..->object event_name="gui-added" cmd="@getparamnames->recompute";
 
-    insert_children @extra_filters list=@rp->filters?;
+    insert_children @extra_filters list=@rp->filters?
 
-    @rp->object? | get-params-names | extra_filters: pipe
-    | repeater { |name|
+    ///console-log "repa=" @rep
+
+    read @rp->object? | get-params-names | extra_filters: pipe
+    | rep: repeater { |name|
       column {
-        render-one-param obj=@rp->object name=@name;
-      };
-    };
+        render-one-param obj=@rp->object name=@name
+      }
+    }
 
     // todo - вставить сюда рекурсию для детей и для фич.. или хотя бы для фич.. можно управляемую @idea
 
@@ -149,15 +151,20 @@ register_feature name="render-params" {
 register_feature name="render-one-param" {
   dg: dom_group {{
 
-      x-on "param_obj_changed"  cmd="@x->apply";
-      x-on "param_name_changed" cmd="@x->apply";
-      x: func {{ delay_execution }} cmd="@dm->apply";
-      // x: func cmd="@dm->apply";
+      //x-on "param_obj_changed"  cmd="@x->apply";
+      //x-on "param_name_changed" cmd="@x->apply";
+      //x: func {{ delay_execution }} cmd="@dm->apply";
+
+      connect (param @dg "obj") (method @dm "apply")
+      connect (param @dg "name") (method @dm "apply")
+      //connect (timeout 1) (method @dm "apply")
+      method @dm "apply" | put-value null
 
       // ну хорошо, а зачем? вроде типы у нас не шибко меняются..
       // выяснилось что слайдер читает gui-структуру.. и сообразно не перестраивается.
       // конечно если это бы все хранилось в отдельной vz-объектоной структуре то было бы лучше
-      read @dg->obj | get-cell (join "gui-changed-" @dg->name) | c-on @x->apply;
+      //read @dg->obj | get-cell (join "gui-changed-" @dg->name) | c-on @x->apply;
+      connect (event @dg->obj (join "gui-changed-" @dg->name)) (method @dm "apply")
 
       // старое
       //@dg->obj | get-cell (join "gui-changed-" @dg->name) | c-on "(pname, x) => x ? x() : null" @x->apply;

@@ -608,7 +608,8 @@ export function pipe(env)
     if (pipe_is_generating_links) return;
     delayed_chain_children()
   });
-  //delayed_chain_children(); // тырнем разик вручную
+
+  delayed_chain_children(); // тырнем разик вручную
   
   // микрофича - передать команду apply первому ребенку
   env.addCmd("apply",(...args) => {
@@ -625,7 +626,11 @@ export function pipe(env)
       //console.log("chain_children: pipe ",env.getPath())
       let cprev;
       let cfirst;
-      created_links.forEach( (l) => l.remove() );
+      created_links.forEach( (l) => {
+        
+        if (l)
+           l.remove()
+      } );
       created_links = [];
       // а почему бы мне не создать особый tree для ссылок да и все?
       
@@ -2650,7 +2655,9 @@ export function recreator( env, opts )
   env.addCmd("apply",( arg_list=null ) => {
     //console.log("redeploy called",env.getPath())
 
-    deploy_normal_env_all( arg_list || env.params.list );
+    // deploy_normal_env_all( arg_list || env.params.list );
+    // пусть он всегда от своих параметров пляшет а не от внешних
+    deploy_normal_env_all( env.params.list );
   });
 
  // режим "repeater-mode" - развернуть всех в родителя (хотя может и можно не в родителя)

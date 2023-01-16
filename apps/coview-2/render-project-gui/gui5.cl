@@ -86,11 +86,9 @@ feature "created_add_to_current_view" {
 feature "button_add_object" {
   bt_root: button "Добавить" margin="0.5em" {
         
-        link from="@bt_root->add_to" to="@cre->target" soft_mode=true;
+        //link from="@bt_root->add_to" to="@cre->target" soft_mode=true;
 
-        //connect (event @cre "created")
-
-        cre: creator input={}
+        cre: creator input={} target=@bt_root->add_to
           {{ onevent 
              name="created" 
              newf=@bt_root->add_type?
@@ -122,9 +120,9 @@ feature "button_add_object" {
 feature "button_add_object_t" {
   bt_root: button "Добавить" margin="0.5em" {
         
-        link from="@bt_root->add_to" to="@cre->target" soft_mode=true;
+        //link from="@bt_root->add_to" to="@cre->target" soft_mode=true;
 
-        cre: creator input=(@bt_root->add_template | dump_to_manual)
+        cre: creator input=(@bt_root->add_template | dump_to_manual) target=@bt_root->add_to
           {{ onevent 
              name="created" 
              //newf=@bt_root->add_type
