@@ -49,8 +49,10 @@ export function n_func( env )
   		processed_h[k] = true;
   		if (!env.hasParam(k)) return; // не присвоен? выходим
   	}
+
+
   	// ну так пока не оч красиво но зато действенно
-  	for (let k of env.params_with_incoming_links()) {
+  	for (let k of env.getConnectedParamsNames()) {
   		if (my_params[k]) continue;
   		if (processed_h[k]) continue;
       processed_h[k] = true;

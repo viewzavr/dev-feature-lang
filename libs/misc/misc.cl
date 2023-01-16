@@ -424,7 +424,7 @@ feature "let" {: env |
   for (let k of env.getParamsNames()) {
     process_param( k, env.getParam(k));
   };
-  let linked_params = env.params_with_incoming_links();
+  let linked_params = env.getConnectedParamsNames();
   for (let k of linked_params) {
     if (!env.hasParam( k )) // потому что уже обработали..
        process_param( k, env.getParam(k)); 
