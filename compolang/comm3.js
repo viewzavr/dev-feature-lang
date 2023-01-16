@@ -354,6 +354,11 @@ export function get_or_create_cell( target,name, default_value, assign_default_v
 // todo manual надо будет отработать видимо на уровне опций ячейки, что ли..
 export function get_param_cell( target, name, ismanual ) {
 
+  if (name == null) {
+    console.warn( "get_param_cell: no name", target,name,ismanual)
+    debugger
+  }
+
   let name_for_table = ismanual ? "manual:"+name : name
 
   let c = get_or_create_cell( target, name_for_table, target.getParam(name), target.hasParam(name) );

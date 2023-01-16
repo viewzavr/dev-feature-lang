@@ -656,9 +656,10 @@ export function pipe(env)
       if (cfirst) {
           //if (!cfirst.hasLinksToParam("input") && !cfirst.hasParam("input"))
           // заменяем наличие параметра на наличие непустого значения параметра
-          if (!cfirst.hasLinksToParam("input") && !cfirst.getParam("input"))
+          //if (!cfirst.hasLinksToParam("input") && !cfirst.getParam("input"))
+          if (!cfirst.paramConnected("input"))
           {
-            if (env.hasLinksToParam("input")) // если у пайпы есть input..
+            if (env.paramConnected("input")) // если у пайпы есть input..
                 created_links.push( cfirst.linkParam("input",`..->input`,true, false, true) );
           }
           // но в целом он может появиться и динамически... возможный баг тут...
@@ -704,8 +705,9 @@ export function computer(env)
 
     set_unsub( c.trackParamAssigned(output_name,(v) => {
       //console.log("expr: param assigned", env.getPath())
-      if (!env.hasLinksFromParam("output"))
-         console.warn("computer env has no links from it's output",env)
+      // F-AUTO-LINKS - убрали следующую проверку
+      // if (!env.hasLinksFromParam("output"))
+      //   console.warn("computer env has no links from it's output",env)
       env.setParam("output",v);
     }) );
     //if (c.hasParam(output_name)) // этот иф дает такое поведение что если результата вычисления нет то его и у выражения нет
@@ -801,7 +803,7 @@ export function register_feature( env, envopts ) {
 
       env.feature("delayed");
       let warn_value_not_found = env.delayed( () => {
-        console.warn("feature not initing:", env.params )
+        console.warn("feature not initing:", env )
         env.vz.console_log_diag( env )
       }, 20 )
       warn_value_not_found();

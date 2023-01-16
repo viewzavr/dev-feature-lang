@@ -411,7 +411,7 @@ export function map_geta( env )
              env.signalParam("output");
              // получается мы молча ничего не прочитали и не поругались
              warn_func_stop = env.timeout( () => {
-               console.warn( "geta: no requested data in source object, arg=[", env.params[0],"] input=[",env.params.input,"]", env.getPath());
+               console.warn( "geta: no requested data in source object, arg=[", env.params[0],"] input=[",env.params.input,"]", env);
                env.vz.console_log_diag( env );
              }, 300 );
           }
@@ -424,4 +424,8 @@ export function map_geta( env )
     
     go_next_level( nv, params, current_arg_pos,cb,unsub_struc, () => {} );
   }
+
+  if (env.hasParam("input") && env.hasParam(0))
+    process( env.params.input )
+
 }

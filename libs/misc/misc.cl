@@ -2,7 +2,7 @@
 feature "map" {
   r: repeater 
       use_outer_scope = true
-      output_param="output_objects" 
+      output_param="output_objects"  // указываем репитеру писать результат тудысь
       output=(read @r.output_objects | map-geta "output")
 }
 
@@ -424,7 +424,7 @@ feature "let" {: env |
   for (let k of env.getParamsNames()) {
     process_param( k, env.getParam(k));
   };
-  let linked_params = env.linksToObjectParamsNames();
+  let linked_params = env.params_with_incoming_links();
   for (let k of linked_params) {
     if (!env.hasParam( k )) // потому что уже обработали..
        process_param( k, env.getParam(k)); 

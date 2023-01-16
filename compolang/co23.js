@@ -50,13 +50,15 @@ export function n_func( env )
   		if (!env.hasParam(k)) return; // не присвоен? выходим
   	}
   	// ну так пока не оч красиво но зато действенно
-  	for (let k of env.linksToObjectParamsNames()) {
+  	for (let k of env.params_with_incoming_links()) {
   		if (my_params[k]) continue;
   		if (processed_h[k]) continue;
+      processed_h[k] = true;
   		arr.push( k )
   		vals.push( env.params[k] )
   		if (!env.hasParam(k)) return; // не присвоен? выходим - потому что как мы будем проводить вычисление, обещая коду что данные есть, а их еще нет?
   	}
+
 
   	let code = env.params.code;
   	// короче практика показала что это какой-то вынос мозга..
