@@ -9,7 +9,7 @@ register_feature name="collapsible" {
       };
 
       pcol: 
-      column visible=@cola->expanded? {{ use_dom_children from=@../..; }};
+      column visible=@cola->expanded? {{ use_dom_children from=@cola; }};
 
       insert_features input=@btn  list=@cola->button_features?;
       insert_features input=@pcol list=@cola->body_features?;

@@ -206,7 +206,7 @@ register_feature name="slider" {
                  ";
 
          // если мы садимся на max параметр то до dom еще не докатывается получается        
-         on "param_dom_max_changed" cmd=".->refresh_slider_pos";
+         on "param_dom_max_changed" cmd="..->refresh_slider_pos";
 	    }}
 	{
 		/*
@@ -724,7 +724,8 @@ register_feature name="switch_selector_row" {
 };
 
 feature "hilite_selected" {
-  hs: object index=@.->index generated_items=@.->generated_items {
+  hs: object index=@..->index generated_items=@..->generated_items 
+  {
 	  geta @hs->index input=@hs->generated_items default=[]
 	  | x-modify {
 		   x-set_params dom_style_background="rgb(166 209 255 / 65%)" dom_style_border="1px solid";
