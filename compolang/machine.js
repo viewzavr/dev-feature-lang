@@ -25,6 +25,8 @@ import * as lang from "./compo-lang.js";
 export function compolang_machine(obj) {
   obj.feature("simple-lang delayed");
   var go = obj.delayed(interpret);
+  //let t =  obj.vz.tools.delayed( obj )
+  //let go = t.delayed(interpret )
   
   obj.addText( "text", "",go );
   obj.addString("base_url","",go);

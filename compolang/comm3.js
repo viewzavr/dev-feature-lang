@@ -714,6 +714,8 @@ export function get_cell_value( env ) {
 
     let fnd = env.delayed( fn ); // не факт кстати что это надо будет - мб надо сразу для скорости
 
+    //let fnd = env.vz.tools.delayed( env, fn );
+
     function fn() {
       call_unsub();
       let has_assigned_values = false;

@@ -680,9 +680,9 @@ export function pipe(env)
 // такого что результат computer->output это есть c3->output
 // на это идет завязка из pegjs
 // F-PARAM-EXPRESSION-COMPUTE
+// update оказалось чухней и редким случаем; всегда только с1
 export function computer(env) 
 {
-
 
   let unsub=()=>{};
   function unsub_and_forget() { unsub();unsub = ()=>{}; }
@@ -1154,6 +1154,7 @@ export function setter( env )
       var arr = t.split("->");
       tname = arr[1];
       tobj = env.findByPath( arr[0], env );
+      //env.vz.find_by_path( env, arr[0] )
    })
    //////////////////////////////
 
@@ -3932,6 +3933,7 @@ export function catch_children(env) {
     let v = children_env_list.map(a => ({...a}))
     v.env_args = children_env_list.env_args;
     // todo - перестать копировать! создать над-структуру надо. { scope, items }
+    // todo optimize!
 
     for (let k of v)
       k.$scopeFor = tscope;
