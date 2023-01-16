@@ -589,6 +589,8 @@ export function load_package(env,opts)
 // это кстати напоминает "режим" в kepler
 export function pipe(env) 
 {
+  env.$pipe_chain_counter = 0
+
   let pipe_is_generating_links;
   // var delayed = require("delayed");
   env.feature("delayed");
@@ -602,7 +604,9 @@ export function pipe(env)
 
     if (pipe_is_generating_links) return;
 
+    // chain_children(false); низя их сразу так делать - они еще не готовы, у них линки битые
     delayed_chain_children()
+    
   });
   env.on('forgetChild',(c) => {
     if (pipe_is_generating_links) return;
@@ -620,7 +624,9 @@ export function pipe(env)
 
   let created_links = [];
 
-  function chain_children() {
+  function chain_children( include_hvost = true ) {
+      env.$pipe_chain_counter++
+
       pipe_is_generating_links = true;
 
       //console.log("chain_children: pipe ",env.getPath())
@@ -649,16 +655,16 @@ export function pipe(env)
          cprev = c;
       }
       // output последнего ставим как output всей цепочки
-      if (cprev)
-          created_links.push( env.linkParam("output",`${cprev.ns.name}->output`,true, false, true) );
-      else
-          created_links.push( env.linkParam("output",`~->input`,true, false, true) ); // по умолчанию выход из пайпы пусть будет и входом?
-          //created_links.push( env.linkParam("output",`.->input`) ); // по умолчанию выход из пайпы пусть будет и входом?
+      if (include_hvost) {
+        if (cprev)
+            created_links.push( env.linkParam("output",`${cprev.ns.name}->output`,true, false, true) );
+        else
+            created_links.push( env.linkParam("output",`~->input`,true, false, true) ); // по умолчанию выход из пайпы пусть будет и входом?
+            //created_links.push( env.linkParam("output",`.->input`) ); // по умолчанию выход из пайпы пусть будет и входом?
+      }        
           
       // input первому ставим на инпут пайпы
-
-      /* 30.08.22 зачем это? */
-      if (cfirst) {
+      if (cfirst && include_hvost) {
           //if (!cfirst.hasLinksToParam("input") && !cfirst.hasParam("input"))
           // заменяем наличие параметра на наличие непустого значения параметра
           //if (!cfirst.hasLinksToParam("input") && !cfirst.getParam("input"))
@@ -1659,7 +1665,8 @@ export function repeater( env, fopts, envopts ) {
         // но получается мы не сможем пайпу так генерить..
 
         // если там ()-выражение, то в него нельзя добавлять.. ну по идее.. и посему будем добавлять в себя
-        if (target_parent.is_feature_applied("computer"))
+        // теперь у нас такой признак еще - оно там ну не имеет родителя ибо в аттачед-фичах сидят
+        if (!target_parent || target_parent.is_feature_applied("computer"))
           target_parent=env;
      }
 
