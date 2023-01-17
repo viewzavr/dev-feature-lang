@@ -747,7 +747,6 @@ export function computer(env)
 }
 */
 
-
 // добавляет фичу в цепочку активации фич
 // пример: append_feature "rect" "rounded red"
 // и значит когда создается объект rect к нему цепляются фичи rounded и red

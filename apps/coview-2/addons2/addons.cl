@@ -50,7 +50,7 @@ feature "addon" {
 feature "addon_object"
 
 let addons_list =(find-objects-bf "addon")
-console-log "addons_list=" @addons_list
+
 
 geffect3d: feature {
   ef: addon_object 
