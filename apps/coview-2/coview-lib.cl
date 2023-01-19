@@ -192,6 +192,8 @@ feature "camera" {
       }
     }
     param-info "theta" out=true in=true
+    param-info "pos" out=true in=true
+    param-info "center" out=true in=true
   }
 }
 

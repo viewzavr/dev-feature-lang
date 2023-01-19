@@ -387,45 +387,28 @@ feature "cv_mesh" {
   }
 }
 
-///////////////////// меш
+/////////////////////
+/*
 coview-record title="Поиск пересечений по клику" type="cv_intersect_mouse" cat_id="process"
 
 feature "cv_intersect_mouse" {
   x: process
     title="Поиск пересечений по клику"
     ~have-scene-env
-    convert_fn = {: event domElement | return {
-            x: (event.clientX / domElement.clientWidth) * 2 - 1,
-            y: -(event.clientY / domElement.clientHeight) * 2 + 1,
-        } :}
     scene_env = { |show_3d_scene_r opacity| 
 
-       let cam = @show_3d_scene_r.camera
+       let cam = @show_3d_scene_r.camera.output
        let scene_items = @show_3d_scene_r.scene3d
-       let THREE=(import_js (resolve_url "../../../libs/lib3dv3/three.js/build/three.module.js"))
+       //let THREE=(import_js (resolve_url "../../../libs/lib3dv3/three.js/build/three.module.js"))
 
-       reaction (dom-event-cell @show_3d_scene_r "click") {: event convert_fn=@x.convert_fn THREE=@THREE threejs_camera=@cam.output scene_items=@scene_items domElement=@show_3d_scene_r.dom x=@x |
-
-        let raycaster = new THREE.Raycaster()
-        let mouse = convert_fn( event, domElement )
-        raycaster.setFromCamera(mouse, threejs_camera)
-
-        const intersects = raycaster.intersectObjects( scene_items, true )
-
-        //console.log( "intersects=",intersects)
-
-        x.setParam("output",intersects)
-
-        if (intersects.length > 0) {
-          let pt = intersects[0].point
-          let coord_arr = [ pt.x, pt.y, pt.z ]  
-          x.setParam("successful_coords", coord_arr )
-          //x.setParam("successful_coords", coord_arr ) 
-          x.emit("successful_coords_event", coord_arr ) // что тоже интересно
-        }
-
-        //console.log( "click", event_data, threejs_camera,scene_items,dom)
-       :}
+       reaction (dom-event-cell @show_3d_scene_r "click") { |event| 
+                compute_intersect 
+                  (m-eval {: event=@event domElement=@show_3d_scene_r.dom | 
+                                           return { x: (event.clientX / domElement.clientWidth) * 2 - 1, y: -(event.clientY / domElement.clientHeight) * 2 + 1 } :})
+                  @cam
+                  @scene_items
+                  @x
+       }
     }
     {
       param-info "output" out=true
@@ -439,10 +422,10 @@ feature "cv_intersect_mouse" {
 
     }
 }
-/* вот образец - люблю делать "готовое удобное"
-   а по факту это 2 вещи слеплены. ловилка кликов по поверхности ареа. и - реакция на это в форме вот указанной.
-   todo придумать как правильно "расшить" их
-*/
+// вот образец - люблю делать "готовое удобное"
+//   а по факту это 2 вещи слеплены. ловилка кликов по поверхности ареа. и - реакция на это в форме вот указанной.
+//   todo придумать как правильно "расшить" их
+//
 
 coview-record title="Поиск пересечений центра" type="cv_intersect_center" cat_id="process"
 
@@ -450,4 +433,65 @@ feature "cv_intersect_center" {
   x: cv-intersect-mouse
     title="Поиск пересечений центра"
     convert_fn = {: event domElement | return { x: 0, y: 0 } :}
+}
+
+// screen_coords - координаты [ -1..1, -1..1 ]
+let THREE=(import_js (resolve_url "../../../libs/lib3dv3/three.js/build/three.module.js"))
+
+jsfunc "compute_intersect" {: screen_coords threejs_camera scene_items obj THREE=@THREE |
+
+        let raycaster = new THREE.Raycaster()
+        ///let mouse = convert_fn( event, domElement )
+        raycaster.setFromCamera(mouse, threejs_camera)
+
+        const intersects = raycaster.intersectObjects( scene_items, true )
+
+        //console.log( "intersects=",intersects)
+
+        obj.setParam("output",intersects)
+
+        if (intersects.length > 0) {
+          let pt = intersects[0].point
+          let coord_arr = [ pt.x, pt.y, pt.z ]  
+          obj.setParam("successful_coords", coord_arr )
+          //x.setParam("successful_coords", coord_arr ) 
+          obj.emit("successful_coords_event", coord_arr ) // что тоже интересно
+        }
+
+        //console.log( "click", event_data, threejs_camera,scene_items,dom)
+:}
+*/
+
+// послали сигнал perform получили результат на выходах
+feature "scene_intersector" {
+  x: object 
+    //scene_coords=[0,0]
+    //threejs_camera=null
+    //scene_items=[]
+  {
+    let THREE1=(import_js (resolve_url "../../../libs/lib3dv3/three.js/build/three.module.js"))
+    reaction (event @x "perform") {: screen_coords=@x.scene_coords threejs_camera=@x.threejs_camera scene_items=@x.scene_items obj=@x THREE=@THREE1 |
+         
+        let raycaster = new THREE.Raycaster()
+        ///let mouse = convert_fn( event, domElement )
+        raycaster.setFromCamera(screen_coords, threejs_camera)
+
+        const intersects = raycaster.intersectObjects( scene_items, true )
+
+        //console.log( "intersects=",intersects)
+
+        obj.setParam("output",intersects)
+
+        if (intersects.length > 0) {
+          let pt = intersects[0].point
+          let coord_arr = [ pt.x, pt.y, pt.z ]  
+          obj.setParam("successful_coords", coord_arr )
+          //x.setParam("successful_coords", coord_arr ) 
+          obj.emit("successful_coords_event", coord_arr ) // что тоже интересно
+        }
+
+        //console.log( "click", event_data, threejs_camera,scene_items,dom)
+    :}
+
+  }
 }

@@ -384,19 +384,33 @@ feature "addon-map-control" {
 /// неудачный дизайн - все в одном
 /// надо бы расчет центра вытащить в отдельное "поведение" и пусть оно пуляет событиями
 /// а реакция на эти события - передавать их центру камеры, это отдельная история должна быть
-addon "addon-map-center" "Камера - центрирование"
+addon "addon-map-center" "Центрирование камеры"
 
 feature "addon-map-center" {
   vp: geffect3d 
-     title = "Камера - центрирование"
+     title = "Центрирование камеры"
      ~have-scene-env
+     //position=[0,0,0] вроде как в этом нет нужды
      scene_env={ |show_3d_scene|
        
        //console-log "privet medved" @show_3d_scene
        if @vp.visible {
-          ic: cv_intersect_center
-          reaction (event @ic "successful_coords_event") (param @show_3d_scene.camera.center)          
+
+          letinfo: let cam1 = @show_3d_scene.camera.output
+          let scene_items = @show_3d_scene.scene3d
+
+          console-log "cam=" @cam1 "letinfo=" @letinfo
+
+          iss: scene_intersector threejs_camera=@cam1 scene_items=@scene_items scene_coords=(m-eval {: return {x:0, y:0} :})
+
+          reaction (dom-event-cell @show_3d_scene "click") (event @iss "perform")
+          reaction (event @iss "successful_coords_event") (param @show_3d_scene.camera "center")
+          
+          //reaction (event @iss "successful_coords_event") (param @vp "position")
        }
+     }
+     {
+       //param-info "position" out=true
      }
      /*
      gui={ paint-gui @vp filter=["main"] }
