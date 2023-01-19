@@ -380,13 +380,34 @@ feature "addon-map-control" {
      }
 }
 
-/*
-addon3d "effect3d-debug" "Отладка";
-feature "effect3d_debug" {
-  eff: geffect3d
-  {{ x-param-cmd name="Запустить js отладчик" cmd="debugger" }}
-};
-*/
+/////////////////////
+/// неудачный дизайн - все в одном
+/// надо бы расчет центра вытащить в отдельное "поведение" и пусть оно пуляет событиями
+/// а реакция на эти события - передавать их центру камеры, это отдельная история должна быть
+addon "addon-map-center" "Камера - центрирование"
+
+feature "addon-map-center" {
+  vp: geffect3d 
+     title = "Камера - центрирование"
+     ~have-scene-env
+     scene_env={ |show_3d_scene|
+       
+       //console-log "privet medved" @show_3d_scene
+       if @vp.visible {
+          ic: cv_intersect_center
+          reaction (event @ic "successful_coords_event") (param @show_3d_scene.camera.center)          
+       }
+     }
+     /*
+     gui={ paint-gui @vp filter=["main"] }
+     {
+      gui {
+        gui-tab "main" {
+          gui-slot @vp "damping" gui={ |in out| gui-checkbox @in @out }
+        }
+      }
+     }*/
+}
 
 /// ну тут вопрос что входы хотелось бы из других объектов..
 addon3d "effect3d-colorize" "Раскраска по данным";

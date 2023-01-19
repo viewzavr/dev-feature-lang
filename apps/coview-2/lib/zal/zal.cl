@@ -12,7 +12,7 @@ feature "zal" {
       }
 
       // добавим управление как карта
-      insert_children list={ addon-map-control } input=(read @p | get_parent)
+      insert_children list={ addon-map-control; addon-map-center } input=(read @p | get_parent)
 
       f_select: cv-select-files
       //f_text: load-text input=@f_select.first_file

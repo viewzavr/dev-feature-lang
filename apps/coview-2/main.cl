@@ -17,15 +17,16 @@ project: the_project
 
   l1: layer title="Слой №1" {
     //test-process count=77
-    camera pos=[10,10,10];
+    cam: camera pos=[10,10,10];
     axes_view
 
-    cv_intersect_center
+    //ic: cv_intersect_center
+    //link from="@ic->successful_coords" to="@cam->center" soft_mode=true
   }
 
   l2: layer title="Физкульт-привет 2" {
     //test-process count=77
-    camera pos=[10,10,10];
+    cam2: camera pos=[10,10,10];
   }
 
     v1: the_view_recursive title="Визуализация"
