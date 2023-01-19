@@ -13,9 +13,9 @@ export function load_file( env ) {
 
   //function go() {
 
-  function actual_file_path() { return (env.params.file || env.params[0]) }
+  function actual_file_path() { return (env.params.file || env.params[0] || env.params.input) }
 
-  env.monitor_values(["file",0], () => {
+  env.monitor_values(["file",0,"input"], () => {
     let file = actual_file_path();
     //file ||= f0
     //let file = env.params.file || env.params[0]

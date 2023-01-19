@@ -17,19 +17,22 @@ feature "zal" {
       f_select: cv-select-files
       //f_text: load-text input=@f_select.first_file
       //let geom = (read @f_text.output | compalang)
-      let geom = (load-file @f_select.first_file | compalang)
+      let geom = (read @f_select.output | find-file "^data\.txt$"| load-file | compalang)
+      let rad = (read @f_select.output | find-file "rad.*\.csv$"| load-file | text2arr)
+      let trajectories=(@f_select.output | find-file ".*\.out$" | load-file | xtract_trajs)
 
       insert_children list=@geom input=@zal
 
       console-log "zal is" @zal
 
       zal: node3d ~layer-object title="Геометрия зала" { // среда для моделирования, world -- update а ведь нет, теперь это сцена
-          
+
+        
           g: grid // ну это рисование сетки
-            rangex=(find-objects-bf "RangeX" root=@zal | geta 0 | geta 1)
-            rangey=(find-objects-bf "RangeY" root=@zal | geta 0 | geta 1)
-            stepx=(find-objects-bf "GridStep" root=@zal | geta 0 | geta 0)
-            stepy=(find-objects-bf "GridStep" root=@zal | geta 0 | geta 1)
+            rangex=((find-objects-bf "RangeX" root=@zal | geta 0 | geta 1) or 0)
+            rangey=((find-objects-bf "RangeY" root=@zal | geta 0 | geta 1) or 0)
+            stepx=((find-objects-bf "GridStep" root=@zal | geta 0 | geta 0) or 1)
+            stepy=((find-objects-bf "GridStep" root=@zal | geta 0 | geta 1) or 1)
             //gridstep=(find-objects-bf "GridStep" root=@zal | geta 0 | m-eval {: obj | obj ? [obj.params[0], obj.params[1]] : [100,100] :} )
             opacity=0.3
             visible=false
@@ -42,21 +45,22 @@ feature "zal" {
             stepx=(@g.stepx * 100) stepy=(@g.stepy * 100)
             color=[0,1,0] radius=2
 
-/*        ето радиация
-          radpts: points
+          traj_optimal: cv-cylinders positions=(read @trajectories.0 | make-strip) radius=10 color=[0,1,1]
+
+        //ето радиация
+          radpts: cv-points title="Расчёты поля"
              positions=(generate_grid_positions_pt rangex=@g.rangex rangey=@g.rangey stepx=@g.stepx stepy=@g.stepy) 
-             colors=(arr_to_colors input=(@pz.input.rad or []) base_color=[1,0,0])
+             colors=(arr_to_colors input=(@rad or []) base_color=[1,0,0])
              radius=0.15
 
-          traj_optimal: cylinders positions=(@pz.input.trajectories.0 | make-strip) radius=10 ~editable-addons color=[0,1,1]
-*/          
+          
           //m-eval {: obj=@traj_optimal.output |  let r = 10; obj.scale.set( r,r,r ) :}
 
           //console-log "QQQQ=" @pz.input.trajectories.0
 
              //console-log "A1=" @radpts.positions "A2=" @radpts.colors "a3=" @pz.input.rad
 
-          measuring_points: cv-spheres title="Точки замера"
+          measuring_points: cv-spheres title="MeasuringPoints"
             positions=(find-objects-bf "MeasuringPoint" root=@zal | map { |x| list (10 * @x.0) 0 (10 * @x.1) } | arr_flat)
             //positions=(find-objects-bf "MeasuringPoint" root=@zal | map-geta "pos" | arr_flat) 
             color=[1,0,0] radius=30 opacity=0.2
@@ -64,6 +68,8 @@ feature "zal" {
           vertex: cv-spheres title="Vertex"
             positions=(find-objects-bf "Vertex" root=@zal | map { |x| list (0 + (10 * @x.0)) 0 (10 * @x.1) } | arr_flat)
             color=[0,0,1] radius=30 opacity=0.2   
+
+          ObstaclesLayer title="Obstacles"  
 
         }       
 
@@ -106,19 +112,32 @@ feature "RandomPathsCount"
 feature "RangeDose"
 feature "RandSeed"
 
+/*
 feature "ObstacleCircle" {
-  x: object {
-     node3d {
-       cylinders nx=100 positions=(list @x->0 0 @x->1 @x->0 500 @x->1) color=[1,1,1] radius=@x->2   
+  x: node3d {
+       cyl: cylinders nx=100 positions=(list @x->0 0 @x->1 @x->0 500 @x->1) color=[1,1,1] radius=@x->2   
      }
-  }
+}*/
+
+feature "ObstacleCircle" {
+  x: object positions=(list @x->0 0 @x->1 @x->0 500 @x->1) color=[1,1,1] radius=@x->2   
+}
+
+feature "ObstacleCircleLayer" {
+  x: cv-mesh {{ let nodes=(find-objects-bf "ObstacleCircle" root=(read @x | get_parent)) }}
+      positions = (read @nodes | map_geta "positions" | arr_concat)
+}
+
+// слой геометрии - соединяет всех
+// но вообще.. не помешало бы умение.. просто выделить всех.. или.. навесить модификатор на группу..
+feature "ObstaclesLayer" {
+  x: cv-mesh {{ let nodes=(find-objects-bf "ObstaclePolyStart" root=(read @x | get_parent)) }}
+      positions = (read @nodes | map_geta "positions" | arr_concat)
 }
 
 feature "ObstaclePolyStart" {
-  x: object nodes=(find-objects-bf "ObstaclePolyPoint" root=@x)
-     {
-     node3d {
-      mesh positions=(m-eval {: nodes=@x.nodes |
+  x: object {{ let nodes=(find-objects-bf "ObstaclePolyPoint" root=@x) }}
+      positions=(m-eval {: nodes=@nodes |
         let arr = [];
         let z = 250
         for (let i=0; i<nodes.length; i++) {
@@ -138,9 +157,9 @@ feature "ObstaclePolyStart" {
         })*/
         return arr
       :})
-     }
-     }  
+       
 }
+
 feature "ObstaclePolyPoint" {: env |
   //console.log("qq",env.ns.parent)
   let cc = env.ns.parent.ns.getChildren();
@@ -198,3 +217,50 @@ feature "generate_grid_positions_pt" {
   :})
 }
 
+///////////////////////////////
+jsfunc "text2arr" {: str |
+      let r = str.split(/[\s,;]+/);
+      if (r.length > 0 && r[ r.length-1].length == 0) r.pop();
+      r = r.map( parseFloat )
+      //if (isNaN(r[ r.length-1])) r.pop(); // последнее лишнее
+      return r
+:}
+
+jsfunc "xtract_trajs" {: str |
+      let res = []
+      let lines = str.split("\n");
+      //console.log("looking trajs, str",lines)
+      for (let i=0; i<lines.length; i++) {
+        if (lines[i].match(/from first vertex to last vertex/)) {
+           // стало быть внутри набор
+          let j = i;
+          //console.log( "found traj set", lines[j] );
+
+          i++;
+          //debugger
+          
+          for (; i<lines.length; i++) 
+            if (lines[i].match(/From \(\d+, \d+\) to \(\d+, \d+\), cost/)) {
+              let traj = [];
+              let add;
+              //console.log( "found traj", lines[j],lines[i])
+              i++
+              for (; i<lines.length; i++) {
+                add = lines[i].match(/vertex \((\d+), (\d+)\)/)
+                if (!add) { i--; break }
+                //console.log("adding",add)
+                traj.push( 10*parseFloat(add[1]), 0, 10*parseFloat(add[2]) )
+              }
+              traj.title = lines[j];
+              res.push( traj )
+              
+              //console.log(traj)
+            }
+            else break;
+
+        }
+      }
+
+      //console.log("res=",res)
+      return res // набор траекторий
+  :}

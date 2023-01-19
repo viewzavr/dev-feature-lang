@@ -40,11 +40,11 @@ feature "sort_by_priority"
             //if (qprev)
             //  q.setParam('block_priority', qprev.params.block_priority+1,true);
             //else
-            q.setParam('block_priority',0,true);
+            q.setParam('block_priority',0); // убрал true
           }
          
          if (qprev && q.params.block_priority == qprev.params.block_priority)
-            q.setParam('block_priority', qprev.params.block_priority+1,true);
+            q.setParam('block_priority', qprev.params.block_priority+1); // убрал true - т.е. не сохраняем
 
          qprev = q;   
        }

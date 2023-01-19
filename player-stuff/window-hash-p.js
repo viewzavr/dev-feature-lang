@@ -63,7 +63,8 @@ export function save_state_to_window_hash( player ) {
     var name = obj.saveTreeToHashName;
     if (!name) return;
     
-    var q = read_from_hash();
+    //var q = read_from_hash(); // дорого.. вписывать.. да вроде и не надо по факту пока что стало..
+    let q = {}
     q[ name ] = obj.dump();
     write_to_hash( q );
     //console.log("saved to hash",q);
@@ -90,7 +91,9 @@ export function save_state_to_window_hash( player ) {
 
       if (!writeTimeoutId)
         writeTimeoutId = setTimeout( function() {
+          //console.time("player-saveToHash")
           player.saveToHash( findRoot( signalObj ) );
+          //console.timeEnd("player-saveToHash")
           writeTimeoutId = null;
           lastWriteTm = performance.now();
         }, 2500 );

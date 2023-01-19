@@ -636,7 +636,7 @@ accessor
      let pipe = new_env();
      pipe.features["pipe"] = true;
      let locinfo = getlocinfo();
-     pipe.links["pipe_input_link"] = { to: "~->input", from: "@" + first_attr, locinfo: locinfo }
+     pipe.links["pipe_input_link"] = { to: ".->input", from: "@" + first_attr, locinfo: locinfo }
 
      let arr = [];
      for (let i=0; i<attrs.length; i++)
@@ -658,7 +658,7 @@ accessor
 
      if (arr.length == 1) { // простая гета - подсократим убрав пайпу
        pipe = arr[0]
-       pipe.links["pipe_input_link"] = { to: "~->input", from: "@" + first_attr, locinfo: locinfo }
+       pipe.links["pipe_input_link"] = { to: ".->input", from: "@" + first_attr, locinfo: locinfo }
        //console.warn( "PIPE optimized", pipe )
      }
      else

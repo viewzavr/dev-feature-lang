@@ -322,32 +322,28 @@ function parsed2dump( vz, parsed, base_url ) {
   // активируем фичу ток если есть on_-параметры в статике
   // + оказалось что on_some=(....) это features_list[i].links.output_link_0.to.startsWith(".->on_") уже и там 
   
+  /*
   for (let n of (Object.keys(parsed.params) || [])) {
       if (n.startsWith("on_")) {
         parsed.features[ "connect_params_to_events" ] = true;
         break;
-        /*
-        let v = parsed.params[n];
-        if (v.this_is_env_list) {
-          console.log('see on env list',v)
-          let make_func = { features: ["make-func"], children: parsed }
-        }
-        */
-        // qqq
       };
   };
+  */
 
   // для варианта вида on_msg=(m-lambda ... )
+  /*
   if (!parsed.features[ "connect_params_to_events" ])
   for (let i=0; i<parsed?.features_list?.length; i++) {
     let f = parsed.features_list[i];
     for (let k of Object.values( f.links ))
-    if (k.to.startsWith(".->on_"))
+    if (k.to.startsWith("..->on_"))
     {
       parsed.features[ "connect_params_to_events" ] = true;
       break;
     };
   }
+  */
   
   // в случае если мы динамически захотим добавлять такие параметры...
   // parsed.features[ "connect_params_to_events" ] = true;
@@ -4063,7 +4059,7 @@ export function connect_params_to_events(env) {
 
     let event_name = n.substring(3);
 
-    //console.log("connect_params_to_events: connecting to event",event_name,env.getPath())
+    console.log("connect_params_to_events: connecting to event",event_name,env.getPath())
 
     bound_vars[n] = env.on(event_name,(...args) => {
       let code = env.params[n];
@@ -4099,7 +4095,7 @@ export function connect_params_to_events(env) {
     });
   }
 
-  for (let k of env.host.getParamsNames()) {
+  for (let k of env.host.getConnectedParamsNames()) {
     f(k,env.host.getParam(k));
   }
 

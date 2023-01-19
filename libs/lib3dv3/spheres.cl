@@ -1,3 +1,5 @@
+load "misc"
+
 feature "spheres" {
 	s: node3d 
     ~points_df_input 
@@ -31,7 +33,8 @@ feature "spheres" {
           gui-slot @s "radius" gui={ |in out| gui-slider @in @out }
         }
         gui-tab "positions" {
-
+          gui-slot @s "positions" gui={ |in out| gui-array @in @out }
+          gui-slot @s "colors" gui={ |in out| gui-array @in @out }
         }
       }
 	}
@@ -167,6 +170,8 @@ feature "spheres_compute" {
 
 /////////////////////////////////////
 
+// по входному набору координат x y z x1 y1 z1 x2 y2 z2 .... создает набор координат состоящий из пар
+// т.е. x y z x1 y1 z1 x1 y1 z1 x2 y2 z2  ....
 feature "make-strip" {
   x: object output=(m-eval {: input=@x.input |
     if (!input) return []
@@ -207,16 +212,14 @@ feature "cylinders" {
              visible=@s.visible
              ;
     
-    mdata: m_eval @makeCylinders @s.radius @s.radiuses @s.nx @s.positions @s.colors
-
-    //console-log "makeCylinders=" @makeCylinders
-
-    //mdata: m_eval (m-partial @s.radius @s.radiuses @s.nx @s.positions @s.colors @makeCylinders)
+    mdata: makeCylinders @s.positions @s.radius @s.nx @s.radiuses @s.colors 1.0
 
 // see https://bitbucket.org/pavelvasev/scheme2/src/tip/scheme2go/libs/suffixes/trimesher/meshcreator.cs?at=default&fileviewer=file-view-default
-      // aka 
+    
+  }
+}
 
-    let makeCylinders = {: radius, radiuses, nx, positions, colors, endRatio |
+jsfunc "makeCylinders" {: positions radius nx radiuses colors endRatio |
 ////////////////////////////////////////////////////////////////////////////////
     if (!positions) return []
 
@@ -394,6 +397,3 @@ feature "cylinders" {
       //}
 
     :}
-      
-  }
-}

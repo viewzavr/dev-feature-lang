@@ -114,10 +114,9 @@ feature "paint-gui" {
 		        	gui-tab "Общее" block_priority=10 {
 		        		gui-slot @target "title" gui={ |in out| gui-string @in @out }
 
-					      button "Отладка" on_click={: guiobj=@target | 
-					    	  if(guiobj) console.log( guiobj )
-					    	:}
-					    }
+					      b1: button "Отладка"
+					    	reaction (event @b1 "click") {: guiobj=@target | console.log( guiobj ) :}
+					    }						    
 				    }
 
 				    gui-tab "Модификаторы" block_priority=11 {
@@ -305,7 +304,10 @@ feature "gui-array" { // имеется ввиду array-of-floats ну да л�
 		gui-text hint=@d.hint rows=3
 	  	(read @in | get-value | m-eval {: arr cols=@d.cols separator=@d.separator| 
 	  		//return arr.map( line => line.map(toString).join(separator) ).join('\n')
-	  		console.log('arr=',arr)
+	  		//console.log('arr=',arr)
+	  		// todo: делать это ток когда кликнули диалог. а то зачем просто так генерить то..
+	  		// для этого можно сделать active параметр у gui-text и выставлять его в 1 когда реально диалог нажали (событие gui-text)
+	  		// ну либо помогло бы лейзи но у нас пока нету
 
 	  		var TypedArray = Object.getPrototypeOf(Uint8Array);
 	  	  if (!(Array.isArray(arr) || arr instanceof TypedArray)) {
@@ -472,8 +474,9 @@ feature "gui-setup-link" {
 		  	  dom_size=10
 		  	  titles = (
 		  	  	  arr_concat
-		  	  	  ["-"]
-		  	  	  (@outgoing_params | map { |x| join (@x.object.title or (m-eval {: obj=@x.object | return obj.getPath():})) " - " @x.name })
+		  	  	   (list ["-"]
+		  	  	         (@outgoing_params | map { |x| join (@x.object.title or (m-eval {: obj=@x.object | return obj.getPath():})) " - " @x.name })
+		  	  	   )     
 		  	  	  )
 
 		  	select: button "Выбрать"  

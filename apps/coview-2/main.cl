@@ -19,6 +19,8 @@ project: the_project
     //test-process count=77
     camera pos=[10,10,10];
     axes_view
+
+    cv_intersect_center
   }
 
   l2: layer title="Физкульт-привет 2" {

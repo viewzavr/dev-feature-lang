@@ -5,10 +5,9 @@ feature 'show_render_fps'
   d: dom style='position'
      Stats=(import_js (resolve_url '../three.js/examples/jsm/libs/stats.module.js'))
   {{
-    @d->renderer? | get-cell "frame" | c-on "(evtargs,s) => s ? s.update() : null" @stats;
+    reaction (event @d->renderer "frame") {: renderer stats=@stats | stats.update() :}
     let stats=(m_eval "(Stats) => Stats.default()" @d->Stats);
-    read @stats | m_eval "(s,dom) => dom.appendChild(s.dom)" @d->dom;
-    read @stats | m_eval "(s) =>  s.dom.style.position='' ";
+    m-eval {: stats=@stats dom=@d.dom | stats.dom.style.position=''; dom.appendChild( stats.dom ); :}
   }}
 };
 
@@ -17,13 +16,9 @@ feature 'show_render_stats'
   d: dom style='position'
      Stats=(import_js (resolve_url './rendererstats.js'))
   {{
-    @d->renderer? | get-cell "frame" | c-on "(evtargs,s) => {
-      let renderer = evtargs[0];
-      return s ? s.update( renderer ) : null
-    }" @stats;
-    let stats=(m_eval "(Stats) => Stats.default()" @d->Stats);
-    read @stats | m_eval "(s,dom) => dom.appendChild(s.domElement)" @d->dom;
-    //@stats | m_eval "(s) =>  s.domElement.style.position='' ";
+    let stats=(m-eval {: Stats=@d.Stats | return Stats.default():})
+    m-eval {: stats=@stats dom=@d.dom | dom.appendChild(stats.domElement) :}
+    reaction (event @d->renderer "frame") {: renderer stats=@stats | stats.update( renderer ) :}
   }}
 };
 

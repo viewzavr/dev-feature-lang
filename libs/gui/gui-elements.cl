@@ -340,7 +340,7 @@ register_feature name="select_color" {
     	event_data = event_data[0] || event_data[1]
     	var c = obj.hex2tri( event_data.target.value );
       obj.setParam("value",c,true);
-      console.log('emitting',c)
+      //console.log('emitting',c)
       obj.emit("user_change",c);
     :}
   }
@@ -716,11 +716,12 @@ register_feature name="switch_selector_row" {
 	root55: row index=0 gap="0.2em" generated_items=@rep->output items=[]
 	{
 		rep: repeater input=@root55->items { |input index|
-			 button text=@input
-			 on_click=(m_lambda "(obj) => obj.emit('user_change',scope.index);" @root55)
-			 {
-			 	 setter target="@root55->index" value=@index manual=true;
-			 };
+			 bt:button text=@input			 
+			 {{ reaction (event @bt "click") {: obj=@root55 index=@index | 
+			 	     obj.emit('user_change',index) 
+			 	     obj.setParam( "index", index, true ); // но то устаревшее
+			 	  :} 
+  	 	 }}
 		};
 	}; // column
 };

@@ -69,9 +69,19 @@ register_feature name="list" code=`
 
 //jsfunc "list" {: ...args | return args :}
 
+/*
 jsfunc "arr-concat" {: ...args | 
   let res=[];
   for (let a of args) {
+    if (Array.isArray(a)) res = res.concat(a)
+  }
+  return res 
+:}
+*/
+
+jsfunc "arr-concat" {: arr | 
+  let res=[];
+  for (let a of arr) {
     if (Array.isArray(a)) res = res.concat(a)
   }
   return res 

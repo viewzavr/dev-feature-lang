@@ -81,7 +81,13 @@ code2="
 "
 {
    // catch-children 'then' keep_existing=true
-  i: object output=@t->output {{
+   // эксперимент - пуст if возвращает output первого созданного окружения (опять..)
+   // или как вариант всегда создадим на их основе computing env. но может и не получится - замысел if-а в т.ч.
+   // это создавать окружения для родителя
+
+   // получается someobj: object alfa=(if ... { expr } else { expr } ) будут плодить объекты в object.. ну ваще.. 
+
+  i: object output=@t.output.0.output? {{    
       catch-children 'then' if_not_empty=true
 
       m_eval "(env, c) => {
@@ -89,7 +95,7 @@ code2="
         c.$use_scope_for_created_things = env.$scopes[ env.$scopes.length -2 ];
       }" @i @t
 
-      t: insert_siblings_to_parent
+      t: insert_siblings_to_parent // вставить соседей i (т.е. детей родителям i)
        list=(eval @i @i->0? @i->then? @i->else? @i allow_undefined=true
              code="(if_env, cond,t,e,env) => {
                //console.log('if tick, cond=',cond,'then=',t,'else=',e)
@@ -512,7 +518,14 @@ feature "jsfunc" {
     //add-to-scope name=@f.0 value=@f.1
     //console-log "registering feature" @f.0
     feature @f.0 {
-      x: object output=(m-eval @f.1 {{ append-positional-params @x }})
+      x: object output=(y: m-eval @f.1 {{ append-positional-params @x }})
+      {{
+      m-eval {: x=@x y=@y | 
+        // добавим ссылку на input
+        if (x.hasLinksToParam("input"))
+          y.linkParam( "input","@x->input")
+        :}
+      }}  
       //m-eval @f.1 -- это будет работать только когда заработает append позиционных аргументов..
       // а она заработает тогда когда будет порядок а) назначение фичи, б) применение параметров
       //x: object output=(m-eval @f.1 @x.0? @x.1? @x.2? @x.3?)      
