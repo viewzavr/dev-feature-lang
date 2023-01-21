@@ -387,6 +387,13 @@ feature "gui-slider" {
 	}
 }
 
+feature "gui-combobox" {
+	gg: dom-group in=@.->0 out=@.->1 min=0 max=100 step=1 {
+	 	 g: combobox value=(read @gg.in | get-value | console-log-input "cv values=" @g.values) values=@gg.values
+     connect (event @g "user_change") @gg.out
+	}
+}
+
 /* ну либо позиционно можно было бы передать
 dom-comp "gui-slider" { |in out|
 	 r: row min=0 max=100 step=1 {

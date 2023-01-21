@@ -279,10 +279,16 @@ export function subrenderer( env,opts )
   // todo ориентироваться на dom-размеры..
   var default_camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 10000000 );
   var private_camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 10000000 );
+  private_camera.layers.enable(1);
+
   env.setParam('private_camera',private_camera);
   // в threejs камера завязана на размеры экраны (внезапно)
-  // отсюда следует что если мы хотим одну камеру на несколько окон то надо ввести иерархию
-  // наверху эта одна камера, а внизу субкамеры которые следуют за той и учитывают размеры окна
+  // отсюда следует что если мы хотим одну камеру на несколько областей то надо ввести иерархию
+  // наверху эта одна камера, а внизу субкамеры которые следуют за той и учитывают размеры области
+
+
+  // итого иерархия это camera => private_camera и вот уже private_camera учитывает размеры области и используется при рендеринге
+  // а получается положение свое она берет из camera (как ее ребенок) (что нам и требуется)
 
   ////////////////////////////////////// тема камеры
   env.onvalue('camera',(cam) => {
@@ -303,6 +309,7 @@ export function subrenderer( env,opts )
     let element = env.params.target_dom;
 
     let cam = private_camera;
+    //debugger
     // т.е render3d camera=@somecam
 
     // фича - управление размерами. Альтернативно можно сделать Resize Observer Api
@@ -500,6 +507,15 @@ export function node3d( env, opts={} ) {
   object3d.is_node3d = true;
   object3d.rescan_children_for_3d = rescan; 
 
+  if (!env.paramConnected("position"))
+    env.setParam("position",[0,0,0])
+  env.onvalues(["position","output"],(pos,tobj) => {
+    
+    tobj.position.x = pos[0]
+    tobj.position.y = pos[1]
+    tobj.position.z = pos[2]
+  })
+
   env.on("childrenChanged", rescan );
   env.trackParam("input", rescan );
 
@@ -549,6 +565,13 @@ export function node3d( env, opts={} ) {
     if (so)
        so.visible = vis ? true : false;
   });
+
+  // добавим поведение сохранять ссылку на вз-объект
+  // и поведение - по умолчанию идет слой 0
+  env.onvalues_any(["output"],(output) => {
+    output.$vz_object = env
+    //output.layers.enable( 0 )
+  })
 }
 
 /*

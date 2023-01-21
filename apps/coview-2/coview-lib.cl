@@ -67,6 +67,7 @@ feature "layer" {
     sidebar_gui={paint-gui @l filter=["Состав"]}
     //subitems=(find-objects-bf "layer_object" root=@l include_root=false recursive=false)
     {
+      addon-click-intersect // по умолчанию всем решил пока
       gui {
         /*
         gui-tab "main" {
@@ -194,6 +195,9 @@ feature "camera" {
     param-info "theta" out=true in=true
     param-info "pos" out=true in=true
     param-info "center" out=true in=true
+
+    //m-eval {: camera=@ccc.output | camera.layers.enable(1) :} // разрешим еще и 1 рисовать
+    // это следует делать на уровне private-camera как оказалось
   }
 }
 

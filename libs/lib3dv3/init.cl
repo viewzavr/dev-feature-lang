@@ -4,6 +4,7 @@ elements.js
 modifiers.js
 materials.js
 text-geom.js
+text-sprite.js
 linestrips.js
 tools.cl
 3d-formats/gltf/init.js

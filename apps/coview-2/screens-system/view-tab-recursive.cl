@@ -542,6 +542,7 @@ feature "show_area_container_opacity_switch" {
 
 ///////////////////////////////////////////////////////// главное и неглавное рендеринг
 
+// используется render-project-ом
 feature "show_3d_scene_main" {
   scene_3d_view: 
     view3d style="width:100%; height:100%; " 
@@ -582,7 +583,7 @@ feature "show_3d_scene_r" {
   scene_3d_view: 
     dom style="width:100%; height:100%;" tag="div"
     // renderer=@r1 // тпУ
-    private_camera=@r1->private_camera // это на выход
+    private_camera=@r1->private_camera // это на выход (кому-то вдруг она понадобится)
     camera_control={ |renderer camera dom| orbit-control } // заменяется снаружи
     { // max-height: 100vh;
       // max-height 100vh багфиксит грида

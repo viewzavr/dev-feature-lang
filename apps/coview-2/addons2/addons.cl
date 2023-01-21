@@ -260,7 +260,7 @@ feature "effect3d_scale" {
     x=1 y=1 z=1
     gui={render-params @eo; }
     ~x-js `(tenv) => {
-          let u1 = tenv.onvalue('output',(threejsobj)=> {
+            let u1 = tenv.onvalue('output',(threejsobj)=> {
               let x = env.params.x;
               let y = env.params.y;
               let z = env.params.z;
@@ -294,6 +294,26 @@ feature "effect3d_sprite" {
     }  
   ;
 };
+
+addon3d "effect3d-disable-clicks" "Отключить клики";
+feature "effect3d-disable-clicks" {
+  eoa: geffect3d
+    //gui={paint-gui @eoa; }
+    ~x-js {: tenv |
+       let u1 = tenv.onvalue('output',(threejsobj)=> {
+         threejsobj.layers.disable( 0 ); // там у нас клики
+         threejsobj.layers.enable( 1 )
+       })
+       return () => {
+         u1();
+         let threejsobj = tenv.params.output;
+         if (threejsobj) {
+           threejsobj.layers.disable( 1 ); // там у нас клики
+           threejsobj.layers.enable( 0 )
+         }
+       }  
+    :}
+}
 
 /// ну тут вопрос что входы хотелось бы из других объектов..
 addon3d "effect3d-script" "Скрипт";
@@ -384,9 +404,9 @@ feature "addon-map-control" {
 /// неудачный дизайн - все в одном
 /// надо бы расчет центра вытащить в отдельное "поведение" и пусть оно пуляет событиями
 /// а реакция на эти события - передавать их центру камеры, это отдельная история должна быть
-addon "addon-map-center" "Центрирование камеры"
+addon "addon-camera-center" "Центрирование камеры"
 
-feature "addon-map-center" {
+feature "addon-camera-center" {
   vp: geffect3d 
      title = "Центрирование камеры"
      ~have-scene-env
@@ -399,18 +419,71 @@ feature "addon-map-center" {
           letinfo: let cam1 = @show_3d_scene.camera.output
           let scene_items = @show_3d_scene.scene3d
 
-          console-log "cam=" @cam1 "letinfo=" @letinfo
+          //console-log "cam=" @cam1 "letinfo=" @letinfo
 
-          iss: scene_intersector threejs_camera=@cam1 scene_items=@scene_items scene_coords=(m-eval {: return {x:0, y:0} :})
+          iss: scene_intersector threejs_camera=@cam1 scene_items=@scene_items
 
-          reaction (dom-event-cell @show_3d_scene "click") (event @iss "perform")
+          reaction (dom-event-cell @show_3d_scene "click") {: cell=(event @iss "perform") | cell.set( {x:0,y:0} ) :}
           reaction (event @iss "successful_coords_event") (param @show_3d_scene.camera "center")
+
+          //reaction (event @iss "successful_coords_event") (param @vp.element "center")
           
           //reaction (event @iss "successful_coords_event") (param @vp "position")
        }
      }
      {
        //param-info "position" out=true
+     }
+     /*
+     gui={ paint-gui @vp filter=["main"] }
+     {
+      gui {
+        gui-tab "main" {
+          gui-slot @vp "damping" gui={ |in out| gui-checkbox @in @out }
+        }
+      }
+     }*/
+}
+
+addon "addon-click-intersect" "Пересечения по клику"
+
+feature "addon-click-intersect" {
+  vp: geffect3d 
+     title = "Пересечения по клику"
+     ~have-scene-env
+     //position=[0,0,0] вроде как в этом нет нужды
+
+     scene_env={ |show_3d_scene|
+       
+       //console-log "privet medved" @show_3d_scene
+       if @vp.visible {
+
+          letinfo: let cam1 = @show_3d_scene.camera.output
+          let scene_items = @show_3d_scene.scene3d
+
+          //console-log "cam=" @cam1 "letinfo=" @letinfo
+
+          iss: scene_intersector threejs_camera=@cam1 scene_items=@scene_items
+
+          reaction (dom-event-cell @show_3d_scene "click") {: event cell=(event @iss "perform") domElement=@show_3d_scene.dom | 
+             let screen_coords={ x: (event.clientX / domElement.clientWidth) * 2 - 1, y: -(event.clientY / domElement.clientHeight) * 2 + 1 }
+             cell.set( screen_coords ) 
+          :}
+          reaction (param @iss "output") {: info layer=@vp.element |
+            if (info.obj)
+                info.obj.emit( "click_3d",info )
+             layer.emit( "click_3d",info )
+             //console.log('lalalaa,',info)
+          :}
+          //reaction (param @iss "output") (param @vp.element "click_info")
+          
+          // и для интереса положим вот туда
+          reaction (param @iss "successful_coords") (param @vp "click_position_3d")
+       }
+     }
+     {
+       param-info "click_position_3d" out=true
+       //console-log "click_position_3d=" @vp.click_position_3d
      }
      /*
      gui={ paint-gui @vp filter=["main"] }

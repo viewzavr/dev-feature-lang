@@ -463,6 +463,9 @@ jsfunc "compute_intersect" {: screen_coords threejs_camera scene_items obj THREE
 */
 
 // послали сигнал perform получили результат на выходах
+// но вообще это мудро. и формально - достаточно просто на input реагировать..
+// либо этой штуке быть функцией
+// на input реагировать не получится - меняются параметры камеры поэтому нужен внешний сигнал
 feature "scene_intersector" {
   x: object 
     //scene_coords=[0,0]
@@ -470,25 +473,40 @@ feature "scene_intersector" {
     //scene_items=[]
   {
     let THREE1=(import_js (resolve_url "../../../libs/lib3dv3/three.js/build/three.module.js"))
-    reaction (event @x "perform") {: screen_coords=@x.scene_coords threejs_camera=@x.threejs_camera scene_items=@x.scene_items obj=@x THREE=@THREE1 |
-         
+    reaction (event @x "perform") {: screen_coords threejs_camera=@x.threejs_camera scene_items=@x.scene_items obj=@x THREE=@THREE1 |
+
         let raycaster = new THREE.Raycaster()
         ///let mouse = convert_fn( event, domElement )
         raycaster.setFromCamera(screen_coords, threejs_camera)
+        raycaster.layers.set( 0 );
 
         const intersects = raycaster.intersectObjects( scene_items, true )
 
         //console.log( "intersects=",intersects)
 
-        obj.setParam("output",intersects)
+        let output={
+          intersects: intersects,
+          intersect: intersects[0]
+        }
 
         if (intersects.length > 0) {
           let pt = intersects[0].point
-          let coord_arr = [ pt.x, pt.y, pt.z ]  
+          let coord_arr = [ pt.x, pt.y, pt.z ]
+          output.coords_arr = coord_arr
+
           obj.setParam("successful_coords", coord_arr )
           //x.setParam("successful_coords", coord_arr ) 
           obj.emit("successful_coords_event", coord_arr ) // что тоже интересно
+
+          // теперь поищем объект
+          //console.log("intersects",intersects)
+          let tgt_obj = intersects[0].object.$vz_object
+          if (tgt_obj)
+            output.obj = tgt_obj
         }
+
+        // не понимаю - аутпут хорош но сложная структура к нему в визуальном редакторе пока не прицепишься
+        obj.setParam("output",output)
 
         //console.log( "click", event_data, threejs_camera,scene_items,dom)
     :}

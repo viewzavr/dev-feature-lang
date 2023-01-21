@@ -12,7 +12,7 @@ feature "zal" {
       }
 
       // добавим управление как карта
-      insert_children list={ addon-map-control; addon-map-center } input=(read @p | get_parent)
+      insert_children list={ addon-map-control; addon-camera-center } input=(read @p | get_parent)
 
       f_select: cv-select-files
       //f_text: load-text input=@f_select.first_file
@@ -25,8 +25,8 @@ feature "zal" {
 
       console-log "zal is" @zal
 
-      zal: node3d ~layer-object title="Геометрия зала" { // среда для моделирования, world -- update а ведь нет, теперь это сцена
 
+      zal: node3d ~layer-object title="Геометрия зала" { // среда для моделирования, world -- update а ведь нет, теперь это сцена
         
           g: grid // ну это рисование сетки
             rangex=((find-objects-bf "RangeX" root=@zal | geta 0 | geta 1) or 0)
@@ -60,10 +60,59 @@ feature "zal" {
 
              //console-log "A1=" @radpts.positions "A2=" @radpts.colors "a3=" @pz.input.rad
 
+          let measuring_points_recs = (find-objects-bf "MeasuringPoint" root=@zal depth=1)   
           measuring_points: cv-spheres title="MeasuringPoints"
-            positions=(find-objects-bf "MeasuringPoint" root=@zal | map { |x| list (10 * @x.0) 0 (10 * @x.1) } | arr_flat)
+            positions=(read @measuring_points_recs| map { |x| list (10 * @x.0) 0 (10 * @x.1) } | arr_flat)
             //positions=(find-objects-bf "MeasuringPoint" root=@zal | map-geta "pos" | arr_flat) 
             color=[1,0,0] radius=30 opacity=0.2
+            selected_N=-1
+            {
+              /*
+              gui {
+                gui-tab "select" {
+                  //gui-slot @measuring_points "selected_N" gui={ |in out| gui-string @in @out }
+                  gui-slot @measuring_points "selected_N" gui={ |in out| gui-combobox @in @out values=(m-eval {:x=@measuring_points_recs | let acc=[]; for (let i=0; i<x.length; i++) acc.push(i); return acc :})}
+                }
+              }
+              */
+            }
+
+           mph: layer_object title="MeasuringPoints_hilite" items=[] {
+            gui {
+                gui-tab "select" {
+                  gui-slot @mph "items" gui={ |in out| 
+                     gui-string (read @in | get-value | m-eval {: x | return x.join(" ") :} | create-channel)
+                                (c: create-channel { get-value input=@c.output | m-eval {: y | 
+                                    return y.split(' ').map( n => parseInt(n) ) 
+                                 :} | put-value-to @out })
+                     }
+                }
+              }
+           } 
+
+           let mp_sel_n = (event @measuring_points.mesh "click_3d" | get-value | m-eval {: event|
+            let obj = event.obj
+            let sp_num = Math.floor( event.intersect.faceIndex / obj.params.faces_per_sphere );
+            return sp_num
+            //console.log( event,   event.intersect.faceIndex,obj.params.faces_per_sphere )
+            //console.log("setting param",sp_num)
+            //measuring_points.setParam("selected_N", sp_num)
+            //return sp_num
+          :} )
+           param @mph "items" | put-value (m-eval {:x=@mp_sel_n| return [x]:})
+
+           read @mph.items | repeater { |item|              
+              object_info_3d r=1000 position=(read @mp_sel | geta "pos") title="privet"
+                {{ let mp_sel = (@measuring_points_recs | geta @item) }}
+           }
+          
+          //console-log "Selected measuringPoint N" @cur_m_pt (@measuring_points_recs | geta @cur_m_pt) @measuring_points_recs
+
+          /*let cur_m_pt = 0
+          reaction (event @measuring_points.m "click_3d") { |event|
+            let obj = event.obj
+            let sp_num = event.intersect.faceIndex / obj.params.indices_per_sphere;
+          }*/
 
           vertex: cv-spheres title="Vertex"
             positions=(find-objects-bf "Vertex" root=@zal | map { |x| list (0 + (10 * @x.0)) 0 (10 * @x.1) } | arr_flat)
@@ -76,11 +125,22 @@ feature "zal" {
     }  
 }
 
+// вход - информация по объекту: его позиция и надпись, а также параметры отображения
+// альтернативно напрашивается - это некий генератор положения, а сам объект-символ как бы отдельно.. ну ладно, пока общее пусть
+// position, r, dx
+feature "object_info_3d" {
+  x: node3d r=100 dx=20 {
+    cyl: cv_cylinders positions=(m-eval {: r=@x.r dx=@x.dx | return [0,0,0, dx,r,0 ] :})
+    text_sprite_one position=(arr_slice @cyl.positions 3 6) text=@x.title radius=1000 size=50
+  }
+}
+
 ///////////////// для парсинга out-файла
 
 
 feature "MeasuringPoint" {
-  x: object //pos=(list (10 * @x->0) 10 (10 * @x->1)) {
+  x: object pos=(list (10 * @x->0) 10 (10 * @x->1)) 
+  //{
 //     node: node3d {
 //       spheres positions=(list @x->0 0 @x->1) color=[1,0,0] radius=30 opacity=0.2
        //m-eval {: obj=@node.output | let r = 10; obj.scale.set( r,r,r ) :}   

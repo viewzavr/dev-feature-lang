@@ -15,6 +15,7 @@ feature "spheres" {
 		m: mesh positions=(@mdata->output | geta 0)
 		         indices=(@mdata->output | geta 3)
 		         colors=(@mdata->output | geta 4)
+             faces_per_sphere=(@mdata->output | geta 5)
 		         color=@s->color
              opacity=@s.opacity // подумать о передаче параметров.. или гуи сразу рисовать или алиасы..
              visible=@s.visible
@@ -101,7 +102,7 @@ feature "spheres_compute" {
                 etalon.push([x,y,z]);
             }
         }
-        var etalon_length = etalon.length;
+        var etalon_length = etalon.length; // число координат
 
         var etalon_indices = [];
         for (var latNumber = 0; latNumber < latitudeBands; latNumber++) {
@@ -116,7 +117,7 @@ feature "spheres_compute" {
                 etalon_indices.push(first);
             }
         }
-        var etalon_indices_length = etalon_indices.length;
+        var etalon_indices_length = etalon_indices.length; // число индексов
         
         /////////////////////////////////////////////
         /// replicate
@@ -162,7 +163,7 @@ feature "spheres_compute" {
 
         //console.log([ positions, normals, uvs, indices, colors ]);
         // console.log("spheres complete ******************* spheres.positions.length=",spheres.positions.length, " generated positions.length=",positions.length);
-        return [ positions, normals, uvs, indices, colors ];
+        return [ positions, normals, uvs, indices, colors, Math.floor(etalon_indices_length / 3) ];
     }			
   }` @s->nx @s->ny @s->positions @s->radiuses @s->colors @s->radius;
 };

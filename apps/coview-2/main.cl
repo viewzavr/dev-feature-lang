@@ -26,6 +26,9 @@ project: the_project
 
   l2: layer title="Физкульт-привет 2" {
     //test-process count=77
+    text_sprite_one text='TEST' size=50 radius=10 ~layer_object position=[10,10,10] title="Спрайт"
+    cv-spheres positions=[10,10,10] radius=0.1
+
     cam2: camera pos=[10,10,10];
   }
 

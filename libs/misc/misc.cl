@@ -430,7 +430,7 @@ feature "let" {: env |
   for (let k of env.getParamsNames()) {
     process_param( k, env.getParam(k));
   };
-  let linked_params = env.getConnectedParamsNames();
+  let linked_params = env.getLinkedParamsNames();
   for (let k of linked_params) {
     if (!env.hasParam( k )) // потому что уже обработали..
        process_param( k, env.getParam(k)); 
@@ -513,6 +513,10 @@ feature "add-to-scope" {: env |
 // и еще - к этим jsfunc нет доступа из других jsfunc. это потому что мы "поднимается с уровня js на компаланг"
 // а не "строим уровень базового языка с помощью компаланг"... codea
 // cobug
+
+// кстати в js например или в Си, funcname это указатель на функцию, а вот funcname () это вызов. Хитро.
+// но в руби funcname это вызов, а Scope.method(:methodname) это получение указателя на него. Хм.
+
 feature "jsfunc" {
   f: object {
     //add-to-scope name=@f.0 value=@f.1

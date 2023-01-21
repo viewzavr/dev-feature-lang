@@ -1,6 +1,8 @@
 // create-array 100 - создаст массив длины 100
 jsfunc "create-array" {: length | return new Array(length).fill(0) :}
 
+jsfunc "arr_slice" {: arr begin finish | return arr.slice( begin,finish ) :}
+
 
 // кстати если в list добавить length - число аргументов, и привести параметры к аксессорам по именам
 // то все arr-методы смогут обрабатывать list.
