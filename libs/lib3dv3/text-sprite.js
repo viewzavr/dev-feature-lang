@@ -69,6 +69,10 @@ function color2css( triarr ) {
   env.addSlider("radius", 1, 1, 1000, 1)
   
 
+  // вот пример как врпапить текст .или можно поддержать символ \n
+  // https://codepen.io/nishiohirokazu/pen/jjNyye
+  // но в целом надо видимо различить рисователь-спрайта и генератор-спрайта
+  // потому что спрайт мы можем и из картинки взять - удобно.
   env.onvalues(["text","size","color","radius"],(txt,size,color,radius) => {
       txt = txt.toString(); // а то числы подают
 

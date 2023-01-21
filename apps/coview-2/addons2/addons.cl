@@ -295,7 +295,7 @@ feature "effect3d_sprite" {
   ;
 };
 
-addon3d "effect3d-disable-clicks" "Отключить клики";
+addon3d "effect3d-disable-clicks" "Отключить клики"
 feature "effect3d-disable-clicks" {
   eoa: geffect3d
     //gui={paint-gui @eoa; }

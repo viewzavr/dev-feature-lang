@@ -45,7 +45,8 @@ feature "zal" {
             stepx=(@g.stepx * 100) stepy=(@g.stepy * 100)
             color=[0,1,0] radius=2
 
-          traj_optimal: cv-cylinders positions=(read @trajectories.0 | make-strip) radius=10 color=[0,1,1]
+          traj_optimal: cv-cylinders title="Оптимальная траектория" 
+                 positions=(read @trajectories.0 | make-strip) radius=10 color=[0,1,1]
 
         //ето радиация
           radpts: cv-points title="Расчёты поля"
@@ -65,7 +66,7 @@ feature "zal" {
             positions=(read @measuring_points_recs| map { |x| list (10 * @x.0) 0 (10 * @x.1) } | arr_flat)
             //positions=(find-objects-bf "MeasuringPoint" root=@zal | map-geta "pos" | arr_flat) 
             color=[1,0,0] radius=30 opacity=0.2
-            selected_N=-1
+            //selected_N=-1
             {
               /*
               gui {
@@ -102,7 +103,7 @@ feature "zal" {
            param @mph "items" | put-value (m-eval {:x=@mp_sel_n| return [x]:})
 
            read @mph.items | repeater { |item|              
-              object_info_3d r=1000 position=(read @mp_sel | geta "pos") title="privet"
+              object_info_3d r=1000 position=@mp_sel.pos title=@mp_sel.title
                 {{ let mp_sel = (@measuring_points_recs | geta @item) }}
            }
           
@@ -129,9 +130,13 @@ feature "zal" {
 // альтернативно напрашивается - это некий генератор положения, а сам объект-символ как бы отдельно.. ну ладно, пока общее пусть
 // position, r, dx
 feature "object_info_3d" {
-  x: node3d r=100 dx=20 {
-    cyl: cv_cylinders positions=(m-eval {: r=@x.r dx=@x.dx | return [0,0,0, dx,r,0 ] :})
-    text_sprite_one position=(arr_slice @cyl.positions 3 6) text=@x.title radius=1000 size=50
+  x: node3d r=100 dx=20 {    
+    cyl: cv_cylinders positions=(m-eval {: r=@x.r dx=@x.dx | return [0,0,0, dx,r,0 ] :}) {
+       effect3d-disable-clicks
+    }
+    text_sprite_one position=(arr_slice @cyl.positions 3 6) text=@x.title radius=1000 size=30 {
+      effect3d-disable-clicks // странно оно то работает то нет.. проверить слой кстати итоговый то что как
+    }
   }
 }
 
@@ -139,7 +144,8 @@ feature "object_info_3d" {
 
 
 feature "MeasuringPoint" {
-  x: object pos=(list (10 * @x->0) 10 (10 * @x->1)) 
+  x: object pos=(list (10 * @x->0) 10 (10 * @x->1)) title=(+ "mp " @x.0 " " @x.1 " " @x.2)
+       //title=@x->2
   //{
 //     node: node3d {
 //       spheres positions=(list @x->0 0 @x->1) color=[1,0,0] radius=30 opacity=0.2

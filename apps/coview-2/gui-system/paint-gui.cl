@@ -152,9 +152,9 @@ feature "gui-row" {
 // объект имя-параметра
 
 feature "gui-text" {
-	d: dom_group in=@.->0 out=@.->1 hint="Введите текст" {
+	d: dom_group in=@.->0 out=@.->1 hint="Введите текст" btn_title="Редактировать" {
 
-		btn: button "Редактировать"
+		btn: button @d.btn_title
 
 		connect (event @btn "click") (method @dlg "show")
 

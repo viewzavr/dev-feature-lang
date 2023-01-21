@@ -122,7 +122,15 @@ feature "cv-select-files" {
             show-one index=@qqe->src style="padding:0.3em;" {
               column { render-params-list object=@qqe list=["url"] }
               column { render-params-list object=@qqe list=["files"] }
-              column { render-params-list object=@qqe list=["list_url"] }
+              column { 
+                  render-params-list object=@qqe list=["list_url"] 
+
+                  
+                  text "found files:"
+                  gui-text btn_title="Посмотреть" hint="Список url файлов построенный по указанному list.txt"
+                    in=(m-eval {: arr=@load_list_txt.output| return arr.map( n => n.url ).join('\n') :} | create-channel) out=(create-channel)
+                  //dom tag="textarea" dom_obj_value=(m-eval {: arr=@load_list_txt.output| return arr.map( n => n.url ).join('\n') :})
+              }
               column { files }
             }
 
@@ -166,8 +174,9 @@ feature "load-list-txt" {
   x: object output=@result
    {
     let listing_file_url=@x->file;
+    // todo добавить фильтрацию по комментариям например # или //
     let listing = (load-file file=@listing_file_url
-                   | m_eval "(txt) => txt && txt.length > 0 ? txt.split('\\n') : []" @.->input);
+                   | m_eval "(txt) => txt && txt.length > 0 ? txt.split('\\n').map( x => x.trim()).filter( x => x.length > 0) : []" @.->input);
     let listing_file_dir = (m_eval "(str) => str.split ? str.split('/').slice(0,-1).join('/') : '/invalid-input-url'" @listing_file_url);
     console-log "listing_file_dir=" @listing_file_dir "listing_file_url=" @listing_file_url
     let listing_resolved = (@listing | map_geta (m_apply "(dir,item) => dir+'/'+item" @listing_file_dir));

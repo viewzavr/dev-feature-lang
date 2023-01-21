@@ -166,6 +166,23 @@ feature "input_vector_c2" {
    	}
 }
 
+// ввод/отображение небольшого набора строк
+feature "input_strings" {
+	dv: dom tag="textarea" rows=3 
+	  dom_obj_rows=@.->rows
+	  dom_obj_value=(m_eval {: v=@dv->value? |
+		  if (Array.isArray(v)) v=v.join('\n');
+		  return v ? v.toString() : null;
+		:}) 
+		{
+	  reaction (dom_event_cell @dv "change") {: event_data obj=@dv |
+	  	  let s = event_data.target.value.split( /[\n]/ );
+		    let v = s;
+				obj.emit("user_change",v);
+	  	:}
+   	}
+}
+
 ///////////////////////////////////////////////////// radio_button
 /* входы
      text - надпись
