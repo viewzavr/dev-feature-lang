@@ -11,6 +11,13 @@ feature "spheres" {
 	  mesh=@m
 	  {
         //mesh positions=[0,0,0, 1,1,1, 0,1,0 ];
+        param-info "click_3d_sn" out=true
+
+        reaction (event @m "click_3d") {: event sobj=@s mobj=@m|
+            let sp_num = Math.floor( event.intersect.faceIndex / mobj.params.faces_per_sphere );
+            sobj.emit("click_3d_n", sp_num) // пока сделаем другое имя
+            sobj.setParam("click_3d_sn",sp_num); // пока мы не ловим событий в сетке параметров
+       :}   
 
 		m: mesh positions=(@mdata->output | geta 0)
 		         indices=(@mdata->output | geta 3)

@@ -42,13 +42,22 @@ export function combine( arrays_list ) {
     return [];
   }
 
-  const len = arr0.length;
-  const len2 = arrays_list.length;  
+  let len = 0;
+  arrays_list.forEach( arr => {
+    let arrlen = arr.length;
+    len = Math.max( arrlen, len )
+  })
+  // len есть максимум всех длин поданных массиов. ок. (так надо - тк.. там могут быть proxy в любых местах)
+  // DF-PROXY
+
+  const len2 = arrays_list.length;
   var res = new Float32Array( len * len2 );
   
   // F-COMBINE-EMPTY-COLUMNS
   for (var j=0; j<len2; j++)
     if (!arrays_list[j]) arrays_list[j] = [];
+
+
 
   var k = 0;
   for (var i=0; i<len; i++) {

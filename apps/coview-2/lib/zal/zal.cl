@@ -62,12 +62,28 @@ feature "zal" {
              //console-log "A1=" @radpts.positions "A2=" @radpts.colors "a3=" @pz.input.rad
 
           let measuring_points_recs = (find-objects-bf "MeasuringPoint" root=@zal depth=1)   
+
+          dasdata: layer_object title="Данные"
+            measuring_points=(df-create length=@measuring_points_recs.length
+                 | df-set 
+                 X=(read @measuring_points_recs | map_geta 0) 
+                 Y=10
+                 Z=(read @measuring_points_recs | map_geta 1)
+                 VALUE=(read @measuring_points_recs | map_geta 2)
+                 RADIUS=(read @measuring_points_recs | map_geta 2 | map_geta {: x | return 10*Math.max( 1, Math.sqrt(x) ) :})
+                 | df-mul X=10 Z=10
+              )
+            {
+              param-info "measuring_points" out=true
+            }
+
           measuring_points: cv-spheres title="MeasuringPoints"
-            positions=(read @measuring_points_recs| map { |x| list (10 * @x.0) 0 (10 * @x.1) } | arr_flat)
-            //positions=(find-objects-bf "MeasuringPoint" root=@zal | map-geta "pos" | arr_flat) 
-            color=[1,0,0] radius=30 opacity=0.2
+            input=@dasdata.measuring_points
+            color=[1,0,0] radius=1 opacity=0.2
+
             //selected_N=-1
             {
+              cv_df_filter_bynum input=@dasdata.measuring_points
               /*
               gui {
                 gui-tab "select" {
@@ -78,6 +94,7 @@ feature "zal" {
               */
             }
 
+/*
            mph: layer_object title="MeasuringPoints_hilite" items=[] {
             gui {
                 gui-tab "select" {
@@ -90,7 +107,8 @@ feature "zal" {
                 }
               }
            } 
-
+*/           
+/*
            let mp_sel_n = (event @measuring_points.mesh "click_3d" | get-value | m-eval {: event|
             let obj = event.obj
             let sp_num = Math.floor( event.intersect.faceIndex / obj.params.faces_per_sphere );
@@ -101,11 +119,14 @@ feature "zal" {
             //return sp_num
           :} )
            param @mph "items" | put-value (m-eval {:x=@mp_sel_n| return [x]:})
+*/           
 
+/*
            read @mph.items | repeater { |item|              
               object_info_3d r=1000 position=@mp_sel.pos title=@mp_sel.title
                 {{ let mp_sel = (@measuring_points_recs | geta @item) }}
            }
+*/
           
           //console-log "Selected measuringPoint N" @cur_m_pt (@measuring_points_recs | geta @cur_m_pt) @measuring_points_recs
 
@@ -144,7 +165,8 @@ feature "object_info_3d" {
 
 
 feature "MeasuringPoint" {
-  x: object pos=(list (10 * @x->0) 10 (10 * @x->1)) title=(+ "mp " @x.0 " " @x.1 " " @x.2)
+  x: object pos=(list (10 * @x->0) 10 (10 * @x->1)) 
+        title=(+ "mp " @x.0 " " @x.1 " " @x.2)
        //title=@x->2
   //{
 //     node: node3d {

@@ -63,8 +63,8 @@ feature "the_view_recursive"
        reaction (event @tv "manually_added") (make-func {
           return (insert_children list={ area_3d } input=@tv manual=true keep=true)
        })
-       // а еще идея активировать сей экран ~~cv2idea
-       // и идея находить теги по ~~
+       // а еще идея активировать сей экран ~~cv2idea ^^cvidea
+       // и идея находить теги по ~~ ну или по ^^
 
        gui {
         gui-tab "main" {

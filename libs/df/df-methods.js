@@ -51,11 +51,18 @@ export function df_set( env, opts ) {
    var cols = env.getParamsNames();
    var colvals = env.params;
    // моно сделать фильтр что выставлено из языка
+   //console.log("df set - begin stage")
    for (let colname of cols) {
      if (colname == "output" || colname == "input") continue
 
-     var colvalue = colvals[colname];
-     var colarr;
+     let colvalue = colvals[colname];
+
+     if (colname == "length") { // особый случай
+       df.set_length( output, colvalue)       
+       continue
+     }
+
+     let colarr;
      if (typeof(colvalue) == "string" && colvalue.slice(0,2) == "->" ) {
         colarr = value[ colvalue.slice( 2 ) ] || []; // так-то get_column здесь..
      }
@@ -63,13 +70,36 @@ export function df_set( env, opts ) {
         // если colvalue это уже массив
         if (Array.isArray(colvalue))
           colarr = colvalue.slice(0)
-        else
-          colarr = new Array( df.get_length(value) ).fill(colvalue); // так то тут выгоднее ставить функцию было бы
+        else {
+          // console.log("making handler for ",colname,"colvalue=",colvalue)
+          colarr = new Array( df.get_length(value) ).fill(colvalue); // так то тут выгоднее ставить функцию f(index), чем копировать значения
+
+          // все последующее есть чухня
+
+          // авантюра, DF-PROXY - типа оптимизация + заранее не знаем какой длины будет колонка
+          /*
+          var handler = {
+            get: function(target, name) {
+              const value = Reflect.get(target, name);
+              if(typeof value === "function"){
+                return value.bind(target)
+              }
+              if (name === "length") return output.length; // точка тормоза... надо ли это вообще? пусть нулем будет..
+              // df-combine читает первую колонку.. ну пусть читает максимум из всех.. кстати..
+              return colvalue;
+            }
+          };
+          var proxy = new Proxy([], handler); // [] сиречь мы типа массив
+          colarr = proxy
+          */
+          
+        }
      }        
         // но для этого df должен уметь поддержать колонку-функцию
         // и кстати эта ф-я не обязана быть константой...
         // но надо решить вопросы с копированием тогда..
 
+    //console.log("df set ",colname, colarr)
     df.add_column( output, colname, colarr );
    }
    env.setParam("output",output);
@@ -83,6 +113,52 @@ export function df_set( env, opts ) {
   process_delayed(); // потому что мало ли там будут шпарить..
   // но это кстати некий аналог потактовой обработки lingua franca
  })
+ process_delayed(); // тыркнемся
+}
+
+
+// преобразует входную df (данную в input) вызывая func для каждой указанной колонки
+// пример: df_operation X=10 Y=5 func={: v arg | return v*arg } умножает колонку X на 10 а колонку Y на 5
+export function df_operation( env, opts ) {
+
+  function process () {
+   let value = env.params.input;
+   if (!df.is_df(value)) {
+      console.error( "df_operation: incoming value is not df", value)
+      return
+   };
+
+   var output = df.create_from_df_no_slice( value );
+
+   var cols = env.getParamsNames();
+   var colvals = env.params;
+   // моно сделать фильтр что выставлено из языка
+   let func = env.params.func
+
+   for (let colname of cols) {
+     if (colname == "output" || colname == "input" || colname == "func") continue
+     if (!value[colname]) continue;
+
+     var colvalue = colvals[colname]; // чего дали в параметрах
+     var colarr = value[colname].map( x => func( x, colvalue ) )
+     
+        // но для этого df должен уметь поддержать колонку-функцию
+        // и кстати эта ф-я не обязана быть константой...
+        // но надо решить вопросы с копированием тогда..
+
+     df.add_column( output, colname, colarr );
+   }
+   env.setParam("output",output);
+ }
+
+ env.feature("delayed")
+ let process_delayed = env.delayed( process )
+ env.on('param_changed',(pn) => {
+  if (pn == "output") return
+  process_delayed(); // потому что мало ли там будут шпарить..
+  // но это кстати некий аналог потактовой обработки lingua franca
+ })
+ process_delayed(); // тыркнемся
 }
 
 // параметр: count

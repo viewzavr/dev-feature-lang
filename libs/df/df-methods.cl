@@ -29,7 +29,7 @@ register_feature name="df_get"
     env.setParam("output",o);
   }
 `;
-
+/*
 // df_div - делит колонку column датайферма input на коэффициент coef
 // возвращает df как input но с обновленной колонкой
 // @idea df_normalize ?
@@ -67,7 +67,20 @@ register_feature name="df_mul" code=`
     env.setParam("output",df);
   }
 `;
+*/
 
+feature "df_mul" {
+  df_operation func={: orig coef | return orig*coef :}
+}
+feature "df_div" {
+  df_operation func={: orig coef | return orig/coef :}
+}
+feature "df_add" {
+  df_operation func={: orig coef | return orig+coef :}
+}
+feature "df_sub" {
+  df_operation func={: orig coef | return orig-coef :}
+}
 
 // df_filter - фильтрует, выбирая только строки удовлетворяющие условию
 // вход: input, code
@@ -78,6 +91,8 @@ register_feature name="df_mul" code=`
 */
 
 // мб тут стоит применить идею лямбды. а ее можно каррировать
+// read @df | df_filter {: df index | return df.X[index] > 5 :}
+// в качестве фантазии на будущее: df_filter X={: x | return x > 5:} это фильтрация по значению колонки
 register_feature name="df_filter" 
   code=`
   env.feature("param-alias");
@@ -95,7 +110,7 @@ register_feature name="df_filter"
     var f=code;
     if (typeof(f) == 'string') f = eval( f );
 
-    var res = df.create_from_df_filter( f );
+    var res = df.create_from_df_filter_fast( f );
     env.setParam("output",res);
   }
 
@@ -105,7 +120,7 @@ register_feature name="df_filter"
   });
 */  
 `;
-
+/*
 register_feature name="df_filter_fast" 
   code=`
   env.feature("param-alias");
@@ -126,5 +141,6 @@ register_feature name="df_filter_fast"
   }
 
 `;
+*/
 
 //geta (m_apply "(df,func) => df.df_filter_fast(func)" @input (m_apply ....код...))

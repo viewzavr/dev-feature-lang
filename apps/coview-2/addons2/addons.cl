@@ -295,6 +295,7 @@ feature "effect3d_sprite" {
   ;
 };
 
+
 addon3d "effect3d-disable-clicks" "Отключить клики"
 feature "effect3d-disable-clicks" {
   eoa: geffect3d
@@ -445,6 +446,9 @@ feature "addon-camera-center" {
      }*/
 }
 
+// это для слоя получается
+// в области можно кликать и это рассылает события - слою и объекту
+// в целом выясняется что история ток начинается (например понять какую сферу кликнули и потом эту информацию тоже разослать)
 addon "addon-click-intersect" "Пересечения по клику"
 
 feature "addon-click-intersect" {

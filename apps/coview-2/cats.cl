@@ -396,6 +396,33 @@ feature "cv_mesh" {
   }
 }
 
+///////////////////// фильтр датафрейма
+coview-record title="Фильтр данных" type="cv_df_filter_bynum" cat_id="process"
+
+// вопрос как передать addons в меш..
+feature "cv_df_filter_bynum" {
+  vp: process
+   title="Фильтр данных"
+   gui={ paint-gui @vp }
+   output=(df-slice input=@vp->input start=@vp.index count=1) 
+   index=0
+   {
+    param-info "input" in=true out=true // df-ка
+    param-info "output" in=true out=true // df-ка
+    param-info "index" in=true out=true
+
+    gui debug=true {
+      gui-tab "main" {
+        gui-slot @vp "input" gui={ |in out| gui-df @in @out }
+
+        gui-slot @vp "index" gui={ |in out| gui-slider @in @out min=0 max=(@vp.input.length - 1) step=1 }
+
+        gui-slot @vp "output" gui={ |in out| gui-df @in @out }
+      }
+    }
+  }
+}
+
 /////////////////////
 /*
 coview-record title="Поиск пересечений по клику" type="cv_intersect_mouse" cat_id="process"
@@ -475,6 +502,8 @@ jsfunc "compute_intersect" {: screen_coords threejs_camera scene_items obj THREE
 // но вообще это мудро. и формально - достаточно просто на input реагировать..
 // либо этой штуке быть функцией
 // на input реагировать не получится - меняются параметры камеры поэтому нужен внешний сигнал
+
+// вообще этой штуке тут не место
 feature "scene_intersector" {
   x: object 
     //scene_coords=[0,0]
