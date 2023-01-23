@@ -80,6 +80,7 @@ feature "zal" {
              //console-log "A1=" @radpts.positions "A2=" @radpts.colors "a3=" @pz.input.rad
 
           let measuring_points_recs = (find-objects-bf "MeasuringPoint" root=@zal depth=1)   
+          let vertices_recs = (find-objects-bf "Vertex" root=@zal depth=1)   
 
           dasdata: layer_object title="Данные"
             measuring_points=(df-create length=@measuring_points_recs.length
@@ -92,25 +93,32 @@ feature "zal" {
                  TITLE=(read @measuring_points_recs | map_geta {: rec | return "mp "+rec.params[0] + " "+rec.params[1] + " " + rec.params[2] :})
                  | df-mul X=10 Z=10
               )
+            vertices=(df-create length=@measuring_points_recs.length
+                 | df-set 
+                 X=(read @measuring_points_recs | map_geta 0) 
+                 Y=10
+                 Z=(read @measuring_points_recs | map_geta 1)
+                 RADIUS=10
+                 TITLE=(read @measuring_points_recs | map_geta {: rec | return "vertex "+rec.params[0] + " "+rec.params[1] :})
+                 | df-mul X=10 Z=10
+              )
             {
               param-info "measuring_points" out=true
+              param-info "vertices" out=true
             }
 
           measuring_points: cv-spheres title="MeasuringPoints"
             input=@dasdata.measuring_points
             color=[1,0,0] radius=1 opacity=0.2
-
-            //selected_N=-1
             {
               cv_df_filter_bynum input=@dasdata.measuring_points
-              /*
-              gui {
-                gui-tab "select" {
-                  //gui-slot @measuring_points "selected_N" gui={ |in out| gui-string @in @out }
-                  gui-slot @measuring_points "selected_N" gui={ |in out| gui-combobox @in @out values=(m-eval {:x=@measuring_points_recs | let acc=[]; for (let i=0; i<x.length; i++) acc.push(i); return acc :})}
-                }
-              }
-              */
+            }            
+
+          vertices_points: cv-spheres title="Vertex"
+            input=@dasdata.vertices
+            color=[0,0,1] radius=1 opacity=0.2  
+            {
+              cv_df_filter_bynum input=@dasdata.measuring_points
             }
 
 /*
@@ -155,9 +163,11 @@ feature "zal" {
             let sp_num = event.intersect.faceIndex / obj.params.indices_per_sphere;
           }*/
 
+/*
           vertex: cv-spheres title="Vertex"
             positions=(find-objects-bf "Vertex" root=@zal | map { |x| list (0 + (10 * @x.0)) 0 (10 * @x.1) } | arr_flat)
             color=[0,0,1] radius=30 opacity=0.2   
+*/            
 
           ObstaclesLayer title="Obstacles"  
 
