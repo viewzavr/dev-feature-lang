@@ -116,6 +116,7 @@ function color2css( triarr ) {
       }*/
 
       context1.fillStyle = color2css( color );
+      //console.log("rending text", txt)
       context1.fillText( txt, 5+1, height - Math.sqrt( height*0.1 ) );
       // короче разобраться тут надо, что к чему
 

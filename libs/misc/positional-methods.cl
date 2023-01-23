@@ -229,9 +229,16 @@ register_feature name="!=" {
 };
 
 // todo тут надо проверять все аргументы а не только 2
+
 register_feature name="or" {
   eval code="(a,b) => a || b" allow_undefined=true;
 };
+
+jsfunc "or-many" {: ...args |
+  for (let i =0; i<args.length; i++)
+     if (args[i]) return args[i];
+  return null
+:}
 
 // todo тут надо проверять все аргументы согласно args_count а не только 2
 register_feature name="and" {

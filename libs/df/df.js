@@ -237,10 +237,10 @@ export function slice( src, index0, index1 ) {
 }
 
 // конвертирует df в массив
-// вытаскивая из него указанную строчку
+// вытаскивая из него указанную строчку в форме массива
 export function get_rows( src, index, length_idea=1,columns=null ) {
   let acc = [];
-  if (!columns) {
+  if (!columns || columns.length==0) {
     columns = get_column_names(src);
     columns.forEach( function(name) {
         let coldata = src[name];
@@ -257,6 +257,21 @@ export function get_rows( src, index, length_idea=1,columns=null ) {
           acc.push( undefined );
     });
   };
+
+  return acc;
+}
+
+// вытаскивает 1 строчку в форме хеша
+export function get_line( src, index, columns=null ) {
+  let acc = {};
+  if (!columns || columns.length==0) {
+    columns = get_column_names(src);
+  }  
+  columns.forEach( function(name) {
+      let coldata = src[name];
+      if (coldata)
+        acc[ name ] = coldata[index];
+  });
 
   return acc;
 }

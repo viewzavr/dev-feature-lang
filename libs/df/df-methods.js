@@ -117,7 +117,7 @@ export function df_set( env, opts ) {
 }
 
 
-// преобразует входную df (данную в input) вызывая func для каждой указанной колонки
+// преобразует входную df (данную в input) вызывая единообразно func для каждой указанной колонки
 // пример: df_operation X=10 Y=5 func={: v arg | return v*arg } умножает колонку X на 10 а колонку Y на 5
 export function df_operation( env, opts ) {
 
@@ -206,8 +206,8 @@ export function df_combine( env ) {
   });
 }
 
-/////////////////// конвертирует df в набор df построчно
-// т.е. на выходе массив dataframe-ов в каждом из которых 1 строка записана
+/////////////////// конвертирует df в набор строк
+// где каждая строка есть dataframe
 
 export function df_to_rows( env ) {
   env.onvalues(["input"],(value) => {
@@ -227,9 +227,12 @@ export function df_to_rows( env ) {
 }
 
 /////////////////// конвертирует df в набор строк
-// т.е. на выходе массив массивов, в каждом из которых 1 строка записана
+// где каждая строка есть массив
 export function df_to_rows_arrays( env ) {
-  env.onvalues(["input"],(value) => {
+  if (!env.paramConnected("columns")) // ценный параметр columns позволяет добиться определенности в массиве
+    env.setParam("columns",[])
+
+  env.onvalues(["input","columns"],(value,columns) => {
     if (!df.is_df(value)) {
       env.setParam("output",[]);
       return;
@@ -237,7 +240,29 @@ export function df_to_rows_arrays( env ) {
     
     let res = [];
     for (let i=0; i<value.length; i++) {
-      let output = df.get_rows( value,i );
+      let output = df.get_rows( value,i,1,columns );
+      res.push( output );
+    }
+    
+    env.setParam("output",res);
+  });
+}
+
+/////////////////// конвертирует df в набор строк
+// где каждая строка есть хеш
+export function df_to_lines( env ) {
+  if (!env.paramConnected("columns")) // тут columns вроде не так важен
+    env.setParam("columns",[])
+
+  env.onvalues(["input","columns"],(value,columns) => {
+    if (!df.is_df(value)) {
+      env.setParam("output",[]);
+      return;
+    }
+    
+    let res = [];
+    for (let i=0; i<value.length; i++) {
+      let output = df.get_line( value,i,columns );
       res.push( output );
     }
     

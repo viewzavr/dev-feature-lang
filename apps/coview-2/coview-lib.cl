@@ -137,10 +137,14 @@ feature "layer" {
 feature "layer_object" {
   x: object 
        subitems=(find-objects-bf "layer_object" root=@x include_root=false depth=1)
+     ~apply_old_modifiers
+ /*  
   {{
      // подключаем модификаторы
      x-modify-list input=@x list=(find-objects-bf root=@x include_root=false "addon-object" depth=1 | filter_geta "visible")
+     // типа встроенный apply_old_modifiers
   }}
+ */
        
 }
 

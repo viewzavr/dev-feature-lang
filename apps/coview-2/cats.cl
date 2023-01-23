@@ -515,6 +515,10 @@ feature "scene_intersector" {
 
         let raycaster = new THREE.Raycaster()
         ///let mouse = convert_fn( event, domElement )
+        // учтем историю что там еще камера области..
+        if (threejs_camera.children[0])
+          threejs_camera = threejs_camera.children[0]; 
+
         raycaster.setFromCamera(screen_coords, threejs_camera)
         raycaster.layers.set( 0 );
 

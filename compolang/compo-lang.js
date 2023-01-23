@@ -748,8 +748,9 @@ export function computer(env)
 // и значит когда создается объект rect к нему цепляются фичи rounded и red
 export function append_feature( env, envopts ) {
   // дорогая вещь
-  console.error("append_feature is deprecated")
-  debugger;
+  // да ниче она не дорогая.. не дороже вроде как чем find-node делать
+  //console.error("append_feature is deprecated")
+  //debugger;
 
   env.onvalues( [0,1],(a,b) => {
     //console.log("append_feature",a,b)

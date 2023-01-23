@@ -11,8 +11,13 @@ feature "zal" {
         }
       }
 
-      // добавим управление как карта
-      insert_children list={ addon-map-control; addon-camera-center } input=(read @p | get_parent)
+      
+      insert_children list={ 
+          addon-map-control; // добавим слою управление как карта
+          addon-camera-center; // центровку камер
+          //effect3d-scale z=-1 чето глючит
+          } 
+      input=(read @p | get_parent)
 
       f_select: cv-select-files
       //f_text: load-text input=@f_select.first_file
@@ -27,6 +32,19 @@ feature "zal" {
 
 
       zal: node3d ~layer-object title="Геометрия зала" { // среда для моделирования, world -- update а ведь нет, теперь это сцена
+
+        // история про зеркальность по одной из оси..
+        // попробовать на уровне слоя..
+        /*
+        m-eval {: obj=@zal.output |
+          //let r = 0.01
+          let r = 1.0
+          obj.scale.set( r,r,-r )
+          //console.log("setting scale to",obj.scale)
+          //obj.rotation.z = 90 * Math.PI/180;
+          //obj.rotation.x = -90 * Math.PI/180;
+        :}
+        */
         
           g: grid // ну это рисование сетки
             rangex=((find-objects-bf "RangeX" root=@zal | geta 0 | geta 1) or 0)
@@ -71,6 +89,7 @@ feature "zal" {
                  Z=(read @measuring_points_recs | map_geta 1)
                  VALUE=(read @measuring_points_recs | map_geta 2)
                  RADIUS=(read @measuring_points_recs | map_geta 2 | map_geta {: x | return 10*Math.max( 1, Math.sqrt(x) ) :})
+                 TITLE=(read @measuring_points_recs | map_geta {: rec | return "mp "+rec.params[0] + " "+rec.params[1] + " " + rec.params[2] :})
                  | df-mul X=10 Z=10
               )
             {
@@ -147,9 +166,59 @@ feature "zal" {
     }  
 }
 
+// input - df который следует показать. X,Y,Z, TITLE
+//         либо я еще думал про набор объектов которые следует показать. но вроде как я теперь говорю что данные у нас df универсальные
+//         но либо сразу требовать X,Y,Z, X2,Y2,Z2, TITLE ? но их нет во входных данных..
+// delta - смещение для палочки в форме [x,y,z]
+/*
+feature "callouts" {
+  x: node3d delta=[0,100,0] {
+    effect3d-disable-clicks 
+    read @x.input | df_to_rows | repeater { |item|
+      node3d {
+        //read @item | df_set X2={: df i | return df.X[i]+}
+        read @item | df_set X2="->X" Y2="->Y" Z2="->Z" | df-add X2=@x.delta.0 Y2=@x.delta.1 Z2=@x.delta.2 | lines
+        text_sprite_one positions=(list @item.X.0 @item.Y.0 @item.Z.0) text=@item.title.0
+      }
+    }
+  }
+}
+*/
+
+coview-record title="Подписи" type="callouts" cat_id="gr3d"
+
+// todo переделать нутрянку на input=df.. тогда она мб подтянет цвет..
+feature "callouts" {
+  x: layer_object ~node3d delta=[0,1000,0] title="Подписи" input=null {
+    
+    read @x.input | df_to_lines | repeater { |item|
+      node3d {
+        lines positions=(list @item.X @item.Y @item.Z (@item.X + @x.delta.0) (@item.Y + @x.delta.1) (@item.Z+@x.delta.2))
+         { effect3d-disable-clicks  }
+        //read @item | df_set X2={: df i | return df.X[i]+}
+        //read @item | df_set X2="->X" Y2="->Y" Z2="->Z" | df-add X2=@x.delta.0 Y2=@x.delta.1 Z2=@x.delta.2 | lines
+        let txt=(or @item.TITLE @item.TEXT @item.VALUE ":-]")
+        ttt: text_sprite_one position=(list (@item.X + @x.delta.0) (@item.Y + @x.delta.1) (@item.Z+@x.delta.2)) 
+           text=@txt radius=1000 size=30
+           { effect3d-disable-clicks  }
+       
+      }
+    }
+  
+    param-info "input" in=true output=true
+    gui debug=true {
+      gui-tab "main" {
+        gui-slot @x "input" gui={ |in out| gui-df @in @out }
+        gui-slot @x "delta" gui={ |in out| gui-vector @in @out }
+      }
+    }
+  }
+}
+
 // вход - информация по объекту: его позиция и надпись, а также параметры отображения
 // альтернативно напрашивается - это некий генератор положения, а сам объект-символ как бы отдельно.. ну ладно, пока общее пусть
 // position, r, dx
+// устарело теперь новое это callouts
 feature "object_info_3d" {
   x: node3d r=100 dx=20 {    
     cyl: cv_cylinders positions=(m-eval {: r=@x.r dx=@x.dx | return [0,0,0, dx,r,0 ] :}) {

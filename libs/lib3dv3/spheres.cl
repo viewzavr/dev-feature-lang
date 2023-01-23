@@ -14,6 +14,7 @@ feature "spheres" {
         param-info "click_3d_sn" out=true
 
         reaction (event @m "click_3d") {: event sobj=@s mobj=@m|
+            //console.log("spmesh click_3d", event)
             let sp_num = Math.floor( event.intersect.faceIndex / mobj.params.faces_per_sphere );
             sobj.emit("click_3d_n", sp_num) // пока сделаем другое имя
             sobj.setParam("click_3d_sn",sp_num); // пока мы не ловим событий в сетке параметров

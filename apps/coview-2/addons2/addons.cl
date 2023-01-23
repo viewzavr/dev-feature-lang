@@ -8,6 +8,9 @@ feature "apply_old_modifiers" {
   }
 }
 
+append_feature "node3d" "apply_old_modifiers"
+// ну посмотрим.. просто 1000 раз я уже окарывался что применяю модификатор к node3d а он не работает
+
 feature "compute_title" {
   r: object output=@q->output {
     q: m-eval "(t,a,b) =>
@@ -301,13 +304,16 @@ feature "effect3d-disable-clicks" {
   eoa: geffect3d
     //gui={paint-gui @eoa; }
     ~x-js {: tenv |
+       
        let u1 = tenv.onvalue('output',(threejsobj)=> {
+       
          threejsobj.layers.disable( 0 ); // там у нас клики
          threejsobj.layers.enable( 1 )
        })
        return () => {
          u1();
          let threejsobj = tenv.params.output;
+       
          if (threejsobj) {
            threejsobj.layers.disable( 1 ); // там у нас клики
            threejsobj.layers.enable( 0 )
@@ -474,8 +480,23 @@ feature "addon-click-intersect" {
              cell.set( screen_coords ) 
           :}
           reaction (param @iss "output") {: info layer=@vp.element |
-            if (info.obj)
-                info.obj.emit( "click_3d",info )
+            //if (info.obj)
+            //    info.obj.emit( "click_3d",info )
+            // попробуем отсылать всем
+            // пока сюда но место вроде не здесь
+            //console.log(info.intersects)
+            for (let i=0; i<info.intersects.length; i++) {
+              let obj = info.intersects[i].object?.$vz_object
+              if (obj) {
+                 let info2 = {...info}
+                 info2.intersect = info.intersects[i]
+                 info2.obj = obj
+                 obj.emit( "click_3d",info2 ) 
+              }   
+            }
+            //info.intersect = info.intersects[0]
+
+
              layer.emit( "click_3d",info )
              //console.log('lalalaa,',info)
           :}
