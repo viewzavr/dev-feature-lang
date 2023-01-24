@@ -65,6 +65,7 @@ feature "layer" {
     //scene3d={ return @l->output? }    
     gui={paint-gui @l }
     sidebar_gui={paint-gui @l filter=["Состав"]}
+    add_dialog_categories=(gather-cats ["data","process","gr3d","gr2d"])
     //subitems=(find-objects-bf "layer_object" root=@l include_root=false recursive=false)
     {
       addon-click-intersect // по умолчанию всем решил пока
@@ -90,7 +91,7 @@ feature "layer" {
               bup:    button "↑"
               bdown:  button "↓"
 
-              add: add-object-dialog target=@l list=(gather-cats ["data","process","gr3d","gr2d"])
+              add: add-object-dialog target=@l list=@l.add_dialog_categories
 
               connect (event @bplus "click") (method @add "show")
 

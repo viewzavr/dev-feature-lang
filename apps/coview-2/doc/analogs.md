@@ -15,3 +15,7 @@ Roblox, GDevelop
 
 ## Научная визуализация
 Paraview, Visit, Blender
+
+---
+https://github.com/pmndrs/react-three-fiber
++ https://github.com/pmndrs/drei

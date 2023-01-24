@@ -118,6 +118,7 @@ export function animation_player( obj, opts )
 
   obj.feature("delayed")
   let updminmax_delayed = obj.delayed( updateminmax, 30);
+  //obj.vz.tools.delayed( obj ).delayed( )
   // так тоже работает
   //var updateminmax_pending = false;
   /*

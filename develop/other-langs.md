@@ -64,6 +64,11 @@ scala dotty
 
 https://lit.dev/docs/templates/directives/
 
+Литература по Пи-исчислению:
+* https://golem.ph.utexas.edu/category/2009/08/the_pi_calculus.html
+* https://golem.ph.utexas.edu/category/2009/09/the_pi_calculus_ii.html
+* https://golem.ph.utexas.edu/category/2015/05/a_2categorical_approach_to_the.html
+
 * CSPM
 https://cocotec.io/fdr/manual/cspm.html
 

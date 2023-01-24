@@ -696,6 +696,8 @@ export function camera3d( env ) {
   env.setParam("output",cam );
 }
 
+// todo https://github.com/yomotsu/camera-controls
+
 import {OrbitControls,MapControls} from "./three.js/examples/jsm/controls/OrbitControls.js";
 
 export function map_control( env ) {
@@ -786,6 +788,10 @@ export function orbit_control( env ) {
 
       function update_control_target (c) {
         if (skip_camera_reaction) return;
+        if (c == null) {
+          console.warn("lib3d control: invalid input value for center (lookat)",c)
+          return 
+        }
         skip_camera_update=true;
         // защита от зацикливания
         //let eps = 0.0001;

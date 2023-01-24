@@ -635,7 +635,7 @@ feature "show_area_3d" {
                 | map_geta "scene_env" default=[]
                 | repeater target_parent=@area_rect { |code|
                     computing_env code=@code @process_rect @area_rect.input.opacity_3d // @source
-                  }  
+                  }
                 | map_geta "output" default=null 
             } | arr_flat | arr_compact | pass_input_if @area_rect.input.visible
             )

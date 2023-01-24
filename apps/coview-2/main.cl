@@ -4,13 +4,11 @@
 load "lib3dv3 csv params io gui render-params df scene-explorer-3d new-modifiers imperative"
 load "init.cl"
 
-////// фичи
-
-load "features/init.cl"
-
 //////
 
 show-file-progress export-image animation
+settings-cmd
+coview-app-design
 
 project: the_project 
 {
@@ -32,8 +30,8 @@ project: the_project
     cam2: camera pos=[10,10,10];
   }
 
-    v1: the_view_recursive title="Визуализация"
-    actions={}
+  v1: the_view_recursive title="Визуализация"
+  actions={}
     {
         area_container_horiz {
           area_3d sources_str="@l1"

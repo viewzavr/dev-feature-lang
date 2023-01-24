@@ -1,3 +1,5 @@
+load "set-params"
+
 feature "css-style" {
   dom tag="style" dom_obj_type="text/css" dom_obj_textContent=@.->0;
 };

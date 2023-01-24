@@ -1,3 +1,4 @@
+
 load "gui-system/init.cl"
 // непонятно почему это здесь
 load "lib/init.cl"
@@ -51,6 +52,9 @@ feature "test-process" {
 
 // включевое поле output это массив вида [ {name,url}, {name,url}, fileobject, ... ]
 
+// идея сделать внешний установщик файла; и чтобы этот выбрал себе подходящее src.
+// можно даж без укадайки а 4 разных.. но тогда кстати можно - и просто src + параметр. ну да.
+
 feature "cv-select-files" {
   qqe: layer_object
     title="Загрузка файлов"
@@ -63,7 +67,11 @@ feature "cv-select-files" {
     {{ x-param-files  name="files" }}
     {{ x-param-switch name="src" values=["URL","Файл с диска","Папка list.txt","Папка с диска"] }}
     src=0
-    output=(m_eval {: src=@qqe->src a=@qqe->url b=@qqe->files c=(@load_list_txt->output or []) |
+    {{ console-log src=@qqe->src 
+       console-log a=@qqe->url 
+       console-log b=@qqe->files 
+       console-log c=(@load_list_txt->output? or []) }}
+    output=(m_eval {: src=@qqe->src a=@qqe->url b=@qqe->files c=(@load_list_txt->output? or []) |
       
       if (src == 0) {
         if (a) {
@@ -78,10 +86,11 @@ feature "cv-select-files" {
       if (src == 2)  
         return c
       return []
-      :})
+      :} | console-log-input "TTTTTTTTTTTTTTTT")
     first_file =@qqe.output.0
 
     gui={ paint-gui @qqe }
+    /*
     gui1={
       column ~plashka {
 
@@ -105,6 +114,7 @@ feature "cv-select-files" {
 
       };
     }
+    */
     {
       load_list_txt: if (@qqe->src == 2) { load-list-txt file=@qqe->list_url }
       //let load_list_txt=(if (@qqe->src == 2) { load-list-txt file=@list_url })
@@ -121,14 +131,16 @@ feature "cv-select-files" {
 
             show-one index=@qqe->src style="padding:0.3em;" {
               column { render-params-list object=@qqe list=["url"] }
-              column { render-params-list object=@qqe list=["files"] }
+              column { 
+                 //render-params-list object=@qqe list=["files"] 
+                 gui-slot @qqe "files" gui={ |in out| gui-local-files @in @out}
+               }
               column { 
                   render-params-list object=@qqe list=["list_url"] 
-
                   
                   text "found files:"
                   gui-text btn_title="Посмотреть" hint="Список url файлов построенный по указанному list.txt"
-                    in=(m-eval {: arr=@load_list_txt.output| return arr.map( n => n.url ).join('\n') :} | create-channel) out=(create-channel)
+                    in=(m-eval {: arr=@load_list_txt.output? | return (arr || []).map( n => n.url ).join('\n') :} | create-channel) out=(create-channel)
                   //dom tag="textarea" dom_obj_value=(m-eval {: arr=@load_list_txt.output| return arr.map( n => n.url ).join('\n') :})
               }
               column { files }
@@ -510,7 +522,7 @@ feature "scene_intersector" {
     //threejs_camera=null
     //scene_items=[]
   {
-    let THREE1=(import_js (resolve_url "../../../libs/lib3dv3/three.js/build/three.module.js"))
+    let THREE1=(import_js (resolve_url "../../libs/lib3dv3/three.js/build/three.module.js"))
     reaction (event @x "perform") {: screen_coords threejs_camera=@x.threejs_camera scene_items=@x.scene_items obj=@x THREE=@THREE1 |
 
         let raycaster = new THREE.Raycaster()

@@ -288,6 +288,11 @@ dom-comp "gui-float" { |in out|
 	 reaction (event @g "user_change") @out	 
 }
 
+dom-comp "gui-local-files" { |in out|
+	 g: files //value=(read @in | get-value)  // dom_obj_files=@d.value
+	 reaction (event @g "user_change") @out	 
+}
+
 feature "gui-vector" {
 	g: input_vector_c2 in=@.->0 out=@.->1 value=(read @g.in | get-value) rows=3
 	{{ reaction (event @g "user_change") @g.out }}

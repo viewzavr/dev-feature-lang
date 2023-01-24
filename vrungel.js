@@ -78,6 +78,17 @@ export function init() {
     });
   };
 
+/*
+  vzPlayer.file_monitor = {
+    start: (file) => {
+        vzPlayer.setParam( "loading_files", (vzPlayer.params.loading_files || []).concat( file ) );    
+    }
+    finish: (file) => {
+        vzPlayer.setParam( "loading_files",vzPlayer.params.loading_files.filter( f => f != file) );
+    }
+  }
+*/  
+
   return { vz, vzPlayer };
 }
 

@@ -365,10 +365,17 @@ function parsed2dump( vz, parsed, base_url ) {
 
 export function import_js(env) {
   env.onvalue(0,(path) => {
-    import(path).then( res => {
-      env.setParam("output",res);
-    })
+    
+      import(path).then( res => {
+        env.setParam("output",res);
+      }).catch( err => {
+      env.vz.console_log_diag( env )
+      console.error("compolang import_js: failed to import",path)  
+      })
+    
+    
   }); 
+
 };
 
 export function is_positional_env( env ) {};

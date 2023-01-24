@@ -98,15 +98,15 @@ export function m_eval( env ) {
   }
 
   env.feature("delayed");
-  var eval_delayed = env.delayed( evl )
+  //var eval_delayed = env.delayed( evl )
 
-/*
   var eval_delayed0 = env.delayed( evl )
   var eval_delayed = () => { 
-    debugger;
+    if (env.params.debug)
+       debugger;
     eval_delayed0();
   }
-*/  
+  
 
   env.on('param_changed', (name) => {
 
