@@ -21,14 +21,17 @@ register_feature name="text" {
 };
 
 //
-register_feature name="file" {
-	dom tag="input" dom_type="file" style="max-width:180px;" {
-		dom_event object=@.. name="change" code=`
-		  env.params.object.setParam("value",env.params.object.dom.files[0],true)
-		  env.params.object.setParam("output",env.params.object.dom.files[0],true)
-		`;
-	};
-};
+feature "file" {
+	d: dom tag="input" dom_type="file" style="max-width:180px;" {
+		reaction (dom-event-cell @d "change") {: event_data obj=@d |
+			let files = event_data.target.files;
+		  
+		  obj.emit("user_change",files[0]);
+		  obj.setParam("output",files[0],true);
+
+			:}		
+	}
+}
 
 feature "files" {
 	d: dom tag="input" dom_type="file" dom_attr_multiple=true {
@@ -423,17 +426,22 @@ feature "combobox" {
 	   	 if (main.params.values)
 	   	     main.setParam("value",main.params.values[ i ], main.getParamManualFlag( "value"));
 	   });
-	   main.onvalue("values",() => {
+	   main.onvalues_any(["values","titles"],() => {
 	     setup_values();
-	   });
-	   main.onvalue("titles",() => {
-	     setup_values();
-	   });
+	   });	   
 	   main.onvalue("dom",() => {
 	     setup_index();
 	     setup_values();
 	   });
 	   main.onvalue("value",recompute_index);
+
+	   // новый интерфейс.. мб удобнее будет на его основе создать новый комбо.. 
+	   main.onvalue("records",(recs) => {
+       let vals = recs.map( r => r[0] ) 
+       let tits = recs.map( r => r[1] ) 
+       main.setParam("values",vals)
+       main.setParam("titles",tits)
+	   })
 
 	   function recompute_index() {
 	   	  let index = (main.params.values || []).indexOf( main.params.value );
@@ -731,6 +739,7 @@ register_feature name="switch_selector" {
 };
 
 // но с другой стороны тут еще стили особые появятся, поэтому ладно уж
+// switch_selector_row items=['a','b','c']
 register_feature name="switch_selector_row" {
 	root55: row index=0 gap="0.2em" generated_items=@rep->output items=[]
 	{
@@ -738,6 +747,7 @@ register_feature name="switch_selector_row" {
 			 bt:button text=@input			 
 			 {{ reaction (event @bt "click") {: obj=@root55 index=@index | 
 			 	     obj.emit('user_change',index) 
+			 	     obj.setParam( "output_index", index, true ); // или output_index?
 			 	     obj.setParam( "index", index, true ); // но то устаревшее
 			 	  :} 
   	 	 }}

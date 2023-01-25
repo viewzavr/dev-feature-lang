@@ -69,7 +69,7 @@ export function find_objects_bf( env  ) {
 
   let delayed_begin = env.delayed( begin, 10 );
   env.monitor_values(["root","features"],(r,f) => {
-    if (!r) {
+    if (!r || !r.getPath) {
       env.emit("reset");
       publish_result();
       return;

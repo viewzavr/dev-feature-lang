@@ -629,7 +629,7 @@ feature "show_area_3d" {
               | map_geta "output" // типа слой у нас есть node3d
               | arr_flat | pass_input_if @area_rect.input.visible)
 
-           let scene3d_envs=(read @area_rect.input.sources 
+           let scene3d_envs=(read @area_rect.input.sources // todo тут продолжить
             | map { |source|
                 find-objects-bf "have-scene-env" root=@source recursive=false
                 | map_geta "scene_env" default=[]

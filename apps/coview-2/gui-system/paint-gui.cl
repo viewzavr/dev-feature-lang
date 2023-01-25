@@ -69,7 +69,8 @@ let xtra_gui_codes={}
 
 feature "paint_gui_show_tabs"
 
-// paing-gui @object
+// paint-gui @object
+// paint-gui @object filter=["main","extra"]
 feature "paint-gui" {
 	x: column gap="0.2em" show_common=true filter=null {
 		let target = @x->0
@@ -293,6 +294,60 @@ dom-comp "gui-local-files" { |in out|
 	 reaction (event @g "user_change") @out	 
 }
 
+// один файл
+// на будущее можно сделать выбор из библиотеки еще
+dom-comp "gui-file" { |in out|
+	 column {
+		 text (m-eval {: f=(read @in | get-value) | 
+		 	 
+		 	 let name = typeof(f?.name) == "string" ? f.name : (f || "")
+		 	 let txt = ""
+		 	 if (f?.url) 
+		 	  txt = `<a target='_blank' href='${f.url}' title='${f.url}'>${name}</a>`
+		 	 	else if (f instanceof File)
+          {
+          	let url = URL.createObjectURL(f);
+          	txt = `<a target='_blank' href='${url}' title='${url}'>${name}</a>`
+          }
+		 	 	else txt = name
+
+		 	 //return "Файл: " + txt
+		 	 return txt
+		 	:}) style="max-width: 20ch; overflow: hidden; text-overflow: ellipsis;
+		 background: #d8d8d8;
+    border-radius: 4px;
+    padding: 3px;"
+		 /*
+		 display:inline-block;
+  	 white-space: nowrap;  	 
+     
+     */
+
+		 text "Новое значение:"
+		 select: switch_selector_row index=1 items=["URL","Локальный файл","Очистить"] {{ hilite_selected }}
+
+		 // если я хочу чтобы ввод был по enter-у.. надо делать форму или ловить ентер
+		 show-one index=@select.index style="padding:0.3em;" {
+		 	 g2: input_string value=(read @in | get-value | m-eval {: f | if (f instanceof File) return ""; return (typeof(f?.url) == "string" ? f.url : f):})
+		 	        dom_attr_name="file_url"
+	  	 g: file //dom_obj_value=(read @in | get-value)  // dom_obj_files=@d.value
+	  	 g3: button "Очистить"
+	   }
+
+	   reaction (event @g3 "click") {: out=@out | out.set( "") :} //{ read @out | put-value "" }
+	   reaction (event @g "user_change") {: out=@out file |
+	   		if (file) out.set( file ); // если там нажали cancel то нам все-равно должно быть
+	   	:}
+	   reaction (event @g2 "user_change") {: out=@out url |
+           let sp = url.split('/');
+           if (sp.at(-1) == '') sp.pop();
+           let result = {name:(sp.at(-1) || ""),url:url}
+           
+           out.set( result );
+	   	:} // идея - следующий аргумент если out то туда кладется результат reaction ))) .. хотя reaction всегда может результат так-то возвращать а класть уже put-value-to
+	}   
+}
+
 feature "gui-vector" {
 	g: input_vector_c2 in=@.->0 out=@.->1 value=(read @g.in | get-value) rows=3
 	{{ reaction (event @g "user_change") @g.out }}
@@ -393,8 +448,8 @@ feature "gui-slider" {
 }
 
 feature "gui-combobox" {
-	gg: dom-group in=@.->0 out=@.->1 min=0 max=100 step=1 {
-	 	 g: combobox value=(read @gg.in | get-value | console-log-input "cv values=" @g.values) values=@gg.values
+	gg: dom-group in=@.->0 out=@.->1 min=0 max=100 step=1 records=null values=null titles=null {
+	 	 g: combobox value=(read @gg.in | get-value) values=@gg.values records=@gg.records titles=@gg.titles
      connect (event @g "user_change") @gg.out
 	}
 }
@@ -425,6 +480,13 @@ feature "gui-slot" {
     insert_children list=@x.gui input=@x (param @x.0 @x.1) (param @x.0 @x.1 manual=true)
       
   }
+}
+
+feature "gui-box" {
+  x: dom tag="fieldset" style="border-radius: 5px; padding: 4px; width: 95%;" 
+  {
+    dom tag="legend" innerText=@x.0;
+  }  	
 }
 
 jsfunc "param-path" {: object param_name | 

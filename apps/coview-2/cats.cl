@@ -57,7 +57,7 @@ feature "test-process" {
 
 feature "cv-select-files" {
   qqe: layer_object
-    title="Загрузка файлов"
+    title="Выбор файлов"
     initial_mode=1
     url=""
     list_url=""
@@ -67,10 +67,7 @@ feature "cv-select-files" {
     {{ x-param-files  name="files" }}
     {{ x-param-switch name="src" values=["URL","Файл с диска","Папка list.txt","Папка с диска"] }}
     src=0
-    {{ console-log src=@qqe->src 
-       console-log a=@qqe->url 
-       console-log b=@qqe->files 
-       console-log c=(@load_list_txt->output? or []) }}
+
     output=(m_eval {: src=@qqe->src a=@qqe->url b=@qqe->files c=(@load_list_txt->output? or []) |
       
       if (src == 0) {
@@ -86,7 +83,7 @@ feature "cv-select-files" {
       if (src == 2)  
         return c
       return []
-      :} | console-log-input "TTTTTTTTTTTTTTTT")
+      :} )
     first_file =@qqe.output.0
 
     gui={ paint-gui @qqe }

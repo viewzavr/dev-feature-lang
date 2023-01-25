@@ -2647,9 +2647,31 @@ export function creator( env )
         //edump.manual = env.params.manual;
         //посчитал неправильным здесь это обрабатывать
 
-        var p = env.vz.createSyncFromDump( edump,null,target ); // ,null ,false, edump.$scopeFor );
+/*
+        if (env.params.manual) {
+          function process_node( oldnode ) {
+            let node = {...oldnode}
+            node.manual = true
+            Object.keys(node.children || {}).forEach( (c) => node.children[c] = process_node( node.children[c] ))
+            return node
+          }
+          edump = process_node( edump )
+        }
+*/        
+
+        var p = env.vz.createSyncFromDump( edump,null,target ); //,null, env.params.manual ); // ,null ,false, edump.$scopeFor );
 
         p.then( (obj) => env.emit("created",obj) );
+
+/*      получается это не надо, а надо пользоваться dump_to_manual
+        if (env.params.manual) 
+        p.then( (obj) => {
+          obj.manuallyInserted=true;
+
+          let s = Object.keys( input[0].features ).filter( f => f != "base_url_tracing");
+          obj.setParam("manual_features",s,true);
+        })
+*/        
      }
  }
 
