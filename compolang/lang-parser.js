@@ -364,7 +364,7 @@ function peg$parse(input, options) {
       //current_env.links[linkrecordname] = { to: `.->${name}`, from: linkvalue.value };
       let linkvalue2 = { 
         link: true, 
-        to: `~->${name}`, 
+        to: `.->${name}`, 
         from: linkvalue.value,
         soft_mode: soft_flag ? true : false,
         stream_mode: stream_flag ? true : false, // F-PARAMS-STREAM
@@ -464,7 +464,7 @@ function peg$parse(input, options) {
 
      let input_link_v = input_link.value;
 
-     pipe.links["pipe_input_link"] = { to: "~->input", from: input_link_v, locinfo: getlocinfo(), stream_mode: true }
+     pipe.links["pipe_input_link"] = { to: ".->input", from: input_link_v, locinfo: getlocinfo(), stream_mode: true }
      //return finish_env();
      return pipe;
    };
@@ -543,7 +543,7 @@ function peg$parse(input, options) {
        let pipe = new_env();
        pipe.features["pipe"] = true;
        let locinfo = getlocinfo();
-       pipe.links["pipe_input_link"] = { to: "~->input", from: "@" + first_attr, locinfo: locinfo }
+       pipe.links["pipe_input_link"] = { to: ".->input", from: "@" + first_attr, locinfo: locinfo }
 
        let arr = [];
        for (let i=0; i<attrs.length; i++)
@@ -565,7 +565,7 @@ function peg$parse(input, options) {
 
        if (arr.length == 1) { // простая гета - подсократим убрав пайпу
          pipe = arr[0]
-         pipe.links["pipe_input_link"] = { to: "~->input", from: "@" + first_attr, locinfo: locinfo }
+         pipe.links["pipe_input_link"] = { to: ".->input", from: "@" + first_attr, locinfo: locinfo }
          //console.warn( "PIPE optimized", pipe )
        }
        else
@@ -5121,7 +5121,7 @@ function peg$parse(input, options) {
           if (m.value?.link === true) {
             m.link = true;
             m.from = m.value.value;
-            m.to = "~->" + (env.positional_params_count-1).toString();
+            m.to = ".->" + (env.positional_params_count-1).toString();
             m.soft_mode = m.value.soft_flag;
             m.stream_mode = m.value.stream_flag; // F-PARAMS-STREAM
             m.locinfo = m.value.locinfo;
@@ -5180,7 +5180,7 @@ function peg$parse(input, options) {
             // todo needLexicalParent ????????????
             expr_env.$name = `expr_env_${expr_env_counter++}`; // скорее всего не прокатит
             env.features_list = (env.features_list || []).concat( expr_env );
-            expr_env.links[ `output_link_${linkcounter++}` ] = { from: "~->output", to: ".->"+m.name, locinfo: m.value.env_expression.locinfo }  
+            expr_env.links[ `output_link_${linkcounter++}` ] = { from: ".->output", to: ".->"+m.name, locinfo: m.value.env_expression.locinfo }  
           }  
           else
           {  // массив
