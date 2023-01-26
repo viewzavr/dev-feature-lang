@@ -93,15 +93,24 @@ feature "paint-gui" {
 
 		// gui_space: object
 
-		let gui_tabs = (@gui_space | get-children-arr | arr_filter_by_features features="gui-tab" | sort_by_priority)
+		let gui_tabs = (@gui_space | get-children-arr | arr_filter_by_features features="gui-tab")
+		//let filtered_tabs = @gui_tabs
+		let filtered_tabs = (read @gui_tabs | arr_filter code={: tab filter=@x.filter | 
+                 	  if (Array.isArray(filter))
+                 			return filter ? filter.indexOf( tab.params.title ) >= 0 : true
+                 		if (filter?.bind)
+                 			return filter( tab.params.id, tab )
+                 		return true	
+                 		:} | sort_by_priority)
 
         ssr: switch_selector_row 
                  index=0
-                 items=(read @gui_tabs | arr_filter code={: tab filter=@x.filter | return filter ? filter.indexOf( tab.params.title ) >= 0 : true :} | map-geta "title")
+                 items=(read @filtered_tabs | map-geta "title")
                  visible = (@ssr.items.length > 1)
                  {{ hilite_selected }}
 
-        let current_tab = (read @gui_tabs | geta (m-eval {: i=@ssr.index tabs=@gui_tabs | return Math.min( i, tabs.length-1 ) :}))
+        let current_tab = (read @filtered_tabs | geta (m-eval {: i=@ssr.index tabs=@filtered_tabs | return Math.min( i, tabs.length-1 ) :}))
+        //console-log "current_tab=" @current_tab
 
         // todo можно будет не index передавать а объект. надежней
         
@@ -117,6 +126,9 @@ feature "paint-gui" {
 
 					      b1: button "Отладка"
 					    	reaction (event @b1 "click") {: guiobj=@target | console.log( guiobj ) :}
+
+					    	b2: button "Удалить"
+					    	reaction (event @b2 "click") {: guiobj=@target | guiobj.remove() :}
 					    }						    
 				    }
 
@@ -298,6 +310,7 @@ dom-comp "gui-local-files" { |in out|
 // на будущее можно сделать выбор из библиотеки еще
 dom-comp "gui-file" { |in out|
 	 column {
+	 	 let current_value = (read @in | get-value)
 		 text (m-eval {: f=(read @in | get-value) | 
 		 	 
 		 	 let name = typeof(f?.name) == "string" ? f.name : (f || "")
@@ -317,13 +330,15 @@ dom-comp "gui-file" { |in out|
 		 background: #d8d8d8;
     border-radius: 4px;
     padding: 3px;"
+     visible=@current_value
 		 /*
 		 display:inline-block;
   	 white-space: nowrap;  	 
      
      */
 
-		 text "Новое значение:"
+		 text "Новое значение:" visible=@current_value
+		 
 		 select: switch_selector_row index=1 items=["URL","Локальный файл","Очистить"] {{ hilite_selected }}
 
 		 // если я хочу чтобы ввод был по enter-у.. надо делать форму или ловить ентер

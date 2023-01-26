@@ -12,7 +12,7 @@ feature "manage_main_objects" {
           (list "Плагины" (find-objects-bf "plugin" root=@/) @/ (gather-cats ["plugin"]))
       )
 
-      connect (event @b "click") (method @d "show")        
+      connect (event @b "click") (method @d "show")
 
       // слои цепляем в текущее вью новые
       reaction (event @d "created") {: obj av=@rp.active_view?|
@@ -23,6 +23,9 @@ feature "manage_main_objects" {
             av.append_source( obj )
           }
         }, 50)
-      :}      
+      :}
+
+      // фича
+      connect (event @/ "configure_layer") (method @d "show")
   }
 }

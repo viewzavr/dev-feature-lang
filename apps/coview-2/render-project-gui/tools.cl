@@ -75,62 +75,39 @@ feature "show_sources_params"
     settings_gui=[]
     {
     svlist: column style='align-items: flex-start; pointer-events: none !important;' {
-      repeater input=@sv->input {
+      repeater input=@sv->input { |source|
         mm: 
          row style='pointer-events: all !important;' {
+
         //dom tag="fieldset" style="border-radius: 5px; padding: 2px; margin: 2px;" {
-          collapsible text=(@mm->input | get_param "title" default="no title") 
+          collapsible text=(read @source | get_param "title" default="no title") 
             style="min-width:250px;" padding="2px"
             style_h = "max-height:80vh;"
             // высота body_features={ set_params style_h="max-height: inherit; overflow-y: auto;"}
             expanded=( (@mm->input_index == 0) and @sv->auto_expand_first)
           {
-             insert_children input=@.. list=(@mm->input | get_param "sidebar_gui") // sidebar_gui ?
+             insert_children input=@.. list=@source.sidebar_gui // sidebar_gui ?
              // вот мы вставили гуи
           };
 
-          cbv: checkbox value=(@mm->input | geta "visible" default=true) visible=@sv->show_visible_cb 
-            //{{ console-log-life }}
+/*
+          layer_config: dom tag="a" innerText="⚙" dom_attr_href='javascript:true;' style="font-size: 1.5em; color: white; text-decoration: none;"
+          reaction (dom-event-cell @layer_config "click") {: settings_gui=@settings_gui_dlg.gui sv=@sv | 
+            sv.setParam("settings_gui",settings_gui )
+            // todo если объект удаляется а показываются его settings то их надо закрыть
+          :}
+          reaction (event @source "remove") {: settings_gui=@settings_gui_dlg.gui sv=@sv | 
+            sv.setParam("settings_gui",[] )
+            // todo можно проверить его ли сеттингсы показываются
+          :}
 
-          //console-log "i checkbox my input is " @mm->input "and value" @cbv->value
-          //debug @mm->input @cbv->value
-
-          //@sv->input | get-event-cell "remove" | m_eval "(evt,ch) => console.log(333); " (@sv | get-cell "settings_gui" );
-
-          x-modify input=@mm->input {
-            x-set-params visible=(event @cbv "user_change" | get-value) __manual=true;
-            x-on "hide-settings" {
-              lambda (@sv | get-cell "settings_gui" ) code="(gui_channel,obj,settings) => {
-                //if (gui_channel.get() == settings)
-                   gui_channel.set([]);
-                };
-              ";
-            };
-            x-on "show-settings" {
-              lambda (@sv | get-cell "settings_gui" ) code="(gui_channel,obj,settings) => {
-                 // console.log('got x-on show-settings',obj,settings)
-                 // todo это поведение панели уже..
-                 // да и вообще надо замаршрузизировать да и все будет.. в панель прям
-                 // а там типа событие или тоже команда
-                 if (gui_channel.get() == settings)
-                   gui_channel.set([]);
-                 else  
-                   gui_channel.set(settings);
-              };
-              ";
-            };
-            /*
-            x-on "remove" {
-              lambda (@sv | get-cell "settings_gui") code="(gui_channel,obj,settings) => {
-                console.log(`rrrr`);
-                if (gui_channel.get() == settings)
-                   gui_channel.set([]);
-                };
-              ";   
-            };
-            */
-          };
-        }; // fieldset
+          settings_gui_dlg: object gui={ paint-gui @source filter={: id | return id != "content" :} ~plashka }   
+*/          
+            
+          cbv: checkbox value=@source.visible visible=@sv->show_visible_cb 
+          connect (event @cbv "user_change") (param @source "visible" manual=true)
+          
+        }; // row in repeater
       }; // repeater
 
     }; // svlist  

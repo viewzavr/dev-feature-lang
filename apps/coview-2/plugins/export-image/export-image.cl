@@ -15,13 +15,13 @@ feature "manage_export" {
           button "Картинка" cmd=@ee->image class="important_button"
 
           cb: checkbox value=false text="Высокое разрешение";
-          if (@cb->value) then={
+          if (@cb->output_value) then={
             render-params @hr;
           };
         };
 
-        ee: image-exporter input=(@vp->render_project | geta "screenshot_dom" default=null);
-        hr: make-hi-res enabled=@cb->value;
+        ee: image-exporter input=(@vp->render_project | geta "screenshot_dom" default=null)
+        hr: make-hi-res enabled=@cb->output_value
       };  
 
 };
@@ -124,6 +124,7 @@ feature "make-hi-res" {
        css-style (m_eval "(w,h) => {
          w = parseFloat(w);
          if (h == '') h = w * window.innerHeight / window.innerWidth; else h = parseFloat(h);
+         
          return `
              body { overflow: auto; }
             .view56_visual_tab {

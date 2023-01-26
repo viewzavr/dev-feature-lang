@@ -65,7 +65,7 @@ register_feature name="checkbox" {
 		 cb: dom tag="input" dom_type="checkbox" dom_obj_checked=@..->value? {
 			reaction (dom_event_cell @cb "change") {: event_data obj=@cbr |
 				let v = event_data.target.checked;
-				//obj.setParam('value',v) // вот это зло конечно
+				obj.setParam('output_value',v);
 				obj.emit("user-changed",v)
 				obj.emit("user_change",v)
 				:}
@@ -695,6 +695,7 @@ register_feature name="show_one" {
 			function refresh() {
 				let i = 0;
 				let index = s.params.index;
+				//console.log('show-one refresh', index)
 
 				for (let c of s.ns.getChildren()) {
 					  //if (c.$vz_type == "link") continue;

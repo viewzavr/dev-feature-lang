@@ -74,7 +74,7 @@ feature "layer" {
         gui-tab "main" {
           gui-slot @l "title" gui={ |in out| gui-string @in @out}
         }*/
-        gui-tab "Состав" {
+        gui-tab "content" "Состав" {
           let list_of_layer_items=(walk_objects @l "subitems" | m-eval {: arr | return arr.slice(1) :} )
           //let list_of_layer_items=(walk_objects @l "subitems" | m-eval "slice" 1 )
 

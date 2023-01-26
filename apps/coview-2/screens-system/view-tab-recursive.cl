@@ -627,7 +627,7 @@ feature "show_area_3d" {
 
         {{ let scene3d_items = (read @area_rect.input.sources 
               | map_geta "output" // типа слой у нас есть node3d
-              | arr_flat | pass_input_if @area_rect.input.visible)
+              )
 
            let scene3d_envs=(read @area_rect.input.sources // todo тут продолжить
             | map { |source|
@@ -637,11 +637,11 @@ feature "show_area_3d" {
                     computing_env code=@code @process_rect @area_rect.input.opacity_3d // @source
                   }
                 | map_geta "output" default=null 
-            } | arr_flat | arr_compact | pass_input_if @area_rect.input.visible
+            }
             )
         }}
 
-        scene3d=(concat @scene3d_items @scene3d_envs)
+        scene3d=(concat @scene3d_items @scene3d_envs | arr_flat | arr_compact | pass_input_if @area_rect.input.visible)
         camera=@area_rect.input.camera
         style="width:100%; height:100%;"
         // camera_control=@area_rect.input.camera_control
