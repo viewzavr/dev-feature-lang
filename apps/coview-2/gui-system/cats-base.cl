@@ -17,10 +17,17 @@ let known_records = (find-objects-bf "coview-record")
 fun "gather-cats" { |id_array|
 
   let my_cats = (m-eval {: cats=@known_cats id_array=@id_array |
-    if (Array.isArray( id_array))
+    if (Array.isArray( id_array ))
+      return id_array.map( id => cats.find( c => c.params.id == id))
+    return cats.filter( x => id_array(x) )
+  :})
+/*
+  let my_cats = (m-eval {: cats=@known_cats id_array=@id_array |
+    if (Array.isArray( id_array ))
       return cats.filter( x => id_array.indexOf( x.params.id )>=0 )
     return cats.filter( x => id_array(x) )
   :})
+*/  
 
   //return (read @my_cats | map_geta "records" | arr_compact)
   //return (read @my_cats | map_geta "title" | arr_compact)

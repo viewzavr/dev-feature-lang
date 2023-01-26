@@ -98,8 +98,9 @@ export function x_set_param( env )
 
 }
 
-// отличается от setter тем что сразу же делает
-// по сути это то же самое что compute.. только на вход не код а value..
+// todo эта штука не отменяет последующие присвоения параметров у базового объекта, а видимо это нужно
+// в этом смысле после присвоения значения каналу.. getParam должен работать как проходка по этим каналам..
+// либо setParam не должен срабатывать, если есть верхние каналы с этим параметром
 export function param_subchannels(env) 
 {
   env.create_subchannel = () => {
@@ -133,8 +134,15 @@ export function param_subchannels(env)
 
     res.setParam = (name,value, ...args) => {
       res.params[name] = value;
+      // проверим что не перекрывают верхние
+      let this_channel_index = env.$subchannels.indexOf( res );
+      for (let k=this_channel_index+1; k<env.$subchannels.length; k++)
+        if (env.$subchannels[k].hasParam(name)) 
+             return
       orig_setParam( name,value, ...args );
     }
+
+    res.hasParam = (name) => res.params.hasOwnProperty(name)
 
     return res;
   }
