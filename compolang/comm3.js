@@ -363,8 +363,8 @@ export function get_param_cell( target, name, ismanual ) {
 
   let c = get_or_create_cell( target, name_for_table, target.getParam(name), target.hasParam(name) );
 
-  if (!c.attached_to_params) {
-    c.attached_to_params = { target: target, name: name, mode: "param", ismanual: ismanual }
+  if (!c.attached_to_compalang) {
+    c.attached_to_compalang = { target: target, name: name, mode: "param", ismanual: ismanual }
     c.ismanual = ismanual
 
     let setting;
@@ -531,8 +531,8 @@ export function get_cell( target, name, ismanual ) {
   c.ismanual = ismanual; 
   // todo разделить эти 2 вида йачеек в таблице.. мб по именам
 
-  if (!c.attached_to_params) {
-    c.attached_to_params = { target: target, name: name, mode: "universal", ismanual: ismanual };
+  if (!c.attached_to_compalang) {
+    c.attached_to_compalang = { target: target, name: name, mode: "universal", ismanual: ismanual };
 
     let setting;
     c.on("assigned",(v) => { // мониторим assigned чтобы там свои changed отработали
@@ -549,10 +549,12 @@ export function get_cell( target, name, ismanual ) {
 
     // казалось бы где отписка? но этот мониторинг создается разово для каждого имени
     // и ячейка раздается всем желающим. итого у нас тут нет роста подписок более чем 1 раз.
+    //console.log("channel tracking",name,'of target',target)
     target.trackParamAssigned( name, (v) => {
        if (setting) return;
        setting = true;
        try {
+
          c.set( v );
        } finally { 
          setting = false;
