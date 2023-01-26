@@ -271,6 +271,15 @@ export function map_geta( env )
     if (input.trackParam) {
       // это у нас объект и сообразно там все может быть
 
+      // F-REACTION-232
+      
+      if (env.params.reaction_extract_channel_mode) {
+        let channel = input.get_cell( name );
+        //console.warn("reaction geta channel",name,channel )
+        return go_next_level( channel, params, current_arg_pos,cb,unsub_struc,()=>{} );
+      }
+      
+
       //////////////////// метода? (как то бы события еще сюды зацепить.. мб команду emit? ))))
       // но была мысль как-то совместить cmd и emit-ы
       // у метода д.быть приоритет N1 т.к. он еще cmd и на hasParam откликается

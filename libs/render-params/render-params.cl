@@ -477,7 +477,6 @@ register_feature name="render-param-slider" {
       read @slider_ch | get-new-value | pass_if_changed | put-value-to @param_ch_m
       read @editor_ch | get-new-value | pass_if_changed | put-value-to @param_ch_m
 
-
       sl: slider manual=false 
       {
         compute obj=@rps->obj name=@rps->name gui=@rps->gui code=`

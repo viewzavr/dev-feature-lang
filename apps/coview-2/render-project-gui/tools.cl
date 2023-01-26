@@ -87,6 +87,7 @@ feature "show_sources_params"
             expanded=( (@mm->input_index == 0) and @sv->auto_expand_first)
           {
              insert_children input=@.. list=@source.sidebar_gui // sidebar_gui ?
+             //console-log "@source.sidebar_gui=" @source.sidebar_gui
              // вот мы вставили гуи
           };
 

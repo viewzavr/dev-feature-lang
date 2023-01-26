@@ -66,14 +66,14 @@ feature "cv-select-files" {
                 r: button "Удалить все"
               }
 
-            reaction (event @r1 "click") {: files=(param @x "files" manual=true) cbindex=@cb.output_index? |
+            reaction @r1.click {: files=(param @x "files" manual=true) cbindex=@cb.output_index? |
                let arr  = (files.get() || [])
                if (cbindex >= 0)
                    arr.splice( cbindex, 1)
                files.set( [...arr] ) 
             :}
-            reaction (event @r "click") {: files=(param @x "files" manual=true) | files.set( [] ) :}
-            reaction (event @addbtn "click") (method @dlg "show")
+            reaction @r.click {: files=(param @x "files" manual=true) | files.set( [] ) :}
+            reaction @addbtn.click (method @dlg "show")
 
        }
       } 

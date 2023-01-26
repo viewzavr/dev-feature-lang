@@ -572,8 +572,10 @@ feature "comp" {
 feature "dom-comp" {
   f: object {{ catch_children "code" external=true }}
   {
+
     feature @f.0 {
       x: dom_group {{ insert-children input=@x list=@f.code {{ append-positional-params @x }} }}
+
     }
   }
 }

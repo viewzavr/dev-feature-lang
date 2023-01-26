@@ -171,6 +171,7 @@ export function reaction( env ) {
       unsub = () => {}
       return
     }
+    //console.log("reaction channel",channel)
 
     // особый случай - вместо функции целевой канал. по сути это аналог connect получается.
     

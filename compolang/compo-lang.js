@@ -318,6 +318,42 @@ function parsed2dump( vz, parsed, base_url ) {
   parsed.features[ "base_url_tracing" ] = {params: {base_url}};
 
   /////////////////
+  // F-REACTION-232
+
+  if (parsed.features["reaction"]) {
+    for (let cc of (parsed.features_list || [])) {
+        if (cc.features["geta"]) {
+
+          // проверим а не последний ли это аргумент
+          let tos = cc.links.output_link.to
+          if (tos) {
+            let tgt = tos.split("->")[1]
+            if (+ tgt == parsed.positional_params_count - 1)
+              continue;
+          }
+          cc.params.reaction_extract_channel_mode = true;
+          //console.warn("reaction patched",tos)
+        }
+        else if (cc.this_is_geta_pipe) { // случай @a.b.c 
+          // проверим что это не последний аргумент. послединий аргумент обрабатывается "как обычно" (решил пока так, ибо @g.out..)
+          let tos = cc.links.output_link.to
+          if (tos) {
+            let tgt = tos.split("->")[1]
+            if (+ tgt == parsed.positional_params_count - 1)
+              continue;
+          }
+
+          let carr = Object.values( cc.children );
+          let last_pipe_item = carr[ carr.length-1 ]
+
+          last_pipe_item.params.reaction_extract_channel_mode = true;
+          //console.warn("reaction patched 2",tos)
+        }
+    }
+  }
+
+
+  /////////////////
   // F_PARAM_EVENTS
   // активируем фичу ток если есть on_-параметры в статике
   // + оказалось что on_some=(....) это features_list[i].links.output_link_0.to.startsWith(".->on_") уже и там 

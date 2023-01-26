@@ -38,8 +38,8 @@ function obj_dom_event_cell( target, name ) {
   let c = Q.get_or_create_cell( target, "dom_event:"+name, target.getParam(name) );
 
   let unbind=()=>{};
-  if (!c.attached_to_params) {
-    c.attached_to_params = true;
+  if (!c.attached_to_compalang) {
+    c.attached_to_compalang = true;
 
     target.onvalue('dom',(dom) => {
        unbind();
