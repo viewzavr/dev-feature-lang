@@ -968,8 +968,8 @@ export function feature_get_cell( env ) {
 export function feature_create_cell( env ) {
   let cell = create_cell();
 
-  env.trackParamAssigned( 0, (v) => cell.set( v )); // внедрим такое поведение оно частое
-  env.trackParamAssigned( "input", (v) => cell.set( v )); // внедрим такое поведение оно частое
+  env.monitor_assigned( 0, (v) => cell.set( v ), true ); // внедрим такое поведение оно частое
+  env.monitor_assigned( "input", (v) => cell.set( v ), true ); // внедрим такое поведение оно частое
 
   env.setParam( "output", cell );
 }

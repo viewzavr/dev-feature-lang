@@ -15,7 +15,7 @@ coview-category title="Слои" id="layer"
 coview-category title="Экраны" id="screen"
 coview-category title="Плагины" id="plugin"
 
-coview-record title="Загрузчик файлов" type="cv-select-files" cat_id="data"
+coview-record title="Набор файлов" type="cv-select-files" cat_id="data"
 
 //////////////////
 coview-record title="Тест: Генератор сфер" type="test-process" cat_id="process"
@@ -43,21 +43,140 @@ feature "test-process" {
     }  
 }
 
-//////
+////// набор файлов
 
-// кстати мб было бы проще - если бы id леера совпадало с некоей фичей объектов.. тогда было бы проще искать.. ну ладно..
-
-// это наша стартовая сущность которую пользователь добавляет в проект
-// а data-artefact это уже взгляд на нее. (ну как бы..)
-
-// включевое поле output это массив вида [ {name,url}, {name,url}, fileobject, ... ]
-
-// идея сделать внешний установщик файла; и чтобы этот выбрал себе подходящее src.
-// можно даж без укадайки а 4 разных.. но тогда кстати можно - и просто src + параметр. ну да.
+// выходное поле files это массив вида [ {name,url}, {name,url}, fileobject, ... ]
+// идеи: list.txt (на этапе добавления? или всегда? - это сложно.. или отдельный тип?)
+//       выгрузка локальных на сервер. хотя бы с простой авторизацией - уже можно там разместить что-то типа showtime.
+//       кстати вот: сделать на диссертации.
 
 feature "cv-select-files" {
+  x: layer_object
+    title="Набор файлов"
+    files=[]
+    {
+      gui {
+       gui-tab "files" (m-eval {: files=@x.files | return `Файлы: ${files.length}`:}) {
+         addbtn: button "Добавить файлы" class="important_button"
+
+              cb: combobox dom_attr_size=(m-eval {: vals=@cb.values | return Math.min( 10, 2+vals.length ):})
+                    values=( @x.files | map_geta {: f | return f?.name || f :} )
+              row gap = "0.1em" {      
+                r1: button "Удалить выбранный"
+                r: button "Удалить все"
+              }
+
+            reaction (event @r1 "click") {: files=(param @x "files" manual=true) cbindex=@cb.output_index? |
+               let arr  = (files.get() || [])
+               if (cbindex >= 0)
+                   arr.splice( cbindex, 1)
+               files.set( [...arr] ) 
+            :}
+            reaction (event @r "click") {: files=(param @x "files" manual=true) | files.set( [] ) :}
+            reaction (event @addbtn "click") (method @dlg "show")
+
+       }
+      } 
+
+      // могут прислать снаружи
+      reaction (event @x "add_new") (method @dlg "show")
+
+      dlg: add-files-dlg
+      reaction (event @dlg "added") {: arr files=(param @x "files" manual=true) |
+         files.set( (files.get() || []).concat( arr ) )
+      :}
+      reaction (event @dlg "added") (event @x "added")
+
+    }
+}    
+
+feature "add-files-dlg" {
+  x: dialog style="z-index: 12000; width: 600px;" {
+    let new_files =(create_channel [])
+    column style="width: 100%" {
+
+      select: switch_selector_row index=0 items=["Локальные файлы","URL","Список URL"] {{ hilite_selected }}
+
+      reaction (event @x "show") {: obj=@g2 |
+        obj.dom.value = ""
+      :}
+      reaction (event @x "show") {: obj=@g3 |
+        obj.dom.value = ""
+      :}
+      reaction (event @x "show") {: obj=@g |
+        obj.dom.value = ""
+      :}
+
+      show-one index=@select.index style="padding:0.3em;" {
+         g: files
+         g2: input_string dom_attr_name="file_url"
+         g3: input_strings dom_attr_name="file_url"
+      }
+
+      if (@select.index == 0) {
+        reaction (param @g "output_value") @new_files existing=true
+      }
+
+      if (@select.index == 1) {
+        reaction (param @g2 "output_value") {: url v=@new_files | 
+            let sp = url.split('/');
+            if (sp.at(-1) == '') sp.pop();
+            let result = {name:(sp.at(-1) || ""),url:url}
+            v.set( [result] ) 
+         :} existing=true
+      }      
+
+      if (@select.index == 2) {
+        reaction (param @g3 "output_value") {: urls v=@new_files | 
+           let results = urls.map( url => {
+            let sp = url.split('/');
+            if (sp.at(-1) == '') sp.pop();
+            let result = {name:(sp.at(-1) || ""),url:url}
+            return result
+           })
+           v.set( results ) 
+         :} existing=true
+      }
+
+      addbtn: button "Добавить" class="important_button" style="margin-top: 1em;"
+
+      reaction (event @addbtn "click") {: src=(read @new_files) dlg=@x | 
+        let arr = src.get()
+        if (Array.isArray(arr)) {
+            //files.set( (files.get() || []).concat( arr ) )
+            src.set( [] );
+            dlg.emit( "added",arr )
+            dlg.close()
+        }
+      :}
+    }
+  }
+}
+
+feature "add-files-dlg-old" {
+  x: dialog {
+    let new_files =(create_channel [])
+    column {
+      gui-files @new_files @new_files
+      addbtn: button "Добавить" class="important_button"
+
+      reaction (event @addbtn "click") {: src=(read @new_files) dlg=@x | 
+        let arr = src.get()
+        if (Array.isArray(arr)) {
+            //files.set( (files.get() || []).concat( arr ) )
+            src.set( [] );
+            dlg.emit( "added",arr )
+            dlg.close()
+        }
+      :}
+    }
+  }
+}       
+       
+
+feature "cv-select-files-old" {
   qqe: layer_object
-    title="Выбор файлов"
+    title="Набор файлов"
     initial_mode=1
     url=""
     list_url=""
@@ -116,7 +235,6 @@ feature "cv-select-files" {
       load_list_txt: if (@qqe->src == 2) { load-list-txt file=@qqe->list_url }
       //let load_list_txt=(if (@qqe->src == 2) { load-list-txt file=@list_url })
 
-
       gui { // на будущее
         gui-tab "main" {
           render-params-list object=@qqe list=["title"];
@@ -131,7 +249,7 @@ feature "cv-select-files" {
               column { 
                  //render-params-list object=@qqe list=["files"] 
                  gui-slot @qqe "files" gui={ |in out| gui-local-files @in @out}
-               }
+              }
               column { 
                   render-params-list object=@qqe list=["list_url"] 
                   
@@ -142,6 +260,9 @@ feature "cv-select-files" {
               }
               column { files }
             }
+
+            addbtn: button "Добавить"
+            reaction (event @addbtn "click") {: :}
 
             //text @qqe->output
           }

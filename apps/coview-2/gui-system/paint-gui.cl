@@ -338,7 +338,7 @@ dom-comp "gui-file" { |in out|
      */
 
 		 text "Новое значение:" visible=@current_value
-		 
+
 		 select: switch_selector_row index=1 items=["URL","Локальный файл","Очистить"] {{ hilite_selected }}
 
 		 // если я хочу чтобы ввод был по enter-у.. надо делать форму или ловить ентер
@@ -362,6 +362,105 @@ dom-comp "gui-file" { |in out|
 	   	:} // идея - следующий аргумент если out то туда кладется результат reaction ))) .. хотя reaction всегда может результат так-то возвращать а класть уже put-value-to
 	}   
 }
+
+// выбор из библиотеки
+// library= элемент типа cv-select-files. ему кстати будет посылаться сигнал add если пользователь выберет Добавить
+// как я легко догадался что library это параметр.. что не надо кидаться его искать..
+// что вот любой вопрос это параметр... (ведь по умолчанию его можно решать во внешнем контексте, а стало быть он параметр)
+// на худой конец предложим свое дефолт-решение
+// но не имеем права брать на себя ответственность решать за всех (лишая их выбора....!!!!!!)
+feature "gui-file-lib" { 
+	x: column in=@x.0 out=@x.1 library=null {
+	 	 let current_value = (read @x.in | get-value)
+
+		 text (m-eval {: f=(read @x.in | get-value) | 
+		 	 
+		 	 let name = typeof(f?.name) == "string" ? f.name : (f || "")
+		 	 let txt = ""
+		 	 if (f?.url) 
+		 	  txt = `<a target='_blank' href='${f.url}' title='${f.url}'>${name}</a>`
+		 	 	else if (f instanceof File)
+          {
+          	let url = URL.createObjectURL(f);
+          	txt = `<a target='_blank' href='${url}' title='${url}'>${name}</a>`
+          }
+		 	 	else txt = name
+
+		 	 //return "Файл: " + txt
+		 	 return txt
+		 	:}) style="max-width: 20ch; overflow: hidden; text-overflow: ellipsis;
+		 background: #d8d8d8;
+    border-radius: 4px;
+    padding: 3px;"
+     visible=@current_value
+
+		 text "Новое значение:" visible=@current_value
+
+		 console-log "using lib " @x.library
+
+		 cb: combobox style="max-width: 220px;font-size: 12pt;"
+		 records=(m-eval {: files=@x.library.files | 
+		 	  let a = [[-1,"Выберите файл:"],[-3, "..добавить новый файл"],[-2, "---"]]
+		 	  let b = files.map( (x,index) => [ index, x.name ] )
+		 	  let c = []
+		 	  return a.concat(b).concat(c) 
+		 :})
+
+		 reaction (event @cb "user_change") {: index_in_lib tgt=@x.out files=@x.library.files lib=@x.library |
+		 	  console.log('user_hcnage',index_in_lib)
+		 	  if (index_in_lib >= 0)
+		 	  	tgt.set( files[ index_in_lib ])
+		 	  else
+		 	  if (index_in_lib == -2)  {
+		 	  	tgt.set( null );
+		 	  }
+		 	  if (index_in_lib == -3)
+		 	  	lib.emit("add_new")
+		 :}
+
+		 reaction (event @x.library "added") {: added_files cbval=(event @cb "user_change" | get-value) tgt=@x.out |
+		 	  if (added_files.length > 0)
+		 	  	tgt.set( added_files[0] )
+		 :}
+		 
+	}   
+}
+
+
+
+// выбор нескольких файлов
+feature "gui-files" {
+	 x: column in=@x.0 out=@x.1 {
+	 	 let current_value = (read @x.in | get-value)
+		 text (m-eval {: f=(read @x.in | get-value) |
+		 	 if (Array.isArray(f)) return `Файлов: ${f.length}`
+		 	 return ""
+		 	:}) 
+     visible=@current_value
+		 
+		 select: switch_selector_row index=1 items=["URL","Локальные файлы","Очистить"] {{ hilite_selected }}
+
+		 show-one index=@select.index style="padding:0.3em;" {
+		 	 g2: input_string //value=(read @x.in | get-value | m-eval {: f | if (f instanceof File) return ""; return (typeof(f?.url) == "string" ? f.url : f):})
+		 	        dom_attr_name="file_url"
+	  	 g: files
+	  	 g3: button "Очистить"
+	   }
+
+	   reaction (event @g3 "click") {: out=@x.out | out.set( "" ) :} 
+	   reaction (event @g "user_change") {: out=@x.out files |
+	   		if (files) out.set( files ); // если там нажали cancel то нам все-равно должно быть
+	   	:}
+	   reaction (event @g2 "user_change") {: out=@x.out url |
+           let sp = url.split('/');
+           if (sp.at(-1) == '') sp.pop();
+           let result = {name:(sp.at(-1) || ""),url:url}
+           
+           out.set( [result] );
+	   	:} // идея - следующий аргумент если out то туда кладется результат reaction ))) .. хотя reaction всегда может результат так-то возвращать а класть уже put-value-to
+	}   
+}
+
 
 feature "gui-vector" {
 	g: input_vector_c2 in=@.->0 out=@.->1 value=(read @g.in | get-value) rows=3

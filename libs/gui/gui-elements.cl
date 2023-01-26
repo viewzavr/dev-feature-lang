@@ -42,7 +42,7 @@ feature "files" {
 		  	arr.push( files[i] );
 		  
 		  obj.emit("user_change",arr);
-		  obj.setParam("output",arr,true);
+		  obj.setParam("output_value",arr,true);
 
 			:}		
 	}
@@ -111,7 +111,8 @@ register_feature name="input_string" {
 		reaction (dom_event_cell @d "change") {: event_data obj=@d|
 			  var v = event_data.target.value;
 			  obj.emit("user_change",v);
-		:}		
+			  obj.setParam("output_value",v)
+		:}
 	};
 };
 
@@ -175,15 +176,19 @@ feature "input_vector_c2" {
 feature "input_strings" {
 	dv: dom tag="textarea" rows=3 
 	  dom_obj_rows=@.->rows
-	  dom_obj_value=(m_eval {: v=@dv->value? |
-		  if (Array.isArray(v)) v=v.join('\n');
-		  return v ? v.toString() : null;
-		:}) 
 		{
+		reaction (param @dv "value") {: v tgt=(param @dv "dom_obj_value") |
+		  //console.log("reaction!")
+			if (Array.isArray(v)) v=v.join('\n');
+		  let s = v ? v.toString() : null;
+		  tgt.set(s)
+		:}
+
 	  reaction (dom_event_cell @dv "change") {: event_data obj=@dv |
 	  	  let s = event_data.target.value.split( /[\n]/ );
 		    let v = s;
 				obj.emit("user_change",v);
+				obj.setParam("output_value",v)
 	  	:}
    	}
 }
@@ -511,7 +516,8 @@ feature "combobox" {
     // мостик из dom в cl
     read @cbroot | dom_event_cell "change" | reaction {: event_data object=@cbroot |
       //console.log("dom onchange",object.dom.selectedIndex )
-      object.setParam("index",object.dom.selectedIndex);
+      object.setParam("index",object.dom.selectedIndex); // ???????
+      object.setParam("output_index",object.dom.selectedIndex);
 
 		  if (object.params.values) {
 		  	//object.setParam("output",object.params.values[ object.dom.selectedIndex ]);
@@ -519,6 +525,7 @@ feature "combobox" {
 			  object.setParam("value",object.params.values[ object.dom.selectedIndex ], true);
 			  object.emit("user_changed_value", object.params.value );
 			  object.emit("user_change", object.params.value );
+			  // получается если значения не заданы то про индекс мы и не расскажем
 		  }
 		:};
 	  
