@@ -637,6 +637,7 @@ feature "show_area_3d" {
                     computing_env code=@code @process_rect @area_rect.input.opacity_3d // @source
                   }
                 | map_geta "output" default=null 
+                | pass_input_if @source.visible
             }
             )
         }}

@@ -106,6 +106,8 @@ feature "show_sources_params"
             
           cbv: checkbox value=@source.visible visible=@sv->show_visible_cb 
           connect (event @cbv "user_change") (param @source "visible" manual=true)
+          //reaction (event @cbv "user_change") {: val tgt=(param @source "visible" manual=true)| console.log(val); tgt.set(val) :} 
+
           
         }; // row in repeater
       }; // repeater
