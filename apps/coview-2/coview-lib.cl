@@ -64,7 +64,7 @@ feature "layer" {
     visible=true
     //scene3d={ return @l->output? }    
     gui={paint-gui @l }
-    sidebar_gui={paint-gui @l filter=["Состав"]}
+    sidebar_gui={paint-gui @l filter=["content"]}
     add_dialog_categories=(gather-cats ["data","process","gr3d","gr2d"])
     //subitems=(find-objects-bf "layer_object" root=@l include_root=false recursive=false)
     {

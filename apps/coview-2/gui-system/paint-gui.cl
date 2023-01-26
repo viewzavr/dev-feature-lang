@@ -97,7 +97,7 @@ feature "paint-gui" {
 		//let filtered_tabs = @gui_tabs
 		let filtered_tabs = (read @gui_tabs | arr_filter code={: tab filter=@x.filter | 
                  	  if (Array.isArray(filter))
-                 			return filter ? filter.indexOf( tab.params.title ) >= 0 : true
+                 			return filter ? filter.indexOf( tab.params.id ) >= 0 : true
                  		if (filter?.bind)
                  			return filter( tab.params.id, tab )
                  		return true	
@@ -396,7 +396,7 @@ feature "gui-file-lib" {
 
 		 text "Новое значение:" visible=@current_value
 
-		 console-log "using lib " @x.library
+		 //console-log "using lib " @x.library
 
 		 cb: combobox style="max-width: 220px;font-size: 12pt;"
 		 records=(m-eval {: files=@x.library.files | 
@@ -407,7 +407,7 @@ feature "gui-file-lib" {
 		 :})
 
 		 reaction (event @cb "user_change") {: index_in_lib tgt=@x.out files=@x.library.files lib=@x.library |
-		 	  console.log('user_hcnage',index_in_lib)
+		 	  //console.log('user_hcnage',index_in_lib)
 		 	  if (index_in_lib >= 0)
 		 	  	tgt.set( files[ index_in_lib ])
 		 	  else
