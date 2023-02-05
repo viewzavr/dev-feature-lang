@@ -54,10 +54,14 @@ export default function parse_csv(data,separator) { // data is text blob
       // todo вытаскивать закавыченные данные надо уметь
 
       var attrs = splittrim(line,separator_rx).map( function(item, index) {
+        if (index >= proj_names.length) return; // todo optimize вынести это в splittrim до map-а
         if (string_attrs_mask[ index ]) return item;
         
         // хотя.. может быть стоит сделать такую штуку, которая потом уже csv прочитанный таким методом оснащает данными (парсит)
         // float?
+
+        // идея - делать эти проверки ток на первой записи, а дальше уже запомнить "типы" и применять
+        // ну либо не на первой строке, а когда встретится
 
         // feature: both e and E might occure
         if (/^[+-]?([0-9]*[.])?[0-9]+(((e|E)[+-]?\d+)?)$/.test(item)) // https://stackoverflow.com/questions/12643009/regular-expression-for-floating-point-numbers

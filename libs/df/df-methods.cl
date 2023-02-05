@@ -87,19 +87,20 @@ feature "df_sub" {
 //   input - датафрейм
 //   code - код функции, которая применяется построчно и если выдает результат то строка берется
 
-/* пример: @dat | df_filter code="(line) => line.X > 0";
+/* пример: @dat | df_filter code="(df, index) => df[index].X > 0";
 */
 
 // мб тут стоит применить идею лямбды. а ее можно каррировать
 // read @df | df_filter {: df index | return df.X[index] > 5 :}
 // в качестве фантазии на будущее: df_filter X={: x | return x > 5:} это фильтрация по значению колонки
-register_feature name="df_filter" 
-  code=`
+feature "df_filter" 
+  `
   env.feature("param-alias");
   env.addParamAlias("code",0);
   env.onvalues(["input","code"],process);
 
   function process(df,code) {
+
     if (!df || !df.isDataFrame) {
       env.setParam("output",[]);
       return;

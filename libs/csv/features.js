@@ -5,6 +5,7 @@ export function setup(vz, m) {
 import CSV from "./csv.js";
 import * as df from "../df/df.js";
 
+// парсит текст в df
 export function parse_csv( env ) {
   //env.feature("load_file_func");
   //var empty_df = df.create();
