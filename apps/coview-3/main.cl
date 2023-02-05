@@ -14,7 +14,7 @@ project: the_project
 {
 
   l1: layer title="Слой №1" {
-    cv-select-files title="Файлы проекта"
+    proj_files: cv-select-files title="Файлы проекта"
     
     //test-process count=77
     cam: camera pos=[10,10,10];
@@ -45,5 +45,27 @@ project: the_project
 //////////////////////////////////////////////////////// главное окно программы
 
 screen1: screen ~auto-activate  {
-  rp: render_project @project active_view_index=0;
+  rp: render_project @project active_view_index=0
+        top_row_items={
+          bt: button "+ Добавить файлы" class="important_button"
+          bt2: button "+ Добавить визуализацию" class="important_button"
+
+          reaction @bt.click (event @proj_files "add_new")
+          reaction @bt2.click (method @add "show")
+
+          add: add-object-dialog target=@l1 list=(gather-cats ["process","gr3d"])
+
+          reaction @add.created {: obj s=@setup_params |
+              s.setParam("obj",obj)
+              s.show()
+            :}
+
+          setup_params: dialog obj=null {
+            column {
+              text "Настройка параметров"
+              paint-gui @setup_params.obj
+            }  
+            // %pain %idea paint-gui @obj типа параметры объявленные выше идут в скопу!
+          }
+        }
 }

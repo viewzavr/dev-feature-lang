@@ -30,20 +30,20 @@ feature "zal" {
           } 
       input=(read @p | get_parent)
 
-      f_select: cv-select-files
+      //f_select: cv-select-files
       //f_text: load-text input=@f_select.first_file
       //let geom = (read @f_text.output | compalang)
       //let geom = (read @f_select.output | find-file "^data\.txt$"| load-file | compalang)
       let geom = (read @p.geometry_text | compalang)
       //let rad = (read @f_select.output | find-file "rad.*\.csv$"| load-file | text2arr)
       let rad = (read @p.radiation_text | text2arr)
-      let trajectory=(read @p.trajectory_text | parse_trajectory | console_log_input "PPP")
+      let trajectory=(read @p.trajectory_text | parse_trajectory)
 
       //let trajectories=(@f_select.output | find-file ".*\.out$" | load-file | xtract_trajs)
 
       insert_children list=@geom input=@zal
 
-      console-log "zal is" @zal
+      //console-log "zal is" @zal
 
 
       zal: node3d ~layer-object title="Геометрия зала" { // среда для моделирования, world -- update а ведь нет, теперь это сцена

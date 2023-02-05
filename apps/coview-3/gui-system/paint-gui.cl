@@ -576,6 +576,10 @@ feature "gui-slider" {
 
      connect (event @g "user_change")   @gg.out
      connect (event @if2 "user_change") @gg.out
+     //reaction (event @g "user_change") {: val | console.log("val1=",val) :}
+     //reaction (event @if2 "user_change") {: val | console.log("val=",val) :}
+
+     //console-log "slider val ch out=" (get-value input=@gg.out )
 	}
 }
 
@@ -625,6 +629,32 @@ jsfunc "param-path" {: object param_name |
 
    	  let path = object && param_name ? object.getPath() + "->" + param_name : null;
    	  return path :}
+
+/////////////////////////
+// перечень param-info к которым можно целпяться
+let outgoing_params = (find-objects-bf "param-info" | m-eval {: arr | return arr.filter( x => x.params.out ) :})
+
+let links_storage_place=@project // пока так
+
+feature "find_link" {
+	x: object output=@my_link dir="to" {
+
+		let my_path = (param_path @x.object @x.param_name)
+
+		let my_link = (read @links_storage_place | get_children_arr 
+	   | pause_input
+	   //| console-log-input "x1"
+	   | arr_filter_by_features features="link"
+	   //| console-log-input "x2"
+	   | m-eval {: arr path=@my_path dir=@x.dir| 
+	   	  //console.log("my-link eval, arr=",arr,"looking to=",path)
+	   	  let res = arr.find( x => x.params[dir] == path ) 
+	   	  //console.log("res=",res)
+	   	  return res
+	   :})
+  }
+}
+/////////////////////////   	  
 
 feature "gui-setup-link" {
 	g: dom {
@@ -750,7 +780,7 @@ param-info name incoming=true outgoing=true gui={ |io| ... } type="text"
 но вроде нет нуды пока
 */
 
-// param-info name in=.. out=.. value=..
+// param-info name in=.. out=.. value
 // если задано value то оно копируется в объект. удобно?
 // value это плохо, оно будет влиять по жизни.. надо бы как-то то ли default ввести
 // но его тоже как бы надо копировать при изменении выражения.. хз.. 

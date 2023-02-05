@@ -16,6 +16,7 @@ coview-category title="Экраны" id="screen"
 coview-category title="Плагины" id="plugin"
 
 coview-record title="Набор файлов" type="cv-select-files" cat_id="data"
+coview-record title="Загрузка списка файлов" type="cv-list-txt" cat_id="data"
 
 //////////////////
 coview-record title="Тест: Генератор сфер" type="test-process" cat_id="process"
@@ -43,17 +44,36 @@ feature "test-process" {
     }  
 }
 
+feature "cv-list-txt" {
+  x: layer_object
+       title="Загрузка списка файлов"
+       files=(load-list-txt file=@x->list_url)
+       list_url=""
+       {
+        gui {
+          gui-tab "main" {
+            gui-slot @x "list_url" gui={ |in out| gui-string @in @out}
+          }
+        }
+        
+       }
+}
+
 ////// набор файлов
 
 // выходное поле files это массив вида [ {name,url}, {name,url}, fileobject, ... ]
 // идеи: list.txt (на этапе добавления? или всегда? - это сложно.. или отдельный тип?)
 //       выгрузка локальных на сервер. хотя бы с простой авторизацией - уже можно там разместить что-то типа showtime.
 //       кстати вот: сделать на диссертации.
+// либо: для list-txt делаем подобъект, а эта штука пусть собирает files с себя и всех детей
 
 feature "cv-select-files" {
   x: layer_object
     title="Набор файлов"
-    files=[]
+    files=(concat @x.own_files @x.child_files)
+    own_files=[]
+    child_files=(find-objects-bf root=@x "cv-list-txt" depth=1 
+        | map_geta "files" | arr_concat )
     {
       gui {
        gui-tab "files" (m-eval {: files=@x.files | return `Файлы: ${files.length}`:}) {
@@ -66,13 +86,13 @@ feature "cv-select-files" {
                 r: button "Удалить все"
               }
 
-            reaction @r1.click {: files=(param @x "files" manual=true) cbindex=@cb.output_index? |
+            reaction @r1.click {: files=(param @x "own_files" manual=true) cbindex=@cb.output_index? |
                let arr  = (files.get() || [])
                if (cbindex >= 0)
                    arr.splice( cbindex, 1)
                files.set( [...arr] ) 
             :}
-            reaction @r.click {: files=(param @x "files" manual=true) | files.set( [] ) :}
+            reaction @r.click {: files=(param @x "own_files" manual=true) | files.set( [] ) :}
             reaction @addbtn.click (method @dlg "show")
 
        }
@@ -81,16 +101,58 @@ feature "cv-select-files" {
       // могут прислать снаружи
       reaction (event @x "add_new") (method @dlg "show")
 
+      //cre: creator input={cv-list-txt | dump_to_manual) target=@x
+      // %pain креатору надо как-то уметь руками вызывать dump-to-manual или что..
+      // %pain креатору бы уметь передать параметр в окружение.. из события которое пришлем
+      // креатору.. ну или из метода
+
+      reaction (event @x "add_list_txt") {: list_url x=@x |
+        // %pain создавать объекты из фич и чтобы они ручные были
+         let a = x.vz.createObj( {parent:x, manual: true})
+         a.manual_feature( "cv-list-txt" )
+
+         a.setParam("manual",true,true)
+         a.setParam("list_url",list_url?.url,true)
+         
+         a.manuallyInserted = true        
+        :}
+
       dlg: add-files-dlg
-      reaction (event @dlg "added") {: arr files=(param @x "files" manual=true) |
-         files.set( (files.get() || []).concat( arr ) )
+      reaction (event @dlg "added") {: arr files=(param @x "own_files" manual=true) x=@x |
+         if (arr.listtxt) {
+           x.emit("add_list_txt",arr.listtxt)
+           //console.log(555,arr.listtxt)
+         }
+         else
+           files.set( (files.get() || []).concat( arr ) )
       :}
       reaction (event @dlg "added") (event @x "added")
-/*
-      repeater model=@x.files {
-        param-info "file"
+
+      // выбор файла через ссылки
+      // и тут начинается полный отстой.. если мы по списку файлов загружаемся..
+      // и вначале что-то добавляется, или в серединке удаляется.. все начинают
+      // съезжать ))))))))))
+      // а ссылки сделаны прям на объекты вот эти.. 
+      // так что по уму, по уму.. это находить как-то записи о файлах..
+      // и привязываться.. причем как-то не по номеру, а по не знаю чему..
+
+      repeater model=@x.files { |file|
+        y: object title=(+ @x.title "/" @file.name)        
+        {
+          param-info "output" out=true
+
+          let link_from_file = (find_link object=@y param_name="output" dir="from")
+          //console-log "file=" @file "link_from_file=" @link_from_file
+
+          if @link_from_file {
+            console-log "THUS loading file" @file
+            lf: load-file @file 
+            reaction @lf.output (param @y "output")
+            // так то: connect @lf.output @y.output, todo!
+          }  
+        }        
       }
-      */
+      
 
     }
 }    
@@ -100,7 +162,7 @@ feature "add-files-dlg" {
     let new_files =(create_channel [])
     column style="width: 100%" {
 
-      select: switch_selector_row index=0 items=["Локальные файлы","URL","Список URL"] {{ hilite_selected }}
+      select: switch_selector_row index=0 items=["Локальные файлы","URL","Список URL","Загрузка списка"] {{ hilite_selected }}
 
       reaction (event @x "show") {: obj=@g2 |
         obj.dom.value = ""
@@ -116,6 +178,7 @@ feature "add-files-dlg" {
          g: files
          g2: input_string dom_attr_name="file_url"
          g3: input_strings dom_attr_name="file_url"
+         g4: input_string dom_attr_name="list_url"
       }
 
       if (@select.index == 0) {
@@ -143,10 +206,22 @@ feature "add-files-dlg" {
          :} existing=true
       }
 
+      if (@select.index == 3) {
+        reaction (param @g4 "output_value") {: url v=@new_files | 
+            let sp = url.split('/');
+            if (sp.at(-1) == '') sp.pop();
+            let result = {name:(sp.at(-1) || ""),url:url}
+            let arr = []
+            arr.listtxt = result
+            v.set( arr ) 
+         :} existing=true
+      }         
+
       addbtn: button "Добавить" class="important_button" style="margin-top: 1em;"
 
       reaction (event @addbtn "click") {: src=(read @new_files) dlg=@x | 
         let arr = src.get()
+        
         if (Array.isArray(arr)) {
             //files.set( (files.get() || []).concat( arr ) )
             src.set( [] );

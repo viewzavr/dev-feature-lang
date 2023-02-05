@@ -245,7 +245,7 @@ feature "render_project" {
 
                row {
 
-                 top_row: row {
+                 top_row: row gap="0.2em" {
                   @top_row | insert_children list=@rend.top_row_items?;
                  }; 
 

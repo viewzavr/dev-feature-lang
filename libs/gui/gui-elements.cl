@@ -101,6 +101,7 @@ register_feature name="input_float" {
 		reaction (dom_event_cell @d "change") {: event_data obj=@d|
 			  var v = parseFloat( event_data.target.value );
 			  obj.emit("user_change",v);
+			  obj.setParam("output_value",v)
 		:}		
 	};
 };

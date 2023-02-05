@@ -450,8 +450,10 @@ register_feature name="render-param-slider" {
 
       let param_ch = (get-cell-by-path @rps.param_path)
           param_ch_m = (get-cell-by-path @rps.param_path manual=true)
-          slider_ch = (get-cell input=@sl "value")
-          editor_ch = (get-cell input=@if2 "value")
+          slider_ch = (param @sl "value")
+          slider_ch_user = (event @sl "user_change")          
+          editor_ch = (param @if2 "value")
+          editor_ch_user = (event @if2 "user_change")
 
 /*
       reaction @param_ch existing=true {: val slider_ch=@slider_ch editor_ch=@editor_ch |
@@ -474,10 +476,10 @@ register_feature name="render-param-slider" {
 */      
 
       read @param_ch | get-value | pass_if_changed | put-value-to (list @slider_ch @editor_ch)
-      read @slider_ch | get-new-value | pass_if_changed | put-value-to @param_ch_m
-      read @editor_ch | get-new-value | pass_if_changed | put-value-to @param_ch_m
+      read @slider_ch_user | get-new-value | pass_if_changed | put-value-to @param_ch_m
+      read @editor_ch_user | get-new-value | pass_if_changed | put-value-to @param_ch_m
 
-      sl: slider manual=false 
+      sl: slider2 manual=false 
       {
         compute obj=@rps->obj name=@rps->name gui=@rps->gui code=`
           var sl = env.ns.parent;

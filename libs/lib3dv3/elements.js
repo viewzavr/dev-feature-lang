@@ -181,7 +181,7 @@ export function points( env ) {
   });
 
   env.feature("lib3d_visual");
-  env.addSlider( "radius", env.params.radius || 1, 0,10,0.1 );
+  env.addSlider( "radius", env.params.radius || 1, 0,50,0.1 );
 
   // todo потом эти все вещи про df вытащить в отдельный фиче-слой
   // и аппендом их добавлять
