@@ -385,8 +385,8 @@ dom-comp "gui-file" { |in out|
 // что вот любой вопрос это параметр... (ведь по умолчанию его можно решать во внешнем контексте, а стало быть он параметр)
 // на худой конец предложим свое дефолт-решение
 // но не имеем права брать на себя ответственность решать за всех (лишая их выбора....!!!!!!)
-feature "gui-file-lib" { 
-	x: column in=@x.0 out=@x.1 library=null {
+feature "gui-file-lib" {
+	x: column in=@x.0 out=@x.1 library=null size=1 {
 	 	 let current_value = (read @x.in | get-value)
 
 		 text (m-eval {: f=(read @x.in | get-value) | 
@@ -414,7 +414,7 @@ feature "gui-file-lib" {
 
 		 //console-log "using lib " @x.library
 
-		 cb: combobox style="max-width: 220px;font-size: 12pt;"
+		 cb: combobox style="max-width: 220px;font-size: 12pt;" dom_size=@x.size
 		 records=(m-eval {: files=@x.library.files | 
 		 	  let a = [[-1,"Выберите файл:"],[-3, "..добавить новый файл"],[-2, "---"]]
 		 	  let b = files.map( (x,index) => [ index, x.name ] )
@@ -636,20 +636,22 @@ let outgoing_params = (find-objects-bf "param-info" | m-eval {: arr | return arr
 
 let links_storage_place=@project // пока так
 
+// find-link object=... param_name=... dir=[to,from]
 feature "find_link" {
-	x: object output=@my_link dir="to" {
+	x: object output=@my_link dir="to" link_type="link" {
 
 		let my_path = (param_path @x.object @x.param_name)
 
-		let my_link = (read @links_storage_place | get_children_arr 
+		let my_link = (read @links_storage_place 
+		 | get_children_arr 
 	   | pause_input
 	   //| console-log-input "x1"
-	   | arr_filter_by_features features="link"
+	   | arr_filter_by_features features=@x.link_type
 	   //| console-log-input "x2"
 	   | m-eval {: arr path=@my_path dir=@x.dir| 
 	   	  //console.log("my-link eval, arr=",arr,"looking to=",path)
 	   	  let res = arr.find( x => x.params[dir] == path ) 
-	   	  //console.log("res=",res)
+	   	  //console.log("find_link res=",res)
 	   	  return res
 	   :})
   }
@@ -659,36 +661,136 @@ feature "find_link" {
 feature "gui-setup-link" {
 	g: dom {
 	  btn: button "->" 
-	    style_s = (m-eval {: my_link=@my_link | return my_link ? "background: radial-gradient(#ffffff00, #673ab7);" : "" :})
+	    style_s = (m-eval {: my_link=@my_link | 
+	    	  return my_link ? "background: radial-gradient(#ffffff00, #673ab7);" : "" :})
 	    //style_k = "border-radius: 3px; border: 1px solid;"
 
-	  reaction (event @btn "click") (method @dlg "show")
+	  console-log "btn my_link=" @my_link
+
+  	let object = @g.0
+	  	  param_name = @g.1
+	      my_path = (param_path @object @param_name)
+	      my_link = (find_link object=@object param_name=@param_name link_type="structure-element")
+
+	  reaction @btn.click (method @dlg "show")
 
 	  //if (@my_link?) { @btn.style := "background: radial-gradient(#ffffff00, #673ab7);" }
 
 	  dlg: dialog {
 
-	  	let object = @g.0
-	  	let param_name = @g.1
 
-	  	// перечень param-info к которым можно целпяться
-	  	let outgoing_params = (find-objects-bf "param-info" | m-eval {: arr | return arr.filter( x => x.params.out ) :})
 
-	  	let links_storage_place=@project // пока так
+	  	  column gap="0.1em" {
+      	  ssr: switch_selector_row  
+                 items=["Ссылка","Файл"]
+                 {{ hilite_selected }}
+
+	        show_one index=@ssr.output_index {
+	        	 v1: select_incoming_link @object @param_name
+	        	 v2: select_incoming_file @object @param_name
+	        }
+
+	        connect (event @v1 "assigned") (list (event @v2 "cleanup") (method @dlg "close"))
+	        connect (event @v2 "assigned") (list (event @v1 "cleanup") (method @dlg "close"))
+	        // а кстати: event @v1.assigned, param @dlg.some, ? %codea %idea
+	        // тогда хотя б: connect (event @v1.assigned) (list (event @v2.cleanup) (event @dlg.close))
+        }
+
+
+	  	// найти подходящие с чем можно сцепиться
+	  	// предоставить выбор пользователю. вероятно с текстовой фильтрацией
+	  	// запомнить выбор. плюс возможность для отмены. плюс мб active или как.
+	  }
+  }
+}
+feature "select_incoming_file" {
+	 x: column {
+	 	  let object = @x.0
+	  	let param_name = @x.1
+
+	  	let my_path = (param_path @object @param_name)
+	  	let my_fil = (find_link object=@object param_name=@param_name link_type="structure-file") 
+
+	  	let fin = (create_channel)
+	  		  fout = (create_channel)
+
+	    read @fin | put-value @my_fil
+
+	  	gui-file-lib @fin @fout
+	  	    library=@project.artefacts_library size=10
+
+	  	select: button "Выбрать"
+
+	  	reaction (event @select "click") 
+	  	  {: my_file=@my_fil 
+	  	  	 links_storage_place=@links_storage_place 
+	  	  	 my_path=@my_path	
+	  	  	 selected_file=(read @fout | get-value)
+	  	  	 x=@x |
+
+
+	  	  	if (selected_file) {
+	  	  		 // надо назначить
+	  	  		 if (my_file) {
+	  	  		 	 // уже есть - зададим
+	  	  		 	 my_file.setParam("file",selected_file,true)
+	  	  		 	 console.log("file-link updated",my_file)
+	  	  		 	 x.emit("assigned",my_file)
+	  	  		 } else {
+	  	  		 	 // еще нет - создадим
+
+	  	  		 	 let link = links_storage_place.vz.createObj( {parent:links_storage_place, manual: true})
+	  	  		 	 link.setParam("manual",true,true)
+	  	  		 	 link.setParam("file",selected_file,true)
+	  	  		 	 link.setParam("to",my_path,true)
+	  	  		 	 //link.setParam("debug",true)
+	  	  		 	 link.manual_feature("structure-file")
+	  	  		 	 link.manuallyInserted = true
+	  	  		 	 console.log("file-link created",link)
+	  	  		 	 x.emit("assigned",link)
+	  	  		 }
+	  	  	} else {
+	  	  		 x.emit("cleanup")
+	  	  		 x.emit("assigned")
+	  	  	}
+	  	:}
+
+	  	reaction @x.cleanup {: my_file=@my_fil |
+	  		 if (my_file) {
+	  		 	  my_file.remove()
+	  		 	  console.log("file-link removed")
+	  		 }	  		
+	  	:}
+	 }
+}
+
+feature "structure-element";
+
+// file, to=param-path
+feature "structure-file" {
+	x: structure-element {
+		y: load-file @x.file
+    connect (param @y "output") (get-channel-by-path @x.to)
+	}
+}
+
+feature "structure-link" {
+	link ~structure-element
+}
+
+// кстати добавим потом преобразование, idea
+feature "select_incoming_link" {
+	x: column {
+	  	let object = @x.0
+	  	let param_name = @x.1
+
+			// перечень param-info к которым можно целпяться
+	  	//let outgoing_params = (find-objects-bf "param-info" | m-eval {: arr | return arr.filter( x => x.params.out ) :})
+	  	//let links_storage_place=@project // пока так
 
 	  	let my_path = (param_path @object @param_name)
 			
-			let my_link = (read @links_storage_place | get_children_arr 
-				   | pause_input
-				   //| console-log-input "x1"
-				   | arr_filter_by_features features="link"
-				   //| console-log-input "x2"
-				   | m-eval {: arr path=@my_path| 
-				   	  //console.log("my-link eval, arr=",arr,"looking to=",path)
-				   	  let res = arr.find( x => x.params.to == path ) 
-				   	  //console.log("res=",res)
-				   	  return res
-				   :})
+			let my_link = (find_link object=@object param_name=@param_name)
 
 			let selected_source_param=(read @outgoing_params | geta (@cb.index - 1) default=null)
 			let selected_source_path=(param_path @selected_source_param.object @selected_source_param.name)
@@ -704,62 +806,71 @@ feature "gui-setup-link" {
 			//console-log "index_of_my_link=" @index_of_my_link
 			param @cb "index" | put-value (1 + @index_of_my_link)
 
-	  	column {
+	  	cb: combobox 
+	  	  dom_size=10
+	  	  titles = (
+	  	  	  arr_concat
+	  	  	   (list ["-"]
+	  	  	         (@outgoing_params | map { |x| 
+	  	  	         	 join 
+	  	  	         	 	 (read @x.object | get-parent | geta "title" default="..") 
+	  	  	         	   " / "
+	  	  	         	   (@x.object.title or (m-eval {: obj=@x.object | return obj.getPath():})) 
+	  	  	         	   " - " 
+	  	  	         	   @x.name
 
-		  	cb: combobox 
-		  	  dom_size=10
-		  	  titles = (
-		  	  	  arr_concat
-		  	  	   (list ["-"]
-		  	  	         (@outgoing_params | map { |x| join (@x.object.title or (m-eval {: obj=@x.object | return obj.getPath():})) " - " @x.name })
-		  	  	   )     
-		  	  	  )
+	  	  	         	 //let parents = (get-parents | arr_slice 1 -1)
+	  	  	         	 //read @parents | map_geta "title" if_missing={: obj | return obj.ns.name :}
+	  	  	         })
+	  	  	   )     
+	  	  	  )
 
-		  	select: button "Выбрать"  
+	  	select: button "Выбрать"  
 
-		  	reaction (event @select "click") 
-		  	  {: my_link=@my_link links_storage_place=@links_storage_place selected_source_param=@selected_source_param 
-		  	  	 my_path=@my_path	selected_source_path=@selected_source_path dlg=@dlg |
+	  	reaction (event @select "click") 
+	  	  {: my_link=@my_link links_storage_place=@links_storage_place selected_source_param=@selected_source_param 
+	  	  	 my_path=@my_path	selected_source_path=@selected_source_path x=@x |
 
 
-		  	  	if (selected_source_param) {
-		  	  		 // надо назначить
-		  	  		 if (my_link) {
-		  	  		 	 // уже есть - зададим
-		  	  		 	 my_link.setParam("from",selected_source_path,true)
-		  	  		 	 console.log("link updated",my_link)
-		  	  		 } else {
-		  	  		 	 // еще нет - создадим
-		  	  		 	 //let link = links_storage_place.vz.createLink( {parent:links_storage_place, manual: true})
-		  	  		 	 //let link = links_storage_place.vz.createObj( {parent:links_storage_place, manual: true})
-		  	  		 	 let link = links_storage_place.vz.createObjByType( {parent:links_storage_place, manual: true, type: "link"})
-		  	  		 	 link.setParam("manual",true,true)
-		  	  		 	 link.setParam("from",selected_source_path,true)
-		  	  		 	 link.setParam("to",my_path,true)
-		  	  		 	 //link.setParam("debug",true)
-		  	  		 	 //link.manual_feature("link")
-		  	  		 	 link.manuallyInserted = true
-		  	  		 	 console.log("link created",link)
-		  	  		 }
-		  	  	} else {
-		  	  		 // надо убрать
-		  	  		 if (my_link) {
-		  	  		 	  my_link.remove()
-		  	  		 	  console.log("link removed")
-		  	  		 }  
-		  	  	}
+	  	  	if (selected_source_param) {
+	  	  		 // надо назначить
+	  	  		 if (my_link) {
+	  	  		 	 // уже есть - зададим
+	  	  		 	 my_link.setParam("from",selected_source_path,true)
+	  	  		 	 console.log("link updated",my_link)
+	  	  		 	 x.emit("assigned",my_link)
+	  	  		 } else {
+	  	  		 	 // еще нет - создадим
+	  	  		 	 //let link = links_storage_place.vz.createLink( {parent:links_storage_place, manual: true})
+	  	  		 	 //let link = links_storage_place.vz.createObj( {parent:links_storage_place, manual: true})
+	  	  		 	 //let link = links_storage_place.vz.createObjByType( {parent:links_storage_place, manual: true, type: "link"})
+	  	  		 	 let link = links_storage_place.vz.createObj( {parent:links_storage_place, manual: true})
+	  	  		 	 link.setParam("manual",true,true)
+	  	  		 	 link.setParam("from",selected_source_path,true)
+	  	  		 	 link.setParam("to",my_path,true)
+	  	  		 	 //link.setParam("debug",true)
+	  	  		 	 link.manual_feature("structure-link")
+	  	  		 	 link.manuallyInserted = true
+	  	  		 	 console.log("link created",link)
+	  	  		 	 x.emit("assigned",link)
+	  	  		 }
+	  	  	} else {
+	  	  		 // надо убрать
+	  	  		 x.emit("cleanup")
+	  	  		 x.emit("assigned")
+	  	  	}
 
-		  	  	dlg.close()
+	  	:}
 
-		  	:}
+	  	reaction @x.cleanup {: my_link=@my_link |
+	  		 if (my_link) {
+	  		 	  my_link.remove()
+	  		 	  console.log("link removed")
+	  		 }	  		
+	  	:}
 
-	    }
-
-	  	// найти подходящие с чем можно сцепиться
-	  	// предоставить выбор пользователю. вероятно с текстовой фильтрацией
-	  	// запомнить выбор. плюс возможность для отмены. плюс мб active или как.
-	  }
-  }
+	    
+	}
 }
 
 /*

@@ -136,6 +136,8 @@ feature "cv-select-files" {
       // так что по уму, по уму.. это находить как-то записи о файлах..
       // и привязываться.. причем как-то не по номеру, а по не знаю чему..
 
+      // F-FILES-ARENT-LINKS
+      /*
       repeater model=@x.files { |file|
         y: object title=(+ @x.title "/" @file.name)        
         {
@@ -152,6 +154,7 @@ feature "cv-select-files" {
           }  
         }        
       }
+      */
       
 
     }

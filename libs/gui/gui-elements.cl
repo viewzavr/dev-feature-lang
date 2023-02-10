@@ -750,7 +750,7 @@ register_feature name="switch_selector" {
 // но с другой стороны тут еще стили особые появятся, поэтому ладно уж
 // switch_selector_row items=['a','b','c']
 register_feature name="switch_selector_row" {
-	root55: row index=0 gap="0.2em" generated_items=@rep->output items=[]
+	root55: row index=0 output_index=@root55.index gap="0.2em" generated_items=@rep->output items=[]
 	{
 		rep: repeater input=@root55->items { |input index|
 			 bt:button text=@input			 
@@ -760,9 +760,9 @@ register_feature name="switch_selector_row" {
 			 	     obj.setParam( "index", index, true ); // но то устаревшее
 			 	  :} 
   	 	 }}
-		};
-	}; // column
-};
+		}
+	} // column
+}
 
 feature "hilite_selected" {
   hs: object index=@..->index generated_items=@..->generated_items 

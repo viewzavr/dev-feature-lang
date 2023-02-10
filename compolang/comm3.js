@@ -1253,6 +1253,10 @@ export function create_writing_cell( env ) {
 // формально это дублирование линка. но какое же оно маленькое и красивое. наверное так и должно быть.
 
 // новое: connect a1 a2 и далее мы сможем ввести алиас => и тогда: a1 => a2
+
+// мысли: сделать как reaction т.е. connect @x.event @y.event2
+// единственное, вот если connect a b c то это как реакшн a или б то c; или все из a идет в те? 
+// 
 export function redirect_to_channel( env ) {
 
   //debugger

@@ -10,7 +10,7 @@ show-file-progress export-image animation
 settings-cmd
 coview-app-design
 
-project: the_project 
+project: the_project artefacts_library=@proj_files
 {
 
   l1: layer title="Слой №1" {

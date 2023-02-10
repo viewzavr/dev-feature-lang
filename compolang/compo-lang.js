@@ -320,6 +320,9 @@ function parsed2dump( vz, parsed, base_url ) {
   /////////////////
   // F-REACTION-232
 
+  // а кстати: мб не ток реакшн event @v1.assigned, param @dlg.some, ? %codea %idea
+  // тогда хотя б: connect (event @v1.assigned) (list (event @v2.cleanup) (event @dlg.close))
+  // ну или для коннекта хотя бы.. connect @v1.assigned @v2.cleanup @dlg.close
   if (parsed.features["reaction"]) {
     for (let cc of (parsed.features_list || [])) {
         if (cc.features["geta"]) {

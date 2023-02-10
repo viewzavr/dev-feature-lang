@@ -1,13 +1,14 @@
 // основное по ячейкам-каналам это comm3.js
 
 // 0, input - путь вида objpath->name
-feature "get-cell-by-path" {
+// выход - канал параметра
+feature "get-channel-by-path" {
   q: object
     input=@.->0
     splitted = (m_eval "(str) => str.split('->')" @q->input)
     objpath=@q.splitted.0
     paramname=@q.splitted.1
-    output=(find-one-object input=@q->objpath | get-cell @q->paramname manual=@q->manual?)
+    output=(find-one-object input=@q->objpath | channel @q->paramname manual=@q->manual?)
   ;
 };
 

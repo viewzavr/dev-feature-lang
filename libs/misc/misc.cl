@@ -1,4 +1,5 @@
 // map { |x| @x + 2 }
+// map в теле надо указать 1 объект у которого будет output
 feature "map" {
   r: repeater 
       use_outer_scope = true

@@ -448,8 +448,8 @@ register_feature name="render-param-slider" {
       reaction (get-cell input=@if2 "value") (get-cell-by-path @rps.param_path manual=true) 
 */      
 
-      let param_ch = (get-cell-by-path @rps.param_path)
-          param_ch_m = (get-cell-by-path @rps.param_path manual=true)
+      let param_ch = (get-channel-by-path @rps.param_path)
+          param_ch_m = (get-channel-by-path @rps.param_path manual=true)
           slider_ch = (param @sl "value")
           slider_ch_user = (event @sl "user_change")          
           editor_ch = (param @if2 "value")
