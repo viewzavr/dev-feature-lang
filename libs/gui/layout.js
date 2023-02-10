@@ -26,37 +26,36 @@ export function layout( obj, opts )
   var flextype = 'inline-flex'; // flex
 
   obj.onvalue("dom",(dom) => {
-    dom.style.display=flextype; 
+    //dom.style.display=flextype; 
+    //obj.setup_style( 'display',`display:${flextype}`);
+    // далее см visible
     
     obj.addComboValue( "flow","row",["row","column","row wrap","column wrap"],(v) => {
-      if (!dom)
-          debugger;
-      if (!dom.style)
-          debugger;
-      dom.style.flexFlow = v; //v.replace("_"," ");
+      obj.setup_style( 'flex-flow',`flex-flow:${v}`);
     });
 
     obj.addComboValue( "justify-content","flex-start",["flex-start","flex-end","center","space-between","space-around","space-evenly"],(v) => {
-      dom.style.justifyContent = v;
+      obj.setup_style( 'justify-content',`justify-content:${v}`);
     });
 
     obj.addComboValue( "align-items","stretch",["stretch","flex-start","flex-end","center","baseline"],(v) => {
-      dom.style.alignItems = v;
+      obj.setup_style( 'align-items',`align-items:${v}`);
     });
 
     obj.addComboValue( "align-content","normal",["normal","flex-start","flex-end","center","space-between","space-around","space-evenly","stretch"],(v) => {
-      dom.style.alignContent = v;
+      obj.setup_style( 'align-content',`align-content:${v}`);
     });
 
     //obj.addSlider("gap",0,0,50,1,(v) => {
     obj.addString("gap","0em",(v) => {
       // https://developer.mozilla.org/ru/docs/Web/CSS/gap;
-      dom.style.gap = v;
+      obj.setup_style( 'gap',`gap:${v}`);
     });
 
     // стандартный метод про hidden не катит
-    obj.trackParam("visible",() => {
-      dom.style.display = (obj.params.visible ? flextype : "none");
+    obj.monitor_defined(["visible"],() => {
+      //dom.style.display = (obj.params.visible ? flextype : "none");
+      obj.setup_style( 'display',`display:${obj.params.visible ? flextype : "none"}`);
     })
 
   });

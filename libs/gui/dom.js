@@ -111,28 +111,24 @@ export function dom( obj, options={} )
   function maybe_apply_dom_style( name, value ) {
     if (obj.dom && name.startsWith("dom_style_")) {
        name = name.substring(10);
-       //console.log("setting dom style",name,value)
-       obj.dom.style[name] = value || "";
-       
-       //styles_hash[ name ] = name + ":" + value;
-       //obj.signalParam("style");
-        
+       setup_style( name, `${name}:${value}` )
        return true;
     }
     return false;
   }
 
+  function setup_style( hash_key, value ) {
+    styles_hash[ hash_key ] = value; // value это добавка в цсс, типа "some:a; other:b c; ..."
+    obj.signalParam("style");
+  }
+  obj.setup_style = setup_style; // надо лэйауту
+
 // здесь получается доступ через js-нотацию
   let styles_hash = {};
   function maybe_apply_style_part( name, value ) {
     if (obj.dom && name.startsWith("style_")) {
-       styles_hash[ name ] = value;
 
-       //console.log("style part",obj.getPath(),name,value)
-
-       obj.signalParam("style");
-       //name = name.substring(10);
-       //obj.dom.style[name] = value;
+       setup_style( name, value )
         
        return true;
     }
@@ -143,10 +139,13 @@ export function dom( obj, options={} )
   function apply_dom_params() {
     //// фишка участия во flex-раскладке (пока тут)
     obj.addString("flex","",(v) => {
-      obj.dom.style.flex = v;
+      //obj.dom.style.flex = v;
+      setup_style("flex",`flex:${v}`)
     })
 
-    obj.addText("style","",(v) => {
+    obj.addText("style","");
+
+    obj.onvalue("style",(v) => {
       //obj.dom.style.cssText = v;
       // как делать несколько стилей по разным причинам?
 
@@ -156,9 +155,11 @@ export function dom( obj, options={} )
       //obj.dom.style.cssText += ";"+v;
 
       let s = v + ";" + Object.values(styles_hash).join(";");
-      //console.log("style append",s)
+      //console.log("style setup",s)
 
-      obj.dom.style.cssText += s;
+      obj.dom.style.cssText = s;
+      // TODO отладить эту историю надо
+
       //console.log("total style",obj.dom.style.cssText)
 
       // todo короче это проблемное место. получается style_alfa=... и затем обнуление - уже не сработает
@@ -173,11 +174,13 @@ export function dom( obj, options={} )
     })
 
     obj.addString("padding","0em",(v) => {
-      obj.dom.style.padding = v;
+      //obj.dom.style.padding = v;
+      setup_style("padding",`padding:${v}`)
     })
 
     obj.addString("margin","0em",(v) => {
-      obj.dom.style.margin = v;
+      //obj.dom.style.margin = v;
+      setup_style("margin",`margin:${v}`)
     })
 
     obj.addString("class","",(v) => {
