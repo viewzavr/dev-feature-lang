@@ -665,7 +665,7 @@ feature "gui-setup-link" {
 	    	  return my_link ? "background: radial-gradient(#ffffff00, #673ab7);" : "" :})
 	    //style_k = "border-radius: 3px; border: 1px solid;"
 
-	  console-log "btn my_link=" @my_link
+	  //console-log "btn my_link=" @my_link
 
   	let object = @g.0
 	  	  param_name = @g.1
@@ -674,14 +674,16 @@ feature "gui-setup-link" {
 
 	  reaction @btn.click (method @dlg "show")
 
+	  reaction @btn.click {: my_link=@my_link ssr=(param @ssr "index") |
+	  	if (my_link && my_link.is_feature_applied("structure-file")) ssr.set(1)
+	  	:}
+
 	  //if (@my_link?) { @btn.style := "background: radial-gradient(#ffffff00, #673ab7);" }
 
 	  dlg: dialog {
 
-
-
 	  	  column gap="0.1em" {
-      	  ssr: switch_selector_row  
+      	  ssr: switch_selector_row
                  items=["Ссылка","Файл"]
                  {{ hilite_selected }}
 
@@ -714,7 +716,7 @@ feature "select_incoming_file" {
 	  	let fin = (create_channel)
 	  		  fout = (create_channel)
 
-	    read @fin | put-value @my_fil
+	    read @fin | put-value @my_fil.file?
 
 	  	gui-file-lib @fin @fout
 	  	    library=@project.artefacts_library size=10
@@ -758,7 +760,7 @@ feature "select_incoming_file" {
 	  	reaction @x.cleanup {: my_file=@my_fil |
 	  		 if (my_file) {
 	  		 	  my_file.remove()
-	  		 	  console.log("file-link removed")
+	  		 	  //console.log("file-link removed")
 	  		 }	  		
 	  	:}
 	 }
@@ -771,6 +773,11 @@ feature "structure-file" {
 	x: structure-element {
 		y: load-file @x.file
     connect (param @y "output") (get-channel-by-path @x.to)
+    
+    //link from=
+    //console-log "structure-file f=" @x.file "tgt_ch=" (get-channel-by-path @x.to)
+    //reaction @y.output {: outp f=(get-channel-by-path @x.to)| console.log("structure-file see output for param ",f,outp ):}
+    //connect (param @y "output") (get-channel-by-path @x.to)
 	}
 }
 
