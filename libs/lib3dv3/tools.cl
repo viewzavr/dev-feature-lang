@@ -1,5 +1,10 @@
 load "misc";
 
+//let THREE1=(import_js (resolve_url "three.js/build/three.module.js"))
+feature "threejs_module" {
+  import_js (resolve_url "three.js/build/three.module.js")
+}  
+
 register_feature name="material_generator_gui" {
     dg: dom_group text="Material options"
     {{

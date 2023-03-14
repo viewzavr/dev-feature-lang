@@ -165,7 +165,7 @@ feature "add-files-dlg" {
     let new_files =(create_channel [])
     column style="width: 100%" {
 
-      select: switch_selector_row index=0 items=["Локальные файлы","URL","Список URL","Загрузка списка"] {{ hilite_selected }}
+      select: switch_selector_row index=0 items=["Локальные файлы","URL","Набор URL","Загрузка списка list.txt"] {{ hilite_selected }}
 
       reaction (event @x "show") {: obj=@g2 |
         obj.dom.value = ""

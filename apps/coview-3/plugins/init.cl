@@ -5,4 +5,5 @@ show-file-progress/init.cl
 animation/init.cl
 settings-cmd/init.cl
 design/init.cl
+load-by-url/init.cl
 "

@@ -182,6 +182,8 @@ feature "visual_process" {
 }
 
 feature "have-scene-env"
+feature "have-scene2d"
+
 
 feature "camera" {
   ccc: camera3d title="Камера" 

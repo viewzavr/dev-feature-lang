@@ -583,6 +583,7 @@ feature "show_3d_scene_r" {
   scene_3d_view: 
     dom style="width:100%; height:100%;" tag="div"
     // renderer=@r1 // тпУ
+    threejs_scene_node = @r1->output
     private_camera=@r1->private_camera // это на выход (кому-то вдруг она понадобится)
     camera_control={ |renderer camera dom| orbit-control } // заменяется снаружи
     { // max-height: 100vh;
@@ -656,14 +657,20 @@ feature "show_area_3d" {
              dg: dom_group
              {
                @area_rect->scene2d_tgt 
-                 | insert_children list=(@area_rect.input.sources | map_geta "scene2d" default=[] | arr_flat);
+                 | insert_children list=(
+                    @area_rect.input.sources 
+                        | map { |source|
+                            find-objects-bf "have-scene2d" root=@source recursive=false
+                            | map_geta "scene2d" default=[]
+                        }
+                        | arr_flat)
 
                if (@area_rect->input | geta "show_fps" default=false) then={
-                 show_render_fps renderer=@process_rect->renderer;
-               };
+                 show_render_fps renderer=@process_rect->renderer
+               }
                if (@area_rect->input | geta "show_stats" default=false) then={
-                 show_render_stats renderer=@process_rect->renderer;
-               };
+                 show_render_stats renderer=@process_rect->renderer
+               }
              }
         };
 
