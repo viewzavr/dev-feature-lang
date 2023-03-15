@@ -409,7 +409,7 @@ export function import_js(env) {
         env.setParam("output",res);
       }).catch( err => {
       env.vz.console_log_diag( env )
-      console.error("compolang import_js: failed to import",path)  
+      console.error("compolang import_js: failed to import",path,err)
       })
     
     
