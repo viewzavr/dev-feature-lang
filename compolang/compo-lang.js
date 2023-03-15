@@ -1132,8 +1132,12 @@ export function register_package( env ) {
 //////////////////////
 
 function add_dir_if( path, dir ) {
-  if (path[0] == "/") return path;
-  if (path.match(/\w+\:\/\//)) return path;
+  if (path[0] == "/") {
+    let urla = new URL( dir )
+    let basedir = urla.origin
+    return basedir + path;
+  }
+  if (path.match(/\w+\:\/\//)) return path; // с протоколом
   if (path[0] == "." && path[1] == "/") path = path.substring( 2 );
   if (path.trim() == "") return null; // if blank path specified, that means no data should be displayed. F-BLANK
   return dir + path;
