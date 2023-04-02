@@ -29,10 +29,21 @@ export function create() {
   df.get_column = get_column.bind( undefined, df );
   df.get_length = get_length.bind( undefined, df );
   df.get_rows = get_rows.bind( undefined, df );
+  df.append_row = append_row.bind( undefined, df );
 
   // аксессоры
 
   return df;
+}
+
+export function append_row( df, values ) {
+  for (let name of df.colnames) {
+    let e = values[name]
+    if (typeof(e) !== "undefined")
+      df[name].push( e );
+    else 
+      df[name].push( is_string_column( df,name ) ? "" : 0 )
+  }
 }
 
 export function add_column( df, name, values, position=10000 ) {

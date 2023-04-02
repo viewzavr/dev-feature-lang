@@ -576,6 +576,39 @@ feature "cv_points" {
   }
 }
 
+/////////////////////
+coview-record title="Отрезки" type="cv_lines" cat_id="gr3d"
+
+// вопрос как передать addons в меш..
+feature "cv_lines" {
+  vp: visual-process
+   title="Отрезки"
+   gui={ paint-gui @vp }
+   ~lines 
+   {
+    param-info "input" in=true out=true // df-ка
+    param-info "positions" in=true out=true // df-ка
+    param-info "colors" in=true out=true // df-ка
+
+    gui debug=true {
+      gui-tab "main" {
+        gui-slot @vp "input" gui={ |in out| gui-df @in @out }
+      }
+
+      gui-tab "positions" {
+        gui-slot @vp "positions" gui={ |in out| gui-array @in @out }
+        gui-slot @vp "colors" gui={ |in out| gui-array @in @out }
+      }
+      
+      gui-tab "view" {
+        render-params @vp
+           filters={ params-hide list="title"; }
+      }
+
+    }
+  }
+}
+
 ///////////////////// меш
 coview-record title="Тримеш" type="cv_mesh" cat_id="gr3d"
 

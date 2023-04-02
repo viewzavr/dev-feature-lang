@@ -92,6 +92,7 @@ feature "df_sub" {
 
 // мб тут стоит применить идею лямбды. а ее можно каррировать
 // read @df | df_filter {: df index | return df.X[index] > 5 :}
+
 // в качестве фантазии на будущее: df_filter X={: x | return x > 5:} это фильтрация по значению колонки
 feature "df_filter" 
   `
