@@ -146,7 +146,7 @@ export function save_state_to_window_hash( player ) {
 ///////////////////////////////////////
 /////////////////////////////////////// ценныя методы
 
-
+/*
   // пишет в хеш объект
   function write_to_hash(obj) {
     //console.log("write_to_hash",obj);
@@ -188,6 +188,35 @@ export function save_state_to_window_hash( player ) {
            // console.error("read_hash_obj: second level of error catch. err2=",err2);
            // do nothing
          }
+       }
+     return oo;
+  }
+*/
+
+  // пишет в хеш объект
+  function write_to_hash(obj) {
+     var strpos = JSON.stringify( obj );
+     if (strpos.length > 1024*1024) {
+       console.error("Viewzavr: warning: program state is too long!",strpos.length );
+       console.error( strpos );
+     }      
+     var href = new URL( window.location.href );
+     href.searchParams.set('state', strpos);
+     //console.log('setting state href',href)
+     history.replaceState(undefined, undefined, href)
+  }
+
+  // читает из хеша объект
+  function read_from_hash() {
+      var oo = {};
+       try {
+         var href = new URL( window.location.href );
+         var s = href.searchParams.get('state');
+         console.log('got state',s)
+         if (!s || s.length <= 0) return oo;
+         oo = JSON.parse( s );
+       } catch(err) {
+         console.error("read_hash_obj: failed to parse. err=",err);
        }
      return oo;
   }
