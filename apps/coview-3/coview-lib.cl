@@ -198,7 +198,21 @@ feature "camera" {
         gui-slot @ccc "center" gui={ |in out| gui-vector @in @out }
         gui-slot @ccc "theta"  gui={ |in out| gui-slider @in @out min=-180 max=180 step=0.1 }
         gui-slot @ccc "ortho"  gui={ |in out| gui-checkbox @in @out }
-        gui-slot @ccc "ortho_zoom"  gui={ |in out| gui-slider @in @out min=0.01 max=100 step=0.01 }
+        gui-slot @ccc "ortho_zoom"  gui={ |in out| gui-slider @in @out min=1 max=100 step=0.01 }
+        gui-box "commands" {
+          column {
+            
+            row gap = "0.1em" {
+              gui-cmd "reset" (cmd @ccc "reset")
+              // apply width="50px"
+              // ну либо возможность вводить фичу локально.. а наверное можно?
+              gui-cmd "X" style="width:40px" (cmd @ccc "look_x")
+              gui-cmd "Y" style="width:40px" (cmd @ccc "look_y")
+              gui-cmd "Z" style="width:40px" (cmd @ccc "look_z")
+            }
+            // reaction @ccc.reset {: console.log("reset called") :}
+          }
+        }
       }
     }
     param-info "theta" out=true in=true

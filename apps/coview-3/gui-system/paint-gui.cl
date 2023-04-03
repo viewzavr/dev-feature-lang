@@ -618,6 +618,12 @@ feature "gui-slot" {
   }
 }
 
+feature "gui-cmd" {
+  b: button {
+    connect (event @b "click") @b.1
+  }
+}
+
 feature "gui-box" {
   x: dom tag="fieldset" style="border-radius: 5px; padding: 4px; width: 95%;" 
   {

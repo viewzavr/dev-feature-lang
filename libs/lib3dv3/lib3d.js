@@ -277,8 +277,9 @@ export function subrenderer( env,opts )
   // хотя может он и рендерер должен выдавать.. (но он и выдает..)
 
   // todo ориентироваться на dom-размеры..
-  var default_camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 10000000 );
-  var private_camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 10000000 );
+  let camin = 0.00001
+  var default_camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, camin, 10000000 );
+  var private_camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, camin, 10000000 );
   
   //private_camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 0.01, 10000000 );
   //console.log("pr",private_camera)
@@ -306,12 +307,12 @@ export function subrenderer( env,opts )
     // поэтому вот пересоздаем
     //console.log("sr cam changed",cam)
     if (cam.isPerspectiveCamera && private_camera.isOrthographicCamera) {
-      private_camera = new THREE.PerspectiveCamera( 75, 1, 0.01, 10000000 );
+      private_camera = new THREE.PerspectiveCamera( 75, 1, camin, 10000000 );
       installed_w = installed_h = 1
       //console.log("sr switching to persp");
     } else
     if (private_camera.isPerspectiveCamera && cam.isOrthographicCamera) {
-      private_camera = new THREE.OrthographicCamera( 0,1,1,0, 0.01, 10000000 );
+      private_camera = new THREE.OrthographicCamera( 0,1,1,0, 0, 10000000 );
       installed_w = installed_h = 1
       //console.log("sr switching to ortho");
     }
@@ -695,7 +696,9 @@ export function camera3d( env ) {
   
   env.trackParam( "ortho", recreate_camera )
   
+  let camin = 0.00001
   recreate_camera()
+  
   
   function recreate_camera(v) {
     // console.log("ortho=",v)
@@ -703,9 +706,9 @@ export function camera3d( env ) {
     let height = 100;
 
     if (v)
-      cam = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 0.01, 1000*1000 );
+      cam = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, camin, 1000*1000 );
     else
-      cam = new THREE.PerspectiveCamera( 75, width/height, 0.01, 1000*1000 );
+      cam = new THREE.PerspectiveCamera( 75, width/height, camin, 1000*1000 );
     cam.vrungel_camera_env = env;
     
     if (env.params.ortho) // только в орто-режиме потому что я хочу оставаться в ск (положение камеры, точка взгляда)
@@ -758,7 +761,8 @@ export function camera3d( env ) {
   // Бог уж с ней с камерой.
 
   env.addCmd("reset",() => {
-    env.setParam( "pos",[0,0,10]);
+    //console.log("env see cmd reset")
+    env.setParam( "pos",[10,10,10]);
     env.setParam( "center",[0,0,0]); // look_at?
   })
   
@@ -766,6 +770,16 @@ export function camera3d( env ) {
     env.setParam( "pos",[10,0,0]); // по идее не 10 а текущий радиус
     env.setParam( "center",[0,0,0])
   })
+  
+  env.addCmd("look_y",() => {
+    env.setParam( "pos",[0,10,0]); // по идее не 10 а текущий радиус
+    env.setParam( "center",[0,0,0])
+  })
+  
+  env.addCmd("look_z",() => {
+    env.setParam( "pos",[0,0,10]); // по идее не 10 а текущий радиус
+    env.setParam( "center",[0,0,0])
+  })  
 
   env.setParamOption("external_set","visible",false);
   env.addCmd("external_set",(position,target) => {
