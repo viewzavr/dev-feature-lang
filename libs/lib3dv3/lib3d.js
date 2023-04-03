@@ -312,7 +312,7 @@ export function subrenderer( env,opts )
       //console.log("sr switching to persp");
     } else
     if (private_camera.isPerspectiveCamera && cam.isOrthographicCamera) {
-      private_camera = new THREE.OrthographicCamera( 0,1,1,0, 0, 10000000 );
+      private_camera = new THREE.OrthographicCamera( 0,1,1,0, -10000, 10000000 );
       installed_w = installed_h = 1
       //console.log("sr switching to ortho");
     }
@@ -734,13 +734,15 @@ export function camera3d( env ) {
   })
 
   env.onvalue( "pos", (v) => {
-    
     if (v !== a1 && v) {
       if (isFinite(v[0]) && isFinite(v[1]) && isFinite(v[2]))
       {
         cam.position.set( v[0],v[1],v[2] );
         //cam.updateWorldMatrix(true,true);
       }
+      // todo оптимизировать - вызывать на тике рендера если надо
+      v = env.params.center
+      cam.lookAt( new THREE.Vector3( v[0],v[1],v[2] ) );
       //cam.lookAt( new THREE.Vector3( 0,0,0 ) );
       //cam.updateProjectionMatrix();
       //console.log("camera onval pos",env.getPath(),v,cam)
@@ -766,19 +768,29 @@ export function camera3d( env ) {
     env.setParam( "center",[0,0,0]); // look_at?
   })
   
+  function get_radius() {
+    return Math.sqrt( (env.params.pos[0] - env.params.center[0])*(env.params.pos[0] - env.params.center[0])
+    + (env.params.pos[1] - env.params.center[1])*(env.params.pos[1] - env.params.center[1])
+    + (env.params.pos[2] - env.params.center[2])*(env.params.pos[2] - env.params.center[2]) )
+  }
+  
   env.addCmd("look_x",() => {
-    env.setParam( "pos",[10,0,0]); // по идее не 10 а текущий радиус
-    env.setParam( "center",[0,0,0])
+    env.setParam( "pos",[env.params.center[0] + get_radius(), env.params.center[1],env.params.center[2]]); // по идее не 10 а текущий радиус
+    //env.setParam( "center",[0,0,0])
   })
   
   env.addCmd("look_y",() => {
-    env.setParam( "pos",[0,10,0]); // по идее не 10 а текущий радиус
-    env.setParam( "center",[0,0,0])
+    env.setParam( "pos",[env.params.center[0] , env.params.center[1]+ get_radius(),env.params.center[2]]); // по идее не 10 а текущий радиус
+    // env.setParam( "pos",[0,10,0]); // по идее не 10 а текущий радиус
+    // env.setParam( "center",[0,0,0])
   })
   
+  // todo tween.js прикрутить?
   env.addCmd("look_z",() => {
-    env.setParam( "pos",[0,0,10]); // по идее не 10 а текущий радиус
-    env.setParam( "center",[0,0,0])
+    // console.log("radius is", get_radius() )
+    env.setParam( "pos",[env.params.center[0], env.params.center[1],env.params.center[2] + get_radius()]); // по идее не 10 а текущий радиус
+//    env.setParam( "pos",[0,0,10]); // по идее не 10 а текущий радиус
+//    env.setParam( "center",[0,0,0])
   })  
 
   env.setParamOption("external_set","visible",false);
