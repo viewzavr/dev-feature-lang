@@ -304,16 +304,16 @@ export function subrenderer( env,opts )
     // поэтому мы пересоздаем целевую камеру каждый раз при смене режима орто-неорто
     // но и далее - необходимо чтобы и финальная камеры была такого же типа
     // поэтому вот пересоздаем
-    console.log("sr cam changed")
+    //console.log("sr cam changed",cam)
     if (cam.isPerspectiveCamera && private_camera.isOrthographicCamera) {
       private_camera = new THREE.PerspectiveCamera( 75, 1, 0.01, 10000000 );
       installed_w = installed_h = 1
-      console.log("sr switching to persp");
+      //console.log("sr switching to persp");
     } else
     if (private_camera.isPerspectiveCamera && cam.isOrthographicCamera) {
       private_camera = new THREE.OrthographicCamera( 0,1,1,0, 0.01, 10000000 );
       installed_w = installed_h = 1
-      console.log("sr switching to ortho");
+      //console.log("sr switching to ortho");
     }
     private_camera.layers.enable(1);
     env.setParam('private_camera',private_camera);
@@ -674,13 +674,14 @@ export function camera3d( env ) {
   // значение znear 0.00000001 дает любопытнейший глюк збуфера
   // значение znear 0.001 ТОЖЕ дает любопытнейший глюк збуфера
   //var cam = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.001, 100000 );
-  var cam = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 1000*1000 );
+  //var cam = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 1000*1000 );
   
-  let width = window.innerWidth;
-  let height = window.innerHeight;
-  cam = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 0.01, 1000*1000 );
+  //let width = window.innerWidth;
+  //let height = window.innerHeight;
+  //cam = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 0.01, 1000*1000 );
   
-  cam.vrungel_camera_env = env;
+  //cam.vrungel_camera_env = env;
+  let cam
   let a1, a2;
   
   // гуи
@@ -692,7 +693,11 @@ export function camera3d( env ) {
   env.addCheckbox("ortho",false)
   env.setParam("ortho_zoom",1)
   
-  env.onvalue( "ortho", (v) => {
+  env.trackParam( "ortho", recreate_camera )
+  
+  recreate_camera()
+  
+  function recreate_camera(v) {
     // console.log("ortho=",v)
     let width = 100;
     let height = 100;
@@ -702,24 +707,40 @@ export function camera3d( env ) {
     else
       cam = new THREE.PerspectiveCamera( 75, width/height, 0.01, 1000*1000 );
     cam.vrungel_camera_env = env;
-    cam.zoom = env.params.ortho_zoom
+    
+    if (env.params.ortho) // только в орто-режиме потому что я хочу оставаться в ск (положение камеры, точка взгляда)
+        cam.zoom = env.params.ortho_zoom
+    
+    //console.log("recreating camera",env.getPath(),cam,"using pos",env.params.pos)
 
     env.setParam( "pos", env.params.pos.slice(0) )
     env.setParam( "center", env.params.center.slice(0) )
-    
+    /*
+    v = env.params.pos
+    cam.position.set( v[0],v[1],v[2] );
+    v = env.params.center
+    cam.lookAt( new THREE.Vector3( v[0],v[1],v[2] ) );
+    */
+    cam.updateWorldMatrix(true,true);
+    cam.updateProjectionMatrix();
     env.setParam("output",cam );
+  }
+  env.onvalue( "ortho_zoom",(v) => {
+    if (env.params.ortho)
+        cam.zoom = env.params.ortho_zoom
   })
 
   env.onvalue( "pos", (v) => {
-     //console.log("camera onval pos",v,cam)
+    
     if (v !== a1 && v) {
       if (isFinite(v[0]) && isFinite(v[1]) && isFinite(v[2]))
       {
         cam.position.set( v[0],v[1],v[2] );
-//        cam.updateWorldMatrix(true,true);
+        //cam.updateWorldMatrix(true,true);
       }
       //cam.lookAt( new THREE.Vector3( 0,0,0 ) );
-      //cam.updateProjectionMatrix(); 
+      //cam.updateProjectionMatrix();
+      //console.log("camera onval pos",env.getPath(),v,cam)
     }
   })
   env.onvalue( "center", (v) => {
@@ -784,6 +805,7 @@ export function map_control( env ) {
 
 // параметры: camera, target_dom
 export function orbit_control( env ) {
+  
   var cc;
   let unsub = () => {};
 
@@ -830,7 +852,10 @@ export function orbit_control( env ) {
 
     env.setParam("threejs_control",cc);
     
-    if (c.isOrthographicCamera) cc.panSpeed = 6;
+    if (c.isOrthographicCamera) {
+      cc.panSpeed = 6;
+    }
+    //console.log("configured cc panspeed",cc.panSpeed)
 
     //console.log("made",cc)
 
@@ -850,7 +875,7 @@ export function orbit_control( env ) {
 
       unsub = () => { u1(); u2(); };
       update_control_target( c.vrungel_camera_env.params.center );
-      update_control_theta( c.vrungel_camera_env.params.theta );
+      //update_control_theta( c.vrungel_camera_env.params.theta );
 
       function update_control_target (c) {
         if (skip_camera_reaction) return;
@@ -913,7 +938,7 @@ export function orbit_control( env ) {
           //console.log('orbitcontrols',env.$vz_unique_id,': i send new theta to camera ',cc.getAzimuthalAngle())
           c.vrungel_camera_env.setParam("theta", ( cc.getAzimuthalAngle() * 360 / (2*Math.PI)), false);
           if (c.zoom)
-              c.vrungel_camera_env.setParam("ortho_zoom", c.zoom )
+              c.vrungel_camera_env.setParam("ortho_zoom", c.zoom, true )
           skip_camera_reaction = false;
         }
           // так-то можно и аргумент - камеру )))
