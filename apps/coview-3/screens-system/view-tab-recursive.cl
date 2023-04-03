@@ -644,7 +644,7 @@ feature "show_area_3d" {
         }}
 
         scene3d=(concat @scene3d_items @scene3d_envs | arr_flat | arr_compact | pass_input_if @area_rect.input.visible)
-        camera=@area_rect.input.camera
+        camera=@area_rect.input.camera.output
         style="width:100%; height:100%;"
         // camera_control=@area_rect.input.camera_control
         // {{ @area_rect->input | geta "sources" | get-cell "show-view-attached" | set-cell-value @process_rect }}

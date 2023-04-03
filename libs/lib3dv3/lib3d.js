@@ -279,6 +279,10 @@ export function subrenderer( env,opts )
   // todo ориентироваться на dom-размеры..
   var default_camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 10000000 );
   var private_camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 10000000 );
+  
+  //private_camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 0.01, 10000000 );
+  //console.log("pr",private_camera)
+  
   private_camera.layers.enable(1);
 
   env.setParam('private_camera',private_camera);
@@ -295,6 +299,24 @@ export function subrenderer( env,opts )
     if (cam?.params) 
         cam = cam.params.output; // случай когда камеру залинковали на объект
     if (!cam || !cam.isCamera) return;
+    
+    // threejs таков, что чтобы orbitcontrol работал он должен работать с правильным типом камеры
+    // поэтому мы пересоздаем целевую камеру каждый раз при смене режима орто-неорто
+    // но и далее - необходимо чтобы и финальная камеры была такого же типа
+    // поэтому вот пересоздаем
+    console.log("sr cam changed")
+    if (cam.isPerspectiveCamera && private_camera.isOrthographicCamera) {
+      private_camera = new THREE.PerspectiveCamera( 75, 1, 0.01, 10000000 );
+      installed_w = installed_h = 1
+      console.log("sr switching to persp");
+    } else
+    if (private_camera.isPerspectiveCamera && cam.isOrthographicCamera) {
+      private_camera = new THREE.OrthographicCamera( 0,1,1,0, 0.01, 10000000 );
+      installed_w = installed_h = 1
+      console.log("sr switching to ortho");
+    }
+    private_camera.layers.enable(1);
+    env.setParam('private_camera',private_camera);
 
     cam.add( private_camera ); // рулите мноею
 
@@ -311,6 +333,8 @@ export function subrenderer( env,opts )
     let cam = private_camera;
     //debugger
     // т.е render3d camera=@somecam
+    
+    
 
     // фича - управление размерами. Альтернативно можно сделать Resize Observer Api
     // и опять вечный вопрос компоновки. вот жеж оно опять вылазиет
@@ -327,9 +351,17 @@ export function subrenderer( env,opts )
       // но можно конечно переписывать каждый раз мы не гордые
 
       if (installed_h > 0) {
-        cam.aspect = installed_w / installed_h;
+        if (cam.isOrthographicCamera) {
+          cam.left = -installed_w / 2
+          cam.right = installed_w / 2
+          cam.top = installed_h / 2
+          cam.bottom = - installed_h / 2
+          //console.log("this o-cam",cam)
+        }
+        else
+          cam.aspect = installed_w / installed_h;
         // console.log("updated cam aspect", cam.aspect)
-        cam.updateProjectionMatrix();  
+        cam.updateProjectionMatrix();
       }
       //console.log("renderer setsize",installed_w,installed_h,de, de.offsetWidth)
     }  
@@ -345,6 +377,12 @@ export function subrenderer( env,opts )
     */
     //cam.updateMatrixWorld();
 
+    //console.log('zz',cam.parent?.zoom )
+    if (cam.parent?.zoom != cam.zoom) {
+      cam.zoom = cam.parent.zoom // нет слов
+      cam.updateProjectionMatrix();
+    }
+    
     cam.updateWorldMatrix(true);
     // todo - оптимизировать это, там стока не надо умножений
     // передать final-camera во фрустум куллер
@@ -637,11 +675,11 @@ export function camera3d( env ) {
   // значение znear 0.001 ТОЖЕ дает любопытнейший глюк збуфера
   //var cam = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.001, 100000 );
   var cam = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.01, 1000*1000 );
-  /*
+  
   let width = window.innerWidth;
   let height = window.innerHeight;
-  var cam = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 0.01, 1000*1000 );
-  */
+  cam = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 0.01, 1000*1000 );
+  
   cam.vrungel_camera_env = env;
   let a1, a2;
   
@@ -650,6 +688,27 @@ export function camera3d( env ) {
   env.addVector( "center", [0,0,0], 3 );  
   // env.addGui( {"type": "custom", "editor":"vector-editor"});
   env.addSlider("theta",0,-180,180,0.1);
+  
+  env.addCheckbox("ortho",false)
+  env.setParam("ortho_zoom",1)
+  
+  env.onvalue( "ortho", (v) => {
+    // console.log("ortho=",v)
+    let width = 100;
+    let height = 100;
+
+    if (v)
+      cam = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 0.01, 1000*1000 );
+    else
+      cam = new THREE.PerspectiveCamera( 75, width/height, 0.01, 1000*1000 );
+    cam.vrungel_camera_env = env;
+    cam.zoom = env.params.ortho_zoom
+
+    env.setParam( "pos", env.params.pos.slice(0) )
+    env.setParam( "center", env.params.center.slice(0) )
+    
+    env.setParam("output",cam );
+  })
 
   env.onvalue( "pos", (v) => {
      //console.log("camera onval pos",v,cam)
@@ -680,6 +739,11 @@ export function camera3d( env ) {
   env.addCmd("reset",() => {
     env.setParam( "pos",[0,0,10]);
     env.setParam( "center",[0,0,0]); // look_at?
+  })
+  
+  env.addCmd("look_x",() => {
+    env.setParam( "pos",[10,0,0]); // по идее не 10 а текущий радиус
+    env.setParam( "center",[0,0,0])
   })
 
   env.setParamOption("external_set","visible",false);
@@ -765,6 +829,8 @@ export function orbit_control( env ) {
       cc = new OrbitControls( c, dom );
 
     env.setParam("threejs_control",cc);
+    
+    if (c.isOrthographicCamera) cc.panSpeed = 6;
 
     //console.log("made",cc)
 
@@ -820,7 +886,7 @@ export function orbit_control( env ) {
             cc.manualTheta = nv;
             cc.update();
          }
-         skip_camera_update=false;        
+         skip_camera_update=false;
       }
 
     }
@@ -846,6 +912,8 @@ export function orbit_control( env ) {
           c.vrungel_camera_env.external_set( c.position, cc.target, ( cc.getAzimuthalAngle() * 360 / (2*Math.PI)) );
           //console.log('orbitcontrols',env.$vz_unique_id,': i send new theta to camera ',cc.getAzimuthalAngle())
           c.vrungel_camera_env.setParam("theta", ( cc.getAzimuthalAngle() * 360 / (2*Math.PI)), false);
+          if (c.zoom)
+              c.vrungel_camera_env.setParam("ortho_zoom", c.zoom )
           skip_camera_reaction = false;
         }
           // так-то можно и аргумент - камеру )))

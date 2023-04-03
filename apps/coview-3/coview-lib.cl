@@ -197,6 +197,8 @@ feature "camera" {
         gui-slot @ccc "pos"    gui={ |in out| gui-vector @in @out }
         gui-slot @ccc "center" gui={ |in out| gui-vector @in @out }
         gui-slot @ccc "theta"  gui={ |in out| gui-slider @in @out min=-180 max=180 step=0.1 }
+        gui-slot @ccc "ortho"  gui={ |in out| gui-checkbox @in @out }
+        gui-slot @ccc "ortho_zoom"  gui={ |in out| gui-slider @in @out min=0.01 max=100 step=0.01 }
       }
     }
     param-info "theta" out=true in=true

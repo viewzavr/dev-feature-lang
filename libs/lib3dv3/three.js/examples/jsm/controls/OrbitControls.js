@@ -459,6 +459,7 @@ class OrbitControls extends EventDispatcher {
 				} else if ( scope.object.isOrthographicCamera ) {
 
 					// orthographic
+					//console.log("pan with zoom",scope.object.zoom )
 					panLeft( deltaX * ( scope.object.right - scope.object.left ) / scope.object.zoom / element.clientWidth, scope.object.matrix );
 					panUp( deltaY * ( scope.object.top - scope.object.bottom ) / scope.object.zoom / element.clientHeight, scope.object.matrix );
 

@@ -425,7 +425,7 @@ feature "addon-camera-center" {
        //console-log "privet medved" @show_3d_scene
        if @vp.visible {
 
-          letinfo: let cam1 = @show_3d_scene.camera.output
+          letinfo: let cam1 = @show_3d_scene.camera
           let scene_items = @show_3d_scene.scene3d
 
           //console-log "cam=" @cam1 "letinfo=" @letinfo
@@ -470,7 +470,7 @@ feature "addon-click-intersect" {
        //console-log "privet medved" @show_3d_scene
        if @vp.visible {
 
-          letinfo: let cam1 = @show_3d_scene.camera.output
+          letinfo: let cam1 = @show_3d_scene.camera
           let scene_items = @show_3d_scene.scene3d
 
           //console-log "cam=" @cam1 "letinfo=" @letinfo
