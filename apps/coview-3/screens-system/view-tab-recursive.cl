@@ -594,7 +594,7 @@ feature "show_3d_scene_r" {
           bgcolor=[0.1,0.2,0.3]
           target=@scene_3d_view
           input=@scene_3d_view->scene3d // кстати идея так-то сделать аналог и для 2д - до-бирать детей отсель
-          camera=@scene_3d_view->camera
+          threejs_camera=@scene_3d_view.camera.output
           //{{ console_log_params "UUURRR" }}
       {
           //camera3d pos=[-400,350,350] center=[0,0,0];
@@ -644,7 +644,7 @@ feature "show_area_3d" {
         }}
 
         scene3d=(concat @scene3d_items @scene3d_envs | arr_flat | arr_compact | pass_input_if @area_rect.input.visible)
-        camera=@area_rect.input.camera.output
+        camera=@area_rect.input.camera
         style="width:100%; height:100%;"
         // camera_control=@area_rect.input.camera_control
         // {{ @area_rect->input | geta "sources" | get-cell "show-view-attached" | set-cell-value @process_rect }}

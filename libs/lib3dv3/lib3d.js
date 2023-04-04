@@ -296,9 +296,7 @@ export function subrenderer( env,opts )
   // а получается положение свое она берет из camera (как ее ребенок) (что нам и требуется)
 
   ////////////////////////////////////// тема камеры
-  env.onvalue('camera',(cam) => {
-    if (cam?.params) 
-        cam = cam.params.output; // случай когда камеру залинковали на объект
+  env.onvalue('threejs_camera',(cam) => {
     if (!cam || !cam.isCamera) return;
     
     // threejs таков, что чтобы orbitcontrol работал он должен работать с правильным типом камеры
@@ -379,7 +377,7 @@ export function subrenderer( env,opts )
     //cam.updateMatrixWorld();
 
     //console.log('zz',cam.parent?.zoom )
-    if (cam.parent?.zoom != cam.zoom) {
+    if (cam.parent && cam.parent?.zoom != cam.zoom) {
       cam.zoom = cam.parent.zoom // нет слов
       cam.updateProjectionMatrix();
     }
@@ -462,7 +460,7 @@ export function subrenderer( env,opts )
   //env.monitor_children_output;
   mon( (o) => {
     if (o.isCamera) {
-      env.setParam("camera",o);
+      env.setParam("threejs_camera",o);
       return;
     }
     if (o.isObject3D)
@@ -836,14 +834,14 @@ export function orbit_control( env ) {
   let unsub = () => {};
 
   // смотрим на камеру верхнего окружения
-  if (!env.paramAssigned("camera"))
-       env.linkParam("camera","..->camera");
+  if (!env.paramAssigned("threejs_camera"))
+       env.linkParam("threejs_camera","..->threejs_camera");
   if (!env.paramAssigned("target_dom"))
      env.linkParam("target_dom","..->target_dom"); // т.е. там рендерер подразумевается или кто..     
 
   env.addComboValue("type","orbit",["orbit","map"])
 
-  env.onvalues(["type","camera","target_dom"],update);
+  env.onvalues(["type","threejs_camera","target_dom"],update);
 
   env.on("remove",() => {
     unsub();
@@ -855,9 +853,7 @@ export function orbit_control( env ) {
 
     //console.log("orbit-control: update, cam=",env.params.camera)
 
-    var c = env.params.camera;
-    if (c?.params)
-        c = c.params.output;
+    var c = env.params.threejs_camera;
     var dom = env.params.target_dom;
     //if (typeof(dom) == "function") dom = dom(); // фишка такая
     // т.е. родителем должен быть некто
