@@ -1,0 +1,2 @@
+ While the variable $x represents its current value, the variable $x{1} represents the last value it had, $x{2} represents the value before that, and so on…
+ https://purpleidea.com/blog/2018/02/05/mgmt-configuration-language/

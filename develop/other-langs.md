@@ -1,5 +1,9 @@
 В чем-то похожие интересные языки.
 
+# mgmt
+https://purpleidea.com/blog/2018/02/05/mgmt-configuration-language/
+https://github.com/purpleidea/mgmt/
+
 # rebol
 http://re-bol.com/rebol_quick_start.html#section-2
 https://www.red-lang.org/p/getting-started.html
