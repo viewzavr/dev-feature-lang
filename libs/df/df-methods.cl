@@ -1,3 +1,9 @@
+feature "df_get_columns" {
+  x: object output = (m-eval {: df=@x.input |
+    return df?.colnames || []
+  :})
+}
+
 // df_get - вытаскивает 1 колонку
 // вход: input, column
 //   input - датафрейм
@@ -146,3 +152,37 @@ register_feature name="df_filter_fast"
 */
 
 //geta (m_apply "(df,func) => df.df_filter_fast(func)" @input (m_apply ....код...))
+
+// todo..
+feature "df_append_rows" {: env |
+  env.trackParam(0, arr => {
+    let df = env.params.input
+    if (!df?.is_df) return
+  })
+:}
+
+load "misc"
+let df_lib = (import_js (resolve_url "./df.js"))
+feature "df-merge" {: env |
+  env.onvalue(0,(list) => {
+    if (!(Array.isArray(list) && list.length > 0)) {
+      env.setParam( "output", this._.df_lib.create() )
+      return
+    }
+    if (!(list && list[0] && list[0].clone)) {
+      env.setParam( "output", this._.df_lib.create() )
+      return
+    }
+    console.log("df-merge mergin",list)
+
+    let df = list[0].clone()
+    for (let i=1; i<list.length; i++) {
+      let df2 = list[i];
+      if (!df2) continue
+      for (let name of df2.colnames) {
+        df.add_column( name, df2.get_column(name) )
+      }
+    }
+    env.setParam("output",df)
+  })
+:}

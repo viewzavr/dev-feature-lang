@@ -189,6 +189,7 @@ feature "timer-ms" `
  env.on('remove',() => { unsub() } )
 `;
 
+// todo optimize сейчас появился прямой апи в браузерах
 feature "get_query_param" `
     function getParameterByName(name) {
       name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -519,11 +520,11 @@ feature "add-to-scope" {: env |
 // но в руби funcname это вызов, а Scope.method(:methodname) это получение указателя на него. Хм.
 
 feature "jsfunc" {
-  f: object {
+  f: object asap=false {
     //add-to-scope name=@f.0 value=@f.1
     //console-log "registering feature" @f.0
     feature @f.0 {
-      x: object output=(y: m-eval @f.1 {{ append-positional-params @x }})
+      x: object asap=@f.asap output=(y: m-eval @f.1 {{ append-positional-params @x }} asap=@x.asap)
       {{
       m-eval {: x=@x y=@y | 
         // добавим ссылку на input
@@ -672,3 +673,34 @@ feature "json" "
 
   go();
 ";
+
+// get-params @someobj   => словарь параметров
+feature "get-params" {: env |
+
+  let unsub = () => {}
+  env.onvalue(0, (src) => {
+    unsub()
+    unsub = src.on("param_changed",() => {
+      let q = {...src.params}
+      delete q['manual_restore_performed']
+      env.setParam( "output", q )
+    })
+  })
+  env.on("remove",() => unsub() )
+
+:}
+
+// assign-params input=@someobj_or_array @params
+// присваивает объекту someobj параметры указанные
+feature "assign-params" {: env |
+  env.onvalues(["input",0], (tgt,params) => {
+    if (!Array.isArray(tgt)) tgt = [tgt]
+    for (let obj of tgt) {
+      for (let pname of Object.keys(params)) {
+        let val = params[pname]
+        obj.setParam( pname, val )
+      }
+    }
+  })
+
+:}

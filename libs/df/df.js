@@ -18,6 +18,7 @@ export function create() {
   // времянка такая
   df.create_from_df_filter = (f) => create_from_df_filter( df, f );
   df.create_from_df_filter_fast = (f) => create_from_df_filter_fast( df, f );
+  df.create = create
 
   // короче решено таки эти методы таскать вместе с df
   // и тогда можно делать разные реализации...
@@ -46,7 +47,7 @@ export function append_row( df, values ) {
   }
 }
 
-export function add_column( df, name, values, position=10000 ) {
+export function add_column( df, name, values = [], position=10000 ) {
   if (df.colnames.indexOf(name) < 0)
   {
     if (position < 0)
@@ -141,6 +142,17 @@ export function create_from_arrays( array_of_arrays, colnames ) {
       add_column( r, name, data );
       i++;
   });
+
+  return r;
+}
+
+export function create_from_rows( array_of_rows, colnames ) {
+  var r = create();
+  for (let c of colnames)
+    add_column( r, c )
+
+  for (let row of array_of_rows)
+      append_row( r, row )
 
   return r;
 }

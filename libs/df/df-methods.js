@@ -17,7 +17,8 @@ export function df_create(env) {
  env.feature("df_set")
 }
 
-/* df_create_from_arrays columns=["X,Y,Z,TEXT"] input=(list @arr1 @arr2);
+/* df_create_from_arrays columns=["X,Y,Z,TEXT"] input=(list @row1_arr @row2_arr);
+   т.е. input это массив строк, а каждая строка - массив значений в порядке columns
 */
 export function df_create_from_arrays(env) {
   env.onvalues(["input","columns"],(value,columns) => {
@@ -30,6 +31,20 @@ export function df_create_from_arrays(env) {
   });
 }
 
+/* df_create_from_rows columns=["X,Y,Z,TEXT"] input=(list @row1 @row2 ...)
+   input это массив словарей с именами и значениями колонок
+*/
+export function df_create_from_rows(env) {
+  env.onvalues(["input","columns"],(value,columns) => {
+   if (!Array.isArray(value)) {
+      console.error( "df_import_arrays: incoming value is not array", value)
+      return
+   };
+   let output = df.create_from_rows(value, columns);
+   env.setParam("output",output)
+  });
+}
+
 // создает новую df из выбранных колонок входной df
 // пример: df_set X=<значение> Y="->Z"
 // тогда в колонке X будет константа указанного значения, а в Y - скопируется колонка Z
@@ -37,7 +52,6 @@ export function df_create_from_arrays(env) {
 // при этом старые колонки сохраняются
 export function df_set( env, opts ) {
  //Object.keys( args ) 
- 
 
   function process () {
     let value = env.params.input;
@@ -49,16 +63,22 @@ export function df_set( env, opts ) {
    var output = df.create_from_df_no_slice( value );
 
    var cols = env.getParamsNames();
+
    var colvals = env.params;
+   console.log("df-set",{cols,colvals})   
    // моно сделать фильтр что выставлено из языка
    //console.log("df set - begin stage")
    for (let colname of cols) {
      if (colname == "output" || colname == "input") continue
 
      let colvalue = colvals[colname];
+     
+     if (colvalue == null || isNaN( colvalue )) {
+       continue; // оставить..
+     }
 
      if (colname == "length") { // особый случай
-       df.set_length( output, colvalue)       
+       df.set_length( output, colvalue)
        continue
      }
 
@@ -109,6 +129,7 @@ export function df_set( env, opts ) {
  env.feature("delayed")
  let process_delayed = env.delayed( process )
  env.on('param_changed',(pn) => {
+  console.log("df-set: see param changed",pn)
   if (pn == "output") return
   process_delayed(); // потому что мало ли там будут шпарить..
   // но это кстати некий аналог потактовой обработки lingua franca
@@ -297,7 +318,7 @@ export function df_interleave( env ) {
     }
 
     let res = df.create();
-    for (let name of df1.get_column_names()) 
+    for (let name of df1.get_column_names())
     {
       let acc = [];
       let col = df1[name];
@@ -316,3 +337,4 @@ export function df_interleave( env ) {
     env.setParam("output",res);
   });
 }
+

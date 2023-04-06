@@ -11,6 +11,8 @@ export function setup(vz, m) {
 // реализация n-func
 // nfunc code=code positional_args=["list","of","names"] named_args1=... named_arg2=...
 // см также в pegjs код js_inline 
+
+import {js_access_compalang_scope} from "./mike.js"
 export function n_func( env )
 {
   //env.monitor_values
@@ -69,6 +71,7 @@ export function n_func( env )
   	//    code = `return (${code})`; // смело, но удобно. но видимо не исчерпает..
 
   	let all_args = arr.concat( env.params.positional_args || [] )
+  	//let scope = {}
   	let f1 = (new Function( all_args, code ))
   	// console.log("f1=",code)
 
@@ -77,6 +80,8 @@ export function n_func( env )
   		let res = f1.apply( env, all_vals )
   		return res
   	}
+  	env._ = js_access_compalang_scope( env ) // F-FUNC-ACCESS-SCOPE
+  	// времянка такая. посмотреть будет ли использоваться. исп this._.somename
 
   	env.setParam("output", output_f)
   }

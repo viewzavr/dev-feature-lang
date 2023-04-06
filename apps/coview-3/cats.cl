@@ -642,32 +642,7 @@ feature "cv_mesh" {
   }
 }
 
-///////////////////// фильтр датафрейма
-coview-record title="Фильтр данных" type="cv_df_filter_bynum" cat_id="process"
 
-// вопрос как передать addons в меш..
-feature "cv_df_filter_bynum" {
-  vp: process
-   title="Фильтр данных"
-   gui={ paint-gui @vp }
-   output=(df-slice input=@vp->input start=@vp.index count=1) 
-   index=0
-   {
-    param-info "input" in=true out=true // df-ка
-    param-info "output" in=true out=true // df-ка
-    param-info "index" in=true out=true
-
-    gui debug=true {
-      gui-tab "main" {
-        gui-slot @vp "input" gui={ |in out| gui-df @in @out }
-
-        gui-slot @vp "index" gui={ |in out| gui-slider @in @out min=0 max=(@vp.input.length - 1) step=1 }
-
-        gui-slot @vp "output" gui={ |in out| gui-df @in @out }
-      }
-    }
-  }
-}
 
 /////////////////////
 /*
@@ -799,5 +774,104 @@ feature "scene_intersector" {
         //console.log( "click", event_data, threejs_camera,scene_items,dom)
     :}
 
+  }
+}
+
+///////////////////// фильтр датафрейма
+coview-record title="Фильтр данных DF" type="cv_df_filter_bynum" cat_id="process"
+
+// вопрос как передать addons в меш..
+feature "cv_df_filter_bynum" {
+  vp: process
+   title="Фильтр данных DF"
+   gui={ paint-gui @vp }
+   output=(df-slice input=@vp->input start=@vp.index count=1) 
+   index=0
+   {
+    param-info "input" in=true out=true // df-ка
+    param-info "output" in=true out=true // df-ка
+    param-info "index" in=true out=true
+
+    gui debug=true {
+      gui-tab "main" {
+        gui-slot @vp "input" gui={ |in out| gui-df @in @out }
+
+        gui-slot @vp "index" gui={ |in out| gui-slider @in @out min=0 max=(@vp.input.length - 1) step=1 }
+
+        gui-slot @vp "output" gui={ |in out| gui-df @in @out }
+      }
+    }
+  }
+}
+
+coview-record title="Таблица (DF)" type="cv_df" cat_id="process"
+
+// вопрос как передать addons в меш..
+feature "cv_df" {
+  vp: process (df_create)
+   title="Таблица (DF)"
+   gui={ paint-gui @vp }
+   output=@vp.0
+//   output=(create_df)
+   index=0
+   {
+    param-info "output" in=true out=true // df-ка
+
+    gui debug=true {
+      gui-tab "main" {
+        gui-slot @vp "output" gui={ |in out| gui-df @in @out }
+      }
+    }
+  }
+}
+
+coview-record title="Заменить столбец (DF)" type="cv_df_set" cat_id="process"
+
+feature "cv_df_set" {
+  vp: process
+   title="Заменить столбец (DF)"
+   gui={ paint-gui @vp }
+   output=(read @vp.input | zz: df-set {{ read @zz | assign-params (get-params @coefs | console-log-input "KKK=") }})
+   index=0
+   {
+    param-info "input" in=true out=true // df-ка
+    param-info "output" out=true
+    
+    coefs: object
+
+    gui {
+      gui-tab "main" {
+        gui-slot @vp "input" gui={ |in out| gui-df @in @out }
+        gui-slot @vp "output" gui={ |in out| gui-df @in @out }
+        read @vp.input | df_get_columns | repeater { |colname|
+          gui-slot @coefs @colname gui={ |in out| gui-float @in @out }
+        }
+      }
+    }
+
+  }
+}
+
+coview-record title="Соединить колонки (DF)" type="cv_df_merge" cat_id="process"
+
+feature "cv_df_merge" {
+  vp: process
+   title="Соединить колонки (DF)"
+   gui={ paint-gui @vp }
+   output=(df-merge (list (read @vp.input_2 | df-set X2="->X" Y2="->Y" Z2="->Z") @vp.input))
+   index=0
+   {
+    param-info "input" in=true out=true // df-ка
+    param-info "output" out=true
+    
+    coefs: object
+
+    gui {
+      gui-tab "main" {
+        gui-slot @vp "input" gui={ |in out| gui-df @in @out }
+        gui-slot @vp "input_2" gui={ |in out| gui-df @in @out }
+        gui-slot @vp "output" gui={ |in out| gui-df @in @out }
+      }
+    }
   }
 }

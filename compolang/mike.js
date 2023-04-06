@@ -101,12 +101,14 @@ export function m_eval( env ) {
   //var eval_delayed = env.delayed( evl )
 
   var eval_delayed0 = env.delayed( evl )
-  var eval_delayed = () => { 
+  var eval_delayed = () => {
     if (env.params.debug)
        debugger;
-    eval_delayed0();
+    if (env.params.asap)
+      evl()
+    else
+      eval_delayed0();
   }
-  
 
   env.on('param_changed', (name) => {
 
@@ -203,7 +205,9 @@ export function m_lambda( env,opts ) {
   env.feature("m_apply",opts);
 }
 
-function js_access_compalang_scope( env ) {
+// идея мб стоит каналы тут всегда возвращать.. а доступ к чтению как в angular signals - ().
+// итого будет scope.x() и scope.x.set(55)
+export function js_access_compalang_scope( env ) {
   return new Proxy({}, {
     set: function(target, prop, value, receiver) {
       //target[prop] = value
@@ -224,7 +228,7 @@ function js_access_compalang_scope( env ) {
       // оказалось что мы запускаем вложенные скопы on-message={ |a b c| .. }
       while (!item && s.$lexicalParentScope)
       {
-        s=s.$lexicalParentScope; 
+        s=s.$lexicalParentScope;
         item = s[prop]
       }
       if (!item)
@@ -240,12 +244,12 @@ function js_access_compalang_scope( env ) {
       
       if (item.setParam && item.is_feature_applied('is_positional_env')) // там сидит позиционное
           return item.params[0];
-      if (item.is_cell)  
+      if (item.is_cell)
           return item.get();
 
-      return item;  
+      return item;
       //return Reflect.get(...arguments);
-    } 
+    }
     })
 }
 
