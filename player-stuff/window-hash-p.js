@@ -194,6 +194,8 @@ export function save_state_to_window_hash( player ) {
 */
 
   // пишет в хеш объект
+  // вариант с записью в query-параметр. Минус - это посылается на сервер. А вот хеш-часть не посылается
+  /*
   function write_to_hash(obj) {
      var strpos = JSON.stringify( obj );
      if (strpos.length > 1024*1024) {
@@ -220,3 +222,51 @@ export function save_state_to_window_hash( player ) {
        }
      return oo;
   }
+  */
+  
+  /* итак используется таки запись в хеш т.е. после # потому что это не отправляется браузеру, а квери-параметр отправляется и там нжинкс начинает очень быстро плакать
+     мол длинная строка (хотя 64 на хеш дается).
+     и плюс делается кодировка encodeuricomponent т.к. терминал и жмейл воспринимают такие ссылки, а если оставлять {{}} символы то не воспринимает.
+     да читаемость становится никакая ну и ладно зато ссылки работают */
+  
+  function write_to_hash(obj) {
+    //console.log("write_to_hash",obj);
+     var strpos = JSON.stringify( obj );
+     strpos = encodeURIComponent( strpos );
+     if (strpos.length > 1024*1024) {
+       console.error("Viewzavr: warning: program state is too long!",strpos.length );
+       console.error( strpos );
+     }
+     // это добавляет историю в браузер а нам не надо ибо много во время особенно анимации вращения
+     //location.hash = strpos;
+     // а этот вариант историю не добавляет - норм
+     history.replaceState(undefined, undefined, "#"+strpos)
+  }
+
+  // читает из хеша объект
+  function read_from_hash() {
+      var oo = {};
+       try {
+         var s = location.hash.substr(1);
+         if (s.length <= 0) return oo;
+         // we have 2 variations: use decode and use replace %20.
+         // at 2020 we see Russian language in objects, thus we use variant with decode.
+         s = decodeURIComponent( s );
+         oo = JSON.parse( s );
+       } catch(err) {
+         //console.error("read_hash_obj: failed to parse. err=",err);
+         var s = location.hash.substr(1);
+         console.error("str was",s, "location.hash is ",location.hash);
+         // sometimes url may be converted. decode it.
+         try {
+           //oo = JSON.parse( decodeURIComponent( location.hash.substr(1) ) );
+           // если не получилось с decode - попробуем без него
+           oo = JSON.parse( s );
+         }
+         catch (err2) {
+           console.error("read_hash_obj: second level of error catch. err2=",err2);
+           // do nothing
+         }
+       }
+     return oo;
+}

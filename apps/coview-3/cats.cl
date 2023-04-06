@@ -858,7 +858,7 @@ feature "cv_df_merge" {
   vp: process
    title="Соединить колонки (DF)"
    gui={ paint-gui @vp }
-   output=(df-merge (list (read @vp.input_2 | df-set X2="->X" Y2="->Y" Z2="->Z") @vp.input))
+   output=(df-merge (list (read @vp.input_2 | df-set X2="->X" Y2="->Y" Z2="->Z" | console-log-input "I2 C2") @vp.input))
    index=0
    {
     param-info "input" in=true out=true // df-ка
