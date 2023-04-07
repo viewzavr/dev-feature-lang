@@ -1,3 +1,19 @@
+// read @df | df_convert {: df index row | return {...df.get_row(index),X:index} :}
+/* функция fn получает на вход строку df, а на выходе должна выдать null, строку df или массив строк.
+   todo мб это оптимизировать всё стоит..
+*/
+feature "df_convert" {: env |
+  if (!env.paramAssigned(1))
+     env.setParam(1,true)
+
+  env.onvalues(["input",0,1], (df, fn, arg) => {
+    //console.log("df-convert processing...",df,fn)
+    if (!fn.bind) fn = eval( fn ); // типа строка..
+    let res = df.create_from_df_convert( fn, arg )
+    env.setParam( "output",res )
+  })
+:}
+
 feature "df_get_columns" {
   x: object output = (m-eval {: df=@x.input |
     return df?.colnames || []
@@ -35,45 +51,6 @@ register_feature name="df_get"
     env.setParam("output",o);
   }
 `;
-/*
-// df_div - делит колонку column датайферма input на коэффициент coef
-// возвращает df как input но с обновленной колонкой
-// @idea df_normalize ?
-// @idea применять методы arr_* в контексте df как-то?
-register_feature name="df_div" code=`
-  env.onvalue("input",process);
-  env.onvalue("coef",process);
-  env.onvalue("column",process);
-
-  function process() {
-    var df = env.params.input;
-    if (!df || !df.isDataFrame || !df[ env.params.column ] || !env.params.coef) {
-      env.setParam("output",[]);
-      return;
-    }
-    df = df.clone();
-    df[env.params.column] = df[env.params.column].map( v => v / env.params.coef );
-    env.setParam("output",df);
-  }
-`;
-
-register_feature name="df_mul" code=`
-  env.onvalue("input",process);
-  env.onvalue("coef",process);
-  env.onvalue("column",process);
-
-  function process() {
-    var df = env.params.input;
-    if (!df || !df.isDataFrame || !df[ env.params.column ] || !env.params.coef) {
-      env.setParam("output",[]);
-      return;
-    }
-    df = df.clone();
-    df[env.params.column] = df[env.params.column].map( v => v * env.params.coef );
-    env.setParam("output",df);
-  }
-`;
-*/
 
 feature "df_mul" {
   df_operation func={: orig coef | return orig*coef :}
@@ -100,7 +77,7 @@ feature "df_sub" {
 // read @df | df_filter {: df index | return df.X[index] > 5 :}
 
 // в качестве фантазии на будущее: df_filter X={: x | return x > 5:} это фильтрация по значению колонки
-feature "df_filter" 
+feature "df_filter"
   `
   env.feature("param-alias");
   env.addParamAlias("code",0);
@@ -128,30 +105,6 @@ feature "df_filter"
   });
 */  
 `;
-/*
-register_feature name="df_filter_fast" 
-  code=`
-  env.feature("param-alias");
-  env.addParamAlias("code",0);
-  env.onvalues(["input","code"],process);
-
-  function process(df,code) {
-    if (!df || !df.isDataFrame) {
-      env.setParam("output",[]);
-      return;
-    }
-    
-    var f=code;
-    if (typeof(f) == 'string') f = eval( f );
-
-    var res = df.create_from_df_filter( f );
-    env.setParam("output",res);
-  }
-
-`;
-*/
-
-//geta (m_apply "(df,func) => df.df_filter_fast(func)" @input (m_apply ....код...))
 
 // todo..
 feature "df_append_rows" {: env |
@@ -161,6 +114,7 @@ feature "df_append_rows" {: env |
   })
 :}
 
+// это строанное
 load "misc"
 let df_lib = (import_js (resolve_url "./df.js"))
 feature "df-merge" {: env |

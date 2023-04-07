@@ -31,6 +31,7 @@ export function create() {
   df.get_length = get_length.bind( undefined, df );
   df.get_rows = get_rows.bind( undefined, df );
   df.append_row = append_row.bind( undefined, df );
+  df.create_from_df_convert = create_from_df_convert.bind( undefined, df )
 
   // аксессоры
 
@@ -45,6 +46,7 @@ export function append_row( df, values ) {
     else 
       df[name].push( is_string_column( df,name ) ? "" : 0 )
   }
+  df.length = df.length + 1
 }
 
 export function add_column( df, name, values = [], position=10000 ) {
@@ -167,6 +169,38 @@ export function create_from_df_no_slice( src ) {
   get_column_names(src).forEach( function(name) {
       add_column( r, name, get_column(src,name) );
   });
+
+  return r;
+}
+
+// filter_func получает на вход аргумент df, index, row, arg
+// на выход - null, row или массив row
+export function create_from_df_convert( src, filter_func, arg ) {
+  var r = create();
+  var len = get_length( src );
+
+  var conames = get_column_names(src);
+  var line = {};
+  let columns_configured = false
+  let configure_columns = (line) => {
+    configure_columns = () => {}
+    for (let name of Object.keys(line))
+      add_column( r, name )
+  }
+
+  for (var i=0; i<len; i++) {
+    // подготовим строку
+    conames.forEach( (name) => line[name] = get_column(src,name)[i] );
+    // вызовем функцию
+    var res = filter_func( src, i, line, arg );
+    if (res) {
+      if (!Array.isArray(res)) res = [res];
+      for (let newline of res) {
+        configure_columns( newline )
+        append_row( r, newline )
+      }
+    }
+  }
 
   return r;
 }
