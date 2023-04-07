@@ -749,6 +749,7 @@ feature "select_incoming_file" {
 
 	  	  		 	 let link = links_storage_place.vz.createObj( {parent:links_storage_place, manual: true})
 	  	  		 	 link.setParam("manual",true,true)
+	  	  		 	 
 	  	  		 	 link.setParam("file",selected_file,true)
 	  	  		 	 link.setParam("to",my_path,true)
 	  	  		 	 //link.setParam("debug",true)
@@ -788,7 +789,16 @@ feature "structure-file" {
 }
 
 feature "structure-link" {
-	link ~structure-element
+	x: link ~structure-element {
+	  // мб с from тоже так проделать?
+	  let objpath = (split-param-path @x.to | geta 0)
+	  let obj = (read @objpath | find-one-object)
+//	  console-log "structure link obj is" @obj "obhpath=" @objpath
+	  reaction (channel @obj "remove") {: x=@x |
+	    console.log("structure-link: target obj is removed, so removing link")
+	    x.remove()
+	  :}
+	}
 }
 
 // кстати добавим потом преобразование, idea
@@ -858,7 +868,8 @@ feature "select_incoming_link" {
 	  	  		 	 //let link = links_storage_place.vz.createObj( {parent:links_storage_place, manual: true})
 	  	  		 	 //let link = links_storage_place.vz.createObjByType( {parent:links_storage_place, manual: true, type: "link"})
 	  	  		 	 let link = links_storage_place.vz.createObj( {parent:links_storage_place, manual: true})
-	  	  		 	 link.setParam("manual",true,true)
+	  	  		 	 // link.setParam("manual",true,true)
+	  	  		 	 // дык неправильно же.. счего это ссылка делает ручное? когда она делает по факту - не ручное. а автоматическое. споткнулся при работе с df
 	  	  		 	 link.setParam("from",selected_source_path,true)
 	  	  		 	 link.setParam("to",my_path,true)
 	  	  		 	 //link.setParam("debug",true)

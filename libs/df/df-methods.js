@@ -65,7 +65,7 @@ export function df_set( env, opts ) {
    var cols = env.getParamsNames();
 
    var colvals = env.params;
-   console.log("df-set",{cols,colvals})   
+   //console.log("df-set",{cols,colvals})   
    // моно сделать фильтр что выставлено из языка
    //console.log("df set - begin stage")
    for (let colname of cols) {
@@ -129,7 +129,7 @@ export function df_set( env, opts ) {
  env.feature("delayed")
  let process_delayed = env.delayed( process )
  env.on('param_changed',(pn) => {
-  console.log("df-set: see param changed",pn)
+  //console.log("df-set: see param changed",pn)
   if (pn == "output") return
   process_delayed(); // потому что мало ли там будут шпарить..
   // но это кстати некий аналог потактовой обработки lingua franca

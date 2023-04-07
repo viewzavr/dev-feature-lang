@@ -601,7 +601,7 @@ feature "show_3d_scene_r" {
 
           //orbit_control;
           // вставляем в r1 camera-control, взятый из параметра - show_3d_scene_r
-          let camera_control = (@r1 | insert-children list=@scene_3d_view->camera_control @r1 @r1.camera @scene_3d_view.dom | geta 0);
+          let camera_control = (@r1 | insert-children list=@scene_3d_view->camera_control @r1 @scene_3d_view.camera @scene_3d_view.dom | geta 0);
           //console-log "thus camera_control=" @camera_control
           
           /* да это красиво. но оно трясется -- изза обратной связи с объектом камеры похоже.

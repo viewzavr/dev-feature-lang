@@ -9,8 +9,16 @@ feature "get-channel-by-path" {
     objpath=@q.splitted.0
     paramname=@q.splitted.1
     output=(find-one-object input=@q->objpath | channel @q->paramname manual=@q->manual?)
-  ;
-};
+}
+
+
+// 0, input - путь вида objpath->name
+// выход - пара objpath, name
+feature "split-param-path" {
+  q: object
+    input=@.->0
+    output = (m_eval "(str) => str.split('->')" @q->input)
+}
 
 /*
 // 0 одна ячейка

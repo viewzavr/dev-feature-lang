@@ -831,12 +831,12 @@ feature "cv_df_set" {
   vp: process
    title="Заменить столбец (DF)"
    gui={ paint-gui @vp }
-   output=(read @vp.input | zz: df-set {{ read @zz | assign-params (get-params @coefs | console-log-input "KKK=") }})
+   output=(read @vp.input | zz: df-set {{ read @zz | assign-params (get-params @coefs) }})
    index=0
    {
     param-info "input" in=true out=true // df-ка
     param-info "output" out=true
-    
+
     coefs: object
 
     gui {

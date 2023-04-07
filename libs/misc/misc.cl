@@ -680,11 +680,13 @@ feature "get-params" {: env |
   let unsub = () => {}
   env.onvalue(0, (src) => {
     unsub()
-    unsub = src.on("param_changed",() => {
+    let qq = () => {
       let q = {...src.params}
       delete q['manual_restore_performed']
       env.setParam( "output", q )
-    })
+    }
+    qq()
+    unsub = src.on("param_changed",qq)
   })
   env.on("remove",() => unsub() )
 
