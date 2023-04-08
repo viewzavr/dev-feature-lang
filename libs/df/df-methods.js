@@ -35,11 +35,13 @@ export function df_create_from_arrays(env) {
    input это массив словарей с именами и значениями колонок
 */
 export function df_create_from_rows(env) {
+  if (!env.paramAssigned("columns")) env.setParam("columns",[])
   env.onvalues(["input","columns"],(value,columns) => {
    if (!Array.isArray(value)) {
       console.error( "df_import_arrays: incoming value is not array", value)
       return
    };
+   if (columns.length == 0) columns = Object.keys( value[0] || {} )
    let output = df.create_from_rows(value, columns);
    env.setParam("output",output)
   });

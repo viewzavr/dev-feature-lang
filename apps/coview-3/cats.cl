@@ -851,6 +851,33 @@ feature "cv_df_convert" {
   }
 }
 
+coview-record title="Преобразовать" type="cv_convert" cat_id="process"
+
+feature "cv_convert" {
+  vp: process
+   title="Преобразовать"
+   gui={ paint-gui @vp }
+   output=(read @vp.input | m-eval @vp.func)
+   func=`(input) => {
+   return input.create_from_df_convert( (df,index,row) => {
+     return [{...row}]
+   })`
+   {
+    param-info "input" in=true out=true // df-ка
+    param-info "output" out=true
+    param-info "func"
+
+    gui {
+      gui-tab "main" {
+        gui-slot @vp "input" gui={ |in out| gui-df @in @out }
+        gui-slot @vp "output" gui={ |in out| gui-df @in @out }
+        gui-slot @vp "func" gui={ |in out| gui-text @in @out }
+      }
+    }
+
+  }
+}
+
 coview-record title="Заменить столбец (DF)" type="cv_df_set" cat_id="process"
 
 feature "cv_df_set" {

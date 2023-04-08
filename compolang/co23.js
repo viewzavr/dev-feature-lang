@@ -81,6 +81,7 @@ export function n_func( env )
   		return res
   	}
   	env._ = js_access_compalang_scope( env ) // F-FUNC-ACCESS-SCOPE
+  	env.state = {} // ну типа для удобства..
   	// времянка такая. посмотреть будет ли использоваться. исп this._.somename
 
   	env.setParam("output", output_f)
@@ -202,13 +203,16 @@ export function reaction( env ) {
 
   function emit_val( v ) {
   	  //if (!func) return
+  	  let res
 
       if (v?.is_event_args && !func.target_is_cell) {
         // развернуть...
-        func.apply( env, v )
+        res = func.apply( env, v )
       }
       else
-        func.call( env, v )
+        res = func.call( env, v )
+        
+      env.setParam("output",res) // хохо - это идея - т.е. это аналог eval только без задержек вообще
   }
 
 }
