@@ -1,3 +1,51 @@
+
+// разделяет df на несколько - по значению указанной колонки
+// input, column
+// output - словарь вида значение column=>df
+// update - output не словарь а массив, так удобнее оказалось и надежнее (словарь ток строки)
+feature "df_split" {: env |
+  env.onvalues(["input","column"],(df,colname) => {
+    let difres = new Set()
+    let col = df.get_column( colname )
+    if (!col) {
+      env.setParam("output",{})
+      return
+    }
+    
+    for (let i=0; i<df.length; i++) {
+       let v = col[i]
+       difres.add( v )
+    }
+    
+    let res = []
+    for (let value of difres.keys()) {
+
+      let dfr = df.create_from_df_filter_fast( (df, index) => {
+        return df[colname][index] == value
+      })
+      res.push( [value, dfr] )
+    }
+    env.setParam("output",res)
+  })
+:}
+
+// строит индекс значений
+// input, column
+// output - словарь вида значение column=>массив_номеров_строк
+feature "df_index" {: env |
+  env.onvalues(["input","column"],(df,colname) => {
+    let res = {}
+    let col = df.get_column( colname )
+    if (col)
+    for (let i=0; i<df.length; i++) {
+       let v = col[i]
+       res[ v ] ||= []
+       res[v].push(i)
+    }
+    env.setParam("output",res)
+  })
+:}
+
 // read @df | df_convert {: df index row | return {...df.get_row(index),X:index} :}
 /* функция fn получает на вход строку df, а на выходе должна выдать null, строку df или массив строк.
    todo мб это оптимизировать всё стоит..
@@ -13,6 +61,11 @@ feature "df_convert" {: env |
     env.setParam( "output",res )
   })
 :}
+
+// синоним - как с arr_map
+feature "df_map" {
+  df_convert
+}
 
 feature "df_get_columns" {
   x: object output = (m-eval {: df=@x.input |

@@ -70,12 +70,16 @@ export function df_set( env, opts ) {
    //console.log("df-set",{cols,colvals})   
    // моно сделать фильтр что выставлено из языка
    //console.log("df set - begin stage")
+   
+   if (env.params.debug) 
+     debugger
+     
    for (let colname of cols) {
      if (colname == "output" || colname == "input") continue
 
      let colvalue = colvals[colname];
      
-     if (colvalue == null || isNaN( colvalue )) {
+     if (colvalue == null) {
        continue; // оставить..
      }
 
@@ -93,6 +97,8 @@ export function df_set( env, opts ) {
         if (Array.isArray(colvalue))
           colarr = colvalue.slice(0)
         else {
+          if (isNaN( colvalue ))
+            continue; // оставить...
           // console.log("making handler for ",colname,"colvalue=",colvalue)
           colarr = new Array( df.get_length(value) ).fill(colvalue); // так то тут выгоднее ставить функцию f(index), чем копировать значения
 

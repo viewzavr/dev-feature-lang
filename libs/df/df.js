@@ -34,6 +34,7 @@ export function create() {
   df.create_from_df_convert = create_from_df_convert.bind( undefined, df )
 
   // аксессоры
+  df.get_row = get_line.bind( undefined, df )
 
   return df;
 }
@@ -196,6 +197,7 @@ export function create_from_df_convert( src, filter_func, arg ) {
     if (res) {
       if (!Array.isArray(res)) res = [res];
       for (let newline of res) {
+        //if (Object.keys
         configure_columns( newline )
         append_row( r, newline )
       }

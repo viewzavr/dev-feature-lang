@@ -24,10 +24,10 @@ export function linestrips( env ) {
     env.addParamMirror(g,"lines-env->"+g);
   })
 
-  env.trackParam("color",(v) => {
-    //console.log("LL:",v);
+  env.onvalue("color",(v) => {
+    console.log("LL:",v);
     //debugger;
-  });
+  })
 
   env.trackParam("radius",(r) => {
     //console.log("r=",r)
@@ -43,6 +43,7 @@ import * as df from "../df/df.js";
 
 // идея - сведем к lines
 // сделаем просто конвертор
+// для разрыва между ломаными используется колонка N (необязательная)
 export function linestrips_to_lines( env ) {
   env.trackParam("input",(dat) => {
     if (!df.is_df(dat)) {

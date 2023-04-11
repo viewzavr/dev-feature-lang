@@ -6,17 +6,18 @@ load "plugins/init.cl"
 
 // Конкретные категории
 
-coview-category title="Загрузка" id="data"
-coview-category title="Программы" id="process"
-coview-category title="Графика" id="gr3d" 
-coview-category title="Надписи" id="gr2d"
+coview-category title="Внешние данные" id="data" ~primary-cat
+coview-category title="Данные" id="datadf" ~primary-cat
+coview-category title="Программы" id="process" ~primary-cat
+coview-category title="Графика" id="gr3d" ~primary-cat
+coview-category title="Надписи" id="gr2d" ~primary-cat
 
 coview-category title="Слои" id="layer"
 coview-category title="Экраны" id="screen"
 coview-category title="Плагины" id="plugin"
 
-coview-record title="Набор файлов" type="cv-select-files" cat_id="data"
-coview-record title="Загрузка списка файлов" type="cv-list-txt" cat_id="data"
+coview-record title="Файлы" type="cv-select-files" cat_id="data"
+coview-record title="Файлы из списка list.txt" type="cv-list-txt" cat_id="data"
 
 //////////////////
 coview-record title="Тест: Генератор сфер" type="test-process" cat_id="process"
@@ -46,7 +47,7 @@ feature "test-process" {
 
 feature "cv-list-txt" {
   x: layer_object
-       title="Загрузка списка файлов"
+       title="Файлы из списка list.txt"
        files=(load-list-txt file=@x->list_url)
        list_url=""
        {
@@ -69,7 +70,7 @@ feature "cv-list-txt" {
 
 feature "cv-select-files" {
   x: layer_object
-    title="Набор файлов"
+    title="Файлы"
     files=(concat @x.own_files @x.child_files)
     own_files=[]
     child_files=(find-objects-bf root=@x "cv-list-txt" depth=1 
@@ -609,6 +610,38 @@ feature "cv_lines" {
   }
 }
 
+coview-record title="Ломаная" type="cv_linestrip" cat_id="gr3d"
+
+// вопрос как передать addons в меш..
+feature "cv_linestrip" {
+  vp: visual-process
+   title="Ломаная"
+   gui={ paint-gui @vp }
+   ~linestrip
+   {
+    param-info "input" in=true out=true // df-ка
+    param-info "positions" in=true out=true // df-ка
+    param-info "colors" in=true out=true // df-ка
+
+    gui debug=true {
+      gui-tab "main" {
+        gui-slot @vp "input" gui={ |in out| gui-df @in @out }
+      }
+
+      gui-tab "positions" {
+        gui-slot @vp "positions" gui={ |in out| gui-array @in @out }
+        gui-slot @vp "colors" gui={ |in out| gui-array @in @out }
+      }
+      
+      gui-tab "view" {
+        render-params @vp
+           filters={ params-hide list="title"; }
+      }
+
+    }
+  }
+}
+
 ///////////////////// меш
 coview-record title="Тримеш" type="cv_mesh" cat_id="gr3d"
 
@@ -778,7 +811,7 @@ feature "scene_intersector" {
 }
 
 ///////////////////// фильтр датафрейма
-coview-record title="Фильтр данных DF" type="cv_df_filter_bynum" cat_id="process"
+coview-record title="Фильтр данных DF" type="cv_df_filter_bynum" cat_id="datadf"
 
 // вопрос как передать addons в меш..
 feature "cv_df_filter_bynum" {
@@ -804,7 +837,7 @@ feature "cv_df_filter_bynum" {
   }
 }
 
-coview-record title="Таблица (DF)" type="cv_df" cat_id="process"
+coview-record title="Таблица (DF)" type="cv_df" cat_id="datadf"
 
 // вопрос как передать addons в меш..
 feature "cv_df" {
@@ -825,7 +858,7 @@ feature "cv_df" {
   }
 }
 
-coview-record title="Преобразовать DF" type="cv_df_convert" cat_id="process"
+coview-record title="Преобразовать DF" type="cv_df_convert" cat_id="datadf"
 
 feature "cv_df_convert" {
   vp: process
@@ -851,7 +884,7 @@ feature "cv_df_convert" {
   }
 }
 
-coview-record title="Преобразовать" type="cv_convert" cat_id="process"
+coview-record title="Преобразовать" type="cv_convert" cat_id="datadf"
 
 feature "cv_convert" {
   vp: process
@@ -878,7 +911,7 @@ feature "cv_convert" {
   }
 }
 
-coview-record title="Заменить столбец (DF)" type="cv_df_set" cat_id="process"
+coview-record title="Заменить столбец (DF)" type="cv_df_set" cat_id="datadf"
 
 feature "cv_df_set" {
   vp: process
@@ -905,7 +938,7 @@ feature "cv_df_set" {
   }
 }
 
-coview-record title="Соединить колонки (DF)" type="cv_df_merge" cat_id="process"
+coview-record title="Соединить колонки (DF)" type="cv_df_merge" cat_id="datadf"
 
 feature "cv_df_merge" {
   vp: process

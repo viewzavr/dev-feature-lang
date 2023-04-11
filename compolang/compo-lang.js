@@ -42,7 +42,7 @@ export function simple_lang(env)
                               parent: (opts.parent || env), 
                               base_url: opts.base_url,
                               grammarSource: gsource,
-                              tracer: (a,b,c) => console.log("tracer",a,b,c)
+                              tracer: { trace: (a,b,c) => console.log("tracer",a,b,c) }
                             }
                             );
       
@@ -67,6 +67,7 @@ export function simple_lang(env)
           //console.log( e.format( [{text:code}] ));
 
       //if (opts.diag_file) console.log("parse error in file ",opts.diag_file)  
+      if (e.extra_info) console.log( e.extra_info )
 
     }
   }

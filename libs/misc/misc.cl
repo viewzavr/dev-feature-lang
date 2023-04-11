@@ -1,12 +1,3 @@
-// map { |x| @x + 2 }
-// map в теле надо указать 1 объект у которого будет output
-feature "map" {
-  r: repeater 
-      use_outer_scope = true
-      output_param="output_objects"  // указываем репитеру писать результат тудысь
-      output=(read @r.output_objects | map-geta "output")
-}
-
 // input,0 - путь к параметру вида objnamepath->param
 feature "read-param" {
   q: object
@@ -693,7 +684,7 @@ feature "get-params" {: env |
 :}
 
 // assign-params input=@someobj_or_array @params
-// присваивает объекту someobj параметры указанные
+// присваивает объекту someobj параметры из словаря params
 feature "assign-params" {: env |
   env.onvalues(["input",0], (tgt,params) => {
     if (!Array.isArray(tgt)) tgt = [tgt]
@@ -706,3 +697,80 @@ feature "assign-params" {: env |
   })
 
 :}
+
+// преобразует именованные параметры в словарь
+feature "dict" {: env |
+    let my_params = {"output":true,"positional_args":true}
+
+    function go() {
+    let processed_h = {}
+    for (let k of env.getParamsNames()) {
+        if (my_params[k]) continue;
+        if (!env.hasParam(k)) continue // не присвоен? выходим
+        processed_h[k] = env.params[k]
+    }
+    env.setParam("output",processed_h)
+    }
+    
+    go()
+    env.on("param_changed",(name) => {
+      if (name == "output") return
+      go()
+    })
+
+:}
+
+// преобразует словарь в набор пар [ключ, значение]... todo...
+feature "dict-to-arr" {: env |
+:}
+
+// возвращает список детей в output
+feature "group" {: env |
+    env.on("childrenChanged",() => {
+      env.setParam("output", [...env.ns.children] );
+    });
+    env.setParam("output", env.ns.children );
+:}
+
+/* собирает историю значений параметра input в массив
+   реагирует на assigned
+*/
+feature "collect-history" {: env |
+  let acc = []
+  env.trackParamAssigned("input",(val) => {
+    acc.push( val )
+    env.setParam("output",acc.slice(0) ) // slice - чтобы оно менялось.. хех..
+  })
+:}
+
+// filter input=@x f
+// пропускает значение x в output если f вернула true
+feature "filter" {: env |
+  env.trackParam("input", v => {
+    let f = env.params[0]
+    if (f?.bind && f(v)) {
+      env.setParam("output",v)
+    }
+  })
+:}
+
+// convert input=@x f
+// применяет f к x
+feature "convert" {: env |
+  env.trackParam("input", v => {
+    let f = env.params[0]
+    if (f?.bind) {
+      let r = f(v)
+      env.setParam("output",r)
+    }
+  })
+:}
+
+// map { |x| @x + 2 }
+// map в теле надо указать 1 объект у которого будет output
+feature "map" {
+  r: repeater
+      use_outer_scope = true
+      output_param="output_objects"  // указываем репитеру писать результат тудысь
+      output=(read @r.output_objects | map-geta "output")
+}
