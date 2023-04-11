@@ -261,7 +261,7 @@ feature "callouts" {
 // position, r, dx
 // устарело теперь новое это callouts
 feature "object_info_3d" {
-  x: node3d r=100 dx=20 {    
+  x: node3d r=100 dx=20 {
     cyl: cv_cylinders positions=(m-eval {: r=@x.r dx=@x.dx | return [0,0,0, dx,r,0 ] :}) {
        effect3d-disable-clicks
     }
@@ -405,9 +405,9 @@ feature "grid" {
 feature "generate_grid_positions_pt" {
   x: object output=(m-eval {: x=@x.rangex y=@x.rangey dx=@x.stepx dy=@x.stepy |
           let acc=[];
-          
-          for (let i=0; i<=x; i+=dx)          
-          for (let j=0; j<=y; j+=dy) 
+
+          for (let i=0; i<=x; i+=dx)
+          for (let j=0; j<=y; j+=dy)
           {
             acc.push( i, 0, j );
           };

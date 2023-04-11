@@ -152,7 +152,7 @@ feature "layer_object" {
 ////////////////////////// вот это следующее непонятнО, нужно ли вообще..
 
 feature "process" {
- p: layer_object 
+ p: layer_object
     title="Процесс"
     gui={paint-gui @p}
     {

@@ -7,7 +7,7 @@
 coview-record title="Оси координат" type="axes-view" cat_id="gr3d"
 
 feature "axes_view" {
-  root: node3d size=10 gui={ paint-gui @root } ~layer_object title="Оси координат"
+  root: node3d size=10 gui={ paint-gui @root } ~layer_object title="Оси координат" axes_titles=@axes_titles
   {
 
     gui {

@@ -6,14 +6,18 @@ export function setup(vz, m) {
 }
 
 // вот такая жизнь.. но есть надежда что на фиче-ланге это будет проще
+// с лайнстрипами беда - и на колор и на аутпут. todo это что-то принципиальное про композицию.
 export function linestrips( env ) {
+
   var convertor_env = env.create_obj({},{name:"convertor"});
   convertor_env.feature( "linestrips_to_lines" );
   convertor_env.linkParam( "input","..->input");
   var painter_env = env.create_obj({},{name:"lines-env"});
   painter_env.linkParam( "input","../convertor->output");
   painter_env.feature("lines");
-  env.linkParam("output","lines-env->output");
+  env.feature("node3d")  
+  // линии возьмутся сами собою ибо мы теперь node3d и бонусом еще детей можно других добавлять.
+  //env.linkParam("output","lines-env->output");
 
   env.feature("param_mirror");
   for (var g of painter_env.getGuiNames()) {
@@ -25,7 +29,7 @@ export function linestrips( env ) {
   })
 
   env.onvalue("color",(v) => {
-    console.log("LL:",v);
+    //console.log("LL:",v);
     //debugger;
   })
 
