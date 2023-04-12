@@ -134,6 +134,12 @@ export function points( env ) {
     geometry.setAttribute( 'position', new THREE.BufferAttribute( new Float32Array(v), 3 ) );
     geometry.needsUpdate = true;
   });
+  
+  env.onvalue("radiuses",(v) => {
+    //    console.log("!!!!!!!!!!!!!!!! PPPPPPPPPPPPPPPPP")
+    geometry.setAttribute( 'radiuses', new THREE.BufferAttribute( new Float32Array(v), 1 ) ); // .setUsage( THREE.DynamicDrawUsage ) );
+    geometry.needsUpdate = true;
+  });
 
   env.setParam("have_colors",false);
   env.monitor_values(["colors"],(v) => {

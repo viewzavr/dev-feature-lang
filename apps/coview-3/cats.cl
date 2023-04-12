@@ -552,7 +552,7 @@ feature "cv_points" {
   vp: visual-process
    title="Точки"
    gui={ paint-gui @vp }
-   ~points 
+   ~points
    {
     param-info "input" in=true out=true // df-ка
     param-info "positions" in=true out=true // df-ка
