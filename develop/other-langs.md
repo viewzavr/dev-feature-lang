@@ -5,6 +5,10 @@
 Летичевский - Инсерционное программирование. И Кибер-физические системы.
 Dustin Getz - UIs are streaming DAGs
 
+# jq
+https://en.wikipedia.org/wiki/Jq_(programming_language)
+https://en.wikipedia.org/wiki/Tacit_programming
+
 # mgmt
 https://purpleidea.com/blog/2018/02/05/mgmt-configuration-language/
 https://github.com/purpleidea/mgmt/
