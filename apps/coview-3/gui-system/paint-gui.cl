@@ -72,7 +72,7 @@ feature "paint_gui_show_tabs"
 // paint-gui @object
 // paint-gui @object filter=["main","extra"]
 feature "paint-gui" {
-	x: column gap="0.2em" show_common=true filter=null {
+	x: column gap="0.2em" show_common=true show_modifiers=true filter=null {
 		let target = @x->0
 		//console-log "target=" @target
 		
@@ -116,7 +116,7 @@ feature "paint-gui" {
         
         gui_space: show_one index=@current_tab 
           ~paint_gui_show_tabs 
-          target=@target 
+          target=@target
           {
         	if @target { 
         		// todo мб вынести в фичи, в отд модуль
@@ -132,10 +132,13 @@ feature "paint-gui" {
 					    }						    
 				    }
 
-				    gui-tab "Модификаторы" block_priority=11 {
-	        		addons_area input=@target
+				    if @x.show_modifiers {	
+					    gui-tab "Модификаторы" block_priority=11 {
+		        		addons_area input=@target
+					    }
 				    }
 			    } // if target
+			    
         }
 
         //read @gui_space | get-children-arr | console_log_input "YYY"
