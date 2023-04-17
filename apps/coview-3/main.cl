@@ -12,8 +12,7 @@ coview-app-design
 
 project: the_project artefacts_library=@proj_files
 {
-
-  l1: layer title="Слой №1" {
+  l0: layer title="Слой полезного" {
     proj_files: cv-select-files title="Файлы проекта"
     
     //test-process count=77
@@ -24,19 +23,34 @@ project: the_project artefacts_library=@proj_files
     //link from="@ic->successful_coords" to="@cam->center" soft_mode=true
   }
 
-  l2: layer title="Физкульт-привет 2" {
-    //test-process count=77
-    text_sprite_one text='TEST' size=50 radius=10 ~layer_object position=[10,10,10] title="Спрайт"
-    cv-spheres positions=[10,10,10] radius=0.1
 
-    cam2: camera pos=[10,10,10];
+  l1: layer title="Слой №1" {
+    /*
+    proj_files: cv-select-files title="Файлы проекта"
+    
+    //test-process count=77
+    cam: camera pos=[10,10,10];
+    axes_view
+    */
+
+    //ic: cv_intersect_center
+    //link from="@ic->successful_coords" to="@cam->center" soft_mode=true
+  }
+
+  l2: layer title="Слой №2" {
+    //test-process count=77
+    //text_sprite_one text='TEST' size=50 radius=10 ~layer_object position=[10,10,10] title="Спрайт"
+    //cv-spheres positions=[10,10,10] radius=0.1
+
+    //cam2: camera pos=[10,10,10];
   }
 
   v1: the_view_recursive title="Визуализация"
   actions={}
     {
         area_container_horiz {
-          area_3d sources_str="@l1"
+          //area_3d sources_str="@l1"
+          area_3d
         }
     }
 

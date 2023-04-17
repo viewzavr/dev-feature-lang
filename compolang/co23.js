@@ -181,7 +181,7 @@ export function reaction( env ) {
 
     // особый случай - вместо функции целевой канал. по сути это аналог connect получается.
     
-    if (func.is_cell) {
+    if (func?.is_cell) {
     	let target_cell = func;
     	func = (...args) => target_cell.set(...args)
       func.target_is_cell = true

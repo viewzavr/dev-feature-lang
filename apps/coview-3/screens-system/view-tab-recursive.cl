@@ -236,8 +236,12 @@ feature "area_content" {
        //sources_str_2="" // используется для автогенерации
        
        //sources=(find-objects-by-pathes input=(+ @it->sources_str @it->sources_str2) root=@it->project)
-       sources=(find-objects-by-pathes input=@it->sources_str root=@it->project)
+       //sources=(find-objects-by-pathes input=@it->sources_str root=@it->project)
+       sources=(find-objects-bf "layer" root=@it->project)
        visible_sources = (@it->sources | filter_geta "visible")
+       // todo тут продолжить - visible становится функцией.. от области @it
+       // ну т.е. видимо поведение как с source_str пойдет.. но только так что если явно отключен объект
+       // тогда усе не показываем. а по дефолту - показыаем.
 
        show={
           show_area_empty input=@it;
@@ -412,7 +416,8 @@ feature "area_3d" {
                        style="max-width: 200px;"
                        dom_style_whiteSpace="normal"
                        {{
-                            reaction (event @i "user-changed") (toggle_view_source_assoc view=@it source=@layer)
+                            reaction (event @i "user-changed") 
+                              (toggle_view_source_assoc view=@it source=@layer)
                        }}     
 
               };
@@ -705,7 +710,7 @@ feature "show_visual_tab_recursive_gui" {
     containers_params: column; 
 
     insert-children input=@containers_params list=@svr.input.primary_container.show_gui?
-    
+
          //list=(find-objects-bf features="area_container" root=@svr->input | map_geta "show_gui");
     /*
     insert-children input=@containers_params 

@@ -135,7 +135,7 @@ feature "layer" {
           row gap="0.1em" style="margin-left: 10px; margin-top:2px;" {
             bplus:  button "+ добавить" class="important_button"
             bcmn: button "Общее"
-            bmod: button "Модификаторы"
+            bmod: button "Модиф-ры"
             
             //bminus: button "-"
             //bup:    button "↑"
