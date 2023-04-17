@@ -58,6 +58,8 @@ feature "the_view"
 
 coview-record title="Слой" type="layer" cat_id="layer"
 
+          jsfunc "mktitle2" {: obj selected | return `${obj == selected ? "🡆" : ""} ${obj.params.title}` :}
+
 feature "layer" {
     l: layer_object ~node3d // F-LAYER-IS-NODE3D
     title="Слой"
@@ -70,12 +72,109 @@ feature "layer" {
     {
       addon-click-intersect // по умолчанию всем решил пока
       gui {
+
+        gui-tab "content" "Состав" {
+
+          ////////////////////////////// управление объектами
+
+          row gap="0.1em" style="margin-left: 10px; margin-top:2px;" {
+            bplus:  button "+ добавить" class="important_button"
+            //button "Общее"
+            //button "Модификаторы"
+            
+            bminus: button "-"
+            bup:    button "↑"
+            bdown:  button "↓"
+            
+
+            add: add-object-dialog target=@l list=@l.add_dialog_categories
+
+            connect (event @bplus "click") (method @add "show")
+
+            reaction (event @bminus "click") {: cobj=@dasd.selected | if (cobj) cobj.remove(); else console.log('cobj is null',cobj) :}
+          }
+
+          ////////////////////////////// выбор объекта
+
+          let list_of_layer_items=@l.subitems
+          //let list_of_layer_items=(walk_objects @l "subitems" | m-eval {: arr | return arr.slice(1) :} )
+          //let list_of_layer_items=(walk_objects @l "subitems" | m-eval "slice" 1 )
+
+          column style="margin-left: 10px; gap:1px;" {
+            read @l.subitems | repeater { |item|
+              /*
+              collapsible text=@item.title {
+                paint-gui @item
+              }*/
+              row {
+                btn: button (mktitle2 @item @dasd.selected) style="min-width:220px"
+                checkbox
+                reaction @btn.click {: evt item=@item dasds=(param @dasd "selected")|
+                   dasds.set( item )
+                :}
+              }
+            }
+          }
+
+
+
+          dasd: object selected = @l.subitems.0
+
+          ////////////////////////////// гуи объекта
+/*
+          column ~plashka {
+            text @dasd.selected.title
+            paint-gui @dasd.selected
+          }*/
+          column ~plashka {
+
+            ////////////////////////////// управление под-объектами
+            
+            //let list_of_object_items=(walk_objects @dasd.selected "subitems" | m-eval {: arr | return arr.slice(1) :})
+            let list_of_object_items=(walk_objects @dasd.selected "subitems" )
+            let current_top_item=(read @list_of_object_items | geta 0)
+
+            column gap="0.2em" style="margin-top: 5px;" {
+              cb: combobox visible=(m-eval {: list=@list_of_object_items | return list.length > 1:})
+                       values=(@list_of_object_items | map-geta "id")
+                       titles=(@list_of_object_items | map-geta "title")
+                       index=0 
+                       dom_size=(m-eval {: arr=@list_of_object_items | return Math.min( 10, 1+arr.length ) :})
+
+              let selected_object = (@list_of_object_items | geta @cb->index default=null | geta "obj")
+
+              column {
+                paint-gui (or @selected_object @dasd.selected)
+              }
+              
+            }
+
+          }
+        }  
+
         /*
         gui-tab "main" {
           gui-slot @l "title" gui={ |in out| gui-string @in @out}
         }*/
+/*
+        read @l.subitems | repeater  { |item index| 
+          gui-tab @index (mktitle @item) {
+            paint-gui @item
+          }
+        }
+        jsfunc "mktitle" {: obj | return obj.params.title[0] :}
+*/        
+/*
         gui-tab "content" "Состав" {
-          let list_of_layer_items=(walk_objects @l "subitems" | m-eval {: arr | return arr.slice(1) :} )
+
+          read @l.subitems | repeater { |item|
+            btn: button (mktitle @item)
+          }
+
+          jsfunc "mktitle" {: obj | return obj.params.title[0] :}
+
+          let active_top_subitem = @l
+          let list_of_layer_items=(if (@active_top_subitem == @l) then={ object output=[] } else={ walk_objects @active_top_subitem "subitems" })
           //let list_of_layer_items=(walk_objects @l "subitems" | m-eval "slice" 1 )
 
           column gap="0.2em" style="margin-top: 5px;" {
@@ -106,6 +205,41 @@ feature "layer" {
           }
 
         }
+
+        gui-tab "content-" "Состав-" {
+          let list_of_layer_items=(walk_objects @l "subitems" | m-eval {: arr | return arr.slice(1) :} )
+          //let list_of_layer_items=(walk_objects @l "subitems" | m-eval "slice" 1 )
+
+          column gap="0.2em" style="margin-top: 5px;" {
+            cb: combobox 
+                     values=(@list_of_layer_items | map-geta "id")
+                     titles=(@list_of_layer_items | map-geta "title")
+                     index=0 
+                     dom_size=(m-eval {: arr=@list_of_layer_items | return Math.min( 10, 1+arr.length ) :})
+
+            row gap="0.1em" {
+              bplus:  button "+ добавить" class="important_button"
+              bminus: button "-"
+              bup:    button "↑"
+              bdown:  button "↓"
+
+              add: add-object-dialog target=@l list=@l.add_dialog_categories
+
+              connect (event @bplus "click") (method @add "show")
+
+              reaction (event @bminus "click") {: cobj=@selected_object | if (cobj) cobj.remove(); else console.log('cobj is null',cobj) :}
+            }
+
+            let selected_object = (@list_of_layer_items | geta @cb->index default=null | geta "obj")
+
+            column {
+              paint-gui @selected_object
+            }
+          }
+       }   
+*/          
+
+        
 /*
         gui-tab "Состав2" enabled=false {
             // console-log "privet omlet" @l
@@ -130,8 +264,10 @@ feature "layer" {
               // странно это все.. но типа фича не сразу применяется.. как так..
             :}          
         }
-*/        
+
       }
+*/   
+      }           
     }
 }
 

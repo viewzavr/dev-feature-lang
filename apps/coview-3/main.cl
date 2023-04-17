@@ -49,11 +49,12 @@ screen1: screen ~auto-activate  {
         top_row_items={
           bt: button "+ Добавить файлы" class="important_button"
           bt2: button "+ Добавить визуализацию" class="important_button"
+          // todo добавить экран?
 
           reaction @bt.click (event @proj_files "add_new")
           reaction @bt2.click (method @add "show")
 
-          add: add-object-dialog target=@l1 list=(gather-cats ["process","gr3d"])
+          add: add-object-dialog target=@l1 list=(toplevel-cats)
 
           reaction @add.created {: obj s=@setup_params |
               s.setParam("obj",obj)

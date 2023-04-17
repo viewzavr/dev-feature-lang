@@ -560,10 +560,16 @@ export function node3d( env, opts={} ) {
   function rescan() {
 
     function add(item) {
+        if (!item) return
         if (Array.isArray(item)) {
           item.forEach( add );
         }
-        if (!item?.isObject3D) return;
+
+        if (item.isCamera) return // камеры не кидаемся добавлять
+          // todo мб потом захочу как-то особо флаг ставить и таки камеру таскать
+          
+        if (!item.isObject3D) return;
+
         if (item.is_node3d)
           item.rescan_children_for_3d(); // там тож пусть порядок наведут      
         object3d.add( item );

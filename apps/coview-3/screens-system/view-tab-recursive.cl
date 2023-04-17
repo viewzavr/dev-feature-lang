@@ -32,7 +32,6 @@ feature "the_view_recursive"
     active_area = null
     gui={ // это контролы для диалога
       paint-gui @tv
-
     }
 
     // верхний контейнер
@@ -705,7 +704,8 @@ feature "show_visual_tab_recursive_gui" {
    {
     containers_params: column; 
 
-    insert-children input=@containers_params list=@svr.input.primary_container.show_gui?;
+    insert-children input=@containers_params list=@svr.input.primary_container.show_gui?
+    
          //list=(find-objects-bf features="area_container" root=@svr->input | map_geta "show_gui");
     /*
     insert-children input=@containers_params 

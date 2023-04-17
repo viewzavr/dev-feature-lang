@@ -34,6 +34,13 @@ feature "primary-cats" {
 }
 feature "primary_cat" {}
 
+feature "toplevel-cats" {
+  object output=(find-objects-bf "toplevel-cat" | map { |cat|
+    list @cat.title @cat.records
+  })
+}
+feature "toplevel-cat" {}
+
 ////////////////////////////////////////// диалог управления списком объектов
 
 /*

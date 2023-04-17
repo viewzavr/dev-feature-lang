@@ -8,8 +8,8 @@ load "plugins/init.cl"
 
 coview-category title="Внешние данные" id="data" ~primary-cat
 coview-category title="Данные" id="datadf" ~primary-cat
-coview-category title="Программы" id="process" ~primary-cat
-coview-category title="Графика" id="gr3d" ~primary-cat
+coview-category title="Программы" id="process" ~primary-cat ~toplevel-cat
+coview-category title="Графика" id="gr3d" ~primary-cat ~toplevel-cat
 coview-category title="Надписи" id="gr2d" ~primary-cat
 
 coview-category title="Слои" id="layer"
