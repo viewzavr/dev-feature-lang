@@ -1,8 +1,7 @@
 
 // разделяет df на несколько - по значению указанной колонки
 // input, column
-// output - словарь вида значение column=>df
-// update - output не словарь а массив, так удобнее оказалось и надежнее (словарь ток строки)
+// output - массив вида [ значение column, sub-df ]
 feature "df_split" {: env |
   env.onvalues(["input","column"],(df,colname) => {
     let difres = new Set()

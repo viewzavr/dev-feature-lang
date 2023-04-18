@@ -74,3 +74,18 @@ x-patch-r2 какая-то мутная тема. равно как и все м
 
 как плагин добавит категорию в гуи для добавляемых объектов? правильно - никак.
 были мысли - надо как-то ввести работу с классами, что ли.. аля html
+
+
+*******************
+            text_sprite_one 
+              text=(m-eval {: t=@record.0 | return t.substring(0,20) :})
+              text=@{: t=@record.0 | return t.substring(0,20) :}
+              text=@{: t=@record.0 | t.substring(0,20) :}
+              text=(@record.0 | substring 0 20)
+              text=(@record.0 | ijs "substring" 0 20)
+              text=@{: return this._.record[0].substring(0,20) :}
+              text=(@record.0 | js.substring 0 20)
+              text=(@record.0 | m-eval "substring" 0 20)
+              text=(@record.0.substring 0 20)
+?
+**************              

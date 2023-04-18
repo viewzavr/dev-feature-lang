@@ -894,7 +894,8 @@ feature "cv_convert" {
    func=`(input) => {
    return input.create_from_df_convert( (df,index,row) => {
      return [{...row}]
-   })`
+   })
+   }`
    {
     param-info "input" in=true out=true // df-ка
     param-info "output" out=true
