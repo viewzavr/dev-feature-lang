@@ -459,6 +459,7 @@ feature "addon-camera-center" {
 // в целом выясняется что история ток начинается (например понять какую сферу кликнули и потом эту информацию тоже разослать)
 addon "addon-click-intersect" "Пересечения по клику"
 
+// todo угнать это в - область.
 feature "addon-click-intersect" {
   vp: geffect3d 
      title = "Пересечения по клику"
@@ -494,7 +495,7 @@ feature "addon-click-intersect" {
                  info2.intersect = info.intersects[i]
                  info2.obj = obj
                  obj.emit( "click_3d",info2 ) 
-              }   
+              }
             }
             //info.intersect = info.intersects[0]
 

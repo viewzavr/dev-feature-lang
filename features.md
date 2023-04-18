@@ -110,3 +110,6 @@ update 2022-09. признано что ; это зло, но вместе с т
 1 some { |alfa| rect color=@alfa; }
 2 feature "teta" { |sigma| .... }
 3 some func={ |a b c| ... }
+
+# F-EVAL-SHORTCUT
+операция евал с записью вида @{: xxx :} вместо m-eval {: xxx :}

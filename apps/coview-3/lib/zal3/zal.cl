@@ -171,7 +171,7 @@ coview-record title="Подписи" type="callouts" cat_id="gr3d"
 // delta - смещение для палочки в форме [x,y,z]
 // todo переделать нутрянку на input=df.. тогда она мб подтянет цвет..
 feature "callouts" {
-  x: layer_object ~node3d delta=[0,1000,0] title="Подписи" input=null {
+  x: layer_object ~node3d delta=[0,1000,0] title="Подписи" input=null  radius=1000 size=30 {
     
     read @x.input | df_to_lines | repeater { |item|
       node3d {
@@ -180,8 +180,11 @@ feature "callouts" {
         //read @item | df_set X2={: df i | return df.X[i]+}
         //read @item | df_set X2="->X" Y2="->Y" Z2="->Z" | df-add X2=@x.delta.0 Y2=@x.delta.1 Z2=@x.delta.2 | lines
         let txt=(or @item.TITLE @item.TEXT @item.VALUE ":-]")
+        //console-log "txt=" @txt
+        //console-log "item=" @item
         ttt: text_sprite_one position=(list (@item.X + @x.delta.0) (@item.Y + @x.delta.1) (@item.Z+@x.delta.2)) 
-           text=@txt radius=1000 size=30
+           //text="privet"
+           text=@txt radius=@x.radius size=@x.size
            { effect3d-disable-clicks  }
        
       }
@@ -192,6 +195,8 @@ feature "callouts" {
       gui-tab "main" {
         gui-slot @x "input" gui={ |in out| gui-df @in @out }
         gui-slot @x "delta" gui={ |in out| gui-vector @in @out }
+        gui-slot @x "radius" gui={ |in out| gui-float @in @out }
+        gui-slot @x "size" gui={ |in out| gui-float @in @out }
       }
     }
   }
