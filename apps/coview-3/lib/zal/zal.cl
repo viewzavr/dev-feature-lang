@@ -140,14 +140,14 @@ feature "zal" {
 
           measuring_points: cv-spheres title="MeasuringPoints"
             input=@dasdata.measuring_points
-            color=[1,0,0] radius=1 opacity=0.2
+            color=[1,0,0] radius=0 opacity=0.2
             {
               cv_df_filter_bynum input=@dasdata.measuring_points
             }            
 
           vertices_points: cv-spheres title="Vertex"
             input=@dasdata.vertices
-            color=[0,0,1] radius=1 opacity=0.2  
+            color=[0,1,0] radius=2 opacity=0.2  
             {
               cv_df_filter_bynum input=@dasdata.measuring_points
             }
