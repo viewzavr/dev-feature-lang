@@ -115,7 +115,7 @@ feature "paint-gui" {
         // todo можно будет не index передавать а объект. надежней
         
         gui_space: show_one index=@current_tab 
-          ~paint_gui_show_tabs 
+          ~paint_gui_show_tabs
           target=@target
           {
         	if @target { 

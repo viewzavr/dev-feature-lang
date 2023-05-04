@@ -46,7 +46,7 @@ feature "zal" {
       //console-log "zal is" @zal
 
 
-      zal: node3d ~layer-object title="Геометрия зала" { // среда для моделирования, world -- update а ведь нет, теперь это сцена
+      zal: node3d ~layer-object title="Зал" { // среда для моделирования, world -- update а ведь нет, теперь это сцена
 
         // история про зеркальность по одной из оси..
         // попробовать на уровне слоя..
@@ -88,13 +88,22 @@ feature "zal" {
          traj_optimal_t: cv-cylinders title="Траектория" 
                   input=@trajectory radius=2 color=[0,0.5,0]                  
 
-        //ето радиация
+          //ето радиация
           radpts: cv-points title="Радиация"
              positions=(generate_grid_positions_pt rangex=@g.rangex rangey=@g.rangey stepx=@g.stepx stepy=@g.stepy) 
-             colors=(arr_to_colors input=(@rad or []) base_color=[1,0,0])
-             radius=0.15
+             colors=@rad_colors.output
+             radius=20
 
-          
+          process title="Раскраска радиации"
+          {
+            gui debug=true {
+              gui-tab "main" {
+                render-params @rad_colors
+              }
+            }
+            rad_colors: arr_to_colors input=(@rad or []) base_color=[1,0,0] colorfunc="one"
+          }
+
           //m-eval {: obj=@traj_optimal.output |  let r = 10; obj.scale.set( r,r,r ) :}
 
           //console-log "QQQQ=" @pz.input.trajectories.0
@@ -191,7 +200,7 @@ feature "zal" {
             color=[0,0,1] radius=30 opacity=0.2   
 */            
 
-          ObstaclesLayer title="Obstacles"  
+          ObstaclesLayer title="Obstacles"
 
         }       
 
@@ -205,7 +214,7 @@ feature "zal" {
 /*
 feature "callouts" {
   x: node3d delta=[0,100,0] {
-    effect3d-disable-clicks 
+    effect3d-disable-clicks
     read @x.input | df_to_rows | repeater { |item|
       node3d {
         //read @item | df_set X2={: df i | return df.X[i]+}
@@ -331,6 +340,7 @@ feature "ObstacleCircleLayer" {
 feature "ObstaclesLayer" {
   x: cv-mesh {{ let nodes=(find-objects-bf "ObstaclePolyStart" root=(read @x | get_parent)) }}
       positions = (read @nodes | map_geta "positions" | arr_concat)
+      color=[0.36, 0.45, 0.35]
 }
 
 feature "ObstaclePolyStart" {

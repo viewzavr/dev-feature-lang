@@ -89,3 +89,10 @@ x-patch-r2 какая-то мутная тема. равно как и все м
               text=(@record.0.substring 0 20)
 ?
 **************              
+
+Поступила идея - описывать параметры на уровне фичи, без необходимости создавать объект.
+Perhaps the most powerful feature of element factories is that they contain a full description of the pads that the element can generate, and the capabilities of those pads (in layman words: what types of media can stream over those pads), without actually having to load those plugins into memory
+
+кстати прикольно. то есть по идее получается параметры надо описывать на уровне фичи!
+о как!!!!!!
+хмхмхмххмхмхмхм!

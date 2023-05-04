@@ -1,4 +1,4 @@
 load "
 axes.cl
-zal3/zal.cl
+zal/zal.cl
 "

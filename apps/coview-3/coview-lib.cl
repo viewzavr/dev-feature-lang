@@ -162,16 +162,18 @@ feature "layer" {
 
           comomo: column gap="0.2em" visible=false {
             let target = @dasd.selected
-            row gap="1em" {
+            column gap="1em" {
               column {
                 gui-slot @target "title" gui={ |in out| gui-string @in @out }
               }
               //gui-string (param @target "title") (param @target "title" manual=true)
 
+              row {
               b1: button "JS-отладка"
               reaction (event @b1 "click") {: guiobj=@target | console.log( guiobj ) :}
               b2: button "Удалить объект"  style="background-color: #e0ab9b; border: 1px"
               reaction (event @b2 "click") {: guiobj=@target | guiobj.remove() :}
+              }
             }
             
           }

@@ -488,9 +488,12 @@ feature "addon-click-intersect" {
             // попробуем отсылать всем
             // пока сюда но место вроде не здесь
             //console.log(info.intersects)
+            // update - если всем отсылать то надо хотя бы объекту отсылать 1 раз а не тупо вот всем..
+            let sent = new Set()
             for (let i=0; i<info.intersects.length; i++) {
               let obj = info.intersects[i].object?.$vz_object
-              if (obj) {
+              if (obj && !sent.has(obj)) {
+                 sent.add(obj)
                  let info2 = {...info}
                  info2.intersect = info.intersects[i]
                  info2.obj = obj

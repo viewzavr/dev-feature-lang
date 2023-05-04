@@ -29,8 +29,8 @@ feature "arr_to_colors" {
       }" @root->datafunc)
 
     {{ x-param-option name="colorfunc" option="priority" value=130 }}
-    {{ x-param-combo name="colorfunc" values=["linear","one","bgr","custom"] 
-        titles=["Линейная","Радуга","Синий-зеленый-красный","Своя палитра"]
+    {{ x-param-combo name="colorfunc" values=["linear","one","bgr","custom"]
+        titles=["Простой","Радуга","Синий-зеленый-красный","Своя палитра"]
     }}
 
     base_color=[0,1,0]
